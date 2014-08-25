@@ -17,7 +17,11 @@ var standardStatements = function(db) {
       expect(db.select('users').where({ id: 1 }).sql()).to.eql('select * from users where id = 1');
     });
 
-    it('is immutable');
+    it('is immutable', function() {
+      var original = db.select('users');
+      var filtered = original.where({ id: 2 });
+      expect(original.sql()).to.not.eql(filtered.sql());
+    });
 
   });
 };
