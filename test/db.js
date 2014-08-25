@@ -13,6 +13,10 @@ var standardStatements = function(db) {
       expect(db.select('users').sql()).to.eql('select * from users');
     });
 
+    it('can be filtered', function() {
+      expect(db.select('users').where({ id: 1 }).sql()).to.eql('select * from users where id = 1');
+    });
+
     it('is immutable');
 
   });
