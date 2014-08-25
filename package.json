@@ -1,0 +1,28 @@
+{
+  "name": "agave",
+  "version": "0.1.0",
+  "description": "Elegant ORM for Node.js",
+  "homepage": "https://github.com/wbyoung/agave",
+  "bugs": {
+    "url": "https://github.com/wbyoung/agave/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report $(if [ \"$TRAVIS\" ]; then echo lcovonly; else echo html; fi) -- && if [ \"$TRAVIS\" ]; then cat ./coverage/lcov.info | ./node_modules/.bin/coveralls; fi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wbyoung/agave.git"
+  },
+  "keywords": [
+    "postgres",
+    "mysql",
+    "sqlite",
+    "pg",
+    "orm",
+    "database",
+    "sql"
+  ],
+  "author": "Whitney Young",
+  "license": "MIT"
+}
