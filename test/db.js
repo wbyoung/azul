@@ -13,6 +13,8 @@ var standardStatements = function(db) {
       expect(db.select('users').sql()).to.eql('select * from users');
     });
 
+    it('is immutable');
+
   });
 };
 
