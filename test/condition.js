@@ -49,7 +49,6 @@ describe('condition', function() {
 
   describe('sub-queries', function() {
     it('builds complex expressions', function() {
-
       var firstPredicate = w({ first: 'Whit' }, w.or, { first: 'Whitney' });
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
@@ -57,6 +56,23 @@ describe('condition', function() {
       var result = fullPredicate.build(this.expression, this.op);
 
       expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
+    });
+
+    it('allows arrays to form groupings', function() {
+      var firstPredicate = [{ first: 'Whit' }, w.or, { first: 'Whitney' }];
+      var lastPredicate = { last: 'Young' };
+      var fullPredicate = w(firstPredicate, w.and, lastPredicate);
+
+      var result = fullPredicate.build(this.expression, this.op);
+
+      expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
+    });
+
+    it('handles neighboring conditions', function() {
+      var predicate = w(w({ first: 'Whitney' }), w({ last: 'Young' }));
+      var result = predicate.build(this.expression, this.op);
+
+      expect(result).to.eql('(first = "Whitney") and (last = "Young")');
     });
   });
 });

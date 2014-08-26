@@ -17,8 +17,21 @@ var standardStatements = function(db) {
       expect(db.select('users').where({ id: 1 }).sql()).to.eql('select * from users where id = 1');
     });
 
-    it.skip('can be re-filtered', function() {
-      expect(db.select('users').where({ id: 1 }).where({ name: 'Whitney' }).sql()).to.eql('select * from users where id = 1 and name = "Whitney"');
+    it('can be re-filtered', function() {
+      var result = db.select('users')
+        .where({ id: 1 })
+        .where({ name: 'Whitney' }).sql();
+      expect(result).to.eql('select * from users where ' +
+        '(id = 1) and name = "Whitney"');
+    });
+
+    it('can be re-filtered multiple times', function() {
+      var result = db.select('users')
+        .where({ id: 1 })
+        .where({ name: 'Whitney' })
+        .where({ city: 'Portland' }).sql();
+      expect(result).to.eql('select * from users where ' +
+        '((id = 1) and name = "Whitney") and city = "Portland"');
     });
 
     it('is immutable', function() {
@@ -26,7 +39,6 @@ var standardStatements = function(db) {
       var filtered = original.where({ id: 2 });
       expect(original.sql()).to.not.eql(filtered.sql());
     });
-
   });
 };
 
