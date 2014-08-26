@@ -46,6 +46,13 @@ describe('query', function() {
       });
     });
 
+    it('handles predicates', function() {
+      expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql({
+        sql: 'select * from articles where words > ?',
+        arguments: [200]
+      });
+    });
+
     it('is immutable', function() {
       var original = db.select('users');
       var filtered = original.where({ id: 2 });
