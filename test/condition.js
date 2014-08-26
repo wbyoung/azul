@@ -10,9 +10,9 @@ var Condition = require('../lib/db/condition'), w = Condition;
 
 describe('condition', function() {
   beforeEach(function() {
-    this.expression = sinon.spy(function(key, value, operation) {
-      var ops = { 'exact': '=' };
-      return util.format('%s %s %j', key, ops[operation], value);
+    this.expression = sinon.spy(function(key, value, predicate) {
+      var predicates = { 'exact': '=' };
+      return util.format('%s %s %j', key, predicates[predicate], value);
     });
     this.op = sinon.spy(function(type) { return type; });
   });
@@ -24,34 +24,27 @@ describe('condition', function() {
     });
   });
 
-  it('can be iterated', function() {
-    var spy = sinon.spy();
-    w({ id: 1 }).each(spy);
-    expect(spy).to.have.been.calledOnce;
-    expect(spy).to.have.been.calledWith('id', 1, '=');
-  });
-
   it('can build expressions', function() {
     var c = w({ id: 1 }, { name: 'Whitney' });
     var result = c.build(this.expression, this.op);
     expect(result).to.eql('id = 1 and name = "Whitney"');
   });
 
-  describe('operations', function() {
-    it('extracts operations', function() {
-      var details = Condition._operation('id[gt]');
+  describe('predicates', function() {
+    it('extracts predicates', function() {
+      var details = Condition._predicate('id[gt]');
       expect(details.key).to.eql('id');
-      expect(details.operation).to.equal('gt');
+      expect(details.predicate).to.equal('gt');
     });
 
     it('defaults to exact', function() {
-      var details = Condition._operation('address');
+      var details = Condition._predicate('address');
       expect(details.key).to.eql('address');
-      expect(details.operation).to.equal('exact');
+      expect(details.predicate).to.equal('exact');
     });
 
     // TODO: should this be via the adapter, the query, or the condition?
-    it('raises for unsupported operations');
+    it('raises for unsupported predicates');
   });
 
   describe('sub-queries', function() {
