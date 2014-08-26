@@ -9,6 +9,14 @@ var util = require('util');
 var Condition = require('../lib/db/condition'), w = Condition;
 
 describe('condition', function() {
+  beforeEach(function() {
+    this.expression = sinon.spy(function(key, value, operation) {
+      var ops = { 'exact': '=' };
+      return util.format('%s %s %j', key, ops[operation], value);
+    });
+    this.op = sinon.spy(function(type) { return type; });
+  });
+
   describe('creation', function() {
     it('returns the given object if it\'s a condition', function() {
       var c = w({ id: 1 });
@@ -25,13 +33,7 @@ describe('condition', function() {
 
   it('can build expressions', function() {
     var c = w({ id: 1 }, { name: 'Whitney' });
-
-    var expression = sinon.spy(function(key, value, operation) {
-      return util.format('%s %s %j', key, operation, value);
-    });
-    var op = sinon.spy(function(type) { return type; });
-    var result = c.build(expression, op);
-
+    var result = c.build(this.expression, this.op);
     expect(result).to.eql('id = 1 and name = "Whitney"');
   });
 
@@ -50,5 +52,18 @@ describe('condition', function() {
 
     // TODO: should this be via the adapter, the query, or the condition?
     it('raises for unsupported operations');
+  });
+
+  describe('sub-queries', function() {
+    it('builds complex expressions', function() {
+
+      var firstPredicate = w({ first: 'Whit' }, w.or, { first: 'Whitney' });
+      var lastPredicate = { last: 'Young' };
+      var fullPredicate = w(firstPredicate, w.and, lastPredicate);
+
+      var result = fullPredicate.build(this.expression, this.op);
+
+      expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
+    });
   });
 });
