@@ -25,7 +25,7 @@ describe('query', function() {
       });
     });
 
-    it('can be re-filtered', function() {
+    it('can be filtered 2 times', function() {
       var result = db.select('users')
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
@@ -35,7 +35,7 @@ describe('query', function() {
       });
     });
 
-    it('can be re-filtered multiple times', function() {
+    it('can be filtered 3 times', function() {
       var result = db.select('users')
         .where({ id: 1 })
         .where({ name: 'Whitney' })

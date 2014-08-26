@@ -7,8 +7,6 @@
 
 // db abstraction layer
 
-select('users').where({ id: '1' });
-select('users').where({ 'id[gt]': '1' });
 select('users', ['id', 'name']).where({ 'id[gt]': '1' });
 select('users', ['id', 'name']).where({ 'id[between]': [1, 10] });
 select('users', ['id', 'name']).where({ 'users.id[in]': [1, 2, 3] });
