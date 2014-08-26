@@ -3,26 +3,36 @@
 var expect = require('chai').expect;
 
 var DB = require('../lib/db');
-var PGAdapter = require('../lib/db/adapters/pg');
+var Adapter = require('../lib/db/adapters/base');
 
-var standardStatements = function(db) {
+describe('query', function() {
+  var adapter = new Adapter();
+  var db = new DB(adapter);
 
   describe('select', function() {
 
     it('accesses a table', function() {
-      expect(db.select('users').sql()).to.eql('select * from users');
+      expect(db.select('users').sql()).to.eql({
+        sql: 'select * from users',
+        arguments: []
+      });
     });
 
     it('can be filtered', function() {
-      expect(db.select('users').where({ id: 1 }).sql()).to.eql('select * from users where id = 1');
+      expect(db.select('users').where({ id: 1 }).sql()).to.eql({
+        sql: 'select * from users where id = ?',
+        arguments: [1]
+      });
     });
 
     it('can be re-filtered', function() {
       var result = db.select('users')
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
-      expect(result).to.eql('select * from users where ' +
-        '(id = 1) and name = "Whitney"');
+      expect(result).to.eql({
+        sql: 'select * from users where (id = ?) and name = ?',
+        arguments: [1, "Whitney"]
+      });
     });
 
     it('can be re-filtered multiple times', function() {
@@ -30,8 +40,10 @@ var standardStatements = function(db) {
         .where({ id: 1 })
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
-      expect(result).to.eql('select * from users where ' +
-        '((id = 1) and name = "Whitney") and city = "Portland"');
+      expect(result).to.eql({
+        sql: 'select * from users where ((id = ?) and name = ?) and city = ?',
+        arguments: [1, "Whitney", "Portland"]
+      });
     });
 
     it('is immutable', function() {
@@ -40,16 +52,4 @@ var standardStatements = function(db) {
       expect(original.sql()).to.not.eql(filtered.sql());
     });
   });
-};
-
-describe('postgres', function() {
-  var adapter = new PGAdapter();
-  var db = new DB(adapter);
-
-  before(function() {
-    this.adapter = adapter;
-    this.db = db;
-  });
-
-  standardStatements(db);
 });
