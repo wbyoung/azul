@@ -9,12 +9,16 @@ var standardStatements = function(db) {
 
   describe('select', function() {
 
-    it('creates simple statements', function() {
+    it('accesses a table', function() {
       expect(db.select('users').sql()).to.eql('select * from users');
     });
 
     it('can be filtered', function() {
       expect(db.select('users').where({ id: 1 }).sql()).to.eql('select * from users where id = 1');
+    });
+
+    it.skip('can be re-filtered', function() {
+      expect(db.select('users').where({ id: 1 }).where({ name: 'Whitney' }).sql()).to.eql('select * from users where id = 1 and name = "Whitney"');
     });
 
     it('is immutable', function() {

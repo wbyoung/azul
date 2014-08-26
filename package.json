@@ -24,5 +24,17 @@
     "sql"
   ],
   "author": "Whitney Young",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "coveralls": "^2.11.1",
+    "istanbul": "^0.3.0",
+    "mocha": "^1.21.4",
+    "pg": "^3.4.1",
+    "sinon": "^1.10.3",
+    "sinon-chai": "^2.5.0"
+  },
+  "optionalDependencies": {
+    "pg": "^3.4.1"
+  }
 }
