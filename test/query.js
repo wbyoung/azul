@@ -53,10 +53,19 @@ describe('query', function() {
       });
     });
 
-    it('allows column selection', function() {
-      expect(db.select('articles', ['title', 'body']).sql()).to.eql({
-        sql: 'select "title", "body" from articles',
-        arguments: []
+    describe('column specification', function() {
+      it('accepts simple names', function() {
+        expect(db.select('articles', ['title', 'body']).sql()).to.eql({
+          sql: 'select "title", "body" from articles',
+          arguments: []
+        });
+      });
+
+      it('accepts simple table qualified names', function() {
+        expect(db.select('articles', ['articles.title', 'body']).sql()).to.eql({
+          sql: 'select "articles"."title", "body" from articles',
+          arguments: []
+        });
       });
     });
 
