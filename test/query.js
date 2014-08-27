@@ -53,6 +53,13 @@ describe('query', function() {
       });
     });
 
+    it('allows column selection', function() {
+      expect(db.select('articles', ['title', 'body']).sql()).to.eql({
+        sql: 'select title, body from articles',
+        arguments: []
+      });
+    });
+
     it('is immutable', function() {
       var original = db.select('users');
       var filtered = original.where({ id: 2 });
