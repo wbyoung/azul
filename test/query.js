@@ -69,6 +69,16 @@ describe('query', function() {
       });
     });
 
+    // TODO: aggregation
+    //   Avg
+    //   Count
+    //   Max
+    //   Min
+    //   StdDev
+    //   Sum
+    //   Variance
+
+
     it('is immutable', function() {
       var original = db.select('users');
       var filtered = original.where({ id: 2 });

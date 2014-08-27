@@ -43,6 +43,34 @@ describe('condition', function() {
       expect(details.predicate).to.equal('exact');
     });
 
+    // TODO: test the following:
+    //   exact
+    //   iexact
+    //   contains
+    //   icontains
+    //   in
+    //   gt
+    //   gte
+    //   lt
+    //   lte
+    //   startswith
+    //   istartswith
+    //   endswith
+    //   iendswith
+    //   range
+    //   year
+    //   month
+    //   day
+    //   week_day
+    //   hour
+    //   minute
+    //   second
+    //   isnull
+    //   search
+    //   regex
+    //   iregex
+    //   between (for both numbers and dates)
+
     // TODO: should this be via the adapter, the query, or the condition?
     it('raises for unsupported predicates');
   });
