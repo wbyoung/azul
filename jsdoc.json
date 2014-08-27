@@ -1,0 +1,27 @@
+{
+  "plugins": [ "plugins/markdown" ],
+  "tags"      : {
+    "allowUnknownTags" : true
+  },
+  "templates" : {
+    "cleverLinks"           : false,
+    "monospaceLinks"        : false,
+    "dateFormat"            : "ddd MMM Do YYYY",
+    "outputSourceFiles"     : true,
+    "outputSourcePath"      : true,
+    "systemName"            : "Agave",
+    "footer"                : "",
+    "copyright"             : "Agave Copyright © 2014 Whitney Young.",
+    "navType"               : "vertical",
+    "theme"                 : "simplex",
+    "linenums"              : false,
+    "collapseSymbols"       : false,
+    "inverseNav"            : true,
+    "highlightTutorialCode" : true,
+    "protocol": "fred://"
+  },
+  "markdown"  : {
+    "parser"   : "gfm",
+    "hardwrap" : true
+  }
+}
