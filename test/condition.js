@@ -14,13 +14,12 @@ var Grammar = require('../lib/db/grammar');
 
 describe('condition', function() {
   beforeEach(function() {
-    this.grammar = new (Grammar.create({
-      field: function(field) { return { fragment: field }; },
+    this.grammar = new (Grammar.extend({
+      field: function(field) { return field; },
       value: function(value) {
-        return { fragment: util.format('%j', value) };
+        return util.format('%j', value);
       }
     }))();
-    this.op = sinon.spy(function(type) { return type; });
   });
 
   describe('creation', function() {
