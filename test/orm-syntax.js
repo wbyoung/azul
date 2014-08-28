@@ -7,13 +7,6 @@
 
 // db abstraction layer
 
-select('users', ['id', 'name']).where({ 'id[gt]': '1' });
-select('users', ['id', 'name']).where({ 'id[between]': [1, 10] });
-select('users', ['id', 'name']).where({ 'users.id[in]': [1, 2, 3] });
-
-select('users', 'posts', ['id']); // error because id does not know which table
-select('users', 'posts', ['users.id']); // select users.id from users, posts
-
 select('users').join('posts', 'users.id', 'posts.user_id'); // select * from users left join posts on users.id = posts.user_id;
 select('users').join('posts'); // select * from users left join posts on users.id = posts.user_id;
 

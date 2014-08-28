@@ -5,6 +5,9 @@ var expect = require('chai').expect;
 var DB = require('../lib/db');
 var Adapter = require('../lib/db/adapters/base');
 
+var Condition = require('../lib/db/condition'),
+  f = Condition.FieldString;
+
 describe('query', function() {
   var adapter = new Adapter();
   var db = new DB(adapter);
@@ -20,7 +23,7 @@ describe('query', function() {
 
     it('can be filtered', function() {
       expect(db.select('users').where({ id: 1 }).sql()).to.eql({
-        sql: 'select * from users where id = ?',
+        sql: 'select * from users where "id" = ?',
         arguments: [1]
       });
     });
@@ -30,7 +33,7 @@ describe('query', function() {
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
       expect(result).to.eql({
-        sql: 'select * from users where (id = ?) and name = ?',
+        sql: 'select * from users where ("id" = ?) and "name" = ?',
         arguments: [1, "Whitney"]
       });
     });
@@ -41,14 +44,14 @@ describe('query', function() {
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
       expect(result).to.eql({
-        sql: 'select * from users where ((id = ?) and name = ?) and city = ?',
+        sql: 'select * from users where (("id" = ?) and "name" = ?) and "city" = ?',
         arguments: [1, "Whitney", "Portland"]
       });
     });
 
     it('handles predicates', function() {
       expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql({
-        sql: 'select * from articles where words > ?',
+        sql: 'select * from articles where "words" > ?',
         arguments: [200]
       });
     });
@@ -66,6 +69,27 @@ describe('query', function() {
           sql: 'select "articles"."title", "body" from articles',
           arguments: []
         });
+      });
+    });
+
+    describe('joins', function() {
+      it('defaults to a cross join', function() {
+        expect(db.select('articles').join('authors').sql()).to.eql({
+          sql: 'select * from articles cross join authors',
+          arguments: []
+        });
+      });
+
+      it('accepts type', function() {
+        expect(db.select('articles').join('authors', 'inner').sql()).to.eql({
+          sql: 'select * from articles inner join authors',
+          arguments: []
+        });
+      });
+
+      it('accepts conditions', function() {
+        var result = db.select('articles').join('authors', { 'articles.author_id': f('authors.id') }).sql();
+        expect(result.sql).to.match(/join authors on "articles"."author_id" = "authors"."id"$/);
       });
     });
 
