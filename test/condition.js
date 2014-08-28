@@ -15,9 +15,9 @@ var Grammar = require('../lib/db/grammar');
 describe('condition', function() {
   beforeEach(function() {
     this.grammar = new (Grammar.create({
-      field: function(field) { return { string: field }; },
+      field: function(field) { return { fragment: field }; },
       value: function(value) {
-        return { string: util.format('%j', value) };
+        return { fragment: util.format('%j', value) };
       }
     }))();
     this.op = sinon.spy(function(type) { return type; });
@@ -32,20 +32,20 @@ describe('condition', function() {
 
   it('can build expressions', function() {
     var c = w({ id: 1 }, { name: 'Whitney' });
-    var result = c.build(this.grammar, this.expression, this.op).string;
+    var result = c.build(this.grammar, this.expression, this.op).fragment;
     expect(result).to.eql('id = 1 and name = "Whitney"');
   });
 
   describe('fields', function() {
     it('defaults to values for the left-hand-side', function() {
       var c = w({ first: 'value' });
-      var result = c.build(this.grammar, this.expression, this.op).string;
+      var result = c.build(this.grammar, this.expression, this.op).fragment;
       expect(result).to.eql('first = "value"');
     });
 
     it('accepts fields for the left-hand-side', function() {
       var c = w({ first: f('value') });
-      var result = c.build(this.grammar, this.expression, this.op).string;
+      var result = c.build(this.grammar, this.expression, this.op).fragment;
       expect(result).to.eql('first = value');
     });
   });
@@ -101,7 +101,7 @@ describe('condition', function() {
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
 
-      var result = fullPredicate.build(this.grammar, this.expression, this.op).string;
+      var result = fullPredicate.build(this.grammar, this.expression, this.op).fragment;
 
       expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
     });
@@ -111,14 +111,14 @@ describe('condition', function() {
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
 
-      var result = fullPredicate.build(this.grammar, this.expression, this.op).string;
+      var result = fullPredicate.build(this.grammar, this.expression, this.op).fragment;
 
       expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
     });
 
     it('handles neighboring conditions', function() {
       var predicate = w(w({ first: 'Whitney' }), w({ last: 'Young' }));
-      var result = predicate.build(this.grammar, this.expression, this.op).string;
+      var result = predicate.build(this.grammar, this.expression, this.op).fragment;
 
       expect(result).to.eql('(first = "Whitney") and (last = "Young")');
     });
