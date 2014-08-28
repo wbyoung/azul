@@ -94,7 +94,7 @@ describe('condition', function() {
     it('raises for unsupported predicates');
   });
 
-  describe('sub-queries', function() {
+  describe('sub-conditions', function() {
     it('builds complex expressions', function() {
       var firstPredicate = w({ first: 'Whit' }, w.or, { first: 'Whitney' });
       var lastPredicate = { last: 'Young' };
