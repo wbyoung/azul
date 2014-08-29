@@ -94,6 +94,71 @@ describe('condition', function() {
     it('raises for unsupported predicates');
   });
 
+  describe('operators', function() {
+    it('implicitly adds an "and"  joining conditions', function() {
+      var result = w({ first: 'Whitney' }, { last: 'Young' })
+        .build(this.grammar)
+        .fragment;
+      expect(result).to.eql('first = "Whitney" and last = "Young"');
+    });
+
+    it('supports "and"  joining conditions', function() {
+      var result = w({ first: 'Whitney' }, w.and, { last: 'Young' })
+        .build(this.grammar)
+        .fragment;
+      expect(result).to.eql('first = "Whitney" and last = "Young"');
+    });
+
+    it('does not support "and" prefixing conditions', function() {
+      expect(function() {
+        w(w.and, { first: 'Whitney' }).build(this.grammar)
+      }.bind(this)).to.throw(/cannot.*"and"/i);
+    });
+
+    it('supports "or" joining conditions', function() {
+      var result = w({ first: 'Whitney' }, w.or, { first: 'Whit' })
+        .build(this.grammar)
+        .fragment;
+      expect(result).to.eql('first = "Whitney" or first = "Whit"');
+    });
+
+    it('does not support "or" prefixing conditions', function() {
+      expect(function() {
+        w(w.or, { first: 'Whitney' }).build(this.grammar)
+      }.bind(this)).to.throw(/cannot.*"or"/i);
+    });
+
+    it('requires explicit binary operation when "not" is between conditions', function() {
+      expect(function() {
+        w({ first: 'Whitney' }, w.not, { first: 'Whit' }).build(this.grammar)
+      }.bind(this)).to.throw(/"not".*between expressions/);
+    });
+
+    it('supports "not" prefixing conditions', function() {
+      var result = w(w.not, { first: 'Whitney' }).build(this.grammar).fragment;
+      expect(result).to.eql('not first = "Whitney"');
+    });
+
+    it('does not support "not" followed by "and"', function() {
+      expect(function() {
+        w({ first: 'Whitney' }, w.not, w.and, { first: 'Whit' }).build(this.grammar)
+      }.bind(this)).to.throw(/"and".*cannot follow.*"not"/);
+    });
+
+    it('does not support multiple binary operators in a row', function() {
+      expect(function() {
+        w({ first: 'Whitney' }, w.and, w.or, { first: 'Whit' }).build(this.grammar)
+      }.bind(this)).to.throw(/"or".*invalid after.*"and"/);
+    });
+
+    it('does supports multiple unary operators in a row', function() {
+      var result = w(w.not, w.not, { first: 'Whitney' })
+        .build(this.grammar)
+        .fragment;
+      expect(result).to.eql('not not first = "Whitney"');
+    });
+  });
+
   describe('sub-conditions', function() {
     it('builds complex expressions', function() {
       var firstPredicate = w({ first: 'Whit' }, w.or, { first: 'Whitney' });
