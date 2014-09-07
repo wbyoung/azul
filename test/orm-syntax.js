@@ -234,4 +234,34 @@ exports.down = function() {
 
 };
 
+// simple transaction support with automatic automatically added to transaction, commit & rollback on exceptions
+db.transaction(function() {
+  db.transaction(function() {
+  });
+});
+
+// simple transaction support with queries automatically added to transaction
+db.transaction(function(a) {
+  a.commit();
+  db.transaction(function(b) {
+    b.rollback();
+  });
+});
+
+// exception thrown because transaction not committed at the end of the callback.
+// asynchronous operations via transactions are not supported via the callback and
+// instead must use the result variable and explicitly add queries to the transaction
+// via the query interface.
+db.transaction(function(transaction) {
+});
+
+// other errors:
+var qs = User.where('...');
+db.transaction(function() {
+  db.transaction(function() {
+    User.where('...').transaction(null).fetch(); // not in transaction (or throws an error)
+    qs.fetch(); // not in transaction (or throws an error)
+  });
+});
+
 });
