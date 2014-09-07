@@ -51,13 +51,13 @@ describe('condition', function() {
 
   describe('predicates', function() {
     it('extracts predicates', function() {
-      var details = Condition._predicate('id[gt]');
+      var details = Condition._extractPredicate('id[gt]');
       expect(details.key).to.eql('id');
       expect(details.predicate).to.equal('gt');
     });
 
     it('defaults to exact', function() {
-      var details = Condition._predicate('address');
+      var details = Condition._extractPredicate('address');
       expect(details.key).to.eql('address');
       expect(details.predicate).to.equal('exact');
     });
