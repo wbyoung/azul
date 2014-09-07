@@ -27,6 +27,10 @@ describe('condition', function() {
       var c = w({ id: 1 });
       expect(w(c)).to.equal(c);
     });
+
+    it('requires an argument', function() {
+      expect(function() { w() }).to.throw(/condition required/i);
+    });
   });
 
   it('can build expressions', function() {
@@ -112,7 +116,18 @@ describe('condition', function() {
     it('does not support "and" prefixing conditions', function() {
       expect(function() {
         w(w.and, { first: 'Whitney' });
-      }.bind(this)).to.throw(/cannot.*"and"/i);
+      }.bind(this)).to.throw(/"and".*must include left hand/i);
+    });
+
+    it('does not support "and" without right hand', function() {
+      expect(function() {
+        w({ first: 'Whitney' }, w.and);
+      }.bind(this)).to.throw(/"and".*must include right hand/i);
+    });
+
+    it('does not support "and" without an expression', function() {
+      expect(function() { w(w.and); })
+        .to.throw(/"and".*must include left hand/i);
     });
 
     it('supports "or" joining conditions', function() {
@@ -125,9 +140,19 @@ describe('condition', function() {
     it('does not support "or" prefixing conditions', function() {
       expect(function() {
         w(w.or, { first: 'Whitney' });
-      }.bind(this)).to.throw(/cannot.*"or"/i);
+      }.bind(this)).to.throw(/"or".*must include left hand/i);
     });
 
+    it('does not support "or" without an expression', function() {
+      expect(function() { w(w.or); })
+        .to.throw(/"or".*must include left hand/i);
+    });
+
+    it('does not support "or" without right hand', function() {
+      expect(function() {
+        w({ first: 'Whitney' }, w.or);
+      }.bind(this)).to.throw(/"or".*must include right hand/i);
+    });
     it('requires explicit binary operation when "not" is between conditions', function() {
       expect(function() {
         w({ first: 'Whitney' }, w.not, { first: 'Whit' });
@@ -141,8 +166,13 @@ describe('condition', function() {
 
     it('does not support "not" followed by "and"', function() {
       expect(function() {
-        w({ first: 'Whitney' }, w.not, w.and, { first: 'Whit' });
+        w({ first: 'Whitney' }, w.or, w.not, w.and, { first: 'Whit' });
       }.bind(this)).to.throw(/"and".*cannot follow.*"not"/);
+    });
+
+    it('does not support "not" without an expression', function() {
+      expect(function() { w(w.not); })
+        .to.throw(/"not".*must precede expression/);
     });
 
     it('does not support multiple binary operators in a row', function() {
