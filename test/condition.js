@@ -217,4 +217,31 @@ describe('condition', function() {
       expect(result).to.eql('(first = "Whitney") and (last = "Young")');
     });
   });
+
+  describe('syntax builder', function() {
+    it('properly groups binary operators', function() {
+      var c = w({ id: 1 }, w.and, { id: 2 });
+      expect(c._tree).to.have.deep.property('tree.operator', 'and');
+      expect(c._tree).to.have.deep.property('tree.lhs.rhs.value', 1);
+      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 2);
+    });
+
+    it('properly groups binary operators', function() {
+      var c = w({ id: 1 }, w.and, { id: 2 }, w.and, { id: 3 });
+      expect(c._tree).to.have.deep.property('tree.operator', 'and');
+      expect(c._tree).to.have.deep.property('tree.lhs.operator', 'and');
+      expect(c._tree).to.have.deep.property('tree.lhs.lhs.rhs.value', 1);
+      expect(c._tree).to.have.deep.property('tree.lhs.rhs.rhs.value', 2);
+      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 3);
+    });
+
+    it('properly groups unary and binary operators', function() {
+      var c = w(w.not, w.not, { id: 1 }, { id: 2 });
+      expect(c._tree).to.have.deep.property('tree.operator', 'and');
+      expect(c._tree).to.have.deep.property('tree.lhs.operator', 'not');
+      expect(c._tree).to.have.deep.property('tree.lhs.operand.operator', 'not');
+      expect(c._tree).to.have.deep.property('tree.lhs.operand.operand.rhs.value', 1);
+      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 2);
+    });
+  });
 });
