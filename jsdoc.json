@@ -24,6 +24,7 @@
     "linenums"              : false,
     "collapseSymbols"       : false,
     "inverseNav"            : true,
+    "customStyle": "hello",
     "highlightTutorialCode" : true,
     "protocol": "fred://"
   },
