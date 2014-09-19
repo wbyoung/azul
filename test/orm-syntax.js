@@ -264,4 +264,56 @@ db.transaction(function() {
   });
 });
 
+
+// // mysql operators
+
+//         'exact': '= %s',
+//         'iexact': 'LIKE %s',
+//         'contains': 'LIKE BINARY %s',
+//         'icontains': 'LIKE %s',
+//         'regex': 'REGEXP BINARY %s',
+//         'iregex': 'REGEXP %s',
+//         'gt': '> %s',
+//         'gte': '>= %s',
+//         'lt': '< %s',
+//         'lte': '<= %s',
+//         'startswith': 'LIKE BINARY %s',
+//         'endswith': 'LIKE BINARY %s',
+//         'istartswith': 'LIKE %s',
+//         'iendswith': 'LIKE %s',
+
+// // PG operators
+
+//         'exact': '= %s',
+//         'iexact': '= UPPER(%s)',
+//         'contains': 'LIKE %s',
+//         'icontains': 'LIKE UPPER(%s)',
+//         'regex': '~ %s',
+//         'iregex': '~* %s',
+//         'gt': '> %s',
+//         'gte': '>= %s',
+//         'lt': '< %s',
+//         'lte': '<= %s',
+//         'startswith': 'LIKE %s',
+//         'endswith': 'LIKE %s',
+//         'istartswith': 'LIKE UPPER(%s)',
+//         'iendswith': 'LIKE UPPER(%s)',
+
+// // sqlite3 operators
+
+//         'exact': '= %s',
+//         'iexact': "LIKE %s ESCAPE '\\'",
+//         'contains': "LIKE %s ESCAPE '\\'",
+//         'icontains': "LIKE %s ESCAPE '\\'",
+//         'regex': 'REGEXP %s',
+//         'iregex': "REGEXP '(?i)' || %s",
+//         'gt': '> %s',
+//         'gte': '>= %s',
+//         'lt': '< %s',
+//         'lte': '<= %s',
+//         'startswith': "LIKE %s ESCAPE '\\'",
+//         'endswith': "LIKE %s ESCAPE '\\'",
+//         'istartswith': "LIKE %s ESCAPE '\\'",
+//         'iendswith': "LIKE %s ESCAPE '\\'",
+
 });
