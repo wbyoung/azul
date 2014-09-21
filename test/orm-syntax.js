@@ -10,8 +10,8 @@
 select('users').join('posts', 'users.id', 'posts.user_id'); // select * from users left join posts on users.id = posts.user_id;
 select('users').join('posts'); // select * from users left join posts on users.id = posts.user_id;
 
-// TODO: distinct
-// TODO: return values (rather than objects)
+// REVISIT: distinct
+// REVISIT: return values (rather than objects)
 
 // types
 
@@ -39,18 +39,18 @@ update('people').set({ fullName: f('firstName + " " + lastName') });
 
 // orm layer
 
-// TODO: validations (before/after save, before/after update, before/after destroy)
-// TODO: polymorphic
-// TODO: inherited
-// TODO: aggregation
-// TODO: transactions
-// TODO: events/hooks for logging
-// TODO: raw that returns real model objects & raw that returns just js objects
-// TODO: all association types & through associations + convenience methods for associations
-// TODO: feature like scope in rails or just use django manager style
+// REVISIT: validations (before/after save, before/after update, before/after destroy)
+// REVISIT: polymorphic
+// REVISIT: inherited
+// REVISIT: aggregation
+// REVISIT: transactions
+// REVISIT: events/hooks for logging
+// REVISIT: raw that returns real model objects & raw that returns just js objects
+// REVISIT: all association types & through associations + convenience methods for associations
+// REVISIT: feature like scope in rails or just use django manager style
 
-// TODO: allow pk override
-// TODO: allow table name override
+// REVISIT: allow pk override
+// REVISIT: allow table name override
 
 var FemaleManager = Manager.extend({
   querySet: function() {
@@ -82,7 +82,7 @@ var person, post, post1, post2;
 person = Person.create({ name: 'Whitney' });
 person.save().then('...'); // insert into people (name) values "$1" ["Whitney"]
 
-// TODO: createOrUpdate()
+// REVISIT: createOrUpdate()
 
 // or can this use real property setting?
 person.set('name', 'Whit'); // update people set name = 'Whit' where id = 1;
@@ -92,16 +92,16 @@ Post.objects.all().then('...'); // select * from posts;
 Post.objects.where({ pk: 1 }).fetch().then('...'); // select * from posts where posts.id = 1;
 Post.objects.with('author').fetch().then('...'); // select * from posts left join people on posts.user_id = user.id;
 Post.objects.with('author').fetch().then('...'); // select * from posts left join people on posts.user_id = user.id;
-Post.objects.with('author', 'comments').fetch().then('...'); // select * from posts left join people on posts.user_id = user.id; TODO: more query for second relation
+Post.objects.with('author', 'comments').fetch().then('...'); // select * from posts left join people on posts.user_id = user.id; REVISIT: more query for second relation
 
-// TODO: consider more active record approach than django approach where there are no managers, and
+// REVISIT: consider more active record approach than django approach where there are no managers, and
 // Post.objects.... becomes Post.all() or Post.where....
-// TODO: consider Post.objects.first()
-// TODO: consider helper methods like Post.objects.find_by_title() returning just one (exception for 0 or many) by title
-// TODO: events/hooks for lifecycle and/or validation
+// REVISIT: consider Post.objects.first()
+// REVISIT: consider helper methods like Post.objects.find_by_title() returning just one (exception for 0 or many) by title
+// REVISIT: events/hooks for lifecycle and/or validation
 
 
-// TODO: support difference between join queries and prefetching?
+// REVISIT: support difference between join queries and prefetching?
 
 Post.objects.update({ 'title': 'What' }); // update posts set title = 'What'
 Post.objects.with('author').update({ 'title': f('title + " "') }); // update posts left join poeple on posts.user_id = user.id
@@ -137,12 +137,12 @@ qs.clone(); // creates duplicate that you can do different things with (generall
 
 
 
-// TODO: express transaction middleware
+// REVISIT: express transaction middleware
 
 // transactions will consume a database transaction until committed/rolled back
 var asyncOperation;
 
-// TODO: the saves/fetches are not able to be added to this transaction in any way
+// REVISIT: the saves/fetches are not able to be added to this transaction in any way
 var transaction = db.transaction();
 Person.where('...').fetch().then(function(person) { person.set('name', 'Jim'); return person.save(); })
 .then(function(person) { return person.get('comments'); })
@@ -171,20 +171,20 @@ db.transaction.begin()
 })
 .done(); // commits transaction (or rolls back if error)
 
-// TODO: does this rely too heavily on bluebird feature set by assuming a binding via `this`?
+// REVISIT: does this rely too heavily on bluebird feature set by assuming a binding via `this`?
 // can this be combined with the ideas from above of creating a transaction object to allow a more explicit use of transactions as well as explicitly setting transactions in queries, but also this more convenient way?
 db.transaction.begin()
 .then(function() { return db.transaction.begin(); }) // nested transaction
 .then(function() { return db.transaction.begin(); }) // 2nd nested transaction
-.then(function() { this.transaction.commit(); }) // TODO: i don't love this idea, but it's growing on me. perhaps nesting should be accomplished in another way?
+.then(function() { this.transaction.commit(); }) // REVISIT: i don't love this idea, but it's growing on me. perhaps nesting should be accomplished in another way?
 .then(function() { this.transaction.commit(); }) // close second
 .done(); // commits transaction (or rolls back if error)
 
-// TODO:
+// REVISIT:
 // queries bound to a transaction that aren't executed until after the transaction is closed
 // would have to throw an error.
 
-// TODO:
+// REVISIT:
 // would it be easier for each iteration through the run loop to get a new shared connection?
 // this would mean that all queries that are created back to back would enter the same connection
 // and basically be serial. this may be something that would have to be disabled, but it could also
@@ -197,7 +197,7 @@ db.serial(function() {
   // and/or cause problems when blanket applying it to migrations -- migrations could opt out, though).
 }); // returns a promise that resolves to an array. each item in the array is the result of one of the database queries.
 
-// TODO: this may not be needed
+// REVISIT: this may not be needed
 db.serial(function(queue, done) {
   queue.add('...'.fetch());
   queue.add('...'.fetch());
