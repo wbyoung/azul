@@ -40,13 +40,13 @@ describe('condition', function() {
   });
 
   describe('fields', function() {
-    it('defaults to values for the left-hand-side', function() {
+    it('defaults to values for the right-hand-side', function() {
       var c = w({ first: 'value' });
       var result = c.build(this.grammar).toString();
       expect(result).to.eql('first = "value"');
     });
 
-    it('accepts fields for the left-hand-side', function() {
+    it('accepts fields for the right-hand-side', function() {
       var c = w({ first: f('value') });
       var result = c.build(this.grammar).toString();
       expect(result).to.eql('first = value');
