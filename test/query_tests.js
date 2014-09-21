@@ -80,9 +80,12 @@ describe('query', function() {
       });
 
       it('accepts conditions', function() {
-        // TODO: would be good to make the right hand side of any object here automatically a
-        // field-safe string rather than having it need to be explicit?
         var result = db.select('articles').join('authors', { 'articles.author_id': f('authors.id') }).sql();
+        expect(result.sql).to.match(/join authors on "articles"."author_id" = "authors"."id"$/);
+      });
+
+      it('accepts conditions as a simple string', function() {
+        var result = db.select('articles').join('authors', 'articles.author_id=authors.id').sql();
         expect(result.sql).to.match(/join authors on "articles"."author_id" = "authors"."id"$/);
       });
     });
