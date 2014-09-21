@@ -51,6 +51,12 @@ describe('condition', function() {
       var result = c.build(this.grammar).toString();
       expect(result).to.eql('first = value');
     });
+
+    it('converts a simple string to a condition using fields', function() {
+      var c = w('first=value');
+      var result = c.build(this.grammar).toString();
+      expect(result).to.eql('first = value');
+    });
   });
 
   describe('predicates', function() {
