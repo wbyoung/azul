@@ -22,6 +22,9 @@ describe('condition', function() {
       }
     }))();
     this.translator = new (Translator.extend({}))();
+    this.eval = function(condition) {
+      return condition.build(this.grammar, this.translator).toString();
+    };
   });
 
   describe('creation', function() {
@@ -36,27 +39,23 @@ describe('condition', function() {
   });
 
   it('can build expressions', function() {
-    var c = w({ id: 1 }, { name: 'Whitney' });
-    var result = c.build(this.grammar, this.translator).toString();
+    var result = this.eval(w({ id: 1 }, { name: 'Whitney' }));
     expect(result).to.eql('id = 1 and name = "Whitney"');
   });
 
   describe('fields', function() {
     it('defaults to values for the right-hand-side', function() {
-      var c = w({ first: 'value' });
-      var result = c.build(this.grammar, this.translator).toString();
+      var result = this.eval(w({ first: 'value' }));
       expect(result).to.eql('first = "value"');
     });
 
     it('accepts fields for the right-hand-side', function() {
-      var c = w({ first: f('value') });
-      var result = c.build(this.grammar, this.translator).toString();
+      var result = this.eval(w({ first: f('value') }));
       expect(result).to.eql('first = value');
     });
 
     it('converts a simple string to a condition using fields', function() {
-      var c = w('first=value');
-      var result = c.build(this.grammar, this.translator).toString();
+      var result = this.eval(w('first=value'));
       expect(result).to.eql('first = value');
     });
   });
@@ -104,25 +103,20 @@ describe('condition', function() {
 
     it('raises for unsupported predicates', function() {
       expect(function() {
-        w({ 'name[badPredicate]': 'world' })
-          .build(this.grammar, this.translator)
-          .toString();
+        this.eval(w({ 'name[badPredicate]': 'world' }));
       }.bind(this)).to.throw(/unsupported predicate.*badPredicate/i);
     });
   });
 
   describe('operators', function() {
     it('implicitly adds an "and"  joining conditions', function() {
-      var result = w({ first: 'Whitney' }, { last: 'Young' })
-        .build(this.grammar, this.translator)
-        .toString();
+      var result = this.eval(w({ first: 'Whitney' }, { last: 'Young' }));
       expect(result).to.eql('first = "Whitney" and last = "Young"');
     });
 
     it('supports "and"  joining conditions', function() {
-      var result = w({ first: 'Whitney' }, w.and, { last: 'Young' })
-        .build(this.grammar, this.translator)
-        .toString();
+      var condition = w({ first: 'Whitney' }, w.and, { last: 'Young' });
+      var result = this.eval(condition);
       expect(result).to.eql('first = "Whitney" and last = "Young"');
     });
 
@@ -144,9 +138,7 @@ describe('condition', function() {
     });
 
     it('supports "or" joining conditions', function() {
-      var result = w({ first: 'Whitney' }, w.or, { first: 'Whit' })
-        .build(this.grammar, this.translator)
-        .toString();
+      var result = this.eval(w({ first: 'Whitney' }, w.or, { first: 'Whit' }));
       expect(result).to.eql('first = "Whitney" or first = "Whit"');
     });
 
@@ -174,7 +166,7 @@ describe('condition', function() {
     });
 
     it('supports "not" prefixing conditions', function() {
-      var result = w(w.not, { first: 'Whitney' }).build(this.grammar, this.translator).toString();
+      var result = this.eval(w(w.not, { first: 'Whitney' }));
       expect(result).to.eql('not first = "Whitney"');
     });
 
@@ -196,9 +188,7 @@ describe('condition', function() {
     });
 
     it('does supports multiple unary operators in a row', function() {
-      var result = w(w.not, w.not, { first: 'Whitney' })
-        .build(this.grammar, this.translator)
-        .toString();
+      var result = this.eval(w(w.not, w.not, { first: 'Whitney' }));
       expect(result).to.eql('not not first = "Whitney"');
     });
   });
@@ -208,9 +198,7 @@ describe('condition', function() {
       var firstPredicate = w({ first: 'Whit' }, w.or, { first: 'Whitney' });
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
-
-      var result = fullPredicate.build(this.grammar, this.translator).toString();
-
+      var result = this.eval(fullPredicate);
       expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
     });
 
@@ -218,16 +206,13 @@ describe('condition', function() {
       var firstPredicate = [{ first: 'Whit' }, w.or, { first: 'Whitney' }];
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
-
-      var result = fullPredicate.build(this.grammar, this.translator).toString();
-
+      var result = this.eval(fullPredicate);
       expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
     });
 
     it('handles neighboring conditions', function() {
       var predicate = w(w({ first: 'Whitney' }), w({ last: 'Young' }));
-      var result = predicate.build(this.grammar, this.translator).toString();
-
+      var result = this.eval(predicate);
       expect(result).to.eql('(first = "Whitney") and (last = "Young")');
     });
   });
