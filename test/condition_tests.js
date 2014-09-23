@@ -102,8 +102,13 @@ describe('condition', function() {
     //   iregex
     //   between (for both numbers and dates)
 
-    // TODO: should this be via the adapter, the query, or the condition?
-    it('raises for unsupported predicates');
+    it('raises for unsupported predicates', function() {
+      expect(function() {
+        w({ 'name[badPredicate]': 'world' })
+          .build(this.grammar, this.translator)
+          .toString();
+      }.bind(this)).to.throw(/unsupported predicate.*badPredicate/i);
+    });
   });
 
   describe('operators', function() {
