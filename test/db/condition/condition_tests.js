@@ -4,12 +4,12 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var util = require('util');
-var Condition = require('../lib/db/condition'),
+var Condition = require('../../../lib/db/condition'),
   w = Condition,
   f = Condition.FieldString;
 
-var Grammar = require('../lib/db/grammar');
-var Translator = require('../lib/db/grammar/translator');
+var Grammar = require('../../../lib/db/grammar');
+var Translator = require('../../../lib/db/grammar/translator');
 
 describe('condition', function() {
   beforeEach(function() {

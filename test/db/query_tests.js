@@ -2,11 +2,11 @@
 
 var expect = require('chai').expect;
 
-var DB = require('../lib/db');
-var Adapter = require('../lib/db/adapters/base');
-var Statement = require('../lib/db/grammar/statement');
+var DB = require('../../lib/db');
+var Adapter = require('../../lib/db/adapters/base');
+var Statement = require('../../lib/db/grammar/statement');
 
-var Condition = require('../lib/db/condition'),
+var Condition = require('../../lib/db/condition'),
   f = Condition.FieldString;
 
 describe('query', function() {

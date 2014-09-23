@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var Class = require('../lib/util/class');
+var Class = require('../../lib/util/class');
 
 describe('Class', function() {
 

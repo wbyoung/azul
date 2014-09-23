@@ -2,8 +2,8 @@
 
 var expect = require('chai').expect;
 
-var Statement = require('../lib/db/grammar/statement');
-var Fragment = require('../lib/db/grammar/fragment');
+var Statement = require('../../../lib/db/grammar/statement');
+var Fragment = require('../../../lib/db/grammar/fragment');
 
 describe('Fragment', function() {
   it('can be created with value and arguments', function() {
