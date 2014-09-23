@@ -32,7 +32,7 @@ describe('query', function() {
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
       expect(result).to.eql(new Statement(
-        'select * from users where ("id" = ?) and "name" = ?', [1, "Whitney"]
+        'select * from users where ("id" = ?) and "name" = ?', [1, 'Whitney']
       ));
     });
 
@@ -42,7 +42,7 @@ describe('query', function() {
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
       expect(result).to.eql(new Statement(
-        'select * from users where (("id" = ?) and "name" = ?) and "city" = ?', [1, "Whitney", "Portland"]
+        'select * from users where (("id" = ?) and "name" = ?) and "city" = ?', [1, 'Whitney', 'Portland']
       ));
     });
 

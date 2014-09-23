@@ -40,4 +40,4 @@ describe('Statement', function() {
       expect(this.statement.arguments).to.eql(['world']);
     });
   });
-})
+});
