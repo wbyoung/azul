@@ -161,6 +161,7 @@ describe('condition', function() {
         w({ first: 'Whitney' }, w.or);
       }.bind(this)).to.throw(/"or".*must include right hand/i);
     });
+
     it('requires explicit binary operation when "not" is between conditions', function() {
       expect(function() {
         w({ first: 'Whitney' }, w.not, { first: 'Whit' });
