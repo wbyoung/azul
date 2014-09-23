@@ -1,9 +1,6 @@
 'use strict';
 
-var skip = false;
-try { skip = !JSON.parse(process.env.TEST_POSTGRES); }
-catch (e) {}
-if (skip) { return; }
+if (!/^(1|true)$/i.test(process.env.TEST_POSTGRES || '1')) { return; }
 
 var expect = require('chai').expect;
 var Database = require('../../../lib/db/database');
