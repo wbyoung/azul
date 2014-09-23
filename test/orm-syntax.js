@@ -1,9 +1,7 @@
 'use strict';
 
-/* global db, select, update, Model, Manager, hasMany, belongsTo, w, f */
-(function() {
-
-'use strict';
+/* global db, select, update, Model, Manager, hasMany, belongsTo, w, f, User */
+function dontRun() {
 
 // db abstraction layer
 
@@ -253,10 +251,11 @@ db.transaction(function(a) {
 // instead must use the result variable and explicitly add queries to the transaction
 // via the query interface.
 db.transaction(function(transaction) {
+  /* jshint unused:false */
 });
 
 // other errors:
-var qs = User.where('...');
+qs = User.where('...');
 db.transaction(function() {
   db.transaction(function() {
     User.where('...').transaction(null).fetch(); // not in transaction (or throws an error)
@@ -316,4 +315,7 @@ db.transaction(function() {
 //         'istartswith': "LIKE %s ESCAPE '\\'",
 //         'iendswith': "LIKE %s ESCAPE '\\'",
 
-});
+console.log(query + transaction);
+
+}
+if (dontRun) {}
