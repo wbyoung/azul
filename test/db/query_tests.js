@@ -10,8 +10,8 @@ var Condition = require('../../lib/db/condition'),
   f = Condition.FieldString;
 
 describe('query', function() {
-  var adapter = new Adapter();
-  var db = new DB(adapter);
+  var db;
+  before(function() { db = new DB({ adapter: 'base' }); });
 
   describe('select', function() {
 
