@@ -2,8 +2,8 @@
 
 var expect = require('chai').expect;
 
-var DB = require('../../lib/db');
-var Adapter = require('../../lib/db/adapters/base');
+var Database = require('../../lib/db');
+var MockAdapter = require('../mocks/adapter');
 var Statement = require('../../lib/db/grammar/statement');
 
 var Condition = require('../../lib/db/condition'),
@@ -11,7 +11,7 @@ var Condition = require('../../lib/db/condition'),
 
 describe('query', function() {
   var db;
-  before(function() { db = new DB({ adapter: 'base' }); });
+  before(function(done) { db = new Database({ adapter: MockAdapter }, done); });
 
   describe('select', function() {
 
