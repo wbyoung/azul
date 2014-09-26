@@ -22,6 +22,7 @@ var MockAdapter = Adapter.extend();
  * @see {Adapter#connect}
  */
 MockAdapter.prototype.connect = function(connection, cb) {
+  // TODO: convert to promises
   setTimeout(cb, 0);
 };
 
