@@ -13,13 +13,13 @@ var Translator = require('../../../lib/db/grammar/translator');
 
 describe('condition', function() {
   beforeEach(function() {
-    this.grammar = new (Grammar.extend({
+    this.grammar = Grammar.extend({
       field: function(field) { return field; },
       value: function(value) {
         return util.format('%j', value);
       }
-    }))();
-    this.translator = new (Translator.extend({}))();
+    }).create();
+    this.translator = Translator.extend({}).create();
     this.stringify = function(condition) {
       return condition.build(this.grammar, this.translator).toString();
     };

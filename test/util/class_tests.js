@@ -5,34 +5,70 @@ var Class = require('../../lib/util/class');
 
 describe('Class', function() {
 
-  it('can be extended', function() {
+  it('is an object', function() {
+    expect(Class).to.be.instanceOf(Object);
+  });
+
+  it('is a function', function() {
+    expect(Class).to.be.instanceOf(Function);
+  });
+
+  it('can be created with new', function() {
     var Animal = Class.extend();
     var animal = new Animal();
     expect(animal).to.be.instanceOf(Animal);
     expect(animal).to.be.instanceOf(Class);
   });
 
-  it('can be extended again', function() {
+  it('creates classes that are themselves functions', function() {
+    expect(Class.extend()).to.be.instanceOf(Function);
+  });
+
+  it('can be extended 1 time', function() {
+    var Animal = Class.extend();
+    var animal = Animal.create();
+    expect(animal).to.be.instanceOf(Animal);
+    expect(animal).to.be.instanceOf(Class);
+  });
+
+  it('can be extended 2 times', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend();
-    var dog = new Dog();
+    var dog = Dog.create();
     expect(dog).to.be.instanceOf(Dog);
     expect(dog).to.be.instanceOf(Animal);
     expect(dog).to.be.instanceOf(Class);
+  });
+
+  it('can be extended 3 times', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend();
+    var Havanese = Dog.extend();
+    var milo = Havanese.create();
+    expect(milo).to.be.instanceOf(Havanese);
+    expect(milo).to.be.instanceOf(Dog);
+    expect(milo).to.be.instanceOf(Animal);
+    expect(milo).to.be.instanceOf(Class);
   });
 
   it('can specify methods', function() {
     var Animal = Class.extend({
       speak: function() { return 'hi'; }
     });
-    expect(new Animal().speak()).to.eql('hi');
+    expect(Animal.create().speak()).to.eql('hi');
+  });
+
+  it('can specify methods via the prototype', function() {
+    var Animal = Class.extend();
+    Animal.prototype.speak = function() { return 'hi'; };
+    expect(Animal.create().speak()).to.eql('hi');
   });
 
   it('can specify an init method', function() {
     var Subclass = Class.extend({
       init: function() { this.initialized = true; }
     });
-    var obj = new Subclass();
+    var obj = Subclass.create();
     expect(obj.initialized).to.be.true;
   });
 
@@ -44,8 +80,59 @@ describe('Class', function() {
     var Dog = Animal.extend({
       init: function() { this.dog = sequence++; }
     });
-    var dog = new Dog();
+    var dog = Dog.create();
     expect(dog.animal).to.eql(0);
     expect(dog.dog).to.eql(1);
+  });
+
+  it('allows static methods to be accessed via sublcasses', function() {
+    var Animal = Class.extend();
+    var staticMember = {};
+    Animal.reopenClass({
+      staticMember: staticMember
+    });
+    expect(Animal.staticMember).to.eql(staticMember);
+  });
+
+  it('allows static methods to be accessed via sublcasses', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend();
+    var staticMember = {};
+    Animal.reopenClass({ staticMember: staticMember });
+    expect(Dog.staticMember).to.eql(staticMember);
+    expect(Animal.staticMember).to.eql(staticMember);
+  });
+
+  it('knows its class', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({});
+    var dog = Dog.create();
+    expect(dog.__class__).to.eql(Dog);
+  });
+
+  it('knows its metaclass', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({});
+    var dog = Dog.create();
+    expect(dog.__metaclass__).to.eql(Dog.__metaclass__);
+  });
+
+  it('has descriptive instances', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({}, {
+      __name__: 'Dog'
+    });
+    var dog = Dog.create();
+    expect(dog.inspect()).to.eql('[Dog]');
+    expect(dog.toString()).to.eql('[Dog]');
+  });
+
+  it('has descriptive classes', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({}, {
+      __name__: 'Dog'
+    });
+    expect(Dog.inspect()).to.eql('[Dog Class]');
+    expect(Dog.toString()).to.eql('[Dog Class]');
   });
 });
