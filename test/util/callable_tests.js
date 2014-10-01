@@ -7,12 +7,13 @@ describe('callable', function() {
 
   it('accepts a constructor function');
   it('returns a class');
-  it('calls __call__');
-  it('uses callable object in __call__');
+  it('calls `call`');
+  it('uses callable object in `call`');
   it('uses callable object in constructor');
   it('passes arguments through to the constructor');
-  it('passes arguments through to __call__');
+  it('passes arguments through to `call`');
   it('creates instances when called');
+  it('creates instances with a __proto__ set to the class prototype');
 
   describe('created instance', function() {
     it('is a type of the class');

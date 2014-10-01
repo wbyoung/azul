@@ -103,18 +103,35 @@ describe('Class', function() {
     expect(Animal.staticMember).to.eql(staticMember);
   });
 
-  it('knows its class', function() {
+  it('creates instances that know their class', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend({});
     var dog = Dog.create();
     expect(dog.__class__).to.eql(Dog);
   });
 
-  it('knows its metaclass', function() {
+  it('creates instances that know their metaclass', function() {
+    // this will likely never be useful for external use, but is important
+    // internally.
     var Animal = Class.extend();
     var Dog = Animal.extend({});
     var dog = Dog.create();
     expect(dog.__metaclass__).to.eql(Dog.__metaclass__);
+  });
+
+  it('knows its class', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({});
+    expect(Dog.__class__).to.eql(Dog);
+  });
+
+  it('creates valid metaclass prototype chain', function() {
+    // this will likely never be useful for external use, but is important
+    // internally.
+    var Animal = Class.extend({}, { __name__: 'Animal' });
+    var Dog = Animal.extend({}, { __name__: 'Dog' });
+    expect(Dog.__metaclass__.prototype).to.be.instanceOf(Animal.__metaclass__);
+    expect(Dog.__metaclass__.prototype).to.be.instanceOf(Class.__metaclass__);
   });
 
   it('has descriptive instances', function() {
