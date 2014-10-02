@@ -44,7 +44,7 @@ describe('callable', function() {
     });
     it('does not call the `call` function', function() {
       expect(this.callSpy).to.not.have.been.called;
-    })
+    });
     it('can call methods defined on the class', function() {
       var spy = sinon.spy();
       this.Callable.prototype.testMethod = spy;
