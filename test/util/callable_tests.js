@@ -40,6 +40,9 @@ describe('callable', function() {
     it('has a __proto__ set to the class prototype', function() {
       expect(getPrototypeOf(this.instance)).to.equal(this.Callable.prototype);
     });
+    it('is a function', function() {
+      expect(this.instance).to.be.a('function');
+    });
     it('is a type of the class', function() {
       expect(this.instance).to.be.an.instanceOf(this.Callable);
     });
