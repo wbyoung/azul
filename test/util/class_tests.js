@@ -28,6 +28,14 @@ describe('Class', function() {
     expect(animal).to.be.instanceOf(Class);
   });
 
+  it('can be created simply by calling the class', function() {
+    var Animal = Class.extend();
+    var animal = Animal();
+    expect(animal).to.be.instanceOf(Animal);
+    expect(animal).to.be.instanceOf(Class);
+  });
+
+
   it('creates classes that are themselves functions', function() {
     expect(Class.extend()).to.be.instanceOf(Function);
   });
