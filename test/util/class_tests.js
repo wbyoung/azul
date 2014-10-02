@@ -13,6 +13,14 @@ describe('Class', function() {
     expect(Class).to.be.instanceOf(Function);
   });
 
+  it('can be instantiated without being extended', function() {
+    expect(Class.create()).to.exist;
+  });
+
+  it('can be instantiated with new without being extended', function() {
+    expect(new Class()).to.exist;
+  });
+
   it('can be created with new', function() {
     var Animal = Class.extend();
     var animal = new Animal();
