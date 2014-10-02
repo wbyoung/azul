@@ -22,6 +22,7 @@ describe('PostgresQL', function() {
       expect(db).to.eql(db2);
       expect(err).to.not.exist;
       expect(db._adapter._client).to.exist;
+      // TODO: disconnect
       done();
     });
   });
