@@ -11,18 +11,18 @@ var Condition = require('../../lib/db/condition'),
 
 describe('query', function() {
   var db;
-  before(function(done) { db = new Database({ adapter: MockAdapter }, done); });
+  before(function(done) { db = Database.create({ adapter: MockAdapter }, done); });
 
   describe('select', function() {
 
     it('accesses a table', function() {
-      expect(db.select('users').sql()).to.eql(new Statement(
+      expect(db.select('users').sql()).to.eql(Statement.create(
         'select * from users', []
       ));
     });
 
     it('can be filtered', function() {
-      expect(db.select('users').where({ id: 1 }).sql()).to.eql(new Statement(
+      expect(db.select('users').where({ id: 1 }).sql()).to.eql(Statement.create(
         'select * from users where "id" = ?', [1]
       ));
     });
@@ -31,7 +31,7 @@ describe('query', function() {
       var result = db.select('users')
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
-      expect(result).to.eql(new Statement(
+      expect(result).to.eql(Statement.create(
         'select * from users where ("id" = ?) and "name" = ?', [1, 'Whitney']
       ));
     });
@@ -41,26 +41,26 @@ describe('query', function() {
         .where({ id: 1 })
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
-      expect(result).to.eql(new Statement(
+      expect(result).to.eql(Statement.create(
         'select * from users where (("id" = ?) and "name" = ?) and "city" = ?', [1, 'Whitney', 'Portland']
       ));
     });
 
     it('handles predicates', function() {
-      expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(new Statement(
+      expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
         'select * from articles where "words" > ?', [200]
       ));
     });
 
     describe('column specification', function() {
       it('accepts simple names', function() {
-        expect(db.select('articles', ['title', 'body']).sql()).to.eql(new Statement(
+        expect(db.select('articles', ['title', 'body']).sql()).to.eql(Statement.create(
           'select "title", "body" from articles', []
         ));
       });
 
       it('accepts simple table qualified names', function() {
-        expect(db.select('articles', ['articles.title', 'body']).sql()).to.eql(new Statement(
+        expect(db.select('articles', ['articles.title', 'body']).sql()).to.eql(Statement.create(
           'select "articles"."title", "body" from articles', []
         ));
       });
@@ -68,13 +68,13 @@ describe('query', function() {
 
     describe('joins', function() {
       it('defaults to a cross join', function() {
-        expect(db.select('articles').join('authors').sql()).to.eql(new Statement(
+        expect(db.select('articles').join('authors').sql()).to.eql(Statement.create(
           'select * from articles cross join authors', []
         ));
       });
 
       it('accepts type', function() {
-        expect(db.select('articles').join('authors', 'inner').sql()).to.eql(new Statement(
+        expect(db.select('articles').join('authors', 'inner').sql()).to.eql(Statement.create(
           'select * from articles inner join authors', []
         ));
       });

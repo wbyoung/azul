@@ -12,13 +12,13 @@ describe('Database', function() {
       database: 'agave_test'
     };
     expect(function() {
-      new Database(connection);
+      Database.create(connection);
     }).to.throw(/no adapter.*invalid_adapter/i);
   });
 
   it('fails with when no connection is given', function() {
     expect(function() {
-      new Database();
+      Database.create();
     }).to.throw(/missing connection/i);
   });
 });

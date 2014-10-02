@@ -18,7 +18,7 @@ describe('PostgresQL', function() {
       password: '',
       database: 'agave_test'
     };
-    var db = new Database(connection, function(err, db2) {
+    var db = Database.create(connection, function(err, db2) {
       expect(db).to.eql(db2);
       expect(err).to.not.exist;
       expect(db._adapter._client).to.exist;
