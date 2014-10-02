@@ -6,6 +6,7 @@ var sinon = require('sinon');
 chai.use(require('sinon-chai'));
 
 var callable = require('../../lib/util/callable');
+var getPrototypeOf = require('../../lib/util/proto').getPrototypeOf;
 
 describe('callable', function() {
 
@@ -37,7 +38,7 @@ describe('callable', function() {
       expect(this.constructorSpy).to.have.been.calledWithExactly('creating', 'callable');
     });
     it('has a __proto__ set to the class prototype', function() {
-      expect(this.instance.__proto__).to.equal(this.Callable.prototype);
+      expect(getPrototypeOf(this.instance)).to.equal(this.Callable.prototype);
     });
     it('is a type of the class', function() {
       expect(this.instance).to.be.an.instanceOf(this.Callable);
