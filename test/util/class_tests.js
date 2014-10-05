@@ -35,7 +35,6 @@ describe('Class', function() {
     expect(animal).to.be.instanceOf(Class);
   });
 
-
   it('creates classes that are themselves functions', function() {
     expect(Class.extend()).to.be.instanceOf(Function);
   });
@@ -124,6 +123,13 @@ describe('Class', function() {
     var Dog = Animal.extend({});
     var dog = Dog.create();
     expect(dog.__class__).to.eql(Dog);
+  });
+
+  it('creates instances that are an instance of its class', function() {
+    var Animal = Class.extend();
+    var Dog = Animal.extend({});
+    var dog = Dog.create();
+    expect(dog).to.be.an.instanceOf(Dog.__class__);
   });
 
   it('creates instances that know their metaclass', function() {
