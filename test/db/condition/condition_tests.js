@@ -5,8 +5,8 @@ var expect = chai.expect;
 
 var util = require('util');
 var Condition = require('../../../lib/db/condition'),
-  w = Condition,
-  f = Condition.FieldString;
+  w = Condition.w,
+  f = Condition.f;
 
 var Grammar = require('../../../lib/db/grammar');
 var Translator = require('../../../lib/db/grammar/translator');

@@ -31,7 +31,7 @@ describe('Statement', function() {
       this.statement = Statement.create(Fragment.create('hello ?', ['world']));
     });
     it('is the right type', function() {
-      expect(this.statement).to.be.instanceof(Statement);
+      expect(this.statement).to.be.instanceof(Statement.__class__);
     });
     it('has the right value', function() {
       expect(this.statement.value).to.eql('hello ?');

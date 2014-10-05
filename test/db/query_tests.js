@@ -7,7 +7,7 @@ var MockAdapter = require('../mocks/adapter');
 var Statement = require('../../lib/db/grammar/statement');
 
 var Condition = require('../../lib/db/condition'),
-  f = Condition.FieldString;
+  f = Condition.f;
 
 describe('query', function() {
   var db;

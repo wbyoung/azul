@@ -17,24 +17,6 @@ describe('Class', function() {
     expect(Class.create()).to.exist;
   });
 
-  it('can be instantiated with new without being extended', function() {
-    expect(new Class()).to.exist;
-  });
-
-  it('can be created with new', function() {
-    var Animal = Class.extend();
-    var animal = new Animal();
-    expect(animal).to.be.instanceOf(Animal);
-    expect(animal).to.be.instanceOf(Class);
-  });
-
-  it('can be created simply by calling the class', function() {
-    var Animal = Class.extend();
-    var animal = Animal();
-    expect(animal).to.be.instanceOf(Animal);
-    expect(animal).to.be.instanceOf(Class);
-  });
-
   it('creates classes that are themselves functions', function() {
     expect(Class.extend()).to.be.instanceOf(Function);
   });
@@ -42,17 +24,17 @@ describe('Class', function() {
   it('can be extended 1 time', function() {
     var Animal = Class.extend();
     var animal = Animal.create();
-    expect(animal).to.be.instanceOf(Animal);
-    expect(animal).to.be.instanceOf(Class);
+    expect(animal).to.be.instanceOf(Animal.__class__);
+    expect(animal).to.be.instanceOf(Class.__class__);
   });
 
   it('can be extended 2 times', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend();
     var dog = Dog.create();
-    expect(dog).to.be.instanceOf(Dog);
-    expect(dog).to.be.instanceOf(Animal);
-    expect(dog).to.be.instanceOf(Class);
+    expect(dog).to.be.instanceOf(Dog.__class__);
+    expect(dog).to.be.instanceOf(Animal.__class__);
+    expect(dog).to.be.instanceOf(Class.__class__);
   });
 
   it('can be extended 3 times', function() {
@@ -60,10 +42,10 @@ describe('Class', function() {
     var Dog = Animal.extend();
     var Havanese = Dog.extend();
     var milo = Havanese.create();
-    expect(milo).to.be.instanceOf(Havanese);
-    expect(milo).to.be.instanceOf(Dog);
-    expect(milo).to.be.instanceOf(Animal);
-    expect(milo).to.be.instanceOf(Class);
+    expect(milo).to.be.instanceOf(Havanese.__class__);
+    expect(milo).to.be.instanceOf(Dog.__class__);
+    expect(milo).to.be.instanceOf(Animal.__class__);
+    expect(milo).to.be.instanceOf(Class.__class__);
   });
 
   it('can specify methods', function() {
@@ -118,11 +100,11 @@ describe('Class', function() {
     expect(Animal.staticMember).to.eql(staticMember);
   });
 
-  it('creates instances that know their class', function() {
+  it('creates instances that know their identity (class)', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend({});
     var dog = Dog.create();
-    expect(dog.__class__).to.eql(Dog);
+    expect(dog.__identity__).to.eql(Dog);
   });
 
   it('creates instances that are an instance of its class', function() {
@@ -141,10 +123,10 @@ describe('Class', function() {
     expect(dog.__metaclass__).to.eql(Dog.__metaclass__);
   });
 
-  it('knows its class', function() {
+  it('knows its identity (class)', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend({});
-    expect(Dog.__class__).to.eql(Dog);
+    expect(Dog.__identity__).to.eql(Dog);
   });
 
   it('creates valid metaclass prototype chain', function() {
