@@ -55,12 +55,6 @@ describe('Class', function() {
     expect(Animal.create().speak()).to.eql('hi');
   });
 
-  it('can specify methods via the prototype', function() {
-    var Animal = Class.extend();
-    Animal.prototype.speak = function() { return 'hi'; };
-    expect(Animal.create().speak()).to.eql('hi');
-  });
-
   it('can specify an init method', function() {
     var Subclass = Class.extend({
       init: function() { this.initialized = true; }

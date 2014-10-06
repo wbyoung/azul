@@ -12,18 +12,20 @@ var Adapter = require('../../lib/db/adapters/base');
  * @constructor
  * @extends Adapter
  */
-var MockAdapter = Adapter.extend();
+var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
 
-/**
- * Connect for MockAdapter
- *
- * @method
- * @private
- * @see {Adapter#connect}
- */
-MockAdapter.prototype.connect = function(connection, cb) {
-  // TODO: convert to promises
-  setTimeout(cb, 0);
-};
+  /**
+   * Connect for MockAdapter
+   *
+   * @method
+   * @private
+   * @see {Adapter#connect}
+   */
+  connect: function(connection, cb) {
+    // TODO: convert to promises
+    setTimeout(cb, 0);
+  }
+
+});
 
 module.exports = MockAdapter;
