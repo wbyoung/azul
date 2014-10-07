@@ -1,5 +1,6 @@
 'use strict';
 
+var BluebirdPromise = require('bluebird');
 var Adapter = require('../../lib/db/adapters/base');
 
 /**
@@ -21,9 +22,19 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
    * @private
    * @see {Adapter#connect}
    */
-  connect: function(connection, cb) {
-    // TODO: convert to promises
-    setTimeout(cb, 0);
+  connect: function(/*connection*/) {
+    return BluebirdPromise.resolve();
+  },
+
+  /**
+   * Disconnect for MockAdapter
+   *
+   * @method
+   * @private
+   * @see {Adapter#disconnect}
+   */
+  disconnect: function() {
+    return BluebirdPromise.resolve();
   }
 
 });

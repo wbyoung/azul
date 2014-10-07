@@ -18,12 +18,12 @@ describe('PostgresQL', function() {
       password: '',
       database: 'agave_test'
     };
-    var db = Database.create(connection, function(err, db2) {
+    var db = Database.create(connection);
+    db.ready().then(function(db2) {
       expect(db).to.eql(db2);
-      expect(err).to.not.exist;
       expect(db._adapter._client).to.exist;
-      // TODO: disconnect
-      done();
-    });
+      return db.disconnect();
+    })
+    .done(done, done);
   });
 });

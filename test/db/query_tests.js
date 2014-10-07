@@ -11,7 +11,10 @@ var Condition = require('../../lib/db/condition'),
 
 describe('query', function() {
   var db;
-  before(function(done) { db = Database.create({ adapter: MockAdapter }, done); });
+  before(function(done) {
+    db = Database.create({ adapter: MockAdapter });
+    db.ready().then(function() { done(); }, done);
+  });
 
   describe('select', function() {
 
