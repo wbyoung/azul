@@ -20,7 +20,7 @@ var connection = {
 
 describe('PostgresQL', function() {
   // TODO: should not connect to db until there's something to do (query)
-  it('connects to the database', function(done) {
+  it.skip('connects to the database', function(done) {
     var db = Database.create(connection);
     db.ready().then(function(db2) {
       expect(db).to.eql(db2);

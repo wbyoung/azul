@@ -47,5 +47,8 @@
   },
   "optionalDependencies": {
     "pg": "^3.4.1"
+  },
+  "dependencies": {
+    "generic-pool": "^2.1.1"
   }
 }

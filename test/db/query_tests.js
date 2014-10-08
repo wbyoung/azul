@@ -11,9 +11,8 @@ var Condition = require('../../lib/db/condition'),
 
 describe('query', function() {
   var db;
-  before(function(done) {
+  before(function() {
     db = Database.create({ adapter: MockAdapter });
-    db.ready().then(function() { done(); }, done);
   });
 
   describe('select', function() {

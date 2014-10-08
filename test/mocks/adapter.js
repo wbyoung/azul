@@ -22,9 +22,10 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
    * @private
    * @see {Adapter#connect}
    */
-  connect: function(/*connection*/) {
-    return BluebirdPromise.resolve();
-  },
+  connect: BluebirdPromise.method(function(/*connection*/) {
+    function MockAdapterClient() {}
+    return new MockAdapterClient();
+  }),
 
   /**
    * Disconnect for MockAdapter
@@ -33,9 +34,8 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
    * @private
    * @see {Adapter#disconnect}
    */
-  disconnect: function() {
-    return BluebirdPromise.resolve();
-  }
+  disconnect: BluebirdPromise.method(function(/*details*/) {
+  })
 
 });
 
