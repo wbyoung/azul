@@ -12,7 +12,7 @@ var db;
 
 describe('query', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter });
+    db = Database.create({ adapter: MockAdapter.create() });
   });
 
   describe('select', function() {
