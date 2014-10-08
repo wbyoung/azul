@@ -5,12 +5,12 @@ var expect = require('chai').expect;
 var Database = require('../../lib/db');
 var MockAdapter = require('../mocks/adapter');
 var Statement = require('../../lib/db/grammar/statement');
-
 var Condition = require('../../lib/db/condition'),
   f = Condition.f;
 
+var db;
+
 describe('query', function() {
-  var db;
   before(function() {
     db = Database.create({ adapter: MockAdapter });
   });
