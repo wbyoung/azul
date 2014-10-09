@@ -7,12 +7,12 @@ var MockAdapter = require('../mocks/adapter');
 var Statement = require('../../lib/db/grammar/statement');
 var schema;
 
-describe('query', function() {
+describe('Schema', function() {
   before(function() {
     schema = Schema.create(MockAdapter.create());
   });
 
-  describe('schema.createTable', function() {
+  describe('#createTable', function() {
 
     it('generates the proper sql', function() {
       var query = schema.createTable('users', function(table) {
