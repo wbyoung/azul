@@ -43,6 +43,13 @@ describe('Migration', function() {
 
   });
 
+  describe('#_determineReverseAction', function() {
+    // to make this happen, we'll probably want to pass a fake object off to
+    // the migration's `change` method and record any calls that are made on
+    // it. from there, the reverse actions can be built.
+    it('knows the reverse of creating a table');
+  });
+
   describe('#migrate', function() {
     it('rolls back transaction for failed migration forward');
     it('rolls back transaction for failed migration backward');
