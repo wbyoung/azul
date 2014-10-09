@@ -27,6 +27,22 @@ describe('Migration', function() {
 
   });
 
+  describe('#_loadMigrations', function() {
+
+    it('loads migrations in order', function(done) {
+      migration._loadMigrations().then(function(migrations) {
+        expect(migrations).to.eql([
+          require('../fixtures/migrations/blog/' +
+            '20141022202234_create_articles'),
+          require('../fixtures/migrations/blog/' +
+            '20141022202634_create_comments')
+        ]);
+      })
+      .done(done, done);
+    });
+
+  });
+
   describe('#migrate', function() {
     it('rolls back transaction for failed migration forward');
     it('rolls back transaction for failed migration backward');
