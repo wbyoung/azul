@@ -13,10 +13,10 @@ describe('Migration', function() {
       path.join(__dirname, '../fixtures/migrations/blog'));
   });
 
-  describe('#_loadMigrations', function() {
+  describe('#_readMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      migration._loadMigrations().then(function(migrations) {
+      migration._readMigrations().then(function(migrations) {
         expect(migrations).to.eql([
           '20141022202234_create_articles',
           '20141022202634_create_comments'
