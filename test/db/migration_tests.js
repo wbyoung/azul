@@ -1,15 +1,21 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
 var path = require('path');
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
+var BluebirdPromise = require('bluebird');
 
 var Migration = require('../../lib/db/migration');
+var Schema = require('../../lib/db/schema');
 var MockAdapter = require('../mocks/adapter');
-var migration;
+var migration, schema;
 
 describe('Migration', function() {
   before(function() {
-    migration = Migration.create(MockAdapter.create(),
+    var adapter = MockAdapter.create();
+    schema = Schema.create(adapter);
+    migration = Migration.create(adapter, schema,
       path.join(__dirname, '../fixtures/migrations/blog'));
   });
 
@@ -41,6 +47,50 @@ describe('Migration', function() {
       .done(done, done);
     });
 
+  });
+
+  describe('with fake migrations loaded', function() {
+    beforeEach(function() {
+      this.up1 = sinon.spy();
+      this.up2 = sinon.spy();
+      this.down1 = sinon.spy();
+      this.down2 = sinon.spy();
+
+      migration._loadMigrations = BluebirdPromise.method(function() {
+        return [
+          { up: this.up1, down: this.down1 },
+          { up: this.up2, down: this.down2 }
+        ]
+      }.bind(this));
+    });
+
+    describe('#migrate', function() {
+
+      it('calls the up methods', function(done) {
+        migration.migrate().bind(this).then(function() {
+          expect(this.up1).to.have.been.calledOnce;
+          expect(this.up2).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
+      it('calls the up methods with the schema', function(done) {
+        migration.migrate().bind(this).then(function() {
+          expect(this.up1).to.have.been.calledWithExactly(schema);
+          expect(this.up2).to.have.been.calledWithExactly(schema);
+        })
+        .done(done, done);
+      });
+
+      it('does not call the down methods', function(done) {
+        migration.migrate().bind(this).then(function() {
+          expect(this.down1).to.not.have.been.called;
+          expect(this.down2).to.not.have.been.called;
+        })
+        .done(done, done);
+      });
+
+    });
   });
 
   describe('#_determineReverseAction', function() {
