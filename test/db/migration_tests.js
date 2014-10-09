@@ -51,41 +51,58 @@ describe('Migration', function() {
 
   describe('with fake migrations loaded', function() {
     beforeEach(function() {
-      this.up1 = sinon.spy();
-      this.up2 = sinon.spy();
-      this.down1 = sinon.spy();
-      this.down2 = sinon.spy();
-
+      var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
+      var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
       migration._loadMigrations = BluebirdPromise.method(function() {
-        return [
-          { up: this.up1, down: this.down1 },
-          { up: this.up2, down: this.down2 }
-        ]
-      }.bind(this));
+        return [mod1, mod2]
+      });
     });
 
     describe('#migrate', function() {
 
       it('calls the up methods', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.up1).to.have.been.calledOnce;
-          expect(this.up2).to.have.been.calledOnce;
+          expect(this.mod1.up).to.have.been.calledOnce;
+          expect(this.mod2.up).to.have.been.calledOnce;
         })
         .done(done, done);
       });
 
       it('calls the up methods with the schema', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.up1).to.have.been.calledWithExactly(schema);
-          expect(this.up2).to.have.been.calledWithExactly(schema);
+          expect(this.mod1.up).to.have.been.calledWithExactly(schema);
+          expect(this.mod2.up).to.have.been.calledWithExactly(schema);
         })
         .done(done, done);
       });
 
       it('does not call the down methods', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.down1).to.not.have.been.called;
-          expect(this.down2).to.not.have.been.called;
+          expect(this.mod1.down).to.not.have.been.called;
+          expect(this.mod2.down).to.not.have.been.called;
+        })
+        .done(done, done);
+      });
+
+      it('respects migration promises', function(done) {
+        var sequence = 0;
+        var up1Sequence;
+        var up2Sequence;
+
+        this.mod1.up = function() {
+          return BluebirdPromise.delay(5).then(function() {
+            up1Sequence = sequence++;
+          });
+        }
+        this.mod2.up = function() {
+          return BluebirdPromise.delay(0).then(function() {
+            up2Sequence = sequence++;
+          });
+        }
+
+        migration.migrate().then(function() {
+          expect(up1Sequence).to.eql(0);
+          expect(up2Sequence).to.eql(1);
         })
         .done(done, done);
       });
