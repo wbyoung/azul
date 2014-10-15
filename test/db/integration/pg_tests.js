@@ -81,6 +81,9 @@ describe('PostgresQL', function() {
       db.schema.rollback(migration).then(function() { done(); }, done);
     });
 
+    // TODO: consider how to implement these tests. the intention here is
+    // to create more of an integration style test. perhaps it should be
+    // shared amongst all of the adapter test files somehow.
     // it('inserts data');
     // it('selects data');
     // it('updates data');
