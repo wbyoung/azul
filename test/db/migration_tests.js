@@ -54,7 +54,7 @@ describe('Migration', function() {
       var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
       var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
       migration._loadMigrations = BluebirdPromise.method(function() {
-        return [mod1, mod2]
+        return [mod1, mod2];
       });
     });
 
@@ -93,12 +93,12 @@ describe('Migration', function() {
           return BluebirdPromise.delay(5).then(function() {
             up1Sequence = sequence++;
           });
-        }
+        };
         this.mod2.up = function() {
           return BluebirdPromise.delay(0).then(function() {
             up2Sequence = sequence++;
           });
-        }
+        };
 
         migration.migrate().then(function() {
           expect(up1Sequence).to.eql(0);
