@@ -45,26 +45,13 @@ describe('PostgresQL', function() {
       });
     }, [])
     .spread(function(result1, result2, result3, result4) {
-      expect(result1).to.eql({
-        rows: [],
-        fields: [],
-        command: 'CREATE'
-      });
-      expect(result2).to.eql({
-        rows: [{ id: 1 }],
-        fields: ['id'],
-        command: 'INSERT'
-      });
-      expect(result3).to.eql({
+      expect(result1).to.eql({ command: 'CREATE', rows: [], fields: [] });
+      expect(result2).to.eql({ command: 'INSERT',
+        rows: [{ id: 1 }], fields: ['id'] });
+      expect(result3).to.eql({ command: 'SELECT',
         rows: [{ id: 1, name: 'Agave' }],
-        fields: ['id', 'name'],
-        command: 'SELECT'
-      });
-      expect(result4).to.eql({
-        rows: [],
-        fields: [],
-        command: 'DROP'
-      });
+        fields: ['id', 'name'] });
+      expect(result4).to.eql({ command: 'DROP', rows: [], fields: [] });
     })
     .done(done, done);
   });
