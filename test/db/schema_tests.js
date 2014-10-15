@@ -23,5 +23,12 @@ describe('Schema', function() {
       ));
     });
 
+    it('is thenable', function() {
+      var query = schema.createTable('users', function(table) {
+        table.string('name');
+      });
+      expect(query.then).to.exist;
+    });
+
   });
 });
