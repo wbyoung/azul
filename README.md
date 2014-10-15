@@ -2,6 +2,12 @@
 
 [![NPM version][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][david-image]][david-url] [![devDependencies][david-dev-image]][david-dev-url]
 
+Agave has been built from the ground up to be the most expressive ORM for
+Node.js.
+
+At this point, this is still a **work in progress** that is focusing on
+creating an expressive, well documented public API and reaching feature parity
+with other ORM tools. If you're interested in helping, please reach out.
 
 
 ## License
