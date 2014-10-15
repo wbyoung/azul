@@ -62,7 +62,6 @@ describe('Class', function() {
     expect(speak).to.have.been.calledOnce;
   });
 
-
   it('can call super in class methods', function() {
     var species = sinon.stub().returns('animal');
     var sup = function() { return this._super(); }
