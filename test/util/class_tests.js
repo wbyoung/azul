@@ -1,6 +1,8 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai')
+var expect = chai.expect;
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Class = require('../../lib/util/class');
 
 describe('Class', function() {
@@ -46,6 +48,30 @@ describe('Class', function() {
     expect(milo).to.be.instanceOf(Dog.__class__);
     expect(milo).to.be.instanceOf(Animal.__class__);
     expect(milo).to.be.instanceOf(Class.__class__);
+  });
+
+  it('can call super', function() {
+    var speak = sinon.stub().returns('speaking');
+    var sup = function() { return this._super(); }
+    var Animal = Class.extend({ speak: speak });
+    var Dog = Animal.extend({ speak: sup });
+    var Havanese = Dog.extend({ speak: sup });
+    var milo = Havanese.create();
+    expect(speak).to.not.have.been.called;
+    expect(milo.speak()).to.eql('speaking');
+    expect(speak).to.have.been.calledOnce;
+  });
+
+
+  it('can call super in class methods', function() {
+    var species = sinon.stub().returns('animal');
+    var sup = function() { return this._super(); }
+    var Animal = Class.extend({}, { species: species });
+    var Dog = Animal.extend({}, { species: sup });
+    var Havanese = Dog.extend({}, { species: sup });
+    expect(species).to.not.have.been.called;
+    expect(Havanese.species()).to.eql('animal');
+    expect(species).to.have.been.calledOnce;
   });
 
   it('can specify methods', function() {
