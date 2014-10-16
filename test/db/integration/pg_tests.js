@@ -59,16 +59,14 @@ describe('PostgresQL', function() {
 
   describe('with migrations applied', function() {
     before(function(done) {
-      var db = this.db = Database.create(connection);
-      var migration = this.migration =
+      var migration =
         path.join(__dirname, '../../fixtures/migrations/blog');
-      db.schema.migrate(migration).then(function() { done(); }, done);
+      this.migrator = db.migrator(migration);
+      this.migrator.migrate().then(function() { done(); }, done);
     });
 
     after(function(done) {
-      var db = this.db;
-      var migration = this.migration;
-      db.schema.rollback(migration).then(function() { done(); }, done);
+      this.migrator.rollback().then(function() { done(); }, done);
     });
 
     // TODO: consider how to implement these tests. the intention here is

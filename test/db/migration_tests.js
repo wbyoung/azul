@@ -15,7 +15,7 @@ describe('Migration', function() {
   before(function() {
     var adapter = MockAdapter.create({});
     schema = Schema.create(adapter);
-    migration = Migration.create(adapter, schema,
+    migration = Migration.create(schema,
       path.join(__dirname, '../fixtures/migrations/blog'));
   });
 
