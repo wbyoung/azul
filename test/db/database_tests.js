@@ -9,7 +9,7 @@ describe('Database', function() {
       adapter: 'invalid_adapter',
       username: 'root',
       password: '',
-      database: 'agave_test'
+      database: 'azul_test'
     };
     expect(function() {
       Database.create(connection);

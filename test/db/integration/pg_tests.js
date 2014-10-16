@@ -2,7 +2,7 @@
 
 // $ createuser root
 // $ psql -U root -d postgres
-// > CREATE DATABASE agave_test;
+// > CREATE DATABASE azul_test;
 // > \q
 
 if (!/^(1|true)$/i.test(process.env.TEST_POSTGRES || '1')) { return; }
@@ -16,7 +16,7 @@ var connection = {
   adapter: 'pg',
   username: 'root',
   password: '',
-  database: 'agave_test'
+  database: 'azul_test'
 };
 
 describe('PostgresQL', function() {
@@ -34,10 +34,10 @@ describe('PostgresQL', function() {
   it('executes raw sql', function(done) {
     var db = Database.create(connection);
     var queries = [
-      'create table agave_raw_sql_test (id serial, name varchar(255))',
-      'insert into agave_raw_sql_test (name) values (\'Agave\') returning id',
-      'select * from agave_raw_sql_test',
-      'drop table agave_raw_sql_test'
+      'create table azul_raw_sql_test (id serial, name varchar(255))',
+      'insert into azul_raw_sql_test (name) values (\'Azul\') returning id',
+      'select * from azul_raw_sql_test',
+      'drop table azul_raw_sql_test'
     ];
     BluebirdPromise.reduce(queries, function(array, query) {
       return db._adapter.execute(query).then(function(result) {
@@ -49,7 +49,7 @@ describe('PostgresQL', function() {
       expect(result2).to.eql({ command: 'INSERT',
         rows: [{ id: 1 }], fields: ['id'] });
       expect(result3).to.eql({ command: 'SELECT',
-        rows: [{ id: 1, name: 'Agave' }],
+        rows: [{ id: 1, name: 'Azul' }],
         fields: ['id', 'name'] });
       expect(result4).to.eql({ command: 'DROP', rows: [], fields: [] });
     })

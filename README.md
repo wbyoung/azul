@@ -1,8 +1,8 @@
-# Agave
+# Azul
 
 [![NPM version][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][david-image]][david-url] [![devDependencies][david-dev-image]][david-dev-url]
 
-Agave has been built from the ground up to be the most expressive ORM for
+Azul has been built from the ground up to be the most expressive ORM for
 Node.js.
 
 At this point, this is still a **work in progress** that is focusing on
@@ -14,15 +14,15 @@ with other ORM tools. If you're interested in helping, please reach out.
 
 This project is distributed under the MIT license.
 
-[travis-url]: http://travis-ci.org/wbyoung/agave
-[travis-image]: https://secure.travis-ci.org/wbyoung/agave.png?branch=master
-[npm-url]: https://npmjs.org/package/agave
-[npm-image]: https://badge.fury.io/js/agave.png
-[codeclimate-image]: https://codeclimate.com/github/wbyoung/agave.png
-[codeclimate-url]: https://codeclimate.com/github/wbyoung/agave
-[coverage-image]: https://coveralls.io/repos/wbyoung/agave/badge.png
-[coverage-url]: https://coveralls.io/r/wbyoung/agave
-[david-image]: https://david-dm.org/wbyoung/agave.png?theme=shields.io
-[david-url]: https://david-dm.org/wbyoung/agave
-[david-dev-image]: https://david-dm.org/wbyoung/agave/dev-status.png?theme=shields.io
-[david-dev-url]: https://david-dm.org/wbyoung/agave#info=devDependencies
+[travis-url]: http://travis-ci.org/wbyoung/azul
+[travis-image]: https://secure.travis-ci.org/wbyoung/azul.png?branch=master
+[npm-url]: https://npmjs.org/package/azul
+[npm-image]: https://badge.fury.io/js/azul.png
+[codeclimate-image]: https://codeclimate.com/github/wbyoung/azul.png
+[codeclimate-url]: https://codeclimate.com/github/wbyoung/azul
+[coverage-image]: https://coveralls.io/repos/wbyoung/azul/badge.png
+[coverage-url]: https://coveralls.io/r/wbyoung/azul
+[david-image]: https://david-dm.org/wbyoung/azul.png?theme=shields.io
+[david-url]: https://david-dm.org/wbyoung/azul
+[david-dev-image]: https://david-dm.org/wbyoung/azul/dev-status.png?theme=shields.io
+[david-dev-url]: https://david-dm.org/wbyoung/azul#info=devDependencies
