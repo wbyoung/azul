@@ -4,9 +4,7 @@ var BluebirdPromise = require('bluebird');
 var Adapter = require('../../lib/db/adapters/base');
 
 /**
- * Postgres Adapter
- *
- * Documentation forthcoming.
+ * Mock adapter for testing.
  *
  * @since 1.0
  * @public
@@ -16,7 +14,7 @@ var Adapter = require('../../lib/db/adapters/base');
 var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
 
   /**
-   * Connect for MockAdapter
+   * Connect for MockAdapter.
    *
    * @method
    * @protected
@@ -28,7 +26,7 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
   }),
 
   /**
-   * Disconnect for MockAdapter
+   * Disconnect for MockAdapter.
    *
    * @method
    * @protected
