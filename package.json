@@ -1,7 +1,7 @@
 {
   "name": "azul",
-  "version": "0.1.0",
-  "description": "Elegant ORM for Node.js",
+  "version": "0.0.0",
+  "description": "Coming soon...",
   "homepage": "https://github.com/wbyoung/azul",
   "bugs": {
     "url": "https://github.com/wbyoung/azul/issues"
@@ -15,13 +15,6 @@
     "url": "git://github.com/wbyoung/azul.git"
   },
   "keywords": [
-    "postgres",
-    "mysql",
-    "sqlite",
-    "pg",
-    "orm",
-    "database",
-    "sql"
   ],
   "author": "Whitney Young",
   "license": "MIT",
