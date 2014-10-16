@@ -13,7 +13,7 @@ var migration, schema;
 
 describe('Migration', function() {
   before(function() {
-    var adapter = MockAdapter.create();
+    var adapter = MockAdapter.create({});
     schema = Schema.create(adapter);
     migration = Migration.create(adapter, schema,
       path.join(__dirname, '../fixtures/migrations/blog'));

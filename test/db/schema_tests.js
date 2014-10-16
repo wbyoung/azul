@@ -9,7 +9,7 @@ var schema;
 
 describe('Schema', function() {
   before(function() {
-    schema = Schema.create(MockAdapter.create());
+    schema = Schema.create(MockAdapter.create({}));
   });
 
   describe('#createTable', function() {
