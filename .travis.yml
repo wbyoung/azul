@@ -3,7 +3,7 @@ node_js:
 - '0.10'
 - '0.11'
 before_script:
-- psql -c 'create database "agave_test";' -U postgres
+- psql -c 'create database "azul_test";' -U postgres
 matrix:
   allow_failures:
   - node_js: '0.11'
