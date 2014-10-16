@@ -14,9 +14,9 @@ var BluebirdPromise = require('bluebird');
 
 var connection = {
   adapter: 'pg',
-  username: 'root',
-  password: '',
-  database: 'azul_test'
+  username: process.env.PG_USER || 'root',
+  password: process.env.PG_PASSWORD || '',
+  database: process.env.PG_DATABASE || 'azul_test'
 };
 
 describe('PostgresQL', function() {
@@ -40,7 +40,7 @@ describe('PostgresQL', function() {
       'drop table azul_raw_sql_test'
     ];
     BluebirdPromise.reduce(queries, function(array, query) {
-      return db._adapter.execute(query).then(function(result) {
+      return db._adapter.execute(query, [], connection).then(function(result) {
         return array.concat([result]);
       });
     }, [])
@@ -60,7 +60,7 @@ describe('PostgresQL', function() {
     var db = Database.create(connection);
     var query = 'SELECT $1::int AS number';
     var args = ['1'];
-    db._adapter.execute(query, args)
+    db._adapter.execute(query, args, connection)
     .then(function(result) {
       expect(result.rows).to.eql([{ number: 1 }]);
     })
