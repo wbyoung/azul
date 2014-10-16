@@ -108,6 +108,57 @@ describe('Migration', function() {
       });
 
     });
+
+    describe('#rollback', function() {
+
+      it('calls the down methods', function(done) {
+        migration.rollback().bind(this).then(function() {
+          expect(this.mod1.down).to.have.been.calledOnce;
+          expect(this.mod2.down).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
+      it('calls the down methods with the schema', function(done) {
+        migration.rollback().bind(this).then(function() {
+          expect(this.mod1.down).to.have.been.calledWithExactly(schema);
+          expect(this.mod2.down).to.have.been.calledWithExactly(schema);
+        })
+        .done(done, done);
+      });
+
+      it('does not call the up methods', function(done) {
+        migration.rollback().bind(this).then(function() {
+          expect(this.mod1.up).to.not.have.been.called;
+          expect(this.mod2.up).to.not.have.been.called;
+        })
+        .done(done, done);
+      });
+
+      it('respects migration promises', function(done) {
+        var sequence = 0;
+        var down1Sequence;
+        var down2Sequence;
+
+        this.mod1.down = function() {
+          return BluebirdPromise.delay(5).then(function() {
+            down1Sequence = sequence++;
+          });
+        };
+        this.mod2.down = function() {
+          return BluebirdPromise.delay(0).then(function() {
+            down2Sequence = sequence++;
+          });
+        };
+
+        migration.rollback().then(function() {
+          expect(down1Sequence).to.eql(0);
+          expect(down2Sequence).to.eql(1);
+        })
+        .done(done, done);
+      });
+
+    });
   });
 
   describe('#_determineReverseAction', function() {
