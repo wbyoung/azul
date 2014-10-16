@@ -12,7 +12,7 @@ var path = require('path');
 var Database = require('../../../lib/db/database');
 var BluebirdPromise = require('bluebird');
 
-var connection = {
+var db, connection = {
   adapter: 'pg',
   username: process.env.PG_USER || 'root',
   password: process.env.PG_PASSWORD || '',
@@ -20,8 +20,10 @@ var connection = {
 };
 
 describe('PostgresQL', function() {
+  before(function() { db = Database.create(connection); });
+  after(function(done) { db.disconnect().then(done, done); });
+
   it('executes raw sql', function(done) {
-    var db = Database.create(connection);
     var queries = [
       'create table azul_raw_sql_test (id serial, name varchar(255))',
       'insert into azul_raw_sql_test (name) values (\'Azul\') returning id',
@@ -46,7 +48,6 @@ describe('PostgresQL', function() {
   });
 
   it('receives rows from raw sql', function(done) {
-    var db = Database.create(connection);
     var query = 'SELECT $1::int AS number';
     var args = ['1'];
     db._adapter.execute(query, args, connection)
