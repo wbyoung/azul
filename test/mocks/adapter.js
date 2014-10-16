@@ -39,4 +39,4 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
 
 });
 
-module.exports = MockAdapter;
+module.exports = MockAdapter.reopenClass({ __name__: 'MockAdapter' });
