@@ -1,6 +1,6 @@
 'use strict';
 
-var chai = require('chai')
+var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Class = require('../../lib/util/class');
@@ -52,7 +52,7 @@ describe('Class', function() {
 
   it('can call super', function() {
     var speak = sinon.stub().returns('speaking');
-    var sup = function() { return this._super(); }
+    var sup = function() { return this._super(); };
     var Animal = Class.extend({ speak: speak });
     var Dog = Animal.extend({ speak: sup });
     var Havanese = Dog.extend({ speak: sup });
@@ -64,7 +64,7 @@ describe('Class', function() {
 
   it('can call super in class methods', function() {
     var species = sinon.stub().returns('animal');
-    var sup = function() { return this._super(); }
+    var sup = function() { return this._super(); };
     var Animal = Class.extend({}, { species: species });
     var Dog = Animal.extend({}, { species: sup });
     var Havanese = Dog.extend({}, { species: sup });
