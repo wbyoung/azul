@@ -80,6 +80,27 @@ describe('Class', function() {
     expect(Animal.create().speak()).to.eql('hi');
   });
 
+  it('can specify an new method', function() {
+    var Subclass = Class.extend({
+      new: function() { this.initialized = true; }
+    });
+    var obj = Subclass.create();
+    expect(obj.initialized).to.be.true;
+  });
+
+  it('calls new methods in proper sequence', function() {
+    var sequence = 0;
+    var Animal = Class.extend({
+      new: function() { this.animal = sequence++; }
+    });
+    var Dog = Animal.extend({
+      new: function() { this.dog = sequence++; }
+    });
+    var dog = Dog.create();
+    expect(dog.animal).to.eql(0);
+    expect(dog.dog).to.eql(1);
+  });
+
   it('can specify an init method', function() {
     var Subclass = Class.extend({
       init: function() { this.initialized = true; }
@@ -94,7 +115,7 @@ describe('Class', function() {
       init: function() { this.animal = sequence++; }
     });
     var Dog = Animal.extend({
-      init: function() { this.dog = sequence++; }
+      init: function() { this._super(); this.dog = sequence++; }
     });
     var dog = Dog.create();
     expect(dog.animal).to.eql(0);
