@@ -33,6 +33,15 @@ describe('Schema', function() {
       ));
     });
 
+    it('supports .unlessExists()', function() {
+      var query = schema.createTable('users', function(table) {
+        table.serial('id');
+      }).unlessExists();
+      expect(query.sql()).to.eql(Statement.create(
+        'create table if not exists users (id serial)', []
+      ));
+    });
+
 
     describe('types', function() {
       it('handles serial', function() {
