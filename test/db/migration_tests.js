@@ -14,7 +14,7 @@ var migration, schema;
 
 describe('Migration', function() {
   before(function() {
-    var adapter = MockAdapter.create({});
+    var adapter = this.adapter = MockAdapter.create({});
     var query = Query.create(adapter);
     schema = Schema.create(adapter);
     migration = Migration.create(query, schema,
@@ -46,6 +46,29 @@ describe('Migration', function() {
             '20141022202634_create_comments')
         ]);
       })
+      .done(done, done);
+    });
+
+  });
+
+
+  describe('#_loadExecutedMigrations', function() {
+
+    it('loads migrations in order', function(done) {
+      sinon.stub(this.adapter, '_execute').onSecondCall().returns({
+        rows: [{ id: 1, name: '20141022202234_create_articles', batch: 1 }],
+        fields: ['id', 'name', 'batch'],
+        command: 'SELECT'
+      });
+
+      migration._loadExecutedMigrations().bind(this)
+      .then(function(migrations) {
+        expect(migrations).to.eql([
+          require('../fixtures/migrations/blog/' +
+            '20141022202234_create_articles'),
+        ]);
+      })
+      .finally(function() { this.adapter._execute.restore(); })
       .done(done, done);
     });
 

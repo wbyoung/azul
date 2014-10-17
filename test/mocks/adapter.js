@@ -33,6 +33,21 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
    * @see {Adapter#_disconnect}
    */
   _disconnect: BluebirdPromise.method(function(/*client*/) {
+  }),
+
+  /**
+   * Execute for MockAdapter.
+   *
+   * @method
+   * @protected
+   * @see {Adapter#_execute}
+   */
+  _execute: BluebirdPromise.method(function(client, sql, args) {
+    return {
+      rows: [],
+      fields: [],
+      command: 'MOCK'
+    };
   })
 
 });
