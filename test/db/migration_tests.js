@@ -12,6 +12,16 @@ var Schema = require('../../lib/db/schema');
 var MockAdapter = require('../mocks/adapter');
 var migration, schema;
 
+var stubExecutedMigrations = function(names) {
+  sinon.stub(this.adapter, '_execute').onSecondCall().returns({
+    rows: names.map(function(name, index) {
+      return { id: index + 1, name: name, batch: 1 };
+    }),
+    fields: ['id', 'name', 'batch'],
+    command: 'SELECT'
+  });
+};
+
 describe('Migration', function() {
   before(function() {
     var adapter = this.adapter = MockAdapter.create({});
@@ -54,14 +64,10 @@ describe('Migration', function() {
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      sinon.stub(this.adapter, '_execute').onSecondCall().returns({
-        rows: [
-          { id: 2, name: '20141022202634_create_comments', batch: 1 },
-          { id: 1, name: '20141022202234_create_articles', batch: 1 }
-        ],
-        fields: ['id', 'name', 'batch'],
-        command: 'SELECT'
-      });
+      stubExecutedMigrations.call(this, [
+        '20141022202634_create_comments',
+        '20141022202234_create_articles'
+      ]);
 
       migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
@@ -79,11 +85,9 @@ describe('Migration', function() {
   describe('#_loadExecutedMigrations', function() {
 
     it('loads migrations in order', function(done) {
-      sinon.stub(this.adapter, '_execute').onSecondCall().returns({
-        rows: [{ id: 1, name: '20141022202234_create_articles', batch: 1 }],
-        fields: ['id', 'name', 'batch'],
-        command: 'SELECT'
-      });
+      stubExecutedMigrations.call(this, [
+        '20141022202234_create_articles'
+      ]);
 
       migration._loadExecutedMigrations().bind(this)
       .then(function(migrations) {
@@ -157,11 +161,9 @@ describe('Migration', function() {
       });
 
       it.skip('only applies incomplete migrations', function(done) {
-        sinon.stub(this.adapter, '_execute').onSecondCall().returns({
-          rows: [{ id: 1, name: '20141022202234_create_articles', batch: 1 }],
-          fields: ['id', 'name', 'batch'],
-          command: 'SELECT'
-        });
+        stubExecutedMigrations.call(this, [
+          '20141022202234_create_articles'
+        ]);
 
         migration.migrate().bind(this).then(function() {
           expect(this.mod1.up).to.not.have.been.called;
