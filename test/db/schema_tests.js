@@ -61,4 +61,21 @@ describe('Schema', function() {
     });
 
   });
+
+  describe('#dropTable', function() {
+
+    it('generates the proper sql', function() {
+      var query = schema.dropTable('users');
+      expect(query.sql()).to.eql(Statement.create(
+        'drop table users', []
+      ));
+    });
+
+    it('supports #ifExists()', function() {
+      var query = schema.dropTable('users').ifExists();
+      expect(query.sql()).to.eql(Statement.create(
+        'drop table if exists users', []
+      ));
+    });
+  });
 });
