@@ -152,11 +152,11 @@ describe('Migration', function() {
 
   });
 
-  describe('with fake migrations loaded', function() {
+  describe('with pending migrations stubbed', function() {
     beforeEach(function() {
       var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
       var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
-      migration._loadMigrations = BluebirdPromise.method(function() {
+      migration._loadPendingMigrations = BluebirdPromise.method(function() {
         return [mod1, mod2];
       });
     });
@@ -210,18 +210,17 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it.skip('only applies incomplete migrations', function(done) {
-        stubExecutedMigrations.call(this, [
-          '20141022202234_create_articles'
-        ]);
+    });
 
-        migration.migrate().bind(this).then(function() {
-          expect(this.mod1.up).to.not.have.been.called;
-          expect(this.mod2.up).to.have.been.calledOnce;
-        })
-        .done(done, done);
+  });
+
+  describe('with executed migrations stubbed', function() {
+    beforeEach(function() {
+      var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
+      var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
+      migration._loadExecutedMigrations = BluebirdPromise.method(function() {
+        return [mod1, mod2];
       });
-
     });
 
     describe('#rollback', function() {
