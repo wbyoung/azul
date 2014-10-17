@@ -61,6 +61,56 @@ describe('Migration', function() {
 
   });
 
+  describe('#_readPendingMigrations', function() {
+
+    it('reads migrations in order', function(done) {
+      migration._readPendingMigrations().bind(this)
+      .then(function(migrations) {
+        expect(migrations).to.eql([
+          '20141022202234_create_articles',
+          '20141022202634_create_comments'
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('does not include executed migrations', function(done) {
+      stubExecutedMigrations.call(this, [
+        '20141022202234_create_articles'
+      ]);
+
+      migration._readPendingMigrations().bind(this)
+      .then(function(migrations) {
+        expect(migrations).to.eql([
+          '20141022202634_create_comments'
+        ]);
+      })
+      .finally(function() { this.adapter._execute.restore(); })
+      .done(done, done);
+    });
+
+  });
+
+  describe('#_loadPendingMigrations', function() {
+
+    it('loads pending migrations', function(done) {
+      stubExecutedMigrations.call(this, [
+        '20141022202234_create_articles'
+      ]);
+
+      migration._loadPendingMigrations().bind(this)
+      .then(function(migrations) {
+        expect(migrations).to.eql([
+          require('../fixtures/migrations/blog/' +
+            '20141022202634_create_comments'),
+        ]);
+      })
+      .finally(function() { this.adapter._execute.restore(); })
+      .done(done, done);
+    });
+
+  });
+
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
