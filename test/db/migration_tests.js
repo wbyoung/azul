@@ -51,6 +51,30 @@ describe('Migration', function() {
 
   });
 
+  describe('#_readExecutedMigrations', function() {
+
+    it('reads migrations in order', function(done) {
+      sinon.stub(this.adapter, '_execute').onSecondCall().returns({
+        rows: [
+          { id: 2, name: '20141022202634_create_comments', batch: 1 },
+          { id: 1, name: '20141022202234_create_articles', batch: 1 }
+        ],
+        fields: ['id', 'name', 'batch'],
+        command: 'SELECT'
+      });
+
+      migration._readExecutedMigrations().bind(this)
+      .then(function(migrations) {
+        expect(migrations).to.eql([
+          '20141022202234_create_articles',
+          '20141022202634_create_comments'
+        ]);
+      })
+      .finally(function() { this.adapter._execute.restore(); })
+      .done(done, done);
+    });
+
+  });
 
   describe('#_loadExecutedMigrations', function() {
 
