@@ -156,6 +156,20 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it.skip('only applies incomplete migrations', function(done) {
+        sinon.stub(this.adapter, '_execute').onSecondCall().returns({
+          rows: [{ id: 1, name: '20141022202234_create_articles', batch: 1 }],
+          fields: ['id', 'name', 'batch'],
+          command: 'SELECT'
+        });
+
+        migration.migrate().bind(this).then(function() {
+          expect(this.mod1.up).to.not.have.been.called;
+          expect(this.mod2.up).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
     });
 
     describe('#rollback', function() {
