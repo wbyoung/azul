@@ -42,7 +42,6 @@ describe('Schema', function() {
       ));
     });
 
-
     describe('types', function() {
       it('handles serial', function() {
         var query = schema.createTable('users', function(table) {
