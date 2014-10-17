@@ -210,7 +210,21 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('records migrations in database');
+      it.skip('records migrations in database', function(done) {
+        sinon.spy(this.adapter, '_execute');
+
+        // TODO: this test doesn't pull out the right statements
+        migration.migrate().bind(this).then(function() {
+          expect(this.adapter._execute.call(3).args).to.eql([
+            'insert into azul_migrations (name, batch) values (\'migration_file_1\', 1)', []
+          ]);
+          expect(this.adapter._execute.call(3).args).to.eql([
+            'insert into azul_migrations (name, batch) values (\'migration_file_2\', 1)', []
+          ]);
+        })
+        .finally(function() { this.adapter._execute.restore(); })
+        .done(done, done);
+      });
 
     });
 
