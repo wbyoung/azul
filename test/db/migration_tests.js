@@ -210,6 +210,8 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it('records migrations in database');
+
     });
 
   });
@@ -272,6 +274,7 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it('removes migrations recorded in database');
     });
   });
 
