@@ -108,4 +108,12 @@ describe('query', function() {
       expect(original.sql()).to.not.eql(filtered.sql());
     });
   });
+
+  describe('insert', function() {
+    it('inserts data', function() {
+      expect(db.insert('users', { name: 'Whitney' }).sql()).to.eql(Statement.create(
+        'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
+      ));
+    });
+  });
 });
