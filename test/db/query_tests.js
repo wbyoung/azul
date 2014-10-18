@@ -115,5 +115,23 @@ describe('query', function() {
         'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
       ));
     });
+
+    it('inserts multiple sets of data', function() {
+      var query = db.insert('users', [{ name: 'Whitney' }, { name: 'Brittany'}]);
+      expect(query.sql()).to.eql(Statement.create(
+        'INSERT INTO "users" ("name") VALUES (?), (?)', ['Whitney', 'Brittany']
+      ));
+    });
+
+    it('inserts multiple sets of with different keys', function() {
+      var query = db.insert('users', [
+        { name: 'Whitney',  address: 'Portland' },
+        { name: 'Brittany'}
+      ]);
+      expect(query.sql()).to.eql(Statement.create(
+        'INSERT INTO "users" ("name", "address") VALUES (?, ?), (?, ?)',
+        ['Whitney', 'Portland', 'Brittany', undefined]
+      ));
+    });
   });
 });
