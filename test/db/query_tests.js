@@ -34,7 +34,7 @@ describe('query', function() {
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
       expect(result).to.eql(Statement.create(
-        'SELECT * FROM "users" WHERE ("id" = ?) and "name" = ?', [1, 'Whitney']
+        'SELECT * FROM "users" WHERE ("id" = ?) AND "name" = ?', [1, 'Whitney']
       ));
     });
 
@@ -44,7 +44,7 @@ describe('query', function() {
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
       expect(result).to.eql(Statement.create(
-        'SELECT * FROM "users" WHERE (("id" = ?) and "name" = ?) and "city" = ?', [1, 'Whitney', 'Portland']
+        'SELECT * FROM "users" WHERE (("id" = ?) AND "name" = ?) AND "city" = ?', [1, 'Whitney', 'Portland']
       ));
     });
 

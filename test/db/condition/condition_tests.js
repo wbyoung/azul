@@ -38,7 +38,7 @@ describe('condition', function() {
 
   it('can build expressions', function() {
     var result = this.stringify(w({ id: 1 }, { name: 'Whitney' }));
-    expect(result).to.eql('id = 1 and name = "Whitney"');
+    expect(result).to.eql('id = 1 AND name = "Whitney"');
   });
 
   describe('fields', function() {
@@ -109,13 +109,13 @@ describe('condition', function() {
   describe('operators', function() {
     it('implicitly adds an "and"  joining conditions', function() {
       var result = this.stringify(w({ first: 'Whitney' }, { last: 'Young' }));
-      expect(result).to.eql('first = "Whitney" and last = "Young"');
+      expect(result).to.eql('first = "Whitney" AND last = "Young"');
     });
 
     it('supports "and"  joining conditions', function() {
       var condition = w({ first: 'Whitney' }, w.and, { last: 'Young' });
       var result = this.stringify(condition);
-      expect(result).to.eql('first = "Whitney" and last = "Young"');
+      expect(result).to.eql('first = "Whitney" AND last = "Young"');
     });
 
     it('does not support "and" prefixing conditions', function() {
@@ -138,7 +138,7 @@ describe('condition', function() {
     it('supports "or" joining conditions', function() {
       var condition = w({ first: 'Whitney' }, w.or, { first: 'Whit' });
       var result = this.stringify(condition);
-      expect(result).to.eql('first = "Whitney" or first = "Whit"');
+      expect(result).to.eql('first = "Whitney" OR first = "Whit"');
     });
 
     it('does not support "or" prefixing conditions', function() {
@@ -166,7 +166,7 @@ describe('condition', function() {
 
     it('supports "not" prefixing conditions', function() {
       var result = this.stringify(w(w.not, { first: 'Whitney' }));
-      expect(result).to.eql('not first = "Whitney"');
+      expect(result).to.eql('NOT first = "Whitney"');
     });
 
     it('does not support "not" followed by "and"', function() {
@@ -188,7 +188,7 @@ describe('condition', function() {
 
     it('does supports multiple unary operators in a row', function() {
       var result = this.stringify(w(w.not, w.not, { first: 'Whitney' }));
-      expect(result).to.eql('not not first = "Whitney"');
+      expect(result).to.eql('NOT NOT first = "Whitney"');
     });
   });
 
@@ -198,7 +198,7 @@ describe('condition', function() {
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
       var result = this.stringify(fullPredicate);
-      expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
+      expect(result).to.eql('(first = "Whit" OR first = "Whitney") AND last = "Young"');
     });
 
     it('allows arrays to form groupings', function() {
@@ -206,13 +206,13 @@ describe('condition', function() {
       var lastPredicate = { last: 'Young' };
       var fullPredicate = w(firstPredicate, w.and, lastPredicate);
       var result = this.stringify(fullPredicate);
-      expect(result).to.eql('(first = "Whit" or first = "Whitney") and last = "Young"');
+      expect(result).to.eql('(first = "Whit" OR first = "Whitney") AND last = "Young"');
     });
 
     it('handles neighboring conditions', function() {
       var predicate = w(w({ first: 'Whitney' }), w({ last: 'Young' }));
       var result = this.stringify(predicate);
-      expect(result).to.eql('(first = "Whitney") and (last = "Young")');
+      expect(result).to.eql('(first = "Whitney") AND (last = "Young")');
     });
   });
 
