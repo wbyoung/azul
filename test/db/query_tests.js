@@ -19,13 +19,13 @@ describe('query', function() {
 
     it('accesses a table', function() {
       expect(db.select('users').sql()).to.eql(Statement.create(
-        'SELECT * FROM users', []
+        'SELECT * FROM "users"', []
       ));
     });
 
     it('can be filtered', function() {
       expect(db.select('users').where({ id: 1 }).sql()).to.eql(Statement.create(
-        'SELECT * FROM users WHERE "id" = ?', [1]
+        'SELECT * FROM "users" WHERE "id" = ?', [1]
       ));
     });
 
@@ -34,7 +34,7 @@ describe('query', function() {
         .where({ id: 1 })
         .where({ name: 'Whitney' }).sql();
       expect(result).to.eql(Statement.create(
-        'SELECT * FROM users WHERE ("id" = ?) and "name" = ?', [1, 'Whitney']
+        'SELECT * FROM "users" WHERE ("id" = ?) and "name" = ?', [1, 'Whitney']
       ));
     });
 
@@ -44,26 +44,26 @@ describe('query', function() {
         .where({ name: 'Whitney' })
         .where({ city: 'Portland' }).sql();
       expect(result).to.eql(Statement.create(
-        'SELECT * FROM users WHERE (("id" = ?) and "name" = ?) and "city" = ?', [1, 'Whitney', 'Portland']
+        'SELECT * FROM "users" WHERE (("id" = ?) and "name" = ?) and "city" = ?', [1, 'Whitney', 'Portland']
       ));
     });
 
     it('handles predicates', function() {
       expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
-        'SELECT * FROM articles WHERE "words" > ?', [200]
+        'SELECT * FROM "articles" WHERE "words" > ?', [200]
       ));
     });
 
     describe('column specification', function() {
       it('accepts simple names', function() {
         expect(db.select('articles', ['title', 'body']).sql()).to.eql(Statement.create(
-          'SELECT "title", "body" FROM articles', []
+          'SELECT "title", "body" FROM "articles"', []
         ));
       });
 
       it('accepts simple table qualified names', function() {
         expect(db.select('articles', ['articles.title', 'body']).sql()).to.eql(Statement.create(
-          'SELECT "articles"."title", "body" FROM articles', []
+          'SELECT "articles"."title", "body" FROM "articles"', []
         ));
       });
     });
@@ -71,13 +71,13 @@ describe('query', function() {
     describe('joins', function() {
       it('defaults to a cross join', function() {
         expect(db.select('articles').join('authors').sql()).to.eql(Statement.create(
-          'SELECT * FROM articles cross join authors', []
+          'SELECT * FROM "articles" cross join authors', []
         ));
       });
 
       it('accepts type', function() {
         expect(db.select('articles').join('authors', 'inner').sql()).to.eql(Statement.create(
-          'SELECT * FROM articles inner join authors', []
+          'SELECT * FROM "articles" inner join authors', []
         ));
       });
 
