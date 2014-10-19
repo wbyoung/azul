@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Class = require('../../lib/util/class');
+var Mixin = require('../../lib/util/mixin');
 
 describe('Class', function() {
 
@@ -205,5 +206,79 @@ describe('Class', function() {
     });
     expect(Dog.inspect()).to.eql('[Dog Class]');
     expect(Dog.toString()).to.eql('[Dog Class]');
+  });
+
+  describe('mixins', function() {
+    it('can specify mixins without instance properties', function() {
+      var BarkMixin = Mixin.create({
+        bark: function() { return 'bark'; }
+      });
+      var Animal = Class.extend(BarkMixin);
+      var animal = Animal.create();
+      expect(animal.bark()).to.eql('bark');
+    });
+
+    it('can specify mixins with instance properties', function() {
+      var BarkMixin = Mixin.create({
+        bark: function() { return 'bark'; }
+      });
+      var Animal = Class.extend(BarkMixin, {
+        walk: function() { return 'walk'; }
+      });
+      var animal = Animal.create();
+      expect(animal.walk()).to.eql('walk');
+      expect(animal.bark()).to.eql('bark');
+    });
+
+    it('allows multiple mixins', function() {
+      var BarkMixin = Mixin.create({
+        bark: function() { return 'bark'; }
+      });
+      var WalkMixin = Mixin.create({
+        walk: function() { return 'walk'; }
+      });
+      var Animal = Class.extend(BarkMixin, WalkMixin, {});
+      var animal = Animal.create();
+      expect(animal.walk()).to.eql('walk');
+      expect(animal.bark()).to.eql('bark');
+    });
+
+    it('support #_super', function() {
+      var BarkMixin = Mixin.create({
+        speak: function() { return 'bark ' + (this._super() || ''); }
+      });
+      var Animal = Class.extend(BarkMixin, {
+        speak: function() {
+          return 'animal ' + this._super();
+        }
+      });
+      var Dog = Animal.extend(BarkMixin, {
+        speak: function() {
+          return 'dog ' + this._super();
+        }
+      });
+      var dog = Dog.create();
+      expect(dog.speak().trim()).to.eql('dog bark animal bark');
+    });
+
+    it('allows mixins to be created with mixins', function() {
+      var AMixin = Mixin.create({
+        fn: function() { return 'a'; }
+      });
+
+      var BMixin = Mixin.create({
+        fn: function() { return this._super() + 'b'; }
+      });
+
+      var CMixin = Mixin.create(AMixin, BMixin, {
+        fn: function() { return this._super() + 'c'; }
+      });
+
+      var Subclass = Class.extend(CMixin);
+      var instance = Subclass.create();
+
+      expect(instance.fn()).to.eql('abc');
+    });
+
   });
 });
