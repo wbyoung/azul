@@ -116,6 +116,12 @@ describe('query', function() {
       ));
     });
 
+    it('inserts data via #values', function() {
+      expect(db.insert('users').values({ name: 'Whitney' }).sql()).to.eql(Statement.create(
+        'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
+      ));
+    });
+
     it('inserts multiple sets of data', function() {
       var query = db.insert('users', [{ name: 'Whitney' }, { name: 'Brittany'}]);
       expect(query.sql()).to.eql(Statement.create(

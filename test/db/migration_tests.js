@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 var path = require('path');
@@ -36,8 +37,8 @@ describe('Migration', function() {
     it('reads migrations in order', function(done) {
       migration._readMigrations().then(function(migrations) {
         expect(migrations).to.eql([
-          '20141022202234_create_articles',
-          '20141022202634_create_comments'
+          { name: '20141022202234_create_articles' },
+          { name: '20141022202634_create_comments' }
         ]);
       })
       .done(done, done);
@@ -50,10 +51,14 @@ describe('Migration', function() {
     it('loads migrations in order', function(done) {
       migration._loadMigrations().then(function(migrations) {
         expect(migrations).to.eql([
-          require('../fixtures/migrations/blog/' +
-            '20141022202234_create_articles'),
-          require('../fixtures/migrations/blog/' +
-            '20141022202634_create_comments')
+          _.extend({
+            name: '20141022202234_create_articles'
+          }, require('../fixtures/migrations/blog/' +
+            '20141022202234_create_articles')),
+          _.extend({
+            name: '20141022202634_create_comments'
+          }, require('../fixtures/migrations/blog/' +
+            '20141022202634_create_comments'))
         ]);
       })
       .done(done, done);
@@ -67,8 +72,8 @@ describe('Migration', function() {
       migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          '20141022202234_create_articles',
-          '20141022202634_create_comments'
+          { name: '20141022202234_create_articles', batch: 1 },
+          { name: '20141022202634_create_comments', batch: 1 }
         ]);
       })
       .done(done, done);
@@ -82,7 +87,7 @@ describe('Migration', function() {
       migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          '20141022202634_create_comments'
+          { name: '20141022202634_create_comments', batch: 2 }
         ]);
       })
       .finally(function() { this.adapter._execute.restore(); })
@@ -101,8 +106,11 @@ describe('Migration', function() {
       migration._loadPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          require('../fixtures/migrations/blog/' +
-            '20141022202634_create_comments'),
+          _.extend({
+            name: '20141022202634_create_comments',
+            batch: 2
+          }, require('../fixtures/migrations/blog/' +
+            '20141022202634_create_comments')),
         ]);
       })
       .finally(function() { this.adapter._execute.restore(); })
@@ -122,8 +130,8 @@ describe('Migration', function() {
       migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          '20141022202234_create_articles',
-          '20141022202634_create_comments'
+          { name: '20141022202234_create_articles', batch: 1 },
+          { name: '20141022202634_create_comments', batch: 1 }
         ]);
       })
       .finally(function() { this.adapter._execute.restore(); })
@@ -142,8 +150,11 @@ describe('Migration', function() {
       migration._loadExecutedMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          require('../fixtures/migrations/blog/' +
-            '20141022202234_create_articles'),
+          _.extend({
+            name: '20141022202234_create_articles',
+            batch: 1
+          }, require('../fixtures/migrations/blog/' +
+            '20141022202234_create_articles')),
         ]);
       })
       .finally(function() { this.adapter._execute.restore(); })
@@ -154,8 +165,14 @@ describe('Migration', function() {
 
   describe('with pending migrations stubbed', function() {
     beforeEach(function() {
-      var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
-      var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
+      var mod1 = this.mod1 = {
+        up: sinon.spy(), down: sinon.spy(),
+        name: 'migration_file_1', batch: 1
+      };
+      var mod2 = this.mod2 = {
+        up: sinon.spy(), down: sinon.spy(),
+        name: 'migration_file_2', batch: 1
+      };
       migration._loadPendingMigrations = BluebirdPromise.method(function() {
         return [mod1, mod2];
       });
@@ -210,17 +227,16 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it.skip('records migrations in database', function(done) {
+      it('records migrations in database', function(done) {
         sinon.spy(this.adapter, '_execute');
 
         // TODO: this test doesn't pull out the right statements
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute.call(3).args).to.eql([
-            'insert into azul_migrations (name, batch) values (\'migration_file_1\', 1)', []
-          ]);
-          expect(this.adapter._execute.call(3).args).to.eql([
-            'insert into azul_migrations (name, batch) values (\'migration_file_2\', 1)', []
-          ]);
+          expect(this.adapter._execute.firstCall.args[1]).to.eql(
+            'INSERT INTO "azul_migrations" ("name", "batch") ' +
+            'VALUES (?, ?), (?, ?)');
+          expect(this.adapter._execute.firstCall.args[2]).to.eql(
+            ['migration_file_1', 1, 'migration_file_2', 1]);
         })
         .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
