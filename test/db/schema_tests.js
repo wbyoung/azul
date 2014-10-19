@@ -19,7 +19,7 @@ describe('Schema', function() {
         table.string('name');
       });
       expect(query.sql()).to.eql(Statement.create(
-        'create table users (name varchar(255))', []
+        'CREATE TABLE "users" ("name" varchar(255))', []
       ));
     });
 
@@ -29,7 +29,7 @@ describe('Schema', function() {
         table.string('name');
       });
       expect(query.sql()).to.eql(Statement.create(
-        'create table users (id serial, name varchar(255))', []
+        'CREATE TABLE "users" ("id" serial, "name" varchar(255))', []
       ));
     });
 
@@ -38,7 +38,7 @@ describe('Schema', function() {
         table.serial('id');
       }).unlessExists();
       expect(query.sql()).to.eql(Statement.create(
-        'create table if not exists users (id serial)', []
+        'CREATE TABLE IF NOT EXISTS "users" ("id" serial)', []
       ));
     });
 
@@ -48,7 +48,7 @@ describe('Schema', function() {
           table.serial('id');
         });
         expect(query.sql()).to.eql(Statement.create(
-          'create table users (id serial)', []
+          'CREATE TABLE "users" ("id" serial)', []
         ));
       });
     });
@@ -67,14 +67,14 @@ describe('Schema', function() {
     it('generates the proper sql', function() {
       var query = schema.dropTable('users');
       expect(query.sql()).to.eql(Statement.create(
-        'drop table users', []
+        'DROP TABLE "users"', []
       ));
     });
 
     it('supports #ifExists()', function() {
       var query = schema.dropTable('users').ifExists();
       expect(query.sql()).to.eql(Statement.create(
-        'drop table if exists users', []
+        'DROP TABLE IF EXISTS "users"', []
       ));
     });
   });
