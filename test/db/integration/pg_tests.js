@@ -31,7 +31,7 @@ describe('PostgresQL', function() {
       'DROP TABLE azul_raw_sql_test'
     ];
     BluebirdPromise.reduce(queries, function(array, query) {
-      return db._adapter.execute(query, [], connection).then(function(result) {
+      return db._adapter.execute(query, []).then(function(result) {
         return array.concat([result]);
       });
     }, [])
@@ -50,7 +50,7 @@ describe('PostgresQL', function() {
   it('receives rows from raw sql', function(done) {
     var query = 'SELECT $1::int AS number';
     var args = ['1'];
-    db._adapter.execute(query, args, connection)
+    db._adapter.execute(query, args)
     .then(function(result) {
       expect(result.rows).to.eql([{ number: 1 }]);
     })
