@@ -272,8 +272,14 @@ describe('Migration', function() {
 
   describe('with executed migrations stubbed', function() {
     beforeEach(function() {
-      var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
-      var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
+      var mod1 = this.mod1 = {
+        up: sinon.spy(), down: sinon.spy(),
+        name: 'migration_file_1', batch: 1
+      };
+      var mod2 = this.mod2 = {
+        up: sinon.spy(), down: sinon.spy(),
+        name: 'migration_file_2', batch: 1
+      };
       sinon.stub(migration, '_loadExecutedMigrations')
         .returns(BluebirdPromise.resolve([mod1, mod2]));
     });
@@ -330,7 +336,7 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it.skip('removes migrations recorded in database', function(done) {
+      it('removes migrations recorded in database', function(done) {
         sinon.spy(this.adapter, '_execute');
 
         migration.rollback().bind(this).then(function() {
