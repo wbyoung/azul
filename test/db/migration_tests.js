@@ -230,7 +230,6 @@ describe('Migration', function() {
       it('records migrations in database', function(done) {
         sinon.spy(this.adapter, '_execute');
 
-        // TODO: this test doesn't pull out the right statements
         migration.migrate().bind(this).then(function() {
           expect(this.adapter._execute.firstCall.args[1]).to.eql(
             'INSERT INTO "azul_migrations" ("name", "batch") ' +
