@@ -122,6 +122,15 @@ describe('Class', function() {
     expect(dog.dog).to.eql(1);
   });
 
+  it('can be created uninitialized', function() {
+    var newSpy = sinon.spy();
+    var initSpy = sinon.spy();
+    var Subclass = Class.extend({ new: newSpy, init: initSpy });
+    var obj = Subclass.new();
+    expect(newSpy).to.have.been.calledOnce;
+    expect(initSpy).to.not.have.been.called;
+  });
+
   it('allows static methods to be accessed via sublcasses', function() {
     var Animal = Class.extend();
     var staticMember = {};
