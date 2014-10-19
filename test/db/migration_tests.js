@@ -240,6 +240,29 @@ describe('Migration', function() {
         .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
       });
+    });
+  });
+
+  describe('with pending migrations stubbed as empty', function() {
+    beforeEach(function() {
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    describe('#migrate', function() {
+
+      it('does not record migrations in database', function(done) {
+        sinon.spy(this.adapter, '_execute');
+
+        migration.migrate().bind(this).then(function() {
+          expect(this.adapter._execute).to.not.have.been.called;
+        })
+        .finally(function() { this.adapter._execute.restore(); })
+        .done(done, done);
+      });
 
     });
 
