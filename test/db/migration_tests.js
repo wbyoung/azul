@@ -173,9 +173,11 @@ describe('Migration', function() {
         up: sinon.spy(), down: sinon.spy(),
         name: 'migration_file_2', batch: 1
       };
-      migration._loadPendingMigrations = BluebirdPromise.method(function() {
-        return [mod1, mod2];
-      });
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod1, mod2]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
     });
 
     describe('#migrate', function() {
@@ -272,9 +274,11 @@ describe('Migration', function() {
     beforeEach(function() {
       var mod1 = this.mod1 = { up: sinon.spy(), down: sinon.spy() };
       var mod2 = this.mod2 = { up: sinon.spy(), down: sinon.spy() };
-      migration._loadExecutedMigrations = BluebirdPromise.method(function() {
-        return [mod1, mod2];
-      });
+      sinon.stub(migration, '_loadExecutedMigrations')
+        .returns(BluebirdPromise.resolve([mod1, mod2]));
+    });
+    afterEach(function() {
+      migration._loadExecutedMigrations.restore();
     });
 
     describe('#rollback', function() {
