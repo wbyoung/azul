@@ -71,24 +71,24 @@ describe('query', function() {
     describe('joins', function() {
       it('defaults to a cross join', function() {
         expect(db.select('articles').join('authors').sql()).to.eql(Statement.create(
-          'SELECT * FROM "articles" cross join authors', []
+          'SELECT * FROM "articles" CROSS JOIN "authors"', []
         ));
       });
 
       it('accepts type', function() {
         expect(db.select('articles').join('authors', 'inner').sql()).to.eql(Statement.create(
-          'SELECT * FROM "articles" inner join authors', []
+          'SELECT * FROM "articles" INNER JOIN "authors"', []
         ));
       });
 
       it('accepts conditions', function() {
         var result = db.select('articles').join('authors', { 'articles.author_id': f('authors.id') }).sql();
-        expect(result.sql).to.match(/join authors on "articles"."author_id" = "authors"."id"$/);
+        expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
       });
 
       it('accepts conditions as a simple string', function() {
         var result = db.select('articles').join('authors', 'articles.author_id=authors.id').sql();
-        expect(result.sql).to.match(/join authors on "articles"."author_id" = "authors"."id"$/);
+        expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
       });
     });
 
