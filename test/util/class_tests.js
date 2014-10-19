@@ -127,6 +127,7 @@ describe('Class', function() {
     var initSpy = sinon.spy();
     var Subclass = Class.extend({ new: newSpy, init: initSpy });
     var obj = Subclass.new();
+    expect(obj).to.be.an.instanceOf(Subclass.__class__);
     expect(newSpy).to.have.been.calledOnce;
     expect(initSpy).to.not.have.been.called;
   });
