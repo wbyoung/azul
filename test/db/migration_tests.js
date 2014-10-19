@@ -330,7 +330,17 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('removes migrations recorded in database');
+      it.skip('removes migrations recorded in database', function(done) {
+        sinon.spy(this.adapter, '_execute');
+
+        migration.rollback().bind(this).then(function() {
+          expect(this.adapter._execute.lastCall.args.slice(1)).to.eql([
+            'DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]
+          ]);
+        })
+        .finally(function() { this.adapter._execute.restore(); })
+        .done(done, done);
+      });
     });
   });
 
