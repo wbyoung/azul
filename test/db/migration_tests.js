@@ -233,11 +233,11 @@ describe('Migration', function() {
         sinon.spy(this.adapter, '_execute');
 
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute.firstCall.args[1]).to.eql(
+          expect(this.adapter._execute.lastCall.args.slice(1)).to.eql([
             'INSERT INTO "azul_migrations" ("name", "batch") ' +
-            'VALUES (?, ?), (?, ?)');
-          expect(this.adapter._execute.firstCall.args[2]).to.eql(
-            ['migration_file_1', 1, 'migration_file_2', 1]);
+            'VALUES (?, ?), (?, ?)',
+            ['migration_file_1', 1, 'migration_file_2', 1]
+          ]);
         })
         .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
