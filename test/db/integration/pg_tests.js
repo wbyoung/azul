@@ -72,10 +72,10 @@ describe('PostgresQL', function() {
     // TODO: consider how to implement these tests. the intention here is
     // to create more of an integration style test. perhaps it should be
     // shared amongst all of the adapter test files somehow.
-    // it('inserts data');
-    // it('selects data');
-    // it('updates data');
-    // it('drops tables');
+    it('inserts data');
+    it('selects data');
+    it('updates data');
+    it('drops tables');
   });
 
 });
