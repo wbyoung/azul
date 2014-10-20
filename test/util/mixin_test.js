@@ -1,11 +1,26 @@
 'use strict';
 
+var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 var Class = require('../../lib/util/class');
 var Mixin = require('../../lib/util/mixin');
 
 describe('mixins', function() {
+  it('looks just like an object', function() {
+    var properties = {
+      first: 'first',
+      second: function() { return 'second'; }
+    };
+    var SimpleMixin = Mixin.create(properties);
+    expect(_.clone(SimpleMixin)).to.eql(properties);
+  });
+
+  it('is a mixin', function() {
+    var SimpleMixin = Mixin.create({});
+    expect(SimpleMixin).to.be.instanceOf(Mixin.__class__);
+  });
+
   it('can specify mixins without instance properties', function() {
     var BarkMixin = Mixin.create({
       bark: function() { return 'bark'; }
