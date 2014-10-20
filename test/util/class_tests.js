@@ -274,10 +274,37 @@ describe('Class', function() {
         fn: function() { return this._super() + 'c'; }
       });
 
-      var Subclass = Class.extend(CMixin);
+      var Subclass = Class.extend(CMixin, {
+        fn: function() { return this._super() + 'd'; }
+      });
       var instance = Subclass.create();
 
-      expect(instance.fn()).to.eql('abc');
+      expect(instance.fn()).to.eql('abcd');
+    });
+
+    it('allows mixins to be created with mixins', function() {
+      var AMixin = Mixin.create({
+        fn: function() { return this._super() + 'a'; }
+      });
+
+      var BMixin = Mixin.create({
+        fn: function() { return this._super() + 'b'; }
+      });
+
+      var CMixin = Mixin.create(AMixin, BMixin, {
+        fn: function() { return this._super() + 'c'; }
+      });
+
+      var Baseclass = Class.extend({
+        fn: function() { return '_'; }
+      });
+
+      var Subclass = Baseclass.extend(CMixin, {
+        fn: function() { return this._super() + 'd'; }
+      });
+      var instance = Subclass.create();
+
+      expect(instance.fn()).to.eql('_abcd');
     });
 
   });
