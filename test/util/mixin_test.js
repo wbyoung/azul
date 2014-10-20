@@ -104,4 +104,10 @@ describe('mixins', function() {
     expect(instance.fn()).to.eql('_abcd');
   });
 
+  it('cannot be extended again', function() {
+    expect(function() {
+      Mixin.extend();
+    }).to.throw(/cannot extend mixin/i);
+  });
+
 });
