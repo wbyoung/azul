@@ -1,10 +1,13 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var Database = require('../../lib/db');
 var MockAdapter = require('../mocks/adapter');
 var Statement = require('../../lib/db/grammar/statement');
+var RawQuery = require('../../lib/db/query/raw');
 var Condition = require('../../lib/db/condition'),
   f = Condition.f;
 
@@ -162,6 +165,87 @@ describe('query', function() {
       expect(db.delete('users').where({ id: 1 }).sql()).to.eql(Statement.create(
         'DELETE FROM "users" WHERE "id" = ?', [1]
       ));
+    });
+  });
+
+  describe('transactions', function() {
+    describe('when begun', function() {
+      it('can be committed');
+      it('can be rolled back');
+
+      beforeEach(function() {
+        this.transaction = db.query.begin();
+        this.transaction.__testingProperty = 'hello';
+      });
+
+      it('is a query', function() {
+        expect(this.transaction).to.be.an.instanceOf(RawQuery.__class__);
+      });
+
+      it('includes sql', function() {
+        expect(this.transaction.sql()).to.eql(Statement.create(
+          'BEGIN', []
+        ));
+      });
+
+      var shouldWorkWithCurrentSelectQuery = function(){
+
+        it('generates standard sql', function() {
+          expect(this.selectQuery.sql()).to.eql(Statement.create(
+            'SELECT * FROM "users"', []
+          ));
+        });
+
+        it.skip('cannot run if initial transaction was committed', function(done) {
+          this.transaction.commit().execute().bind(this).then(function() {
+            return this.selectQuery.execute();
+          })
+          .throw(new Error('Expected query execution to fail.'))
+          .catch(function(e) {
+            expect(e).to.match(/failed to execute in committed transaction/);
+          })
+          .done(done, done);
+        });
+
+        describe('when executed', function() {
+          beforeEach(function() { sinon.spy(db._adapter, '_execute'); });
+          afterEach(function() { db._adapter._execute.restore(); });
+
+          beforeEach(function(done) {
+            this.selectQuery.execute().then(function() { done(); }, done);
+          });
+
+          it('first acquires a client', function() {
+            var client = this.transaction._client;
+            expect(client).to.exist;
+            expect(this.transaction._clientPromise.isFulfilled()).to.be.true;
+          });
+
+          it.skip('passes transaction to adapter', function() {
+            var client = this.transaction._client;
+            expect(db._adapter._execute).to.have.been
+              .calledWithExactly(client, 'SELECT * FROM "users"', []);
+          });
+        });
+      };
+
+      describe('a select that uses the transaction', function() {
+        beforeEach(function() {
+          this.selectQuery = db.select('users').transaction(this.transaction);
+        });
+
+        shouldWorkWithCurrentSelectQuery();
+      });
+
+      describe('a select created from the transaction', function() {
+        beforeEach(function() {
+          this.selectQuery = this.transaction.select('users');
+        });
+
+        // shouldWorkWithCurrentSelectQuery();
+      });
+
+      it('can be nested');
     });
   });
 });
