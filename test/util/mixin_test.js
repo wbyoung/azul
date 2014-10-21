@@ -30,6 +30,16 @@ describe('mixins', function() {
     expect(animal.bark()).to.eql('bark');
   });
 
+  it('can be passed to Class.reopen', function() {
+    var BarkMixin = Mixin.create({
+      bark: function() { return 'bark'; }
+    });
+    var Animal = Class.extend();
+    Animal.reopen(BarkMixin);
+    var animal = Animal.create();
+    expect(animal.bark()).to.eql('bark');
+  });
+
   it('can specify mixins with instance properties', function() {
     var BarkMixin = Mixin.create({
       bark: function() { return 'bark'; }
