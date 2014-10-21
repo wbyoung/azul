@@ -7,12 +7,21 @@ var Class = require('../../lib/util/class');
 var Mixin = require('../../lib/util/mixin');
 
 describe('mixins', function() {
-  it('looks just like an object', function() {
+  it('looks like an object', function() {
     var properties = {
       first: 'first',
       second: function() { return 'second'; }
     };
     var SimpleMixin = Mixin.create(properties);
+    expect(_.clone(SimpleMixin)).to.eql(properties);
+  });
+
+  it('looks like an object, but the first mixin only', function() {
+    var properties = {
+      first: 'first',
+      second: function() { return 'second'; }
+    };
+    var SimpleMixin = Mixin.create(properties, { ignored: 'ignored' });
     expect(_.clone(SimpleMixin)).to.eql(properties);
   });
 
@@ -96,12 +105,17 @@ describe('mixins', function() {
       fn: function() { return this._super() + 'c'; }
     });
 
-    var Subclass = Class.extend(CMixin, {
+
+    var DMixin = Mixin.create(CMixin, {
       fn: function() { return this._super() + 'd'; }
+    });
+
+    var Subclass = Class.extend(DMixin, {
+      fn: function() { return this._super() + 'e'; }
     });
     var instance = Subclass.create();
 
-    expect(instance.fn()).to.eql('abcd');
+    expect(instance.fn()).to.eql('abcde');
   });
 
   it('allows mixins to be created with mixins & call #_super', function() {
