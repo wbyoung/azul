@@ -43,10 +43,25 @@ describe('mixins', function() {
     var BarkMixin = Mixin.create({
       bark: function() { return 'bark'; }
     });
+    var LoudBarkMixin = Mixin.create(BarkMixin, {
+      bark: function() { return this._super().toUpperCase(); }
+    });
     var Animal = Class.extend();
-    Animal.reopen(BarkMixin);
+    Animal.reopen(LoudBarkMixin);
     var animal = Animal.create();
-    expect(animal.bark()).to.eql('bark');
+    expect(animal.bark()).to.eql('BARK');
+  });
+
+  it('can be passed to Class.reopenClass', function() {
+    var BarkMixin = Mixin.create({
+      bark: function() { return 'bark'; }
+    });
+    var LoudBarkMixin = Mixin.create(BarkMixin, {
+      bark: function() { return this._super().toUpperCase(); }
+    });
+    var Animal = Class.extend();
+    Animal.reopenClass(LoudBarkMixin);
+    expect(Animal.bark()).to.eql('BARK');
   });
 
   it('can specify mixins with instance properties', function() {
