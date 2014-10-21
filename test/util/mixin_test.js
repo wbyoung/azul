@@ -94,7 +94,7 @@ describe('mixins', function() {
     expect(instance.fn()).to.eql('abcd');
   });
 
-  it('allows mixins to be created with mixins', function() {
+  it('allows mixins to be created with mixins & call #_super', function() {
     var AMixin = Mixin.create({
       fn: function() { return this._super() + 'a'; }
     });
