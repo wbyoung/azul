@@ -250,7 +250,7 @@ describe('Transaction Mixin', function() {
       shouldWorkWithCurrentSelectQuery();
     });
 
-    it.skip('can be nested', function(done) {
+    it('can be nested', function(done) {
       var txn = this.transaction;
       var client;
       txn.execute()
@@ -272,9 +272,9 @@ describe('Transaction Mixin', function() {
             .calledWithExactly(client, 'SELECT * FROM "articles"', []);
           expect(db._adapter._execute.getCall(4)).to.have.been
             .calledWithExactly(client, 'SELECT * FROM "comments"', []);
-          expect(db._adapter._execute.getCall(4)).to.have.been
-            .calledWithExactly(client, 'COMMIT', []);
           expect(db._adapter._execute.getCall(5)).to.have.been
+            .calledWithExactly(client, 'COMMIT', []);
+          expect(db._adapter._execute.getCall(6)).to.have.been
             .calledWithExactly(client, 'COMMIT', []);
           expect(txn.client()).to.not.exist;
       })
