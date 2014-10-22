@@ -205,6 +205,30 @@ describe('query', function() {
         .done(done, done);
       });
 
+      it('preforms commit with same client', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          return this.transaction.commit();
+        })
+        .then(function() {
+          var client = this.transaction._client;
+          expect(db._adapter._execute).to.have.been
+            .calledWithExactly(client, 'COMMIT', []);
+        })
+        .done(done, done);
+      });
+
+      it('preforms rollback with same client', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          return this.transaction.rollback();
+        })
+        .then(function() {
+          var client = this.transaction._client;
+          expect(db._adapter._execute).to.have.been
+            .calledWithExactly(client, 'ROLLBACK', []);
+        })
+        .done(done, done);
+      });
+
       it('releases client back to pool on commit', function(done) {
         this.transaction.execute().bind(this).then(function() {
           return this.transaction.commit();
