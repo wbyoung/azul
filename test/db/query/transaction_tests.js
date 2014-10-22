@@ -86,62 +86,73 @@ describe('Transaction Mixin', function() {
     });
 
     it('preforms commit with same client', function(done) {
-      this.transaction.execute().bind(this).then(function() {
-        return this.transaction.commit();
+      var self = this;
+      this.transaction.execute().bind(this)
+      .tap(function() { this.client = self.transaction.client(); })
+      .then(function() {
+        return self.transaction.commit();
       })
       .then(function() {
-        var client = this.transaction.client();
         expect(db._adapter._execute).to.have.been
-          .calledWithExactly(client, 'COMMIT', []);
+          .calledWithExactly(this.client, 'COMMIT', []);
       })
       .done(done, done);
     });
 
     it('preforms rollback with same client', function(done) {
-      this.transaction.execute().bind(this).then(function() {
-        return this.transaction.rollback();
+      var self = this;
+      this.transaction.execute().bind({})
+      .tap(function() { this.client = self.transaction.client(); })
+      .then(function() {
+        return self.transaction.rollback();
       })
       .then(function() {
-        var client = this.transaction.client();
         expect(db._adapter._execute).to.have.been
-          .calledWithExactly(client, 'ROLLBACK', []);
+          .calledWithExactly(this.client, 'ROLLBACK', []);
       })
       .done(done, done);
     });
 
     it('can be committed with transaction specified later', function(done) {
-      this.transaction.execute().bind(this).then(function() {
-        return db.query.commit().transaction(this.transaction);
+      var self = this;
+      this.transaction.execute().bind({})
+      .tap(function() { this.client = self.transaction.client(); })
+      .then(function() {
+        return db.query.commit().transaction(self.transaction);
       })
       .then(function() {
-        var client = this.transaction.client();
         expect(db._adapter._execute).to.have.been
-          .calledWithExactly(client, 'COMMIT', []);
+          .calledWithExactly(this.client, 'COMMIT', []);
       })
       .done(done, done);
     });
 
     it('can be rolled back with transaction specified later', function(done) {
-      this.transaction.execute().bind(this).then(function() {
-        return db.query.rollback().transaction(this.transaction);
+      var self = this;
+      this.transaction.execute().bind({})
+      .tap(function() { this.client = self.transaction.client(); })
+      .then(function() {
+        return db.query.rollback().transaction(self.transaction);
       })
       .then(function() {
-        var client = this.transaction.client();
         expect(db._adapter._execute).to.have.been
-          .calledWithExactly(client, 'ROLLBACK', []);
+          .calledWithExactly(this.client, 'ROLLBACK', []);
       })
       .done(done, done);
     });
 
     it('releases client back to pool on commit', function(done) {
-      this.transaction.execute().bind(this).then(function() {
-        return this.transaction.commit();
+      var self = this;
+      this.transaction.execute().bind({})
+      .tap(function() { this.client = self.transaction.client(); })
+      .then(function() {
+        return self.transaction.commit();
       })
       .then(function() {
         expect(db._adapter.pool.acquire).to.have.been.calledOnce;
         expect(db._adapter.pool.release).to.have.been.calledOnce;
         expect(db._adapter.pool.release).to.have.been
-          .calledWithExactly(this.transaction.client());
+          .calledWithExactly(this.client);
       })
       .done(done, done);
     });
