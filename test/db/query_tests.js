@@ -210,7 +210,7 @@ describe('query', function() {
           return this.transaction.commit();
         })
         .then(function() {
-          var client = this.transaction._client;
+          var client = this.transaction.client();
           expect(db._adapter._execute).to.have.been
             .calledWithExactly(client, 'COMMIT', []);
         })
@@ -222,7 +222,7 @@ describe('query', function() {
           return this.transaction.rollback();
         })
         .then(function() {
-          var client = this.transaction._client;
+          var client = this.transaction.client();
           expect(db._adapter._execute).to.have.been
             .calledWithExactly(client, 'ROLLBACK', []);
         })
@@ -237,7 +237,7 @@ describe('query', function() {
           expect(db._adapter.pool.acquire).to.have.been.calledOnce;
           expect(db._adapter.pool.release).to.have.been.calledOnce;
           expect(db._adapter.pool.release).to.have.been
-            .calledWithExactly(this.transaction._client);
+            .calledWithExactly(this.transaction.client());
         })
         .done(done, done);
       });
@@ -297,13 +297,14 @@ describe('query', function() {
           });
 
           it('first acquires a client', function() {
-            var client = this.transaction._client;
+            var client = this.transaction.client();
             expect(client).to.exist;
-            expect(this.transaction._clientPromise.isFulfilled()).to.be.true;
+            expect(this.transaction._transactionClientPromise.isFulfilled())
+              .to.be.true;
           });
 
           it('passes transaction to adapter', function() {
-            var client = this.transaction._client;
+            var client = this.transaction.client();
             expect(db._adapter._execute).to.have.been
               .calledWithExactly(client, 'SELECT * FROM "users"', []);
           });
