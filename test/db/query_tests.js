@@ -189,7 +189,14 @@ describe('query', function() {
         ));
       });
 
-      it('must be executed before executing queries based off of it');
+      it('must be executed before executing queries based off of it', function(done) {
+        this.transaction.select('users').execute()
+        .throw(new Error('Expected query execution to fail.'))
+        .catch(function(e) {
+          expect(e).to.match(/must execute.*begin/i);
+        })
+        .done(done, done);
+      });
 
       var shouldWorkWithCurrentSelectQuery = function(){
 
@@ -217,6 +224,10 @@ describe('query', function() {
         describe('when executed', function() {
           beforeEach(function() { sinon.spy(db._adapter, '_execute'); });
           afterEach(function() { db._adapter._execute.restore(); });
+
+          beforeEach(function(done) {
+            this.transaction.execute().then(function() { done(); }, done);
+          });
 
           beforeEach(function(done) {
             this.selectQuery.execute().then(function() { done(); }, done);
