@@ -38,7 +38,7 @@
     "ink-docstrap": "^0.4.12",
     "istanbul": "^0.3.0",
     "jshint-stylish": "^1.0.0",
-    "mocha": "^1.21.4",
+    "mocha": "^2.0.0",
     "ordered-read-streams": "^0.1.0",
     "sinon": "^1.10.3",
     "sinon-chai": "^2.5.0",
