@@ -196,6 +196,10 @@ describe('query', function() {
           ));
         });
 
+        it('shares the transaction', function() {
+          expect(this.selectQuery._transaction).to.equal(this.transaction);
+        });
+
         it.skip('cannot run if initial transaction was committed', function(done) {
           this.transaction.commit().execute().bind(this).then(function() {
             return this.selectQuery.execute();
@@ -221,7 +225,7 @@ describe('query', function() {
             expect(this.transaction._clientPromise.isFulfilled()).to.be.true;
           });
 
-          it.skip('passes transaction to adapter', function() {
+          it('passes transaction to adapter', function() {
             var client = this.transaction._client;
             expect(db._adapter._execute).to.have.been
               .calledWithExactly(client, 'SELECT * FROM "users"', []);
