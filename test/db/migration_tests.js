@@ -11,25 +11,50 @@ var Migration = require('../../lib/db/migration');
 var EntryQuery = require('../../lib/db/query/entry');
 var Schema = require('../../lib/db/schema');
 var MockAdapter = require('../mocks/adapter');
-var migration, schema;
+var migration, schema, adapter, query;
 
-var stubExecutedMigrations = function(names) {
-  sinon.stub(this.adapter, '_execute').onSecondCall().returns({
-    rows: names.map(function(name, index) {
-      return { id: index + 1, name: name, batch: 1 };
-    }),
-    fields: ['id', 'name', 'batch'],
-    command: 'SELECT'
-  });
-};
+// TODO: remove uses of this.adapter
 
 describe('Migration', function() {
   before(function() {
-    var adapter = this.adapter = MockAdapter.create({});
-    var query = EntryQuery.create(adapter);
+    adapter = this.adapter = MockAdapter.create({});
+    query = EntryQuery.create(adapter);
     schema = Schema.create(adapter);
     migration = Migration.create(query, schema,
       path.join(__dirname, '../fixtures/migrations/blog'));
+  });
+
+  beforeEach(function() {
+    var results = {};
+    sinon.spy(schema, 'begin');
+    sinon.stub(adapter, '_execute', function(client, sql/*, args*/) {
+      var rows, fields, command;
+      if (sql.match(/select/i)) {
+        rows = results.select;
+        fields = ['id', 'name', 'batch'];
+        command = 'SELECT';
+      }
+      return {
+        rows: rows || [],
+        fields: fields || [],
+        command: command || 'MOCK_COMMAND'
+      };
+    });
+    adapter._execute.selectReturnsExecutedMigrations = function(names) {
+      results.select = names.map(function(name, index) {
+        return { id: index + 1, name: name, batch: 1 };
+      });
+    };
+    adapter._execute.sqlCalls = function() {
+      return _.times(adapter._execute.callCount, function(index) {
+        return adapter._execute.getCall(index).args.slice(1);
+      });
+    };
+  });
+
+  afterEach(function() {
+    schema.begin.restore();
+    adapter._execute.restore();
   });
 
   describe('#_readMigrations', function() {
@@ -80,7 +105,7 @@ describe('Migration', function() {
     });
 
     it('does not include executed migrations', function(done) {
-      stubExecutedMigrations.call(this, [
+      adapter._execute.selectReturnsExecutedMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -90,7 +115,6 @@ describe('Migration', function() {
           { name: '20141022202634_create_comments', batch: 2 }
         ]);
       })
-      .finally(function() { this.adapter._execute.restore(); })
       .done(done, done);
     });
 
@@ -99,7 +123,7 @@ describe('Migration', function() {
   describe('#_loadPendingMigrations', function() {
 
     it('loads pending migrations', function(done) {
-      stubExecutedMigrations.call(this, [
+      adapter._execute.selectReturnsExecutedMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -113,7 +137,6 @@ describe('Migration', function() {
             '20141022202634_create_comments')),
         ]);
       })
-      .finally(function() { this.adapter._execute.restore(); })
       .done(done, done);
     });
 
@@ -122,7 +145,7 @@ describe('Migration', function() {
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      stubExecutedMigrations.call(this, [
+      adapter._execute.selectReturnsExecutedMigrations([
         '20141022202634_create_comments',
         '20141022202234_create_articles'
       ]);
@@ -134,7 +157,6 @@ describe('Migration', function() {
           { name: '20141022202634_create_comments', batch: 1 }
         ]);
       })
-      .finally(function() { this.adapter._execute.restore(); })
       .done(done, done);
     });
 
@@ -143,7 +165,7 @@ describe('Migration', function() {
   describe('#_loadExecutedMigrations', function() {
 
     it('loads migrations in order', function(done) {
-      stubExecutedMigrations.call(this, [
+      adapter._execute.selectReturnsExecutedMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -157,7 +179,6 @@ describe('Migration', function() {
             '20141022202234_create_articles')),
         ]);
       })
-      .finally(function() { this.adapter._execute.restore(); })
       .done(done, done);
     });
 
@@ -190,10 +211,13 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('calls the up methods with the schema', function(done) {
+      it('calls the up methods with the schema as a transaction', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.mod1.up).to.have.been.calledWithExactly(schema);
-          expect(this.mod2.up).to.have.been.calledWithExactly(schema);
+          var schemaTransaction = schema.begin.returnValues[0];
+          expect(this.mod1.up).to.have.been
+            .calledWithExactly(schemaTransaction);
+          expect(this.mod2.up).to.have.been
+            .calledWithExactly(schemaTransaction);
         })
         .done(done, done);
       });
@@ -230,16 +254,17 @@ describe('Migration', function() {
       });
 
       it('records migrations in database', function(done) {
-        sinon.spy(this.adapter, '_execute');
-
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute.lastCall.args.slice(1)).to.eql([
-            'INSERT INTO "azul_migrations" ("name", "batch") ' +
-            'VALUES (?, ?), (?, ?)',
-            ['migration_file_1', 1, 'migration_file_2', 1]
+          expect(this.adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            [
+              'INSERT INTO "azul_migrations" ("name", "batch") ' +
+              'VALUES (?, ?), (?, ?)',
+              ['migration_file_1', 1, 'migration_file_2', 1]
+            ],
+            ['COMMIT', []]
           ]);
         })
-        .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
       });
     });
@@ -257,12 +282,12 @@ describe('Migration', function() {
     describe('#migrate', function() {
 
       it('does not record migrations in database', function(done) {
-        sinon.spy(this.adapter, '_execute');
-
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute).to.not.have.been.called;
+          expect(this.adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            ['COMMIT', []]
+          ]);
         })
-        .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
       });
 
@@ -297,10 +322,13 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('calls the down methods with the schema', function(done) {
+      it('calls the down methods with the schema as a transaction', function(done) {
         migration.rollback().bind(this).then(function() {
-          expect(this.mod1.down).to.have.been.calledWithExactly(schema);
-          expect(this.mod2.down).to.have.been.calledWithExactly(schema);
+          var schemaTransaction = schema.begin.returnValues[0];
+          expect(this.mod1.down).to.have.been
+            .calledWithExactly(schemaTransaction);
+          expect(this.mod2.down).to.have.been
+            .calledWithExactly(schemaTransaction);
         })
         .done(done, done);
       });
@@ -337,14 +365,13 @@ describe('Migration', function() {
       });
 
       it('removes migrations recorded in database', function(done) {
-        sinon.spy(this.adapter, '_execute');
-
         migration.rollback().bind(this).then(function() {
-          expect(this.adapter._execute.lastCall.args.slice(1)).to.eql([
-            'DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]
+          expect(this.adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
+            ['COMMIT', []]
           ]);
         })
-        .finally(function() { this.adapter._execute.restore(); })
         .done(done, done);
       });
     });
