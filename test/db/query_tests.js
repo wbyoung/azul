@@ -303,7 +303,7 @@ describe('query', function() {
               .to.be.true;
           });
 
-          it('passes transaction to adapter', function() {
+          it('passes transaction client to adapter', function() {
             var client = this.transaction.client();
             expect(db._adapter._execute).to.have.been
               .calledWithExactly(client, 'SELECT * FROM "users"', []);
