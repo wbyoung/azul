@@ -59,6 +59,10 @@ describe('Transaction Mixin', function() {
       expect(this.transaction).to.be.an.instanceOf(RawQuery.__class__);
     });
 
+    it('can access the transaction', function() {
+      expect(this.transaction.transaction()).to.equal(this.transaction);
+    });
+
     it('includes sql', function() {
       expect(this.transaction.sql()).to.eql(Statement.create(
         'BEGIN', []
@@ -178,7 +182,7 @@ describe('Transaction Mixin', function() {
       });
 
       it('shares the transaction', function() {
-        expect(this.selectQuery._transaction).to.equal(this.transaction);
+        expect(this.selectQuery.transaction()).to.equal(this.transaction);
       });
 
       it('cannot run if initial transaction was committed', function(done) {
