@@ -169,14 +169,53 @@ describe('query', function() {
   });
 
   describe('transactions', function() {
-    describe('when begun', function() {
-      it('can be committed');
-      it('can be rolled back');
-      it('releases client back to pool');
+    beforeEach(function(done) {
+      // spy after pool has been set up. the only way to tell is to get a
+      // client and release it.
+      db._adapter.pool.acquireAsync().then(function(client) {
+        db._adapter.pool.release(client);
+        sinon.spy(db._adapter, '_execute');
+        sinon.spy(db._adapter.pool, 'acquire');
+        sinon.spy(db._adapter.pool, 'release');
+      })
+      .done(done, done);
+    });
+    afterEach(function() {
+      db._adapter._execute.restore();
+      db._adapter.pool.acquire.restore();
+      db._adapter.pool.release.restore();
+    });
 
-      beforeEach(function() {
-        this.transaction = db.query.begin();
-        this.transaction.__testingProperty = 'hello';
+    describe('when begun', function() {
+      beforeEach(function() { this.transaction = db.query.begin(); });
+
+      it('can be committed', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          var commit = this.transaction.commit();
+          expect(commit.sql()).to.eql(Statement.create('COMMIT', []));
+        })
+        .done(done, done);
+      });
+
+      it('can be rolled back', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          var rollback = this.transaction.rollback();
+          expect(rollback.sql()).to.eql(Statement.create('ROLLBACK', []));
+        })
+        .done(done, done);
+      });
+
+      it('releases client back to pool on commit', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          return this.transaction.commit();
+        })
+        .then(function() {
+          expect(db._adapter.pool.acquire).to.have.been.calledOnce;
+          expect(db._adapter.pool.release).to.have.been.calledOnce;
+          expect(db._adapter.pool.release).to.have.been
+            .calledWithExactly(this.transaction._client);
+        })
+        .done(done, done);
       });
 
       it('is a query', function() {
@@ -211,7 +250,10 @@ describe('query', function() {
         });
 
         it('cannot run if initial transaction was committed', function(done) {
-          this.transaction.begin().commit().execute().bind(this).then(function() {
+          this.transaction.execute().bind(this).then(function() {
+            return this.transaction.commit();
+          })
+          .then(function() {
             return this.selectQuery.execute();
           })
           .throw(new Error('Expected query execution to fail.'))
@@ -222,9 +264,6 @@ describe('query', function() {
         });
 
         describe('when executed', function() {
-          beforeEach(function() { sinon.spy(db._adapter, '_execute'); });
-          afterEach(function() { db._adapter._execute.restore(); });
-
           beforeEach(function(done) {
             this.transaction.execute().then(function() { done(); }, done);
           });
