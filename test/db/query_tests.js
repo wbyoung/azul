@@ -186,8 +186,36 @@ describe('query', function() {
       db._adapter.pool.release.restore();
     });
 
+    it('cannot use commit without transaction', function(done) {
+      db.query.commit().execute().bind(this)
+      .throw(new Error('Expected query execution to fail.'))
+      .catch(function(e) {
+        expect(e).to.match(/must associate.*commit.*with.*transaction/i);
+      })
+      .done(done, done);
+    });
+
+    it('cannot use rollback without transaction', function(done) {
+      db.query.rollback().execute().bind(this)
+      .throw(new Error('Expected query execution to fail.'))
+      .catch(function(e) {
+        expect(e).to.match(/must associate.*rollback.*with.*transaction/i);
+      })
+      .done(done, done);
+    });
+
     describe('when begun', function() {
       beforeEach(function() { this.transaction = db.query.begin(); });
+
+      it('is a query', function() {
+        expect(this.transaction).to.be.an.instanceOf(RawQuery.__class__);
+      });
+
+      it('includes sql', function() {
+        expect(this.transaction.sql()).to.eql(Statement.create(
+          'BEGIN', []
+        ));
+      });
 
       it('can be committed', function(done) {
         this.transaction.execute().bind(this).then(function() {
@@ -229,6 +257,30 @@ describe('query', function() {
         .done(done, done);
       });
 
+      it('can be committed with transaction specified later', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          return db.query.commit().transaction(this.transaction);
+        })
+        .then(function() {
+          var client = this.transaction.client();
+          expect(db._adapter._execute).to.have.been
+            .calledWithExactly(client, 'COMMIT', []);
+        })
+        .done(done, done);
+      });
+
+      it('can be rolled back with transaction specified later', function(done) {
+        this.transaction.execute().bind(this).then(function() {
+          return db.query.rollback().transaction(this.transaction);
+        })
+        .then(function() {
+          var client = this.transaction.client();
+          expect(db._adapter._execute).to.have.been
+            .calledWithExactly(client, 'ROLLBACK', []);
+        })
+        .done(done, done);
+      });
+
       it('releases client back to pool on commit', function(done) {
         this.transaction.execute().bind(this).then(function() {
           return this.transaction.commit();
@@ -242,14 +294,22 @@ describe('query', function() {
         .done(done, done);
       });
 
-      it('is a query', function() {
-        expect(this.transaction).to.be.an.instanceOf(RawQuery.__class__);
+      it('cannot use commit before begin', function(done) {
+        this.transaction.commit().execute().bind(this)
+        .throw(new Error('Expected query execution to fail.'))
+        .catch(function(e) {
+          expect(e).to.match(/must execute.*begin/i);
+        })
+        .done(done, done);
       });
 
-      it('includes sql', function() {
-        expect(this.transaction.sql()).to.eql(Statement.create(
-          'BEGIN', []
-        ));
+      it('cannot use rollback before begin', function(done) {
+        this.transaction.rollback().execute().bind(this)
+        .throw(new Error('Expected query execution to fail.'))
+        .catch(function(e) {
+          expect(e).to.match(/must execute.*begin/i);
+        })
+        .done(done, done);
       });
 
       it('must be executed before executing queries based off of it', function(done) {
