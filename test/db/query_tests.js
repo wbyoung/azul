@@ -210,13 +210,13 @@ describe('query', function() {
           expect(this.selectQuery._transaction).to.equal(this.transaction);
         });
 
-        it.skip('cannot run if initial transaction was committed', function(done) {
-          this.transaction.commit().execute().bind(this).then(function() {
+        it('cannot run if initial transaction was committed', function(done) {
+          this.transaction.begin().commit().execute().bind(this).then(function() {
             return this.selectQuery.execute();
           })
           .throw(new Error('Expected query execution to fail.'))
           .catch(function(e) {
-            expect(e).to.match(/failed to execute in committed transaction/);
+            expect(e).to.match(/cannot execute query.*committed.*transaction/i);
           })
           .done(done, done);
         });
