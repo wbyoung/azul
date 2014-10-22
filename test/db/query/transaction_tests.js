@@ -27,6 +27,7 @@ describe('Transaction Mixin', function() {
     })
     .done(done, done);
   });
+
   afterEach(function() {
     db._adapter._execute.restore();
     db._adapter.pool.acquire.restore();
