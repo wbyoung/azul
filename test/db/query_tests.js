@@ -172,6 +172,7 @@ describe('query', function() {
     describe('when begun', function() {
       it('can be committed');
       it('can be rolled back');
+      it('releases client back to pool');
 
       beforeEach(function() {
         this.transaction = db.query.begin();
@@ -187,6 +188,8 @@ describe('query', function() {
           'BEGIN', []
         ));
       });
+
+      it('must be executed before executing queries based off of it');
 
       var shouldWorkWithCurrentSelectQuery = function(){
 
