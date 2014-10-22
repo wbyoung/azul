@@ -249,7 +249,7 @@ describe('query', function() {
           this.selectQuery = this.transaction.select('users');
         });
 
-        // shouldWorkWithCurrentSelectQuery();
+        shouldWorkWithCurrentSelectQuery();
       });
 
       it('can be nested');
