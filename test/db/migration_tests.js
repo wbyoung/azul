@@ -8,7 +8,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var BluebirdPromise = require('bluebird');
 
 var Migration = require('../../lib/db/migration');
-var Query = require('../../lib/db/query');
+var EntryQuery = require('../../lib/db/query/entry');
 var Schema = require('../../lib/db/schema');
 var MockAdapter = require('../mocks/adapter');
 var migration, schema;
@@ -26,7 +26,7 @@ var stubExecutedMigrations = function(names) {
 describe('Migration', function() {
   before(function() {
     var adapter = this.adapter = MockAdapter.create({});
-    var query = Query.create(adapter);
+    var query = EntryQuery.create(adapter);
     schema = Schema.create(adapter);
     migration = Migration.create(query, schema,
       path.join(__dirname, '../fixtures/migrations/blog'));
