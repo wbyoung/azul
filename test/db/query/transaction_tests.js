@@ -250,6 +250,35 @@ describe('Transaction Mixin', function() {
       shouldWorkWithCurrentSelectQuery();
     });
 
-    it('can be nested');
+    it.skip('can be nested', function(done) {
+      var txn = this.transaction;
+      var client;
+      txn.execute()
+      .then(function() { client = txn.client(); })
+      .then(function() { return txn.select('users'); })
+      .then(function() { return txn.begin(); })
+      .then(function() { return txn.select('articles'); })
+      .then(function() { return txn.select('comments'); })
+      .then(function() { return txn.commit(); })
+      .then(function() { return txn.commit(); })
+      .then(function() {
+          expect(db._adapter._execute.getCall(0)).to.have.been
+            .calledWithExactly(client, 'BEGIN', []);
+          expect(db._adapter._execute.getCall(1)).to.have.been
+            .calledWithExactly(client, 'SELECT * FROM "users"', []);
+          expect(db._adapter._execute.getCall(2)).to.have.been
+            .calledWithExactly(client, 'BEGIN', []);
+          expect(db._adapter._execute.getCall(3)).to.have.been
+            .calledWithExactly(client, 'SELECT * FROM "articles"', []);
+          expect(db._adapter._execute.getCall(4)).to.have.been
+            .calledWithExactly(client, 'SELECT * FROM "comments"', []);
+          expect(db._adapter._execute.getCall(4)).to.have.been
+            .calledWithExactly(client, 'COMMIT', []);
+          expect(db._adapter._execute.getCall(5)).to.have.been
+            .calledWithExactly(client, 'COMMIT', []);
+          expect(txn.client()).to.not.exist;
+      })
+      .done(done, done);
+    });
   });
 });
