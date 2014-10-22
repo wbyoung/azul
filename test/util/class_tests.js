@@ -62,6 +62,28 @@ describe('Class', function() {
     expect(speak).to.have.been.calledOnce;
   });
 
+  it('can call super asynchronously', function(done) {
+    var Animal = Class.extend({
+      speak: function(cb) {
+        setTimeout(function() {
+          cb(null, 'speaking');
+        }, 0);
+      }
+    });
+    var Dog = Animal.extend({
+      speak: function(cb) {
+        var _super = this._super; // must capture super
+        setTimeout(function() {
+          _super(cb);
+        }, 0);
+      }
+    });
+    Dog.create().speak(function(err, message) {
+      expect(message).to.eql('speaking');
+      done();
+    });
+  });
+
   it('can call super in class methods', function() {
     var species = sinon.stub().returns('animal');
     var sup = function() { return this._super(); };
@@ -71,6 +93,28 @@ describe('Class', function() {
     expect(species).to.not.have.been.called;
     expect(Havanese.species()).to.eql('animal');
     expect(species).to.have.been.calledOnce;
+  });
+
+  it('can call super in class methods asynchronously', function(done) {
+    var Animal = Class.extend({}, {
+      species: function(cb) {
+        setTimeout(function() {
+          cb(null, 'animal');
+        }, 0);
+      }
+    });
+    var Dog = Animal.extend({}, {
+      species: function(cb) {
+        var _super = this._super; // must capture super
+        setTimeout(function() {
+          _super(cb);
+        }, 0);
+      }
+    });
+    Dog.species(function(err, message) {
+      expect(message).to.eql('animal');
+      done();
+    });
   });
 
   it('can specify methods', function() {
