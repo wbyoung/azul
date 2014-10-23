@@ -6,7 +6,7 @@ var expect = chai.expect;
 var Class = require('../../lib/util/class');
 var Mixin = require('../../lib/util/mixin');
 
-describe('mixins', function() {
+describe('Mixins', function() {
   it('looks like an object', function() {
     var properties = {
       first: 'first',

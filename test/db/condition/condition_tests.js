@@ -11,7 +11,7 @@ var Condition = require('../../../lib/db/condition'),
 var Grammar = require('../../../lib/db/grammar');
 var Translator = require('../../../lib/db/grammar/translator');
 
-describe('condition', function() {
+describe('Condition', function() {
   beforeEach(function() {
     this.grammar = Grammar.extend({
       field: function(field) { return field; },
