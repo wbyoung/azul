@@ -91,15 +91,10 @@ describe('SelectQuery', function() {
     });
   });
 
-  // TODO: aggregation
-  //   Avg
-  //   Count
-  //   Max
-  //   Min
-  //   StdDev
-  //   Sum
-  //   Variance
-
+  describe('aggregation', function() {
+    it('will eventually have aggregation support');
+    // avg, count, max, min, stdDev, sum, variance
+  });
 
   it('is immutable', function() {
     var original = db.select('users');
