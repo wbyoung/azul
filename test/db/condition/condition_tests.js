@@ -71,33 +71,175 @@ describe('Condition', function() {
       expect(details.predicate).to.equal('exact');
     });
 
-    // TODO: test the following:
-    //   exact
-    //   iexact
-    //   contains
-    //   icontains
-    //   in
-    //   gt
-    //   gte
-    //   lt
-    //   lte
-    //   startswith
-    //   istartswith
-    //   endswith
-    //   iendswith
-    //   range
-    //   year
-    //   month
-    //   day
-    //   week_day
-    //   hour
-    //   minute
-    //   second
-    //   isnull
-    //   search
-    //   regex
-    //   iregex
-    //   between (for both numbers and dates)
+    it('supports exact', function() {
+      var result = this.stringify(w({ 'name[exact]': 'Whitney' }));
+      expect(result).to.eql('name = "Whitney"');
+    });
+
+    it.skip('supports iexact', function() {
+      var result = this.stringify(w({ 'name[iexact]': 'Whitney' }));
+      expect(result).to.eql('UPPER(name) = UPPER("Whitney")');
+    });
+
+    it.skip('supports contains', function() {
+      var result = this.stringify(w({ 'name[contains]': 'Whit' }));
+      expect(result).to.eql('name LIKE "%Whit%"');
+    });
+
+    it.skip('supports contains with special characters', function() {
+      var result = this.stringify(w({ 'name[contains]': 'Whit%\\_' }));
+      expect(result).to.eql('name LIKE "%Whit%"');
+    });
+
+    it.skip('supports icontains', function() {
+      var result = this.stringify(w({ 'name[icontains]': 'Whit' }));
+      // should the default be ilike or upper? this applies to all case
+      // insensitive queries below
+      // expect(result).to.eql('name ILIKE "%Whit%"');
+      expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
+    });
+
+    it.skip('supports icontains with special characters', function() {
+      var result = this.stringify(w({ 'name[icontains]': 'Whit%\\_' }));
+      expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
+    });
+
+    it.skip('supports in', function() {
+      var result = this.stringify(w({ 'name[in]': ['Whit', 'Whitney'] }));
+      expect(result).to.eql('name IN ["Whit", "Whitney"]');
+    });
+
+    it('supports gt', function() {
+      var result = this.stringify(w({ 'age[gt]': 23 }));
+      expect(result).to.eql('age > 23');
+    });
+
+    it('supports gte', function() {
+      var result = this.stringify(w({ 'age[gte]': 23 }));
+      expect(result).to.eql('age >= 23');
+    });
+
+    it('supports lt', function() {
+      var result = this.stringify(w({ 'age[lt]': 23 }));
+      expect(result).to.eql('age < 23');
+    });
+
+    it('supports lte', function() {
+      var result = this.stringify(w({ 'age[lte]': 23 }));
+      expect(result).to.eql('age <= 23');
+    });
+
+    it.skip('supports startswith', function() {
+      var result = this.stringify(w({ 'name[startswith]': 'Whit' }));
+      expect(result).to.eql('name LIKE "Whit%"');
+    });
+
+    it.skip('supports istartswith', function() {
+      var result = this.stringify(w({ 'name[startswith]': 'Whit' }));
+      expect(result).to.eql('UPPER(name) LIKE UPPER("Whit%")');
+    });
+
+    it.skip('supports endswith', function() {
+      var result = this.stringify(w({ 'name[endswith]': 'Whit' }));
+      expect(result).to.eql('name LIKE "%Whit"');
+    });
+
+    it.skip('supports iendswith', function() {
+      var result = this.stringify(w({ 'name[endswith]': 'Whit' }));
+      expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit")');
+    });
+
+    it.skip('supports between', function() {
+      var result = this.stringify(w({ 'age[between]': [10, 20] }));
+      expect(result).to.eql('age >= 10 && age < 20');
+    });
+
+    it.skip('supports between for dates', function() {
+      var range = [new Date(2014, 10, 23), new Date(2014, 10, 24)];
+      var result = this.stringify(w({ 'created[between]': range }));
+      expect(result).to.eql('created >= "2014-10-23" && created < "2014-10-24"');
+    });
+
+    it.skip('supports year', function() {
+      var result = this.stringify(w({ 'created[year]': 2014 }));
+      expect(result).to.eql('YEAR(created) = 2014');
+    });
+
+    it.skip('supports month', function() {
+      var result = this.stringify(w({ 'created[month]': 10 }));
+      expect(result).to.eql('MONTH(created) = 10');
+    });
+
+    it.skip('supports day', function() {
+      var result = this.stringify(w({ 'created[day]': 23 }));
+      expect(result).to.eql('DAY(created) = 23');
+    });
+
+    it.skip('supports hour', function() {
+      var result = this.stringify(w({ 'created[hour]': 10 }));
+      expect(result).to.eql('HOUR(created) = 10');
+    });
+
+    it.skip('supports minute', function() {
+      var result = this.stringify(w({ 'created[minute]': 23 }));
+      expect(result).to.eql('MINUTE(created) = 23');
+    });
+
+    it.skip('supports second', function() {
+      var result = this.stringify(w({ 'created[second]': 49 }));
+      expect(result).to.eql('SECOND(created) = 49');
+    });
+
+    it.skip('supports weekday with sunday', function() {
+      var result = this.stringify(w({ 'created[weekday]': 'sunday' }));
+      expect(result).to.eql('WEEKDAY(created) = 0');
+    });
+
+    it.skip('converts weekdays to numbers', function() {
+      expect([
+        'sunday', 'sun',
+        'monday', 'mon',
+        'tuesday', 'tues',
+        'wednesday', 'wed',
+        'thursday', 'thurs',
+        'friday', 'fri',
+        'saturday', 'sat'
+      ].map(w.somehowCovert)).to.eql([
+        0, 0,
+        1, 1,
+        2, 2,
+        3, 3,
+        4, 4,
+        5, 5,
+        6, 6
+      ]);
+    });
+
+    it.skip('raises for invalid weekdays', function() {
+      expect(function() {
+        w.somehowCovert('asdf');
+      }).to.throw(/invalid weekday.*asdf/);
+    });
+
+    it.skip('supports isnull', function() {
+      var result = this.stringify(w({ 'name[isnull]': true }));
+      expect(result).to.eql('name IS NULL');
+    });
+
+    it.skip('supports negated isnull', function() {
+      var result = this.stringify(w({ 'name[isnull]': false }));
+      expect(result).to.eql('name IS NOT NULL');
+    });
+
+    it.skip('supports regex', function() {
+      var result = this.stringify(w({ 'name[regex]': /hello.*world/ }));
+      expect(result).to.eql('name ~ "hello.*world"');
+    });
+
+    it.skip('supports iregex', function() {
+      var result = this.stringify(w({ 'name[regex]': /hello.*world/ }));
+      expect(result).to.eql('name ~* "hello.*world"');
+    });
 
     it('raises for unsupported predicates', function() {
       expect(function() {
