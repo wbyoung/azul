@@ -13,11 +13,9 @@ var Schema = require('../../lib/db/schema');
 var MockAdapter = require('../mocks/adapter');
 var migration, schema, adapter, query;
 
-// TODO: remove uses of this.adapter
-
 describe('Migration', function() {
   before(function() {
-    adapter = this.adapter = MockAdapter.create({});
+    adapter = MockAdapter.create({});
     query = EntryQuery.create(adapter);
     schema = Schema.create(adapter);
     migration = Migration.create(query, schema,
@@ -255,7 +253,7 @@ describe('Migration', function() {
 
       it('records migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute.sqlCalls()).to.eql([
+          expect(adapter._execute.sqlCalls()).to.eql([
             ['BEGIN', []],
             [
               'INSERT INTO "azul_migrations" ("name", "batch") ' +
@@ -283,7 +281,7 @@ describe('Migration', function() {
 
       it('does not record migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(this.adapter._execute.sqlCalls()).to.eql([
+          expect(adapter._execute.sqlCalls()).to.eql([
             ['BEGIN', []],
             ['COMMIT', []]
           ]);
@@ -366,7 +364,7 @@ describe('Migration', function() {
 
       it('removes migrations recorded in database', function(done) {
         migration.rollback().bind(this).then(function() {
-          expect(this.adapter._execute.sqlCalls()).to.eql([
+          expect(adapter._execute.sqlCalls()).to.eql([
             ['BEGIN', []],
             ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
             ['COMMIT', []]
