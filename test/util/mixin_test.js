@@ -107,6 +107,33 @@ describe('Mixin', function() {
     expect(dog.speak().trim()).to.eql('dog bark animal bark');
   });
 
+  it('is known to the class', function() {
+    var AMixin = Mixin.create({ name: 'AMixin' });
+    var Subclass = Class.extend(AMixin);
+    expect(Subclass.__mixins__).to.eql([AMixin]);
+  });
+
+  it('it known to the class when created with sub-mixins', function() {
+    var AMixin = Mixin.create({ name: 'AMixin' });
+    var BMixin = Mixin.create({ name: 'BMixin' });
+    var CMixin = Mixin.create({ name: 'CMixin' }, AMixin, BMixin);
+    var DMixin = Mixin.create({ name: 'DMixin' });
+    var EMixin = Mixin.create({ name: 'EMixin' });
+    var FMixin = Mixin.create({ name: 'FMixin' });
+    var GMixin = Mixin.create({ name: 'GMixin' }, EMixin, FMixin);
+    var Subclass = Class.extend(CMixin, DMixin);
+    Subclass.reopen(GMixin);
+    expect(Subclass.__mixins__).to.eql([
+      AMixin,
+      BMixin,
+      CMixin,
+      DMixin,
+      EMixin,
+      FMixin,
+      GMixin
+    ]);
+  });
+
   it('allows mixins to be created with mixins', function() {
     var AMixin = Mixin.create({
       fn: function() { return 'a'; }
