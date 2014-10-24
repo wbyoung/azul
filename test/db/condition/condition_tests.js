@@ -195,26 +195,6 @@ describe('Condition', function() {
       expect(result).to.eql('WEEKDAY(created) = 0');
     });
 
-    it.skip('converts weekdays to numbers', function() {
-      expect([
-        'sunday', 'sun',
-        'monday', 'mon',
-        'tuesday', 'tues',
-        'wednesday', 'wed',
-        'thursday', 'thurs',
-        'friday', 'fri',
-        'saturday', 'sat'
-      ].map(w.somehowCovert)).to.eql([
-        0, 0,
-        1, 1,
-        2, 2,
-        3, 3,
-        4, 4,
-        5, 5,
-        6, 6
-      ]);
-    });
-
     it.skip('raises for invalid weekdays', function() {
       expect(function() {
         w.somehowCovert('asdf');
