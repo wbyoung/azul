@@ -221,12 +221,12 @@ describe('Condition', function() {
       }).to.throw(/invalid weekday.*asdf/);
     });
 
-    it.skip('supports isnull', function() {
+    it('supports isnull', function() {
       var result = this.stringify(w({ 'name[isnull]': true }));
       expect(result).to.eql('name IS NULL');
     });
 
-    it.skip('supports negated isnull', function() {
+    it('supports negated isnull', function() {
       var result = this.stringify(w({ 'name[isnull]': false }));
       expect(result).to.eql('name IS NOT NULL');
     });
