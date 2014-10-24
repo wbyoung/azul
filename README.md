@@ -10,6 +10,17 @@ creating an expressive, well documented public API and reaching feature parity
 with other ORM tools. If you're interested in helping, please reach out.
 
 
+## Testing
+
+This build currently connects to a postgres database for testing purposes. To replicate this on your machine, do the following:
+
+  $ createuser root
+  $ psql
+  $ psql -U root -d postgres
+  $ gulp test
+
+
+
 ## License
 
 This project is distributed under the MIT license.
