@@ -231,13 +231,13 @@ describe('Condition', function() {
       expect(result).to.eql('name IS NOT NULL');
     });
 
-    it.skip('supports regex', function() {
+    it('supports regex', function() {
       var result = this.stringify(w({ 'name[regex]': /hello.*world/ }));
       expect(result).to.eql('name ~ "hello.*world"');
     });
 
-    it.skip('supports iregex', function() {
-      var result = this.stringify(w({ 'name[regex]': /hello.*world/ }));
+    it('supports iregex', function() {
+      var result = this.stringify(w({ 'name[iregex]': /hello.*world/ }));
       expect(result).to.eql('name ~* "hello.*world"');
     });
 
