@@ -76,12 +76,12 @@ describe('Condition', function() {
       expect(result).to.eql('name = "Whitney"');
     });
 
-    it.skip('supports iexact', function() {
+    it('supports iexact', function() {
       var result = this.stringify(w({ 'name[iexact]': 'Whitney' }));
       expect(result).to.eql('UPPER(name) = UPPER("Whitney")');
     });
 
-    it.skip('supports contains', function() {
+    it('supports contains', function() {
       var result = this.stringify(w({ 'name[contains]': 'Whit' }));
       expect(result).to.eql('name LIKE "%Whit%"');
     });
@@ -91,7 +91,7 @@ describe('Condition', function() {
       expect(result).to.eql('name LIKE "%Whit%"');
     });
 
-    it.skip('supports icontains', function() {
+    it('supports icontains', function() {
       var result = this.stringify(w({ 'name[icontains]': 'Whit' }));
       // should the default be ilike or upper? this applies to all case
       // insensitive queries below
@@ -104,9 +104,9 @@ describe('Condition', function() {
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
     });
 
-    it.skip('supports in', function() {
+    it('supports in', function() {
       var result = this.stringify(w({ 'name[in]': ['Whit', 'Whitney'] }));
-      expect(result).to.eql('name IN ["Whit", "Whitney"]');
+      expect(result).to.eql('name IN ["Whit","Whitney"]');
     });
 
     it('supports gt', function() {
