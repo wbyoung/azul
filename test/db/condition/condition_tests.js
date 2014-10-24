@@ -160,32 +160,32 @@ describe('Condition', function() {
       expect(result).to.eql('created >= "2014-10-23" && created < "2014-10-24"');
     });
 
-    it.skip('supports year', function() {
+    it('supports year', function() {
       var result = this.stringify(w({ 'created[year]': 2014 }));
       expect(result).to.eql('YEAR(created) = 2014');
     });
 
-    it.skip('supports month', function() {
+    it('supports month', function() {
       var result = this.stringify(w({ 'created[month]': 10 }));
       expect(result).to.eql('MONTH(created) = 10');
     });
 
-    it.skip('supports day', function() {
+    it('supports day', function() {
       var result = this.stringify(w({ 'created[day]': 23 }));
       expect(result).to.eql('DAY(created) = 23');
     });
 
-    it.skip('supports hour', function() {
+    it('supports hour', function() {
       var result = this.stringify(w({ 'created[hour]': 10 }));
       expect(result).to.eql('HOUR(created) = 10');
     });
 
-    it.skip('supports minute', function() {
+    it('supports minute', function() {
       var result = this.stringify(w({ 'created[minute]': 23 }));
       expect(result).to.eql('MINUTE(created) = 23');
     });
 
-    it.skip('supports second', function() {
+    it('supports second', function() {
       var result = this.stringify(w({ 'created[second]': 49 }));
       expect(result).to.eql('SECOND(created) = 49');
     });
