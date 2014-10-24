@@ -134,18 +134,18 @@ describe('Condition', function() {
       expect(result).to.eql('name LIKE "Whit%"');
     });
 
-    it.skip('supports istartswith', function() {
-      var result = this.stringify(w({ 'name[startswith]': 'Whit' }));
+    it('supports istartswith', function() {
+      var result = this.stringify(w({ 'name[istartswith]': 'Whit' }));
       expect(result).to.eql('UPPER(name) LIKE UPPER("Whit%")');
     });
 
-    it.skip('supports endswith', function() {
+    it('supports endswith', function() {
       var result = this.stringify(w({ 'name[endswith]': 'Whit' }));
       expect(result).to.eql('name LIKE "%Whit"');
     });
 
-    it.skip('supports iendswith', function() {
-      var result = this.stringify(w({ 'name[endswith]': 'Whit' }));
+    it('supports iendswith', function() {
+      var result = this.stringify(w({ 'name[iendswith]': 'Whit' }));
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit")');
     });
 
