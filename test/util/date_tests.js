@@ -17,7 +17,7 @@ describe('date', function() {
       'thursday', 'thurs',
       'friday', 'fri',
       'saturday', 'sat'
-    ].map(date.weekdayToNumberConverter)).to.eql([
+    ].map(date.parseWeekdayToInt)).to.eql([
       0, 0,
       1, 1,
       2, 2,
