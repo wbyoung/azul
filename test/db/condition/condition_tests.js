@@ -129,7 +129,7 @@ describe('Condition', function() {
       expect(result).to.eql('age <= 23');
     });
 
-    it.skip('supports startswith', function() {
+    it('supports startswith', function() {
       var result = this.stringify(w({ 'name[startswith]': 'Whit' }));
       expect(result).to.eql('name LIKE "Whit%"');
     });
