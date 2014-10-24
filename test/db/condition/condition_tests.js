@@ -86,22 +86,24 @@ describe('Condition', function() {
       expect(result).to.eql('name LIKE "%Whit%"');
     });
 
-    it.skip('supports contains with special characters', function() {
-      var result = this.stringify(w({ 'name[contains]': 'Whit%\\_' }));
-      expect(result).to.eql('name LIKE "%Whit%"');
+    it('supports contains with special characters', function() {
+      // all of the escapes here are hard to read...
+      // the special characters in the condition are: %_\
+      // the expected result are \%\_\\
+      var result = this.stringify(w({ 'name[contains]': 'Whit%_\\' }));
+      expect(result).to
+        .eql(util.format('name LIKE %j', '%Whit\\%\\_\\\\%'));
     });
 
     it('supports icontains', function() {
       var result = this.stringify(w({ 'name[icontains]': 'Whit' }));
-      // should the default be ilike or upper? this applies to all case
-      // insensitive queries below
-      // expect(result).to.eql('name ILIKE "%Whit%"');
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
     });
 
-    it.skip('supports icontains with special characters', function() {
-      var result = this.stringify(w({ 'name[icontains]': 'Whit%\\_' }));
-      expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
+    it('supports icontains with special characters', function() {
+      var result = this.stringify(w({ 'name[icontains]': 'Whit%_\\' }));
+      expect(result).to
+        .eql(util.format('UPPER(name) LIKE UPPER(%j)', '%Whit\\%\\_\\\\%'));
     });
 
     it('supports in', function() {
