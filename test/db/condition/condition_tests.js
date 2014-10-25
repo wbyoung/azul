@@ -6,7 +6,8 @@ var expect = chai.expect;
 var util = require('util');
 var Condition = require('../../../lib/db/condition'),
   w = Condition.w,
-  f = Condition.f;
+  f = Condition.f,
+  l = Condition.l;
 
 var Grammar = require('../../../lib/db/grammar');
 var Translator = require('../../../lib/db/grammar/translator');
@@ -55,6 +56,16 @@ describe('Condition', function() {
     it('converts a simple string to a condition using fields', function() {
       var result = this.stringify(w('first=value'));
       expect(result).to.eql('first = value');
+    });
+  });
+
+  describe('literals', function() {
+    it.skip('accepts literals for the right-hand-side', function() {
+      // use base grammar to ensure literal is handled differently from fields
+      var grammar = Grammar.create();
+      var condition = w({ first: l('value') });
+      var result =  condition.build(grammar, this.translator).toString();
+      expect(result).to.eql('"first" = value');
     });
   });
 
