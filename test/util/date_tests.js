@@ -2,7 +2,6 @@
 
 var chai = require('chai');
 var expect = chai.expect;
-var _ = require('lodash');
 
 var date = require('../../lib/util/date');
 
