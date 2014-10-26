@@ -9,14 +9,14 @@ describe('Fragment', function() {
   it('can be created with value and arguments', function() {
     var fragment = Fragment.create('value', ['argument']);
     expect(fragment.value).to.eql('value');
-    expect(fragment.arguments).to.eql(['argument']);
+    expect(fragment.args).to.eql(['argument']);
   });
 
   it('can be created with an exiting fragment', function() {
     var existing = Fragment.create('string', ['args']);
     var recreate = Fragment.create(existing);
     expect(recreate.value).to.eql('string');
-    expect(recreate.arguments).to.eql(['args']);
+    expect(recreate.args).to.eql(['args']);
   });
 
   it('has a sql property', function() {
@@ -37,7 +37,7 @@ describe('Statement', function() {
       expect(this.statement.value).to.eql('hello ?');
     });
     it('has the right arguments', function() {
-      expect(this.statement.arguments).to.eql(['world']);
+      expect(this.statement.args).to.eql(['world']);
     });
   });
 });
