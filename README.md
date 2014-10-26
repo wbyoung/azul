@@ -19,7 +19,7 @@ This build currently connects to databases for testing purposes. To replicate th
 #### Postgres
 
 ```bash
-$ createuser root
+$ createuser -s root
 $ psql
 $ psql -U root -d postgres
 $ gulp test
