@@ -17,7 +17,7 @@ with other ORM tools. If you're interested in helping, please reach out.
 This build currently connects to a postgres database for testing purposes. To replicate this on your machine, do the following:
 
 ```bash
-$ createuser root
+$ createuser -s root
 $ psql
 $ psql -U root -d postgres
 $ gulp test
