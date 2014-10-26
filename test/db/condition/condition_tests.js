@@ -60,7 +60,7 @@ describe('Condition', function() {
   });
 
   describe('literals', function() {
-    it.skip('accepts literals for the right-hand-side', function() {
+    it('accepts literals for the right-hand-side', function() {
       // use base grammar to ensure literal is handled differently from fields
       var grammar = Grammar.create();
       var condition = w({ first: l('value') });
@@ -166,15 +166,25 @@ describe('Condition', function() {
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit")');
     });
 
-    it.skip('supports between', function() {
+    it('supports between', function() {
       var result = this.stringify(w({ 'age[between]': [10, 20] }));
-      expect(result).to.eql('age >= 10 && age < 20');
+      expect(result).to.eql('age BETWEEN 10 AND 20');
     });
 
-    it.skip('supports between for dates', function() {
-      var range = [new Date(2014, 10, 23), new Date(2014, 10, 24)];
+    it('supports between with objects', function() {
+      var result = this.stringify(w({ 'age[between]': ['start', 'end'] }));
+      expect(result).to.eql('age BETWEEN "start" AND "end"');
+    });
+
+    it('supports between for dates', function() {
+      var range = [
+        new Date(Date.UTC(2014, 10-1, 23)),
+        new Date(Date.UTC(2014, 10-1, 24))
+      ];
       var result = this.stringify(w({ 'created[between]': range }));
-      expect(result).to.eql('created >= "2014-10-23" && created < "2014-10-24"');
+      var expected = 'created BETWEEN "2014-10-23T00:00:00.000Z" AND ' +
+        '"2014-10-24T00:00:00.000Z"';
+      expect(result).to.eql(expected);
     });
 
     it('supports year', function() {
