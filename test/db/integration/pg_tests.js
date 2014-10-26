@@ -1,6 +1,6 @@
 'use strict';
 
-// $ createuser root
+// $ createuser -s root
 // $ psql -U root -d postgres
 // > CREATE DATABASE azul_test;
 // > \q
@@ -14,7 +14,7 @@ var BluebirdPromise = require('bluebird');
 
 var db, connection = {
   adapter: 'pg',
-  username: process.env.PG_USER || 'root', // TODO: change to user
+  user: process.env.PG_USER || 'root',
   password: process.env.PG_PASSWORD || '',
   database: process.env.PG_DATABASE || 'azul_test'
 };
