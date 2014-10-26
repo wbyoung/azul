@@ -25,7 +25,7 @@ describe('MySQL', function() {
   it('executes raw sql', function(done) {
     var queries = [
       'CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))',
-      'INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\')',
+      'INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\') RETURNING id',
       'SELECT * FROM azul_raw_sql_test',
       'DROP TABLE azul_raw_sql_test'
     ];
