@@ -14,7 +14,7 @@ var BluebirdPromise = require('bluebird');
 
 var db, connection = {
   adapter: 'pg',
-  username: process.env.PG_USER || 'root',
+  username: process.env.PG_USER || 'root', // TODO: change to user
   password: process.env.PG_PASSWORD || '',
   database: process.env.PG_DATABASE || 'azul_test'
 };
