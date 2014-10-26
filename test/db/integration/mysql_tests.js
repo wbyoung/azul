@@ -46,5 +46,33 @@ describe('MySQL', function() {
     .done(done, done);
   });
 
-  // TODO: add more tests modeled from the PG tests
+  it('receives rows from raw sql', function(done) {
+    var query = 'SELECT ? AS number';
+    var args = ['1'];
+    db._adapter.execute(query, args)
+    .then(function(result) {
+      // TODO: postgres returns an actual number, make them more similar
+      expect(result.rows).to.eql([{ number: '1' }]);
+    })
+    .done(done, done);
+  });
+
+  describe('with migrations applied', function() {
+    before(function(done) {
+      var migration =
+        path.join(__dirname, '../../fixtures/migrations/blog');
+      this.migrator = db.migrator(migration);
+      this.migrator.migrate().then(function() { done(); }, done);
+    });
+
+    after(function(done) {
+      this.migrator.rollback().then(function() { done(); }, done);
+    });
+
+    // TODO: same todo as in the pg_tests.
+    it('inserts data');
+    it('selects data');
+    it('updates data');
+    it('drops tables');
+  });
 });
