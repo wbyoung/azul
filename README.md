@@ -12,16 +12,25 @@ with other ORM tools. If you're interested in helping, please reach out.
 
 ## Contributing
 
-### Testing
+## Testing
 
-This build currently connects to a postgres database for testing purposes. To replicate this on your machine, do the following:
+This build currently connects to databases for testing purposes. To replicate this on your machine, do the following:
 
-```bash
-$ createuser root
-$ psql
-$ psql -U root -d postgres
-$ gulp test
-```
+  ## Postgres
+
+  ```bash
+  $ createuser root
+  $ psql
+  $ psql -U root -d postgres
+  $ gulp test
+  ```
+  ## mySQL
+  
+  ```bash
+  $ mysql -u root
+  > CREATE DATABASE azul_test;
+  > exit
+  ```
 
 
 ## License
