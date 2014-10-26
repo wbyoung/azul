@@ -196,11 +196,11 @@ describe('Condition', function() {
       expect(result).to.eql('SECOND(created) = 49');
     });
 
-    it.skip('supports weekday with sunday', function() {
+    it('supports weekday with sunday', function() {
       var result = this.stringify(w({ 'created[weekday]': 'sunday' }));
       expect(result).to.eql('WEEKDAY(created) = 0');
     });
-
+    
     it.skip('raises for invalid weekdays', function() {
       expect(function() {
         w.somehowCovert('asdf');
