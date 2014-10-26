@@ -47,12 +47,11 @@ describe('MySQL', function() {
   });
 
   it('receives rows from raw sql', function(done) {
-    var query = 'SELECT ? AS number';
+    var query = 'SELECT CAST(? AS SIGNED) AS number';
     var args = ['1'];
     db._adapter.execute(query, args)
     .then(function(result) {
-      // TODO: postgres returns an actual number, make them more similar
-      expect(result.rows).to.eql([{ number: '1' }]);
+      expect(result.rows).to.eql([{ number: 1 }]);
     })
     .done(done, done);
   });
