@@ -26,16 +26,14 @@ describe('Migration', function() {
     var results = {};
     sinon.spy(schema, 'begin');
     sinon.stub(adapter, '_execute', function(client, sql/*, args*/) {
-      var rows, fields, command;
+      var rows, fields;
       if (sql.match(/select/i)) {
         rows = results.select;
         fields = ['id', 'name', 'batch'];
-        command = 'SELECT';
       }
       return {
         rows: rows || [],
-        fields: fields || [],
-        command: command || 'MOCK_COMMAND'
+        fields: fields || []
       };
     });
     adapter._execute.selectReturnsExecutedMigrations = function(names) {
