@@ -14,15 +14,17 @@ with other ORM tools. If you're interested in helping, please reach out.
 
 ### Testing
 
+Simply run `gulp test` to run the full test suite.
+
 This build currently connects to databases for testing purposes. To replicate this on your machine, do the following:
 
 #### Postgres
 
 ```bash
 $ createuser -s root
-$ psql
 $ psql -U root -d postgres
-$ gulp test
+> CREATE DATABASE azul_test;
+> \q
 ```
 
 #### MySQL
