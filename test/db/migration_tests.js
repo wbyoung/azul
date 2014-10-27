@@ -377,6 +377,18 @@ describe('Migration', function() {
     // to make this happen, we'll probably want to pass a fake object off to
     // the migration's `change` method and record any calls that are made on
     // it. from there, the reverse actions can be built.
+
+    // a possibly simpler way to do this would be to create a ReverseSchema
+    // class that basically just has a bunch of functions that map to the
+    // opposite of what they are. so `createTable` would map to a
+    // `DropTableQuery` and (as long as the arguments match), that would be
+    // all that was required. imposing a rule that reversible actions have
+    // arguments that directly overlap with their reverse action's arguments
+    // (drop table needs only the table name, but no more of create table's
+    // arguments) may be easy. it'd also be easy to say it's _only_ the first
+    // argument of the call through `createTable` that should be passed off to
+    // the creation of a `DropTableQuery`. argument mapping may be more
+    // complicated, but still could be decently easy.
     it('knows the reverse of creating a table');
   });
 
