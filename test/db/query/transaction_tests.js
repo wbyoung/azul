@@ -63,6 +63,15 @@ describe('Transaction Mixin', function() {
       expect(this.transaction.transaction()).to.equal(this.transaction);
     });
 
+    it('can set transaction to existing transaction', function() {
+      // this wouldn't really be something a user would want, but based on the
+      // architecture, it should work.
+      var transaction = this.transaction;
+      var duplicate = transaction.transaction(transaction);
+      expect(duplicate.transaction()).to.equal(transaction);
+      expect(duplicate).to.not.eql(transaction);
+    });
+
     it('includes sql', function() {
       expect(this.transaction.sql()).to.eql(Statement.create(
         'BEGIN', []
