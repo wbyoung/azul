@@ -16,7 +16,7 @@ with other ORM tools. If you're interested in helping, please reach out.
 
 This build currently connects to databases for testing purposes. To replicate this on your machine, do the following:
 
-## Postgres
+#### Postgres
 
 ```bash
 $ createuser root
@@ -24,7 +24,8 @@ $ psql
 $ psql -U root -d postgres
 $ gulp test
 ```
-### mySQL
+
+#### MySQL
 
 ```bash
 $ mysql -u root
