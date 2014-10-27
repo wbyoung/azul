@@ -396,4 +396,12 @@ describe('Migration', function() {
     it('rolls back transaction for failed migration forward');
     it('rolls back transaction for failed migration backward');
   });
+
+  // ADD FEATURE: hash migrations when they are run so we're able to warn the
+  // user about migrations that have been altered after they've been applied.
+  // store the hash in the migration table & any time migrations are run, check
+  // that all previously run migrations still match their current values when
+  // read from the disk. this could be extended to ensure that when rolling
+  // back we prompt the user that this could potentially break and/or not
+  // reverse the migration as intended.
 });
