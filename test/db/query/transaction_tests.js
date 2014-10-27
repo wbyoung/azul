@@ -70,6 +70,7 @@ describe('Transaction Mixin', function() {
       var duplicate = transaction.transaction(transaction);
       expect(duplicate.transaction()).to.equal(transaction);
       expect(duplicate).to.not.eql(transaction);
+      expect(duplicate.sql().value).to.eql('BEGIN');
     });
 
     it('includes sql', function() {
