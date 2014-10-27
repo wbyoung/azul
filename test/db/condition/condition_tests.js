@@ -222,12 +222,6 @@ describe('Condition', function() {
       expect(result).to.eql('WEEKDAY(created) = 0');
     });
 
-    it.skip('raises for invalid weekdays', function() {
-      expect(function() {
-        w.somehowCovert('asdf');
-      }).to.throw(/invalid weekday.*asdf/);
-    });
-
     it('supports isnull', function() {
       var result = this.stringify(w({ 'name[isnull]': true }));
       expect(result).to.eql('name IS NULL');
