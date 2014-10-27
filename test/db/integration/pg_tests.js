@@ -25,13 +25,14 @@ describe('PostgresQL', function() {
 
   it('executes raw sql', function(done) {
     var queries = [
-      'CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))',
-      'INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\') RETURNING id',
-      'SELECT * FROM azul_raw_sql_test',
-      'DROP TABLE azul_raw_sql_test'
+      ['CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))'],
+      ['INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\') RETURNING id'],
+      ['SELECT * FROM azul_raw_sql_test'],
+      ['DROP TABLE azul_raw_sql_test']
     ];
-    BluebirdPromise.reduce(queries, function(array, query) {
-      return db._adapter.execute(query, []).then(function(result) {
+    BluebirdPromise.reduce(queries, function(array, info) {
+      var query = info[0], args = info[1] || [];
+      return db._adapter.execute(query, args).then(function(result) {
         return array.concat([result]);
       });
     }, [])
