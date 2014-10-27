@@ -11,6 +11,9 @@ var path = require('path');
 var Database = require('../../../lib/db/database');
 var BluebirdPromise = require('bluebird');
 
+var returning = require('../../../lib/db/adapters/mixins/returning');
+var PseudoReturn = returning.PseudoReturn;
+
 var db, connection = {
   adapter: 'mysql',
   user: process.env.MYSQL_USER || 'root',
@@ -23,14 +26,16 @@ describe('MySQL', function() {
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {
+    var returnId = PseudoReturn.create('id');
     var queries = [
-      'CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))',
-      'INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\') RETURNING id',
-      'SELECT * FROM azul_raw_sql_test',
-      'DROP TABLE azul_raw_sql_test'
+      ['CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))', []],
+      ['INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\')', [returnId]],
+      ['SELECT * FROM azul_raw_sql_test', []],
+      ['DROP TABLE azul_raw_sql_test', []]
     ];
-    BluebirdPromise.reduce(queries, function(array, query) {
-      return db._adapter.execute(query, []).then(function(result) {
+    BluebirdPromise.reduce(queries, function(array, info) {
+      var query = info[0], args = info[1] || [];
+      return db._adapter.execute(query, args).then(function(result) {
         return array.concat([result]);
       });
     }, [])
