@@ -6,6 +6,7 @@
 
 if (!/^(1|true)$/i.test(process.env.TEST_MYSQL || '1')) { return; }
 
+var _ = require('lodash');
 var expect = require('chai').expect;
 var Database = require('../../../lib/db/database');
 var BluebirdPromise = require('bluebird');
@@ -61,5 +62,11 @@ describe('MySQL', function() {
     .done(done, done);
   });
 
-  shared.shouldRunSimpleMigrationsAndQueries();
+  // run all shared examples
+  _.each(shared, function(fn, name) {
+    if (fn.length !== 0) {
+      throw new Error('Cannot execute shared example: ' + name);
+    }
+    fn();
+  });
 });
