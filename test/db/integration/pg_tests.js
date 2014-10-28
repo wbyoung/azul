@@ -8,7 +8,6 @@
 if (!/^(1|true)$/i.test(process.env.TEST_POSTGRES || '1')) { return; }
 
 var expect = require('chai').expect;
-var path = require('path');
 var Database = require('../../../lib/db/database');
 var BluebirdPromise = require('bluebird');
 var shared = require('./shared_behaviors');
