@@ -20,8 +20,13 @@ var db, connection = {
   database: process.env.PG_DATABASE || 'azul_test'
 };
 
+var resetSequence = function(table) {
+  return db.query.raw('ALTER SEQUENCE ' + table + '_id_seq restart');
+};
+
 describe('PostgresQL', function() {
   before(function() { db = this.db = Database.create(connection); });
+  before(function() { this.resetSequence = resetSequence; });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {

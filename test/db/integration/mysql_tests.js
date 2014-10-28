@@ -22,8 +22,13 @@ var db, connection = {
   database: process.env.MYSQL_DATABASE || 'azul_test'
 };
 
+var resetSequence = function(table) {
+  return db.query.raw('ALTER TABLE ' + table + ' AUTO_INCREMENT = 1;');
+};
+
 describe('MySQL', function() {
   before(function() { db = this.db = Database.create(connection); });
+  before(function() { this.resetSequence = resetSequence; });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {

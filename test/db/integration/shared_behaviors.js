@@ -1,10 +1,11 @@
 'use strict';
 
+var _ = require('lodash');
 var expect = require('chai').expect;
 var path = require('path');
 var BluebirdPromise = require('bluebird');
 
-module.exports.shouldRunSimpleMigrationsAndQueries = function() {
+module.exports.shouldRunMigrationsAndQueries = function() {
   var db; before(function() { db = this.db; });
 
   describe('with migrations applied', function() {
@@ -19,12 +20,36 @@ module.exports.shouldRunSimpleMigrationsAndQueries = function() {
       this.migrator.rollback().then(function() { done(); }, done);
     });
 
-    // TODO: consider how to implement these tests. the intention here is
-    // to create more of an integration style test. perhaps it should be
-    // shared amongst all of the adapter test files somehow.
-    it('inserts data');
-    it('selects data');
-    it('updates data');
-    it('drops tables');
+    afterEach(function(done) {
+      this.resetSequence('articles').then(function() { done(); }, done);
+    });
+
+    it('can insert, update, and delete data', function(done) {
+      BluebirdPromise.bind({})
+      .then(function() {
+        return db.insert('articles', { title: 'Title 1', body: 'Contents 1'});
+      })
+      .then(function() {
+        return db.insert('articles', { title: 'Title 2', body: 'Contents 2'});
+      })
+      .then(function() { return db.select('articles'); }).get('rows')
+      .then(function(articles) {
+        expect(_.sortBy(articles, 'id')).to.eql([
+          { id: 1, title: 'Title 1', body: 'Contents 1'},
+          { id: 2, title: 'Title 2', body: 'Contents 2'}
+        ]);
+      })
+      .then(function() {
+        // TODO: update
+        // return db.update('articles', { title: 'Updated' })
+      })
+      .then(function() { return db.delete('articles'); })
+      .then(function() { return db.select('articles'); }).get('rows')
+      .then(function(articles) {
+        expect(articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
   });
 };
