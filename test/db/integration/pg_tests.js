@@ -11,6 +11,7 @@ var expect = require('chai').expect;
 var path = require('path');
 var Database = require('../../../lib/db/database');
 var BluebirdPromise = require('bluebird');
+var shared = require('./shared_behaviors');
 
 var db, connection = {
   adapter: 'pg',
@@ -20,7 +21,7 @@ var db, connection = {
 };
 
 describe('PostgresQL', function() {
-  before(function() { db = Database.create(connection); });
+  before(function() { db = this.db = Database.create(connection); });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {
@@ -58,25 +59,5 @@ describe('PostgresQL', function() {
     .done(done, done);
   });
 
-  describe('with migrations applied', function() {
-    before(function(done) {
-      var migration =
-        path.join(__dirname, '../../fixtures/migrations/blog');
-      this.migrator = db.migrator(migration);
-      this.migrator.migrate().then(function() { done(); }, done);
-    });
-
-    after(function(done) {
-      this.migrator.rollback().then(function() { done(); }, done);
-    });
-
-    // TODO: consider how to implement these tests. the intention here is
-    // to create more of an integration style test. perhaps it should be
-    // shared amongst all of the adapter test files somehow.
-    it('inserts data');
-    it('selects data');
-    it('updates data');
-    it('drops tables');
-  });
-
+  shared.shouldRunSimpleMigrationsAndQueries();
 });
