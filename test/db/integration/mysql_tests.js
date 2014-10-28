@@ -28,10 +28,10 @@ describe('MySQL', function() {
   it('executes raw sql', function(done) {
     var returnId = PseudoReturn.create('id');
     var queries = [
-      ['CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))', []],
+      ['CREATE TABLE azul_raw_sql_test (id serial, name varchar(255))'],
       ['INSERT INTO azul_raw_sql_test (name) VALUES (\'Azul\')', [returnId]],
-      ['SELECT * FROM azul_raw_sql_test', []],
-      ['DROP TABLE azul_raw_sql_test', []]
+      ['SELECT * FROM azul_raw_sql_test'],
+      ['DROP TABLE azul_raw_sql_test']
     ];
     BluebirdPromise.reduce(queries, function(array, info) {
       var query = info[0], args = info[1] || [];
