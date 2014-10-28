@@ -7,7 +7,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Database = require('../../../lib/db');
 var MockAdapter = require('../../mocks/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
-var RawQuery = require('../../../lib/db/query/raw');
+var BaseQuery = require('../../../lib/db/query/base');
 
 var db;
 
@@ -56,7 +56,7 @@ describe('Transaction Mixin', function() {
     beforeEach(function() { this.transaction = db.query.begin(); });
 
     it('is a query', function() {
-      expect(this.transaction).to.be.an.instanceOf(RawQuery.__class__);
+      expect(this.transaction).to.be.an.instanceOf(BaseQuery.__class__);
     });
 
     it('can access the transaction', function() {
