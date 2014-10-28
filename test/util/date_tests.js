@@ -26,4 +26,10 @@ describe('date', function() {
       6, 6
     ]);
   });
+
+  it('raises for invalid weekdays', function() {
+    expect(function() {
+      date.parseWeekdayToInt('asdf');
+    }).to.throw(/invalid weekday: *asdf/i);
+  });
 });
