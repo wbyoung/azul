@@ -249,6 +249,21 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it('rolls back transaction for failed migration', function(done) {
+        this.mod2.up = function() {
+          throw new Error('Intentional Error');
+        };
+        migration.migrate().throw('Migration should have been rolled back.')
+        .catch(function(e) {
+          expect(e.message).to.eql('Intentional Error');
+          expect(adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            ['ROLLBACK', []]
+          ]);
+        })
+        .done(done, done);
+      });
+
       it('records migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
           expect(adapter._execute.sqlCalls()).to.eql([
@@ -360,6 +375,21 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it('rolls back transaction for failed migration', function(done) {
+        this.mod2.down = function() {
+          throw new Error('Intentional Error');
+        };
+        migration.rollback().throw('Migration should have been rolled back.')
+        .catch(function(e) {
+          expect(e.message).to.eql('Intentional Error');
+          expect(adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            ['ROLLBACK', []]
+          ]);
+        })
+        .done(done, done);
+      });
+
       it('removes migrations recorded in database', function(done) {
         migration.rollback().bind(this).then(function() {
           expect(adapter._execute.sqlCalls()).to.eql([
@@ -390,11 +420,6 @@ describe('Migration', function() {
     // the creation of a `DropTableQuery`. argument mapping may be more
     // complicated, but still could be decently easy.
     it('knows the reverse of creating a table');
-  });
-
-  describe('#migrate', function() {
-    it('rolls back transaction for failed migration forward');
-    it('rolls back transaction for failed migration backward');
   });
 
   // ADD FEATURE: hash migrations when they are run so we're able to warn the
