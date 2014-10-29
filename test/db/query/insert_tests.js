@@ -53,4 +53,11 @@ describe('InsertQuery', function() {
       ['Whitney', 'Portland', 'Brittany', undefined]
     ));
   });
+
+  it('allows specifying the return value', function() {
+    var query = db.insert('users', [{ name: 'Whitney' }]).returning('id');
+    expect(query.sql()).to.eql(Statement.create(
+      'INSERT INTO "users" ("name") VALUES (?) RETURNING "id"', ['Whitney']
+    ));
+  });
 });
