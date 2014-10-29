@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var Database = require('../../../lib/db');
+var SelectQuery = require('../../../lib/db/query/select');
 var MockAdapter = require('../../mocks/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var Condition = require('../../../lib/db/condition'),
@@ -14,6 +15,12 @@ var db;
 describe('SelectQuery', function() {
   before(function() {
     db = Database.create({ adapter: MockAdapter.create({}) });
+  });
+
+  it('cannot be created directly', function() {
+    expect(function() {
+      SelectQuery.create();
+    }).to.throw(/SelectQuery must be spawned/i);
   });
 
   it('accesses a table', function() {

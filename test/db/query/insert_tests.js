@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var Database = require('../../../lib/db');
+var InsertQuery = require('../../../lib/db/query/insert');
 var MockAdapter = require('../../mocks/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 
@@ -12,6 +13,12 @@ var db;
 describe('InsertQuery', function() {
   before(function() {
     db = Database.create({ adapter: MockAdapter.create({}) });
+  });
+
+  it('cannot be created directly', function() {
+    expect(function() {
+      InsertQuery.create();
+    }).to.throw(/InsertQuery must be spawned/i);
   });
 
   it('inserts data', function() {
