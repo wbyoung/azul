@@ -54,6 +54,12 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can be filtered when columns are specified', function() {
+    expect(db.select('users', ['id']).where({ id: 1 }).sql()).to.eql(Statement.create(
+      'SELECT "id" FROM "users" WHERE "id" = ?', [1]
+    ));
+  });
+
   it('handles predicates', function() {
     expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
       'SELECT * FROM "articles" WHERE "words" > ?', [200]
