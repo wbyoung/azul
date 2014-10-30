@@ -16,6 +16,18 @@ describe('Database', function() {
     }).to.throw(/no adapter.*invalid_adapter/i);
   });
 
+  it('shows require errors for non-invalid-adapter errors', function() {
+    var connection = {
+      adapter: '../../../test/fixtures/adapters/missing',
+      username: 'root',
+      password: '',
+      database: 'azul_test'
+    };
+    expect(function() {
+      Database.create(connection);
+    }).to.throw(/cannot find module.*missing/i);
+  });
+
   it('fails with when no connection is given', function() {
     expect(function() {
       Database.create();
