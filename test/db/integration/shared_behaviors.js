@@ -31,13 +31,13 @@ module.exports.shouldRunMigrationsAndQueries = function() {
           .insert('articles', { title: 'Title 1', body: 'Contents 1'})
           .returning('id');
       }).get('rows').get('0')
-      .then(function(article) { expect(article.id).to.eql(1) })
+      .then(function(article) { expect(article.id).to.eql(1); })
       .then(function() {
         return db
           .insert('articles', { title: 'Title 2', body: 'Contents 2'})
           .returning('id');
       }).get('rows').get('0')
-      .then(function(article) { expect(article.id).to.eql(2) })
+      .then(function(article) { expect(article.id).to.eql(2); })
       .then(function() { return db.select('articles'); }).get('rows')
       .then(function(articles) {
         expect(_.sortBy(articles, 'id')).to.eql([
