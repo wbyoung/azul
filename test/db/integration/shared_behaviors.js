@@ -28,10 +28,9 @@ module.exports.shouldRunMigrationsAndQueries = function() {
       BluebirdPromise.bind({})
       .then(function() {
         return db
-          .insert('articles', { title: 'Title 1', body: 'Contents 1'})
-          .returning('id');
+          .insert('articles', { title: 'Title 1', body: 'Contents 1'});
       }).get('rows').get('0')
-      .then(function(article) { expect(article.id).to.eql(1); })
+      .then(function(article) { expect(article).to.not.exist; })
       .then(function() {
         return db
           .insert('articles', { title: 'Title 2', body: 'Contents 2'})
