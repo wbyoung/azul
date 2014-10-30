@@ -12,6 +12,12 @@ describe('Schema', function() {
     schema = Schema.create(MockAdapter.create({}));
   });
 
+  it('cannot generate sql', function() {
+    expect(function() {
+      schema.sql();
+    }).to.throw(/must first call/i);
+  });
+
   describe('#createTable', function() {
 
     it('generates the proper sql', function() {
