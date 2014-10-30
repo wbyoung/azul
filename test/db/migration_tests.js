@@ -316,8 +316,9 @@ describe('Migration', function() {
         up: sinon.spy(), down: sinon.spy(),
         name: 'migration_file_2', batch: 1
       };
+      var mods = this.mods = [mod1, mod2];
       sinon.stub(migration, '_loadExecutedMigrations')
-        .returns(BluebirdPromise.resolve([mod1, mod2]));
+        .returns(BluebirdPromise.resolve(mods));
     });
     afterEach(function() {
       migration._loadExecutedMigrations.restore();
@@ -329,6 +330,15 @@ describe('Migration', function() {
         migration.rollback().bind(this).then(function() {
           expect(this.mod1.down).to.have.been.calledOnce;
           expect(this.mod2.down).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
+      it('works when there are no migrations to run', function(done) {
+        this.mods.splice(0, 2);
+        migration.rollback().bind(this).then(function() {
+          expect(this.mod1.down).to.not.have.been.called;
+          expect(this.mod2.down).to.not.have.been.called;
         })
         .done(done, done);
       });
