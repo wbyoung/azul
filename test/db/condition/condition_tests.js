@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var util = require('util');
+var Node = require('../../../lib/db/condition/node');
 var Condition = require('../../../lib/db/condition'),
   w = Condition.w,
   f = Condition.f,
@@ -35,6 +36,44 @@ describe('Condition', function() {
     it('requires an argument', function() {
       expect(function() { w(); }).to.throw(/condition required/i);
     });
+  });
+
+  describe('it must yield an expression when being constructed', function() {
+    // the only way to test this is to override a private method
+    var ConditionOverride = Condition.extend({
+      _reduceBinary: function() { return []; }
+    });
+    expect(function() {
+      ConditionOverride.create({});
+    }).to.throw(/binary.*failed.*yield.*single expression/i);
+  });
+
+  describe('requires expression left hand side to be a leaf', function() {
+    // the only way to test this is to call a private method
+    var c = w({});
+    var lhs = Node.create({ type: 'expression' });
+    var rhs = Node.create({ type: 'leaf', value: 'value' });
+    var expression = Node.create({ type: 'expression', lhs: lhs, rhs: rhs });
+    expect(function() {
+      c._build(expression, {
+        grammar: this.grammar,
+        translator: this.translator
+      });
+    }.bind(this)).to.throw(/left hand side.*must be.*leaf/i);
+  });
+
+  describe('requires expression left hand side to be a leaf', function() {
+    // the only way to test this is to call a private method
+    var c = w({});
+    var lhs = Node.create({ type: 'leaf', value: 'value' });
+    var rhs = Node.create({ type: 'expression' });
+    var expression = Node.create({ type: 'expression', lhs: lhs, rhs: rhs });
+    expect(function() {
+      c._build(expression, {
+        grammar: this.grammar,
+        translator: this.translator
+      });
+    }.bind(this)).to.throw(/right hand side.*must be.*leaf/i);
   });
 
   it('can build expressions', function() {
