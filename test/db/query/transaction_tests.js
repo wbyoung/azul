@@ -290,5 +290,21 @@ describe('Transaction Mixin', function() {
       })
       .done(done, done);
     });
+
+    it('can call #_prepareForTransactionClientAcquire without transaction', function() {
+      var txn = this.transaction;
+      txn._transaction = undefined;
+      expect(function() {
+        txn._prepareForTransactionClientAcquire();
+      }).to.not.throw();
+    });
+
+    it('can call #_prepareForTransactionClientRelease without transaction', function() {
+      var txn = this.transaction;
+      txn._transaction = undefined;
+      expect(function() {
+        txn._prepareForTransactionClientRelease();
+      }).to.not.throw();
+    });
   });
 });
