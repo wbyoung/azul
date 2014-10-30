@@ -251,4 +251,48 @@ describe('Class', function() {
     expect(Dog.toString()).to.eql('[Dog Class]');
   });
 
+  it('allows getter-only accessor definition', function() {
+    var Dog = Class.extend({
+      init: function() { this._type = 'canine'; }
+    });
+    Dog.defineAccessor('type');
+    var dog = Dog.create();
+    expect(dog.type).to.eql('canine');
+    expect(function() {
+      dog.type = 'animal';
+    }).to.throw(/cannot set property.*only.*getter/i);
+  });
+
+  it('allows getter-setter accessor definition', function() {
+    var Dog = Class.extend({
+      init: function() { this._type = 'canine'; }
+    });
+    Dog.defineAccessor('type', { writable: true });
+    var dog = Dog.create();
+    expect(dog.type).to.eql('canine');
+    dog.type = 'animal';
+    expect(dog.type).to.eql('animal');
+    expect(dog._type).to.eql('animal');
+  });
+
+  it('allows custom getter-only accessor definition', function() {
+    var spy = sinon.spy();
+    var Dog = Class.extend({});
+    Dog.defineAccessor('type', spy);
+    var dog = Dog.create();
+    expect(spy).to.not.have.been.called;
+    dog.type;
+    expect(spy).to.have.been.called;
+  });
+
+  it('allows custom setter-only accessor definition', function() {
+    var spy = sinon.spy();
+    var Dog = Class.extend({});
+    Dog.defineAccessor('type', undefined, spy);
+    var dog = Dog.create();
+    expect(spy).to.not.have.been.called;
+    dog.type = 'canine';
+    expect(spy).to.have.been.called;
+  });
+
 });
