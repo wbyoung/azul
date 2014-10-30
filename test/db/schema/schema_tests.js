@@ -2,9 +2,9 @@
 
 var expect = require('chai').expect;
 
-var Schema = require('../../lib/db/schema');
-var MockAdapter = require('../mocks/adapter');
-var Statement = require('../../lib/db/grammar/statement');
+var Schema = require('../../../lib/db/schema');
+var MockAdapter = require('../../mocks/adapter');
+var Statement = require('../../../lib/db/grammar/statement');
 var schema;
 
 describe('Schema', function() {
