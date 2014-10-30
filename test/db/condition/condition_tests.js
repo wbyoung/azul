@@ -281,6 +281,16 @@ describe('Condition', function() {
       expect(result).to.eql('name ~* "hello.*world"');
     });
 
+    it('supports regex as string', function() {
+      var result = this.stringify(w({ 'name[regex]': '/hello.*world' }));
+      expect(result).to.eql('name ~ "/hello.*world"');
+    });
+
+    it('supports iregex as string', function() {
+      var result = this.stringify(w({ 'name[iregex]': '/hello.*world' }));
+      expect(result).to.eql('name ~* "/hello.*world"');
+    });
+
     it('raises for unsupported predicates', function() {
       expect(function() {
         this.stringify(w({ 'name[badPredicate]': 'world' }));
