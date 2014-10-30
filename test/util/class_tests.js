@@ -295,4 +295,13 @@ describe('Class', function() {
     expect(spy).to.have.been.called;
   });
 
+  it('has a metaclass that inherits from a callable', function() {
+    var proto = '__proto__';
+    var meta = Class.__metaclass__;
+    var prototype = meta.prototype;
+    var base = prototype[proto];
+    var constructor = base.constructor;
+    expect(function() { constructor(); }).to.not.throw();
+  });
+
 });
