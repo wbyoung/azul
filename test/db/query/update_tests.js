@@ -7,9 +7,9 @@ var Database = require('../../../lib/db');
 var UpdateQuery = require('../../../lib/db/query/update');
 var MockAdapter = require('../../mocks/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
-var LiteralString = require('../../../lib/db/condition/literal'),
+var LiteralString = require('../../../lib/db/grammar/literal'),
   l = LiteralString.l;
-var FieldString = require('../../../lib/db/condition/field'),
+var FieldString = require('../../../lib/db/grammar/field'),
   f = FieldString.f;
 
 var db;
