@@ -60,6 +60,37 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can be ordered', function() {
+    var query = db.select('users').order('signup');
+    expect(query.sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" ORDER BY "signup" ASC', []
+    ));
+  });
+
+  it('can be ordered descending', function() {
+    var query = db.select('users').order('-signup');
+    expect(query.sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" ORDER BY "signup" DESC', []
+    ));
+  });
+
+  it('can be ordered over multiple fields', function() {
+    var query = db.select('users').order('-signup', 'username');
+    expect(query.sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" ORDER BY "signup" DESC, "username" ASC', []
+    ));
+  });
+
+  it('can be ordered and filtered', function() {
+    var query = db.select('users')
+      .where({ id: 1 })
+      .order('-signup', 'username');
+    expect(query.sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" WHERE "id" = ? ' +
+      'ORDER BY "signup" DESC, "username" ASC', [1]
+    ));
+  });
+
   it('handles predicates', function() {
     expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
       'SELECT * FROM "articles" WHERE "words" > ?', [200]
