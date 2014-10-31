@@ -28,6 +28,9 @@ table.decimal('name');
 
 update('people').set({ name: 'Whit' }).where({ id: '1' });
 
+// REVISIT: testing. here are some things to consider
+//   - handle insert of objects with specific IDs
+//   - handle reseting sequence ids for testing
 
 var query = w({ 'id[gte]': 4 }, w.and, w({ name: 'Whit' }, w.or, { name: 'Brit' }));
 // id >= $1 && (name = $2 || name = $3) [4, 'Whit', 'Brit']
