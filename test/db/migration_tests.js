@@ -23,22 +23,29 @@ describe('Migration', function() {
   });
 
   beforeEach(function() {
-    var results = {};
+    var results = [];
     sinon.spy(schema, 'begin');
     sinon.stub(adapter, '_execute', function(client, sql/*, args*/) {
       var rows, fields;
-      if (sql.match(/select/i)) {
-        rows = results.select;
-        fields = ['id', 'name', 'batch'];
-      }
+      results.some(function(result) {
+        var match = sql.match(result.regex);
+        if (match) {
+          rows = result.rows;
+          fields = ['id', 'name', 'batch'];
+        }
+        return match;
+      });
       return {
         rows: rows || [],
         fields: fields || []
       };
     });
-    adapter._execute.selectReturnsExecutedMigrations = function(names) {
-      results.select = names.map(function(name, index) {
-        return { id: index + 1, name: name, batch: 1 };
+    adapter._execute.returnsExecutedMigrations = function(names, regex) {
+      results.push({
+        regex: regex,
+        rows: names.map(function(name, index) {
+          return { id: index + 1, name: name, batch: 1 };
+        })
       });
     };
     adapter._execute.sqlCalls = function() {
@@ -101,9 +108,9 @@ describe('Migration', function() {
     });
 
     it('does not include executed migrations', function(done) {
-      adapter._execute.selectReturnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations([
         '20141022202234_create_articles'
-      ]);
+      ], /select/i);
 
       migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
@@ -119,9 +126,9 @@ describe('Migration', function() {
   describe('#_loadPendingMigrations', function() {
 
     it('loads pending migrations', function(done) {
-      adapter._execute.selectReturnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations([
         '20141022202234_create_articles'
-      ]);
+      ], /select/i);
 
       migration._loadPendingMigrations().bind(this)
       .then(function(migrations) {
@@ -141,10 +148,10 @@ describe('Migration', function() {
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      adapter._execute.selectReturnsExecutedMigrations([
-        '20141022202634_create_comments',
-        '20141022202234_create_articles'
-      ]);
+      adapter._execute.returnsExecutedMigrations([
+        '20141022202234_create_articles',
+        '20141022202634_create_comments'
+      ], /select.*order by "name" asc/i);
 
       migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
@@ -161,9 +168,9 @@ describe('Migration', function() {
   describe('#_loadExecutedMigrations', function() {
 
     it('loads migrations in order', function(done) {
-      adapter._execute.selectReturnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations([
         '20141022202234_create_articles'
-      ]);
+      ], /select/i);
 
       migration._loadExecutedMigrations().bind(this)
       .then(function(migrations) {
