@@ -45,8 +45,14 @@ module.exports.shouldRunMigrationsAndQueries = function() {
         ]);
       })
       .then(function() {
-        // TODO: update
-        // return db.update('articles', { title: 'Updated' })
+        return db.update('articles', { title: 'Updated' }).where({ id: 1 });
+      })
+      .then(function() { return db.select('articles'); }).get('rows')
+      .then(function(articles) {
+        expect(_.sortBy(articles, 'id')).to.eql([
+          { id: 1, title: 'Updated', body: 'Contents 1'},
+          { id: 2, title: 'Title 2', body: 'Contents 2'}
+        ]);
       })
       .then(function() { return db.delete('articles'); })
       .then(function() { return db.select('articles'); }).get('rows')
