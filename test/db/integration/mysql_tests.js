@@ -67,6 +67,17 @@ describe('MySQL', function() {
     .done(done, done);
   });
 
+  it('reports errors', function(done) {
+    var query = 'SELECT & FROM ^';
+    var args = [];
+    db._adapter.execute(query, args)
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/PARSE_ERROR.*syntax.*MySQL/i);
+    })
+    .done(done, done);
+  });
+
   // run all shared examples
   _.each(shared, function(fn, name) {
     if (fn.length !== 0) {
