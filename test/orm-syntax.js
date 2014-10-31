@@ -23,7 +23,7 @@ table.string('name');
 table.text('name');
 table.date('name');
 table.time('name');
-table.dateTime('name');
+table.dateTime('name'); // REVISIT: at model level support { autoNow: false, autoNowAddd: false }
 table.decimal('name');
 
 update('people').set({ name: 'Whit' }).where({ id: '1' });
