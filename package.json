@@ -46,7 +46,8 @@
   },
   "optionalDependencies": {
     "mysql": "^2.5.2",
-    "pg": "^3.4.1"
+    "pg": "^3.4.1",
+    "sqlite3": "^3.0.2"
   },
   "dependencies": {
     "bluebird": "^2.3.5",
