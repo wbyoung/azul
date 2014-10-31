@@ -31,6 +31,13 @@ describe('UpdateQuery', function() {
     ));
   });
 
+  it('can be filtered', function() {
+    var query = db.update('users', { name: 'Whitney' }).where({ id: 1 });
+    expect(query.sql()).to.eql(Statement.create(
+      'UPDATE "users" SET "name" = ? WHERE "id" = ?', ['Whitney', 1]
+    ));
+  });
+
   it('updates multiple values', function() {
     var query = db.update('users', { first: 'Whitney', last: 'Young' });
     expect(query.sql()).to.eql(Statement.create(
