@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var util = require('util');
 var expect = require('chai').expect;
 var path = require('path');
 var BluebirdPromise = require('bluebird');
@@ -60,6 +61,50 @@ module.exports.shouldRunMigrationsAndQueries = function() {
         expect(articles).to.eql([]);
       })
       .done(done, done);
+    });
+
+    describe('types', function() {
+
+      // shared behavior for type tests
+      var via = function(type, data) {
+        var table = util.format('azul_type_%s', type);
+        return function(done) {
+          BluebirdPromise.bind({})
+          .then(function() {
+            return db.schema.createTable(table, function(table) {
+              table[type]('column');
+            });
+          })
+          .then(function() {
+            return db.insert(table, { column: data });
+          })
+          .then(function() {
+            return db.select(table);
+          }).get('rows').get('0')
+          .then(function(result) {
+            expect(result.column).to.equal(data);
+          })
+          .finally(function() {
+            return db.schema.dropTable(table);
+          })
+          .done(function() { done(); }, done);
+        };
+      };
+
+      it('supports `auto`', via('auto', 1));
+      it('supports `increments`', via('increments', 1));
+      it('supports `serial`', via('serial', 1));
+      it('supports `integer`', via('integer', 1));
+      it.skip('supports `integer64`', via('integer64', 1));
+      it('supports `string`', via('string', 'hello world'));
+      it('supports `text`', via('text', 'hello world'));
+      it.skip('supports `binary`', via('binary', 'hello world'));
+      it.skip('supports `bool`', via('bool', true));
+      it.skip('supports `date`', via('date', new Date(2014, 10, 31)));
+      it.skip('supports `time`', via('time', 12));
+      it.skip('supports `dateTime`', via('dateTime', new Date(2014, 10, 31)));
+      it('supports `float`', via('float', 3.14159));
+      it.skip('supports `decimal`', via('decimal', 3.14159));
     });
 
     describe('conditions', function() {
