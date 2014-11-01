@@ -62,5 +62,33 @@ module.exports.shouldRunMigrationsAndQueries = function() {
       .done(done, done);
     });
 
+    describe('conditions', function() {
+      it('supports `exact`');
+      it('supports `iexact`');
+      it('supports `in`');
+      it('supports `gt`');
+      it('supports `gte`');
+      it('supports `lt`');
+      it('supports `lte`');
+      it('supports `between`');
+      it('supports `isull`');
+
+      it('supports `contains`');
+      it('supports `icontains`');
+      it('supports `startsWith`');
+      it('supports `istartsWith`');
+      it('supports `endsWith`');
+      it('supports `iendsWith`');
+      it('supports `regex`');
+      it('supports `iregex`');
+
+      it('supports `year`');
+      it('supports `month`');
+      it('supports `day`');
+      it('supports `weekday`');
+      it('supports `hour`');
+      it('supports `minute`');
+      it('supports `second`');
+    });
   });
 };
