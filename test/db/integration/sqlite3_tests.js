@@ -20,16 +20,20 @@ var resetSequence = BluebirdPromise.method(function(/*table*/) {
   // no need to reset
 });
 
-var cast = function(type, value) {
+var castDatabaseValue = function(type, value, options) {
   switch (type) {
     // TODO: document better here & publicly
     // dates are stored as integers in sqlite3, so we need to cast to
     // timestamps when checking expected values.
     case 'date':
-    case 'dateTime': value = value.getTime(); break;
-    case 'bool': value = Number(value); break;
+    case 'dateTime': value = new Date(value); break;
+    case 'bool': value = Boolean(value); break;
     // TODO: document better here & publicly (blob basically just a string in sqlite3)
     case 'binary': value = value; break;
+    // TODO: document better here & publicly (decimal precision/scale not supported)
+    case 'decimal':
+      value = _.size(options) ? +value.toFixed(options.scale) : value;
+      break;
   }
   return value;
 };
@@ -37,7 +41,7 @@ var cast = function(type, value) {
 describe('SQLite3', function() {
   before(function() { db = this.db = Database.create(connection); });
   before(function() { this.resetSequence = resetSequence; });
-  before(function() { this.expectationTypeCast = cast; });
+  before(function() { this.castDatabaseValue = castDatabaseValue; });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {
