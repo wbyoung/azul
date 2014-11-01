@@ -24,9 +24,21 @@ var resetSequence = function(table) {
   return db.query.raw('ALTER SEQUENCE ' + table + '_id_seq restart');
 };
 
+var cast = function(type, value) {
+  switch(type) {
+    // TODO: document better here & publicly
+    case 'integer64':
+    case 'decimal': value = value.toString(); break;
+    // TODO: document better here & publicly
+    case 'binary': value = new Buffer(value); break;
+  }
+  return value;
+};
+
 describe('PostgresQL', function() {
   before(function() { db = this.db = Database.create(connection); });
   before(function() { this.resetSequence = resetSequence; });
+  before(function() { this.expectationTypeCast = cast; });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {

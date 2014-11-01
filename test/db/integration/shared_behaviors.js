@@ -66,10 +66,11 @@ module.exports.shouldRunMigrationsAndQueries = function() {
     describe('types', function() {
 
       // shared behavior for type tests
-      var via = function(type, data) {
-        var table = util.format('azul_type_%s', type);
+      var via = function(type, data, equal) {
         return function(done) {
-          BluebirdPromise.bind({})
+          var table = util.format('azul_type_%s', type);
+          var expected = this.expectationTypeCast(type, data);
+          BluebirdPromise.bind(this)
           .then(function() {
             return db.schema.createTable(table, function(table) {
               table[type]('column');
@@ -82,7 +83,7 @@ module.exports.shouldRunMigrationsAndQueries = function() {
             return db.select(table);
           }).get('rows').get('0')
           .then(function(result) {
-            expect(result.column).to.equal(data);
+            expect(result.column).to[equal || 'equal'](expected);
           })
           .finally(function() {
             return db.schema.dropTable(table);
@@ -95,16 +96,16 @@ module.exports.shouldRunMigrationsAndQueries = function() {
       it('supports `increments`', via('increments', 1));
       it('supports `serial`', via('serial', 1));
       it('supports `integer`', via('integer', 1));
-      it.skip('supports `integer64`', via('integer64', 1));
+      it('supports `integer64`', via('integer64', 1));
       it('supports `string`', via('string', 'hello world'));
       it('supports `text`', via('text', 'hello world'));
-      it.skip('supports `binary`', via('binary', 'hello world'));
-      it.skip('supports `bool`', via('bool', true));
-      it.skip('supports `date`', via('date', new Date(2014, 10, 31)));
-      it.skip('supports `time`', via('time', 12));
-      it.skip('supports `dateTime`', via('dateTime', new Date(2014, 10, 31)));
+      it('supports `binary`', via('binary', 'hello world', 'eql'));
+      it('supports `bool`', via('bool', true));
+      it('supports `date`', via('date', new Date(2014, 10-1, 31), 'eql'));
+      it('supports `time`', via('time', '11:57:23'));
+      it('supports `dateTime`', via('dateTime', new Date(2014, 10-1, 31), 'eql'));
       it('supports `float`', via('float', 3.14159));
-      it.skip('supports `decimal`', via('decimal', 3.14159));
+      it('supports `decimal`', via('decimal', 3.14159));
     });
 
     describe('conditions', function() {

@@ -26,9 +26,20 @@ var resetSequence = function(table) {
   return db.query.raw('ALTER TABLE ' + table + ' AUTO_INCREMENT = 1;');
 };
 
+var cast = function(type, value) {
+  switch(type) {
+    // TODO: document better here & publicly
+    case 'bool': value = Number(value); break;
+    // TODO: document better here & publicly
+    case 'binary': value = new Buffer(value); break;
+  }
+  return value;
+};
+
 describe('MySQL', function() {
   before(function() { db = this.db = Database.create(connection); });
   before(function() { this.resetSequence = resetSequence; });
+  before(function() { this.expectationTypeCast = cast; });
   after(function(done) { db.disconnect().then(done, done); });
 
   it('executes raw sql', function(done) {
