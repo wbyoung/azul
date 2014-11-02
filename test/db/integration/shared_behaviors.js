@@ -66,16 +66,18 @@ module.exports.shouldRunMigrationsAndQueries = function() {
     describe('types', function() {
 
       // shared behavior for type tests
-      var viaOptions = function(type, data, expected, options, equal) {
+      var viaOptions = function(type, data, expected, options, equal, fn) {
         var table = util.format('azul_type_%s', type);
         var cast = function(result) {
           return this.castDatabaseValue(type, result, options);
         };
+        equal = equal || 'equal';
+        fn = fn || function() {};
         return function(done) {
           BluebirdPromise.bind(this)
           .then(function() {
             return db.schema.createTable(table, function(table) {
-              table[type]('column', options);
+              fn(table[type]('column', options));
             });
           })
           .then(function() { return db.insert(table, { column: data }); })
@@ -85,7 +87,7 @@ module.exports.shouldRunMigrationsAndQueries = function() {
           .get('column')
           .then(cast)
           .then(function(result) {
-            expect(result).to[equal || 'equal'](expected);
+            expect(result).to[equal](expected);
           })
           .finally(function() { return db.schema.dropTable(table); })
           .done(function() { done(); }, done);
@@ -123,10 +125,16 @@ module.exports.shouldRunMigrationsAndQueries = function() {
         scale: 2
       }));
 
-      it('supports `pk`');
-      it('supports `primaryKey`');
+      it.skip('supports `pk`', viaOptions('string', 'key', 'key', {}, null,
+        function(col) { col.pk(); }));
+
+      it.skip('supports `primaryKey`', viaOptions('string', 'key', 'key', {}, null,
+        function(col) { col.primaryKey(); }));
+
+      it.skip('supports `indexed`', viaOptions('string', 'val', 'val', {}, null,
+        function(col) { col.indexed(); }));
+
       it('supports `notNull`');
-      it('supports `indexed`');
       it('supports `default`');
       it('supports `unique`');
     });
