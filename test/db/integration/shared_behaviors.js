@@ -122,6 +122,13 @@ module.exports.shouldRunMigrationsAndQueries = function() {
         precision: 4,
         scale: 2
       }));
+
+      it('supports `pk`');
+      it('supports `primaryKey`');
+      it('supports `notNull`');
+      it('supports `indexed`');
+      it('supports `default`');
+      it('supports `unique`');
     });
 
     describe('conditions', function() {
