@@ -153,7 +153,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function() { return db.insert(table, { column: null }); })
       .throw(new Error('Expected insert error to occur.'))
       .catch(function(e) {
-        expect(e.message).to.match(/null/i);
+        expect(e.message).to.match(/null value/i);
       })
       .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
@@ -171,7 +171,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function() { return db.insert(table, { column: 'val' }); })
       .throw(new Error('Expected insert error to occur.'))
       .catch(function(e) {
-        expect(e.message).to.match(/unique/i);
+        expect(e.message).to.match(/unique value/i);
       })
       .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
