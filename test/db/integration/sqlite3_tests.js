@@ -22,16 +22,10 @@ var resetSequence = BluebirdPromise.method(function(/*table*/) {
 
 var castDatabaseValue = function(type, value, options) {
   switch (type) {
-    // TODO: document better here & publicly
-    // dates are stored as integers in sqlite3, so we need to cast to
-    // timestamps when checking expected values.
-    case 'date':
+    case 'date': // dates are converted & stored as timestamps
     case 'dateTime': value = new Date(value); break;
-    case 'bool': value = Boolean(value); break;
-    // TODO: document better here & publicly (blob basically just a string in sqlite3)
-    case 'binary': value = value; break;
-    // TODO: document better here & publicly (decimal precision/scale not supported)
-    case 'decimal':
+    case 'bool': value = Boolean(value); break; // bool is stored as number
+    case 'decimal': // precision & scale not supported, so fake it here
       value = _.size(options) ? +value.toFixed(options.scale) : value;
       break;
   }

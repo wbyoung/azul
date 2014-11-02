@@ -26,11 +26,8 @@ var resetSequence = function(table) {
 
 var castDatabaseValue = function(type, value) {
   switch(type) {
-    // TODO: document better here & publicly
-    case 'integer64':
+    case 'integer64': // these numeric types are read from the db as strings
     case 'decimal': value = +value; break;
-    // TODO: document better here & publicly
-    case 'binary': value = new Buffer(value); break;
   }
   return value;
 };

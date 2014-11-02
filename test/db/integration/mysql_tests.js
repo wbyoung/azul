@@ -28,10 +28,7 @@ var resetSequence = function(table) {
 
 var castDatabaseValue = function(type, value) {
   switch(type) {
-    // TODO: document better here & publicly
-    case 'bool': value = Boolean(value); break;
-    // TODO: document better here & publicly
-    case 'binary': value = new Buffer(value); break;
+    case 'bool': value = Boolean(value); break; // bool is stored as number
   }
   return value;
 };
