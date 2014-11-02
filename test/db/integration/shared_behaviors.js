@@ -92,7 +92,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function(result) {
         expect(result).to[equal](expected);
       })
-      .finally(function() { return db.schema.dropTable(table); })
+      .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
     };
   };
@@ -155,7 +155,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .catch(function(e) {
         expect(e.message).to.match(/null/i);
       })
-      .finally(function() { return db.schema.dropTable(table); })
+      .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
     });
 
@@ -173,7 +173,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .catch(function(e) {
         expect(e.message).to.match(/unique/i);
       })
-      .finally(function() { return db.schema.dropTable(table); })
+      .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
     });
   });
