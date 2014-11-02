@@ -134,8 +134,10 @@ module.exports.shouldRunMigrationsAndQueries = function() {
       it.skip('supports `indexed`', viaOptions('string', 'val', 'val', {}, null,
         function(col) { col.indexed(); }));
 
+      it.skip('supports `default`', viaOptions('string', null, 'val', {}, null,
+        function(col) { col.default('val'); }));
+
       it('supports `notNull`');
-      it('supports `default`');
       it('supports `unique`');
     });
 
