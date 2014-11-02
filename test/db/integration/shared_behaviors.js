@@ -142,8 +142,40 @@ module.exports.shouldSupportStandardTypes = function() {
     it.skip('supports `default`', viaOptions('string', null, 'val', {}, null,
       function(col) { col.default('val'); }));
 
-    it('supports `notNull`');
-    it('supports `unique`');
+    it.skip('supports `notNull`', function(done) {
+      var table = 'azul_not_null';
+      BluebirdPromise.bind(this)
+      .then(function() {
+        return db.schema.createTable(table, function(table) {
+          table.string('column').notNull();
+        });
+      })
+      .then(function() { return db.insert(table, { column: null }); })
+      .throw(new Error('Expected insert error to occur.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/null/i);
+      })
+      .finally(function() { return db.schema.dropTable(table); })
+      .done(function() { done(); }, done);
+    });
+
+    it.skip('supports `unique`', function(done) {
+      var table = 'azul_unique';
+      BluebirdPromise.bind(this)
+      .then(function() {
+        return db.schema.createTable(table, function(table) {
+          table.string('column').unique();
+        });
+      })
+      .then(function() { return db.insert(table, { column: 'val' }); })
+      .then(function() { return db.insert(table, { column: 'val' }); })
+      .throw(new Error('Expected insert error to occur.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/unique/i);
+      })
+      .finally(function() { return db.schema.dropTable(table); })
+      .done(function() { done(); }, done);
+    });
   });
 };
 
