@@ -40,15 +40,15 @@ $ mysql -u root
 
 This project is distributed under the MIT license.
 
+[travis-image]: http://img.shields.io/travis/wbyoung/azul.svg?style=flat
 [travis-url]: http://travis-ci.org/wbyoung/azul
-[travis-image]: https://secure.travis-ci.org/wbyoung/azul.png?branch=master
+[npm-image]: http://img.shields.io/npm/v/azul.svg?style=flat
 [npm-url]: https://npmjs.org/package/azul
-[npm-image]: https://badge.fury.io/js/azul.png
-[codeclimate-image]: https://codeclimate.com/github/wbyoung/azul.png
+[codeclimate-image]: http://img.shields.io/codeclimate/github/wbyoung/azul.svg?style=flat
 [codeclimate-url]: https://codeclimate.com/github/wbyoung/azul
-[coverage-image]: https://coveralls.io/repos/wbyoung/azul/badge.png
+[coverage-image]: http://img.shields.io/coveralls/wbyoung/azul.svg?style=flat
 [coverage-url]: https://coveralls.io/r/wbyoung/azul
-[david-image]: https://david-dm.org/wbyoung/azul.png?theme=shields.io
+[david-image]: http://img.shields.io/david/wbyoung/azul.svg?style=flat
 [david-url]: https://david-dm.org/wbyoung/azul
-[david-dev-image]: https://david-dm.org/wbyoung/azul/dev-status.png?theme=shields.io
+[david-dev-image]: http://img.shields.io/david/dev/wbyoung/azul.svg?style=flat
 [david-dev-url]: https://david-dm.org/wbyoung/azul#info=devDependencies
