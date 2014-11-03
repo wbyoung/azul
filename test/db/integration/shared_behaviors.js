@@ -159,7 +159,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .done(function() { done(); }, done);
     });
 
-    it.skip('supports `unique`', function(done) {
+    it('supports `unique`', function(done) {
       var table = 'azul_unique';
       BluebirdPromise.bind(this)
       .then(function() {
@@ -171,7 +171,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function() { return db.insert(table, { column: 'val' }); })
       .throw(new Error('Expected insert error to occur.'))
       .catch(function(e) {
-        expect(e.message).to.match(/unique value/i);
+        expect(e.message).to.match(/duplicate|unique constraint/i);
       })
       .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
