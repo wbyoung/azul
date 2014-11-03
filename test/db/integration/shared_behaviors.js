@@ -142,7 +142,7 @@ module.exports.shouldSupportStandardTypes = function() {
     it.skip('supports `default`', viaOptions('string', null, 'val', {}, null,
       function(col) { col.default('val'); }));
 
-    it.skip('supports `notNull`', function(done) {
+    it('supports `notNull`', function(done) {
       var table = 'azul_not_null';
       BluebirdPromise.bind(this)
       .then(function() {
@@ -153,7 +153,7 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function() { return db.insert(table, { column: null }); })
       .throw(new Error('Expected insert error to occur.'))
       .catch(function(e) {
-        expect(e.message).to.match(/null value/i);
+        expect(e.message).to.match(/(cannot|violates|constraint).*null/i);
       })
       .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
