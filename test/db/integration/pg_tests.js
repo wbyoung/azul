@@ -15,9 +15,11 @@ var shared = require('./shared_behaviors');
 
 var db, connection = {
   adapter: 'pg',
-  user: process.env.PG_USER || 'root',
-  password: process.env.PG_PASSWORD || '',
-  database: process.env.PG_DATABASE || 'azul_test'
+  connection: {
+    user: process.env.PG_USER || 'root',
+    password: process.env.PG_PASSWORD || '',
+    database: process.env.PG_DATABASE || 'azul_test'
+  }
 };
 
 var resetSequence = function(table) {

@@ -17,9 +17,11 @@ var PseudoReturn = returning.PseudoReturn;
 
 var db, connection = {
   adapter: 'mysql',
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'azul_test'
+  connection: {
+    user: process.env.MYSQL_USER || 'root',
+    password: process.env.MYSQL_PASSWORD || '',
+    database: process.env.MYSQL_DATABASE || 'azul_test'
+  }
 };
 
 var resetSequence = function(table) {

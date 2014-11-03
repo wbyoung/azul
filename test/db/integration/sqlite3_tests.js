@@ -13,7 +13,9 @@ var PseudoReturn = returning.PseudoReturn;
 
 var db, connection = {
   adapter: 'sqlite3',
-  filename: ''
+  connection: {
+    filename: ''
+  }
 };
 
 var resetSequence = BluebirdPromise.method(function(/*table*/) {
