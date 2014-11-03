@@ -130,10 +130,10 @@ module.exports.shouldSupportStandardTypes = function() {
       scale: 2
     }));
 
-    it.skip('supports `pk`', viaOptions('string', 'key', 'key', {}, null,
+    it('supports `pk`', viaOptions('string', 'key', 'key', {}, null,
       function(col) { col.pk(); }));
 
-    it.skip('supports `primaryKey`', viaOptions('string', 'key', 'key', {}, null,
+    it('supports `primaryKey`', viaOptions('string', 'key', 'key', {}, null,
       function(col) { col.primaryKey(); }));
 
     it.skip('supports `indexed`', viaOptions('string', 'val', 'val', {}, null,
