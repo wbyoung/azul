@@ -139,8 +139,27 @@ module.exports.shouldSupportStandardTypes = function() {
     it.skip('supports `indexed`', viaOptions('string', 'val', 'val', {}, null,
       function(col) { col.indexed(); }));
 
-    it.skip('supports `default`', viaOptions('string', null, 'val', {}, null,
-      function(col) { col.default('val'); }));
+    it('supports `default`', function(done) {
+      var table = 'azul_default';
+      var value = 'azul\'s default\n\t\b\r\x1a"';
+      BluebirdPromise.bind(this)
+      .then(function() {
+        return db.schema.createTable(table, function(table) {
+          table.string('required');
+          table.string('column').default(value);
+        });
+      })
+      .then(function() { return db.insert(table, { required: '' }); })
+      .then(function() { return db.select(table); })
+      .get('rows')
+      .get('0')
+      .get('column')
+      .then(function(result) {
+        expect(result).to.equal(value);
+      })
+      .finally(function() { return db.schema.dropTable(table).ifExists(); })
+      .done(function() { done(); }, done);
+    });
 
     it('supports `notNull`', function(done) {
       var table = 'azul_not_null';

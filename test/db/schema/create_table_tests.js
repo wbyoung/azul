@@ -82,7 +82,7 @@ describe('CreateTableQuery', function() {
       table.integer('id').default(0);
     });
     expect(query.sql()).to.eql(Statement.create(
-      'CREATE TABLE "users" ("id" integer DEFAULT ?)', [0]
+      'CREATE TABLE "users" ("id" integer DEFAULT 0)', []
     ));
   });
 

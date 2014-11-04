@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 
+var Grammar = require('../../../lib/db/grammar/grammar');
 var Statement = require('../../../lib/db/grammar/statement');
 var Fragment = require('../../../lib/db/grammar/fragment');
 
@@ -38,6 +39,23 @@ describe('Statement', function() {
     });
     it('has the right arguments', function() {
       expect(this.statement.args).to.eql(['world']);
+    });
+  });
+});
+
+describe('Grammar', function() {
+  describe('an instance', function() {
+    beforeEach(function() {
+      this.grammar = Grammar.create({});
+    });
+
+    it('escapes strings', function() {
+      expect(this.grammar.escape('example with \' character'))
+        .to.eql('\'example with \'\' character\'');
+    });
+
+    it('does not escape numbers', function() {
+      expect(this.grammar.escape(5)).to.eql(5);
     });
   });
 });
