@@ -64,9 +64,9 @@ describe('CreateTableQuery', function() {
     ));
   });
 
-  it.skip('generates indexed columns', function() {
-    // TODO: revisit this. it probably has to be done separately
-  });
+  // this will likely need to be done via a separate query and not when setting
+  // up the table.
+  it.skip('generates indexed columns');
 
   it('generates unique columns', function() {
     var query = db.schema.createTable('users', function(table) {

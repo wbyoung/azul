@@ -136,9 +136,6 @@ module.exports.shouldSupportStandardTypes = function() {
     it('supports `primaryKey`', viaOptions('string', 'key', 'key', {}, null,
       function(col) { col.primaryKey(); }));
 
-    it.skip('supports `indexed`', viaOptions('string', 'val', 'val', {}, null,
-      function(col) { col.indexed(); }));
-
     it('supports `default`', function(done) {
       var table = 'azul_default';
       var value = 'azul\'s default\\\n\t\b\r\x1a"';
