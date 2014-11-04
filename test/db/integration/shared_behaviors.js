@@ -141,7 +141,7 @@ module.exports.shouldSupportStandardTypes = function() {
 
     it('supports `default`', function(done) {
       var table = 'azul_default';
-      var value = 'azul\'s default\n\t\b\r\x1a"';
+      var value = 'azul\'s default\\\n\t\b\r\x1a"';
       BluebirdPromise.bind(this)
       .then(function() {
         return db.schema.createTable(table, function(table) {
