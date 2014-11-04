@@ -46,13 +46,13 @@ describe('CreateTableQuery', function() {
     ));
   });
 
-  it.skip('does not allow more than one primary key', function() {
-    db.schema.createTable('users', function(table) {
-      table.integer('id').pk();
-      expect(function() {
+  it('does not allow more than one primary key', function() {
+    expect(function() {
+      db.schema.createTable('users', function(table) {
+        table.integer('id').pk();
         table.integer('id2').pk();
-      }).to.throw(/only one primary key/);
-    });
+      });
+    }).to.throw(/only.*one primary key/);
   });
 
   it('generates not null columns', function() {
