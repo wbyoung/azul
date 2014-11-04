@@ -133,6 +133,14 @@ describe('SelectQuery', function() {
       var result = db.select('articles').join('authors', 'articles.author_id=authors.id').sql();
       expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
     });
+
+    it('works with where clause', function() {
+      var result = db.select('articles')
+        .join('authors')
+        .where({ name: 'Whitney' })
+        .sql();
+      expect(result.sql).to.match(/JOIN "authors" WHERE "name" = \?$/);
+    });
   });
 
   describe('aggregation', function() {
