@@ -51,8 +51,15 @@
   },
   "dependencies": {
     "bluebird": "^2.3.5",
+    "chalk": "^0.5.1",
+    "commander": "^2.5.0",
     "generic-pool": "^2.1.1",
+    "interpret": "^0.3.7",
+    "liftoff": "^0.13.5",
     "lodash": "^2.4.1",
-    "underscore.string": "^2.3.3"
+    "minimist": "^1.1.0",
+    "tildify": "^1.0.0",
+    "underscore.string": "^2.3.3",
+    "v8flags": "^1.0.1"
   }
 }

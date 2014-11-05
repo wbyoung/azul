@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var _ = require('lodash');
+var Liftoff = require('liftoff');
+var path = require('path');
+var argv = require('minimist')(process.argv.slice(2));
+var interpret = require('interpret');
+var v8flags = require('v8flags');
+var cli = require('../lib/cli');
+
+var invoke = function(env) {
+  if (process.cwd() !== env.cwd) {
+    process.chdir(env.cwd);
+  }
+  // prefer local, but fall back on global install
+  var modulePath = env.modulePath || '.';
+  var cliPath = path.join(modulePath, '../lib/cli');
+  var cli = require(cliPath);
+  cli(env);
+};
+
+new Liftoff({
+  name: 'azul',
+  nodeFlags: _.without(v8flags.fetch(), '--help'),
+  extensions: interpret.jsVariants
+})
+
+.on('require', cli.require)
+.on('requireFail', cli.requireFail)
+.on('respawn', cli.respawn)
+
+.launch({
+  cwd: argv.cwd,
+  configPath: argv.azulfile,
+  require: argv.require,
+  completion: argv.completion
+}, invoke);
