@@ -32,8 +32,7 @@ describe('CLI loading', function() {
     var child = cp.fork(loader, [], { env: process.env });
     var message;
     var verify = function() {
-      var modules = message && message.modules || [];
-      var local = modules.filter(function(name) {
+      var local = message.modules.filter(function(name) {
         return !name.match(/azul\/(node_modules|test)/);
       });
       expect(local.length).to.eql(1, 'Expected just one local module loaded.');
