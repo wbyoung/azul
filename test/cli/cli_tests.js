@@ -28,15 +28,19 @@ describe('CLI loading', function() {
 
   it('does not require local azul modules when loaded', function(done) {
     var loader = path.join(__dirname, '../fixtures/cli/load.js');
+    var cliPath = path.join(__dirname, '../../lib/cli/index.js');
 
     var child = cp.fork(loader, [], { env: process.env });
     var message;
     var verify = function() {
-      var local = message.modules.filter(function(name) {
-        return !name.match(/azul\/(node_modules|test)/);
-      });
-      expect(local.length).to.eql(1, 'Expected just one local module loaded.');
-      done();
+      try {
+        var local = message.modules.filter(function(name) {
+          return !name.match(/azul\/node_modules/);
+        });
+        expect(local.sort()).to.eql([loader, cliPath].sort());
+        done();
+      }
+      catch (e) { done(e); }
     };
 
     child.on('close', verify);
