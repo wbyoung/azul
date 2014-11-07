@@ -19,9 +19,10 @@ var BluebirdPromise = require('bluebird');
  *   - `exitCalled` - Whether `process.exit` was called
  *
  * @param {Object} env Liftoff environment configuration.
+ * @param {Function} fn The function to run, usually this is `cli`.
  * @return {Promise} A promise.
  */
-var runCLI = function(env) {
+var cmd = function(env, fn) {
   var details = { stdout: '', exitStatus: 0, exitCalled: false };
 
   sinon.stub(process, 'exit', function(status) {
@@ -36,7 +37,7 @@ var runCLI = function(env) {
 
   return BluebirdPromise
   .resolve(env)
-  .then(cli)
+  .then(fn)
   .catch(function(e) {
     if (e.code === 'PROCESS_EXIT_CALLED') {
       details.exitStatus = e.status;
@@ -62,7 +63,7 @@ describe('CLI', function() {
 
   it('provides help when no command is given', function(done) {
     process.argv = ['node', '/path/to/azul'];
-    runCLI({ modulePath: '.', configPath: 'azulfile.js' })
+    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -74,7 +75,7 @@ describe('CLI', function() {
 
   it('provides help when local azul is missing', function(done) {
     process.argv = ['node', '/path/to/azul', '--help'];
-    runCLI({ modulePath: '.', configPath: null })
+    cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -86,7 +87,7 @@ describe('CLI', function() {
 
   it('provides version when local azul is missing', function(done) {
     process.argv = ['node', '/path/to/azul', '--version'];
-    runCLI({ modulePath: '.', configPath: null })
+    cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -97,7 +98,7 @@ describe('CLI', function() {
 
   it('ensures a local azul is present', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    runCLI({ modulePath: null, cwd: '.', configPath: 'azulfile.js' })
+    cmd({ modulePath: null, cwd: '.', configPath: 'azulfile.js' }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.not.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -109,7 +110,7 @@ describe('CLI', function() {
 
   it('ensures an azulfile is present', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    runCLI({ modulePath: '.', configPath: null })
+    cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.not.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -121,7 +122,7 @@ describe('CLI', function() {
 
   it('calls actions when a command is given', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    runCLI({ modulePath: '.', configPath: 'azulfile.js' })
+    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
@@ -131,12 +132,43 @@ describe('CLI', function() {
     .done(done, done);
   });
 
-  it('passes options to actions');
+  it('passes options to actions', function(done) {
+    process.argv = ['node', '/path/to/azul', 'migrate', '--one'];
+    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
+    .then(function(proc) {
+      expect(proc.exitStatus).to.eql(0);
+      expect(proc.exitCalled).to.eql(false);
+      expect(proc.stdout).to.eql('');
+      expect(actions.migrate).to.have.been.calledOnce;
+      expect(actions.migrate.getCall(0).args[0].one).to.eql(true);
+    })
+    .done(done, done);
+  });
 
   describe('exported event handlers', function() {
-    it('displays a message when external modules are loaded');
-    it('displays a message when external modules fail to load');
-    it('displays a message when respawned');
+    it('displays a message when external modules are loaded', function(done) {
+      cmd(null, function() { cli.require('xmod'); })
+      .then(function(proc) {
+        expect(proc.stdout).to.match(/requiring.*module.*xmod/i);
+      })
+      .done(done, done);
+    });
+
+    it('displays a message when external modules fail to load', function(done) {
+      cmd(null, function() { cli.requireFail('xmod'); })
+      .then(function(proc) {
+        expect(proc.stdout).to.match(/failed.*module.*xmod/i);
+      })
+      .done(done, done);
+    });
+
+    it('displays a message when respawned', function(done) {
+      cmd(null, function() { cli.respawn(['--harmony'], { pid: 1234 }); })
+      .then(function(proc) {
+        expect(proc.stdout).to.match(/flags.*--harmony.*\n.*respawn.*1234/im);
+      })
+      .done(done, done);
+    });
   });
 });
 
