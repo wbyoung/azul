@@ -57,5 +57,17 @@ describe('Grammar', function() {
     it('does not escape numbers', function() {
       expect(this.grammar.escape(5)).to.eql(5);
     });
+
+    it('does not support escaping objects', function() {
+      expect(function() {
+        this.grammar.escape({});
+      }.bind(this)).to.throw(/cannot escape/i);
+    });
+
+    it('does not support escaping arrays', function() {
+      expect(function() {
+        this.grammar.escape([]);
+      }.bind(this)).to.throw(/cannot escape/i);
+    });
   });
 });

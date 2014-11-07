@@ -121,6 +121,8 @@ module.exports.shouldSupportStandardTypes = function() {
       length: 3
     }));
 
+    it('supports `decimal`', viaOptions('decimal', 3.14159, 3.14159));
+
     it('supports `decimal` precision', viaOptions('decimal', 3.14159, 3, {
       precision: 3
     }));
@@ -143,16 +145,16 @@ module.exports.shouldSupportStandardTypes = function() {
       .then(function() {
         return db.schema.createTable(table, function(table) {
           table.string('required');
-          table.string('column').default(value);
+          table.string('string').default(value);
+          table.integer('integer').default(3);
         });
       })
       .then(function() { return db.insert(table, { required: '' }); })
       .then(function() { return db.select(table); })
       .get('rows')
       .get('0')
-      .get('column')
       .then(function(result) {
-        expect(result).to.equal(value);
+        expect(result).to.eql({ required: '', string: value, integer: 3 });
       })
       .finally(function() { return db.schema.dropTable(table).ifExists(); })
       .done(function() { done(); }, done);
