@@ -1,56 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var cli = require('../../lib/cli');
 var actions = require('../../lib/cli/actions');
+var cmd = require('./cli_helpers').cmd;
 var path = require('path');
 var cp = require('child_process');
-var BluebirdPromise = require('bluebird');
-
-/**
- * Helper function to run the CLI and capture output/exit status. The resolved
- * object will contain the following properties:
- *
- *   - `stdout` - The standard output for the cli
- *   - `exitStatus` - The exit status
- *   - `exitCalled` - Whether `process.exit` was called
- *
- * @param {Object} env Liftoff environment configuration.
- * @param {Function} fn The function to run, usually this is `cli`.
- * @return {Promise} A promise.
- */
-var cmd = function(env, fn) {
-  var details = { stdout: '', exitStatus: 0, exitCalled: false };
-
-  sinon.stub(process, 'exit', function(status) {
-    throw _.extend(new Error('Exit called.'), {
-      code: 'PROCESS_EXIT_CALLED',
-      status: status || 0
-    });
-  });
-  sinon.stub(process.stdout, 'write', function(data) {
-    details.stdout += data.toString();
-  });
-
-  return BluebirdPromise
-  .resolve(env)
-  .then(fn)
-  .catch(function(e) {
-    if (e.code === 'PROCESS_EXIT_CALLED') {
-      details.exitStatus = e.status;
-      details.exitCalled = true;
-    }
-    else { throw e; }
-  })
-  .return(details)
-  .finally(function() {
-    process.exit.restore();
-    process.stdout.write.restore();
-  });
-};
 
 describe('CLI', function() {
   var azulfile = path.join(__dirname, '../fixtures/cli/azulfile.json');
@@ -135,7 +92,10 @@ describe('CLI', function() {
   });
 
   it('passes config & options to actions', function(done) {
-    process.argv = ['node', '/path/to/azul', 'migrate', '--one'];
+    process.argv = [
+      'node', '/path/to/azul', 'migrate',
+      '--migrations', './db-migrations'
+    ];
     cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
@@ -144,7 +104,8 @@ describe('CLI', function() {
       expect(actions.migrate).to.have.been.calledOnce;
       expect(actions.migrate.getCall(0).args[0])
         .to.eql({ test: { adapter: 'mock' }});
-      expect(actions.migrate.getCall(0).args[1].one).to.eql(true);
+      expect(actions.migrate.getCall(0).args[1].migrations)
+        .to.eql('./db-migrations');
     })
     .done(done, done);
   });
