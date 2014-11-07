@@ -274,6 +274,25 @@ describe('Migration', function() {
         .done(done, done);
       });
 
+      it('raises a descriptive error if rollback fails', function(done) {
+        adapter._execute.intercept(/rollback/i, function() {
+          throw new Error('Cannot rollback.');
+        });
+        this.mod2.up = function() {
+          throw new Error('Intentional Error');
+        };
+        migration.migrate().throw('Migration should have been rolled back.')
+        .catch(function(e) {
+          expect(e.message)
+            .to.match(/intentional error.*rollback.*cannot rollback/i);
+          expect(adapter._execute.sqlCalls()).to.eql([
+            ['BEGIN', []],
+            ['ROLLBACK', []]
+          ]);
+        })
+        .done(done, done);
+      });
+
       it('records migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
           expect(adapter._execute.sqlCalls()).to.eql([
