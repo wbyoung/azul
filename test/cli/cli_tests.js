@@ -53,6 +53,8 @@ var cmd = function(env, fn) {
 };
 
 describe('CLI', function() {
+  var azulfile = path.join(__dirname, '../fixtures/cli/azulfile.json');
+
   beforeEach(function() {
     sinon.stub(actions, 'migrate');
   });
@@ -63,7 +65,7 @@ describe('CLI', function() {
 
   it('provides help when no command is given', function(done) {
     process.argv = ['node', '/path/to/azul'];
-    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
+    cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -98,7 +100,7 @@ describe('CLI', function() {
 
   it('ensures a local azul is present', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    cmd({ modulePath: null, cwd: '.', configPath: 'azulfile.js' }, cli)
+    cmd({ modulePath: null, cwd: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.not.eql(0);
       expect(proc.exitCalled).to.eql(true);
@@ -122,7 +124,7 @@ describe('CLI', function() {
 
   it('calls actions when a command is given', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
+    cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
@@ -134,13 +136,14 @@ describe('CLI', function() {
 
   it('passes config & options to actions', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate', '--one'];
-    cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
+    cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
       expect(proc.stdout).to.eql('');
       expect(actions.migrate).to.have.been.calledOnce;
-      expect(actions.migrate.getCall(0).args[0]).to.eql('azulfile.js');
+      expect(actions.migrate.getCall(0).args[0])
+        .to.eql({ test: { adapter: 'mock' }});
       expect(actions.migrate.getCall(0).args[1].one).to.eql(true);
     })
     .done(done, done);

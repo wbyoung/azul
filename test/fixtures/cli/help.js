@@ -9,4 +9,4 @@ process.on('exit', function() {
   process.send({ modules: Object.keys(require.cache) });
 });
 
-require('../../../lib/cli')({ modulePath: '.', configPath: 'azulfile.js' });
+require('../../../lib/cli')({ modulePath: '.', configPath: './azulfile.json' });
