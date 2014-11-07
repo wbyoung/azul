@@ -23,29 +23,31 @@ describe('Migration', function() {
   });
 
   beforeEach(function() {
-    var results = [];
+    var interceptors = [];
     sinon.spy(schema, 'begin');
     sinon.stub(adapter, '_execute', function(client, sql/*, args*/) {
-      var rows, fields;
-      results.some(function(result) {
-        var match = sql.match(result.regex);
-        if (match) {
-          rows = result.rows;
-          fields = ['id', 'name', 'batch'];
-        }
+      var result = { rows: [], fields: [] };
+      interceptors.some(function(interceptor) {
+        var match = sql.match(interceptor.regex);
+        if (match) { result = interceptor.fn(); }
         return match;
       });
-      return {
-        rows: rows || [],
-        fields: fields || []
-      };
+      return result;
     });
-    adapter._execute.returnsExecutedMigrations = function(names, regex) {
-      results.push({
+    adapter._execute.intercept = function(regex, fn) {
+      interceptors.push({
         regex: regex,
-        rows: names.map(function(name, index) {
-          return { id: index + 1, name: name, batch: 1 };
-        })
+        fn: fn
+      });
+    };
+    adapter._execute.returnsExecutedMigrations = function(regex, names) {
+      adapter._execute.intercept(regex, function() {
+        return {
+          fields: ['id', 'name', 'batch'],
+          rows: names.map(function(name, index) {
+            return { id: index + 1, name: name, batch: 1 };
+          })
+        };
       });
     };
     adapter._execute.sqlCalls = function() {
@@ -108,9 +110,9 @@ describe('Migration', function() {
     });
 
     it('does not include executed migrations', function(done) {
-      adapter._execute.returnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations(/select/i, [
         '20141022202234_create_articles'
-      ], /select/i);
+      ]);
 
       migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
@@ -126,9 +128,9 @@ describe('Migration', function() {
   describe('#_loadPendingMigrations', function() {
 
     it('loads pending migrations', function(done) {
-      adapter._execute.returnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations(/select/i, [
         '20141022202234_create_articles'
-      ], /select/i);
+      ]);
 
       migration._loadPendingMigrations().bind(this)
       .then(function(migrations) {
@@ -148,10 +150,11 @@ describe('Migration', function() {
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      adapter._execute.returnsExecutedMigrations([
+      var regex = /select.*order by "name" asc/i;
+      adapter._execute.returnsExecutedMigrations(regex, [
         '20141022202234_create_articles',
         '20141022202634_create_comments'
-      ], /select.*order by "name" asc/i);
+      ]);
 
       migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
@@ -168,9 +171,9 @@ describe('Migration', function() {
   describe('#_loadExecutedMigrations', function() {
 
     it('loads migrations in order', function(done) {
-      adapter._execute.returnsExecutedMigrations([
+      adapter._execute.returnsExecutedMigrations(/select/i, [
         '20141022202234_create_articles'
-      ], /select/i);
+      ]);
 
       migration._loadExecutedMigrations().bind(this)
       .then(function(migrations) {
