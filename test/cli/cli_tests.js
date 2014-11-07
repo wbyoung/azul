@@ -15,14 +15,14 @@ var BluebirdPromise = require('bluebird');
  * object will contain the following properties:
  *
  *   - `stdout` - The standard output for the cli
- *   - `exit` - The exit status
+ *   - `exitStatus` - The exit status
  *   - `exitCalled` - Whether `process.exit` was called
  *
  * @param {Object} env Liftoff environment configuration.
  * @return {Promise} A promise.
  */
 var runCLI = function(env) {
-  var details = { stdout: '', exit: 0 };
+  var details = { stdout: '', exitStatus: 0, exitCalled: false };
 
   sinon.stub(process, 'exit', function(status) {
     throw _.extend(new Error('Exit called.'), {
@@ -39,7 +39,7 @@ var runCLI = function(env) {
   .then(cli)
   .catch(function(e) {
     if (e.code === 'PROCESS_EXIT_CALLED') {
-      details.exit = e.status;
+      details.exitStatus = e.status;
       details.exitCalled = true;
     }
     else { throw e; }
@@ -64,7 +64,7 @@ describe('CLI', function() {
     process.argv = ['node', '/path/to/azul'];
     runCLI({ modulePath: '.', configPath: 'azulfile.js' })
     .then(function(proc) {
-      expect(proc.exit).to.eql(0);
+      expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/usage: azul \[options\] command/i);
       expect(proc.stdout.match(/--azulfile/g).length).to.eql(1);
@@ -76,7 +76,7 @@ describe('CLI', function() {
     process.argv = ['node', '/path/to/azul', '--help'];
     runCLI({ modulePath: '.', configPath: null })
     .then(function(proc) {
-      expect(proc.exit).to.eql(0);
+      expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/usage: azul \[options\] command/i);
       expect(proc.stdout.match(/--azulfile/g).length).to.eql(1);
@@ -88,17 +88,49 @@ describe('CLI', function() {
     process.argv = ['node', '/path/to/azul', '--version'];
     runCLI({ modulePath: '.', configPath: null })
     .then(function(proc) {
-      expect(proc.exit).to.eql(0);
+      expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/\d+\.\d+\.\d+\n/i);
     })
     .done(done, done);
   });
 
-  it('ensures a local azul is present');
-  it('ensures an azulfile is present');
+  it('ensures a local azul is present', function(done) {
+    process.argv = ['node', '/path/to/azul', 'migrate'];
+    runCLI({ modulePath: null, cwd: '.', configPath: 'azulfile.js' })
+    .then(function(proc) {
+      expect(proc.exitStatus).to.not.eql(0);
+      expect(proc.exitCalled).to.eql(true);
+      expect(proc.stdout).to.match(/local azul not found/i);
+      expect(actions.migrate).to.not.have.been.called;
+    })
+    .done(done, done);
+  });
 
-  it('calls actions when a command is given');
+  it('ensures an azulfile is present', function(done) {
+    process.argv = ['node', '/path/to/azul', 'migrate'];
+    runCLI({ modulePath: '.', configPath: null })
+    .then(function(proc) {
+      expect(proc.exitStatus).to.not.eql(0);
+      expect(proc.exitCalled).to.eql(true);
+      expect(proc.stdout).to.match(/no azulfile found/i);
+      expect(actions.migrate).to.not.have.been.called;
+    })
+    .done(done, done);
+  });
+
+  it('calls actions when a command is given', function(done) {
+    process.argv = ['node', '/path/to/azul', 'migrate'];
+    runCLI({ modulePath: '.', configPath: 'azulfile.js' })
+    .then(function(proc) {
+      expect(proc.exitStatus).to.eql(0);
+      expect(proc.exitCalled).to.eql(false);
+      expect(proc.stdout).to.eql('');
+      expect(actions.migrate).to.have.been.calledOnce;
+    })
+    .done(done, done);
+  });
+
   it('passes options to actions');
 
   describe('exported event handlers', function() {
