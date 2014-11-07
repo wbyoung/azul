@@ -132,7 +132,7 @@ describe('CLI', function() {
     .done(done, done);
   });
 
-  it('passes options to actions', function(done) {
+  it('passes config & options to actions', function(done) {
     process.argv = ['node', '/path/to/azul', 'migrate', '--one'];
     cmd({ modulePath: '.', configPath: 'azulfile.js' }, cli)
     .then(function(proc) {
@@ -140,7 +140,8 @@ describe('CLI', function() {
       expect(proc.exitCalled).to.eql(false);
       expect(proc.stdout).to.eql('');
       expect(actions.migrate).to.have.been.calledOnce;
-      expect(actions.migrate.getCall(0).args[0].one).to.eql(true);
+      expect(actions.migrate.getCall(0).args[0]).to.eql('azulfile.js');
+      expect(actions.migrate.getCall(0).args[1].one).to.eql(true);
     })
     .done(done, done);
   });
