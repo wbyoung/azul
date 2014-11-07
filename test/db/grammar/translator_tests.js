@@ -13,9 +13,20 @@ describe('Translator', function() {
     }).to.throw(/unhandled.*whatwhat/i);
   });
 
+  it('generates string with default length', function() {
+    var translator = Translator.create();
+    expect(translator.type('string')).to.eql('varchar(255)');
+  });
+
   it('generates string with options', function() {
     var translator = Translator.create();
     expect(translator.type('string', { length: 20 })).to.eql('varchar(20)');
+  });
+
+  it('generates decimal', function() {
+    var translator = Translator.create();
+    var decimal = translator.type('decimal');
+    expect(decimal).to.eql('numeric');
   });
 
   it('generates decimal with precision and scale', function() {

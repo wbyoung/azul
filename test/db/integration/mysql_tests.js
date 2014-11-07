@@ -88,6 +88,11 @@ describe('MySQL', function() {
     .done(done, done);
   });
 
+  it('provides defaults for decimal', function() {
+    expect(db._adapter.translator.typeForDecimal())
+      .to.eql('numeric(64, 30)');
+  });
+
   // run all shared examples
   _.each(shared, function(fn, name) {
     if (fn.length !== 0) {
