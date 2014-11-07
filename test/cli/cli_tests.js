@@ -163,6 +163,26 @@ describe('CLI loading', function() {
     child.on('message', function(m) { message = m; });
   });
 
-  it('does not require local azul modules when showing help');
+  it('does not require local azul modules when showing help', function(done) {
+    var helpPath = path.join(__dirname, '../fixtures/cli/help.js');
+    var configPath = path.join(__dirname, '../../package.json');
+    var cliPath = path.join(__dirname, '../../lib/cli/index.js');
+
+    var child = cp.fork(helpPath, [], { env: process.env, silent: true });
+    var message;
+    var verify = function() {
+      try {
+        var local = message.modules.filter(function(name) {
+          return !name.match(/azul\/node_modules/);
+        });
+        expect(local.sort()).to.eql([helpPath, configPath, cliPath].sort());
+        done();
+      }
+      catch (e) { done(e); }
+    };
+
+    child.on('close', verify);
+    child.on('message', function(m) { message = m; });
+  });
 
 });
