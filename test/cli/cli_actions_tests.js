@@ -31,4 +31,16 @@ describe('CLI migrate', function() {
     })
     .done(done, done);
   });
+
+  it('fails schema migration when directory is missing', function(done) {
+    cmd({}, function() {
+      return actions.migrate(azulfile, { migrations: './missing-dir' });
+    })
+    .then(function(proc) {
+      expect(proc.exitStatus).to.eql(1);
+      expect(proc.exitCalled).to.eql(true);
+      expect(proc.stdout).to.match(/failed.*ENOENT.*missing-dir/i);
+    })
+    .done(done, done);
+  });
 });
