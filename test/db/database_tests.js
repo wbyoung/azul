@@ -16,6 +16,15 @@ describe('Database', function() {
     }).to.throw(/no adapter.*invalid_adapter/i);
   });
 
+  it('fails with an object that is not an adapter', function() {
+    var connection = {
+      adapter: {},
+    };
+    expect(function() {
+      Database.create(connection);
+    }).to.throw(/invalid adapter/i);
+  });
+
   it('shows require errors for non-invalid-adapter errors', function() {
     var connection = {
       adapter: '../../../test/fixtures/adapters/missing',
