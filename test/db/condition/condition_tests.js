@@ -162,7 +162,7 @@ describe('Condition', function() {
 
     it('supports in', function() {
       var result = this.stringify(w({ 'name[in]': ['Whit', 'Whitney'] }));
-      expect(result).to.eql('name IN ["Whit","Whitney"]');
+      expect(result).to.eql('name IN ("Whit", "Whitney")');
     });
 
     it('supports gt', function() {

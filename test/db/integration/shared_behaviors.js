@@ -253,7 +253,7 @@ shared.shouldSupportStandardConditions = function(it) {
       .then(done, done);
     });
 
-    it.skip('supports `in`', function(done) {
+    it('supports `in`', function(done) {
       db.select('people').where(w({
         'name[in]': ['Sarah', 'Tim']
       }))
