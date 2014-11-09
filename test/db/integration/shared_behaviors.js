@@ -303,7 +303,20 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `lte`');
+    it('supports `lte`', function(done) {
+      db.select('people').where(w({
+        'height[lte]': 69,
+        'dob[lte]': new Date(1991, 9, 1)
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Kristen', 'Sarah']);
+      })
+      .then(done, done);
+    });
+
     it('supports `between`');
     it('supports `isull`');
 
