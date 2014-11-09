@@ -39,8 +39,6 @@ describe('CLI', function() {
       .done(done, done);
     });
 
-    it('displays a up-to-date message when there is nothing to apply');
-
     it('fails schema migration when directory is missing', function(done) {
       cmd({}, function() {
         return actions.migrate(azulfile, { migrations: './missing-dir' });
@@ -51,6 +49,27 @@ describe('CLI', function() {
         expect(proc.stdout).to.match(/failed.*ENOENT.*missing-dir/i);
       })
       .done(done, done);
+    });
+
+    describe('with executed migrations stubbed', function() {
+      beforeEach(function() {
+        adapter.interceptSelectMigrations([
+          '20141022202234_create_articles',
+          '20141022202634_create_comments'
+        ]);
+      });
+
+      it('displays a up-to-date message because there is nothing to migrate', function(done) {
+        cmd({}, function() {
+          return actions.migrate(azulfile, { migrations: migrations });
+        })
+        .then(function(proc) {
+          expect(proc.exitStatus).to.eql(0);
+          expect(proc.exitCalled).to.eql(false);
+          expect(proc.stdout).to.match(/up-to-date/i);
+        })
+        .done(done, done);
+      });
     });
   });
 
@@ -91,7 +110,17 @@ describe('CLI', function() {
       });
     });
 
-    it('displays a up-to-date message when there is nothing to apply');
+    it('displays a message because there is nothing to rollback', function(done) {
+        cmd({}, function() {
+          return actions.rollback(azulfile, { migrations: migrations });
+        })
+        .then(function(proc) {
+          expect(proc.exitStatus).to.eql(0);
+          expect(proc.exitCalled).to.eql(false);
+          expect(proc.stdout).to.match(/nothing to rollback/i);
+        })
+        .done(done, done);
+    });
 
   });
 
