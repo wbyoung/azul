@@ -263,7 +263,19 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `gt`');
+    it('supports `gt`', function(done) {
+      db.select('people').where(w({
+        'height[gt]': 64,
+        'dob[gt]': new Date(1968, 2, 14)
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
     it('supports `gte`');
     it('supports `lt`');
     it('supports `lte`');
