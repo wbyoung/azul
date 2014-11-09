@@ -14,7 +14,7 @@ var FakeAdapter = require('../fakes/adapter');
 var migration, schema, adapter, query;
 
 describe('Migration', function() {
-  before(function() {
+  beforeEach(function() {
     adapter = FakeAdapter.create({});
     query = EntryQuery.create(adapter);
     schema = Schema.create(adapter);
@@ -23,38 +23,8 @@ describe('Migration', function() {
   });
 
   beforeEach(function() {
-    var interceptors = [];
     sinon.spy(schema, 'begin');
-    sinon.stub(adapter, '_execute', function(client, sql/*, args*/) {
-      var result = { rows: [], fields: [] };
-      interceptors.some(function(interceptor) {
-        var match = sql.match(interceptor.regex);
-        if (match) { result = interceptor.fn(); }
-        return match;
-      });
-      return result;
-    });
-    adapter._execute.intercept = function(regex, fn) {
-      interceptors.push({
-        regex: regex,
-        fn: fn
-      });
-    };
-    adapter._execute.returnsExecutedMigrations = function(regex, names) {
-      adapter._execute.intercept(regex, function() {
-        return {
-          fields: ['id', 'name', 'batch'],
-          rows: names.map(function(name, index) {
-            return { id: index + 1, name: name, batch: 1 };
-          })
-        };
-      });
-    };
-    adapter._execute.sqlCalls = function() {
-      return _.times(adapter._execute.callCount, function(index) {
-        return adapter._execute.getCall(index).args.slice(1);
-      });
-    };
+    sinon.spy(adapter, '_execute');
   });
 
   afterEach(function() {
@@ -110,7 +80,7 @@ describe('Migration', function() {
     });
 
     it('does not include executed migrations', function(done) {
-      adapter._execute.returnsExecutedMigrations(/select/i, [
+      adapter.interceptSelectMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -128,7 +98,7 @@ describe('Migration', function() {
   describe('#_loadPendingMigrations', function() {
 
     it('loads pending migrations', function(done) {
-      adapter._execute.returnsExecutedMigrations(/select/i, [
+      adapter.interceptSelectMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -150,8 +120,7 @@ describe('Migration', function() {
   describe('#_readExecutedMigrations', function() {
 
     it('reads migrations in order', function(done) {
-      var regex = /select.*order by "name" asc/i;
-      adapter._execute.returnsExecutedMigrations(regex, [
+      adapter.interceptSelectMigrations([
         '20141022202234_create_articles',
         '20141022202634_create_comments'
       ]);
@@ -162,6 +131,8 @@ describe('Migration', function() {
           { name: '20141022202234_create_articles', batch: 1 },
           { name: '20141022202634_create_comments', batch: 1 }
         ]);
+        expect(_.last(adapter.executedSQL())[0])
+          .to.match(/select.*from "azul_migrations".*order by "name" asc/i);
       })
       .done(done, done);
     });
@@ -171,7 +142,7 @@ describe('Migration', function() {
   describe('#_loadExecutedMigrations', function() {
 
     it('loads migrations in order', function(done) {
-      adapter._execute.returnsExecutedMigrations(/select/i, [
+      adapter.interceptSelectMigrations([
         '20141022202234_create_articles'
       ]);
 
@@ -213,6 +184,15 @@ describe('Migration', function() {
         migration.migrate().bind(this).then(function() {
           expect(this.mod1.up).to.have.been.calledOnce;
           expect(this.mod2.up).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
+      it('resolves with migration details', function(done) {
+        migration.migrate().then(function(migrations) {
+          expect(_.map(migrations, 'batch')).to.eql([1, 1]);
+          expect(_.map(migrations, 'name'))
+            .to.eql(['migration_file_1', 'migration_file_2']);
         })
         .done(done, done);
       });
@@ -266,7 +246,7 @@ describe('Migration', function() {
         migration.migrate().throw('Migration should have been rolled back.')
         .catch(function(e) {
           expect(e.message).to.eql('Intentional Error');
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
@@ -275,7 +255,7 @@ describe('Migration', function() {
       });
 
       it('raises a descriptive error if rollback fails', function(done) {
-        adapter._execute.intercept(/rollback/i, function() {
+        adapter.intercept(/rollback/i, function() {
           throw new Error('Cannot rollback.');
         });
         this.mod2.up = function() {
@@ -285,7 +265,7 @@ describe('Migration', function() {
         .catch(function(e) {
           expect(e.message)
             .to.match(/intentional error.*rollback.*cannot rollback/i);
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
@@ -295,7 +275,7 @@ describe('Migration', function() {
 
       it('records migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             [
               'INSERT INTO "azul_migrations" ("name", "batch") ' +
@@ -323,7 +303,7 @@ describe('Migration', function() {
 
       it('does not record migrations in database', function(done) {
         migration.migrate().bind(this).then(function() {
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['COMMIT', []]
           ]);
@@ -359,6 +339,15 @@ describe('Migration', function() {
         migration.rollback().bind(this).then(function() {
           expect(this.mod1.down).to.have.been.calledOnce;
           expect(this.mod2.down).to.have.been.calledOnce;
+        })
+        .done(done, done);
+      });
+
+      it('resolves with migration details', function(done) {
+        migration.rollback().then(function(migrations) {
+          expect(_.map(migrations, 'batch')).to.eql([1, 1]);
+          expect(_.map(migrations, 'name'))
+            .to.eql(['migration_file_1', 'migration_file_2']);
         })
         .done(done, done);
       });
@@ -421,7 +410,7 @@ describe('Migration', function() {
         migration.rollback().throw('Migration should have been rolled back.')
         .catch(function(e) {
           expect(e.message).to.eql('Intentional Error');
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
@@ -430,7 +419,7 @@ describe('Migration', function() {
       });
 
       it('raises a descriptive error if rollback fails', function(done) {
-        adapter._execute.intercept(/rollback/i, function() {
+        adapter.intercept(/rollback/i, function() {
           throw new Error('Cannot rollback.');
         });
         this.mod2.down = function() {
@@ -440,7 +429,7 @@ describe('Migration', function() {
         .catch(function(e) {
           expect(e.message)
             .to.match(/intentional error.*rollback.*cannot rollback/i);
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
@@ -450,7 +439,7 @@ describe('Migration', function() {
 
       it('removes migrations recorded in database', function(done) {
         migration.rollback().bind(this).then(function() {
-          expect(adapter._execute.sqlCalls()).to.eql([
+          expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
             ['COMMIT', []]
