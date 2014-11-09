@@ -89,7 +89,8 @@ describe('SQLite3', function() {
   });
 
   // run all shared examples
-  _.each(shared, function(fn, name) {
+  var skip = /`i?regex|year|month|day|weekday`/i;
+  _.each(shared({ skip: skip }), function(fn, name) {
     if (fn.length !== 0) {
       throw new Error('Cannot execute shared example: ' + name);
     }

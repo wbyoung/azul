@@ -8,7 +8,9 @@ var BluebirdPromise = require('bluebird');
 var Condition = require('../../../lib/db/condition'),
   w = Condition.w;
 
-module.exports.shouldRunMigrationsAndQueries = function() {
+var shared = {};
+
+shared.shouldRunMigrationsAndQueries = function(it) {
   var db; before(function() { db = this.db; });
 
   describe('with migrations applied', function() {
@@ -67,7 +69,7 @@ module.exports.shouldRunMigrationsAndQueries = function() {
   });
 };
 
-module.exports.shouldSupportStandardTypes = function() {
+shared.shouldSupportStandardTypes = function(it) {
   var db; before(function() { db = this.db; });
 
   // shared behavior for type tests
@@ -199,7 +201,7 @@ module.exports.shouldSupportStandardTypes = function() {
   });
 };
 
-module.exports.shouldSupportStandardConditions = function() {
+shared.shouldSupportStandardConditions = function(it) {
   var db; before(function() { db = this.db; });
 
   describe('conditions', function() {
@@ -435,8 +437,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: get this working for sqlite (or specifically skip for sqlite)
-    it.skip('supports `regex`', function(done) {
+    it('supports `regex`', function(done) {
       db.select('people').where(w({
         'name[regex]': /Jim|Kristen/
       }))
@@ -449,8 +450,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: get this working for sqlite (or specifically skip for sqlite)
-    it.skip('supports `iregex`', function(done) {
+    it('supports `iregex`', function(done) {
       db.select('people').where(w({
         'name[iregex]': /jim|kristen/i
       }))
@@ -463,8 +463,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: make work with pg & sqlite
-    it.skip('supports `year`', function(done) {
+    it('supports `year`', function(done) {
       db.select('people').where(w({
         'dob[year]': 1958
       }))
@@ -476,8 +475,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: make work with pg & sqlite
-    it.skip('supports `month`', function(done) {
+    it('supports `month`', function(done) {
       db.select('people').where(w({
         'dob[month]': 12
       }))
@@ -489,8 +487,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: make work with pg & sqlite
-    it.skip('supports `day`', function(done) {
+    it('supports `day`', function(done) {
       db.select('people').where(w({
         'dob[day]': 1
       }))
@@ -502,8 +499,7 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    // TODO: make work with pg & sqlite
-    it.skip('supports `weekday`', function(done) {
+    it('supports `weekday`', function(done) {
       db.select('people').where(w({
         'dob[weekday]': 'wed'
       }))
@@ -518,5 +514,22 @@ module.exports.shouldSupportStandardConditions = function() {
     it('supports `hour`');
     it('supports `minute`');
     it('supports `second`');
+  });
+};
+
+module.exports = function(options) {
+  var opts = options || {};
+  var skip = opts.skip;
+  var replacementIt = function(description) {
+    var args = Array.prototype.slice.call(arguments);
+    if (skip && description && description.match(skip)) {
+      args.splice(1);
+    }
+    it.apply(this, args);
+  };
+  _.extend(replacementIt, it);
+
+  return _.mapValues(shared, function(fn) {
+    return _.partial(fn, replacementIt);
   });
 };

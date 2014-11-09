@@ -94,7 +94,7 @@ describe('MySQL', function() {
   });
 
   // run all shared examples
-  _.each(shared, function(fn, name) {
+  _.each(shared(), function(fn, name) {
     if (fn.length !== 0) {
       throw new Error('Cannot execute shared example: ' + name);
     }
