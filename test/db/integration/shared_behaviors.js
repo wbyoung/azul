@@ -212,10 +212,10 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(function() {
         return db.insert('people')
           .values({ name: 'Brad' })
-          .values({ name: 'Jim', height: 69, dob: new Date(1968, 2, 14) })
-          .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12, 20) })
-          .values({ name: 'Sarah', height: 64, dob: new Date(1991, 9, 1) })
-          .values({ name: 'Tim', height: 72, dob: new Date(1958, 4, 14) });
+          .values({ name: 'Jim', height: 69, dob: new Date(1968, 2-1, 14) })
+          .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12-1, 20) })
+          .values({ name: 'Sarah', height: 64, dob: new Date(1991, 9-1, 1) })
+          .values({ name: 'Tim', height: 72, dob: new Date(1958, 4-1, 14) });
       })
       .then(function() { done(); }, done);
     });
@@ -229,7 +229,7 @@ module.exports.shouldSupportStandardConditions = function() {
       db.select('people').where(w({
         'name[exact]': 'Jim',
         'height[exact]': 69,
-        'dob[exact]': new Date(1968, 2, 14)
+        'dob[exact]': new Date(1968, 2-1, 14)
       }))
       .execute()
       .get('rows')
@@ -267,7 +267,7 @@ module.exports.shouldSupportStandardConditions = function() {
     it('supports `gt`', function(done) {
       db.select('people').where(w({
         'height[gt]': 64,
-        'dob[gt]': new Date(1968, 2, 14)
+        'dob[gt]': new Date(1968, 2-1, 14)
       }))
       .execute()
       .get('rows')
@@ -280,7 +280,7 @@ module.exports.shouldSupportStandardConditions = function() {
     it('supports `gte`', function(done) {
       db.select('people').where(w({
         'height[gte]': 69,
-        'dob[gte]': new Date(1958, 4, 14)
+        'dob[gte]': new Date(1958, 4-1, 14)
       }))
       .order('name')
       .execute()
@@ -294,7 +294,7 @@ module.exports.shouldSupportStandardConditions = function() {
     it('supports `lt`', function(done) {
       db.select('people').where(w({
         'height[lt]': 69,
-        'dob[lt]': new Date(1991, 9, 1)
+        'dob[lt]': new Date(1991, 9-1, 1)
       }))
       .execute()
       .get('rows')
@@ -307,7 +307,7 @@ module.exports.shouldSupportStandardConditions = function() {
     it('supports `lte`', function(done) {
       db.select('people').where(w({
         'height[lte]': 69,
-        'dob[lte]': new Date(1991, 9, 1)
+        'dob[lte]': new Date(1991, 9-1, 1)
       }))
       .order('name')
       .execute()
@@ -333,7 +333,7 @@ module.exports.shouldSupportStandardConditions = function() {
 
     it('supports `between` with dates', function(done) {
       db.select('people').where(w({
-        'dob[between]': [new Date(1968, 2, 14), new Date(1982, 12, 20)]
+        'dob[between]': [new Date(1968, 2-1, 14), new Date(1982, 12-1, 20)]
       }))
       .order('name')
       .execute()
@@ -463,10 +463,58 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `year`');
-    it('supports `month`');
-    it('supports `day`');
-    it('supports `weekday`');
+    // TODO: make work with pg & sqlite
+    it.skip('supports `year`', function(done) {
+      db.select('people').where(w({
+        'dob[year]': 1958
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Tim']);
+      })
+      .then(done, done);
+    });
+
+    // TODO: make work with pg & sqlite
+    it.skip('supports `month`', function(done) {
+      db.select('people').where(w({
+        'dob[month]': 12
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
+    // TODO: make work with pg & sqlite
+    it.skip('supports `day`', function(done) {
+      db.select('people').where(w({
+        'dob[day]': 1
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Sarah']);
+      })
+      .then(done, done);
+    });
+
+    // TODO: make work with pg & sqlite
+    it.skip('supports `weekday`', function(done) {
+      db.select('people').where(w({
+        'dob[weekday]': 'wed'
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim']);
+      })
+      .then(done, done);
+    });
+
     it('supports `hour`');
     it('supports `minute`');
     it('supports `second`');
