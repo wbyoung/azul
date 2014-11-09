@@ -254,7 +254,7 @@ module.exports.shouldSupportStandardConditions = function() {
       db.select('people').where(w({
         'name[in]': ['Sarah', 'Tim']
       }))
-      .orderBy('name')
+      .order('name')
       .execute()
       .get('rows')
       .then(function(result) {
