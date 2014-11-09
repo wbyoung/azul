@@ -357,8 +357,32 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `contains`');
-    it('supports `icontains`');
+    it('supports `contains`', function(done) {
+      db.select('people').where(w({
+        'name[contains]': 'im'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Tim']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `icontains`', function(done) {
+      db.select('people').where(w({
+        'name[icontains]': 'RA'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Brad', 'Sarah']);
+      })
+      .then(done, done);
+    });
+
     it('supports `startsWith`');
     it('supports `istartsWith`');
     it('supports `endsWith`');
