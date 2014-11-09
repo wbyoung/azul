@@ -250,7 +250,19 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `in`');
+    it.skip('supports `in`', function(done) {
+      db.select('people').where(w({
+        'name[in]': ['Sarah', 'Tim']
+      }))
+      .orderBy('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Sarah', 'Tim']);
+      })
+      .then(done, done);
+    });
+
     it('supports `gt`');
     it('supports `gte`');
     it('supports `lt`');
