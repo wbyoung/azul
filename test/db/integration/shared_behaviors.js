@@ -383,10 +383,58 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `startsWith`');
-    it('supports `istartsWith`');
-    it('supports `endsWith`');
-    it('supports `iendsWith`');
+    it('supports `startsWith`', function(done) {
+      db.select('people').where(w({
+        'name[startsWith]': 'T'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Tim']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `istartsWith`', function(done) {
+      db.select('people').where(w({
+        'name[istartsWith]': 'k'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `endsWith`', function(done) {
+      db.select('people').where(w({
+        'name[endsWith]': 'm'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Tim']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `iendsWith`', function(done) {
+      db.select('people').where(w({
+        'name[iendsWith]': 'N'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
     it('supports `regex`');
     it('supports `iregex`');
 
