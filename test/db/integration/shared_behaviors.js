@@ -317,7 +317,32 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `between`');
+    it('supports `between` with numbers', function(done) {
+      db.select('people').where(w({
+        'height[between]': [65, 69]
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Kristen']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `between` with dates', function(done) {
+      db.select('people').where(w({
+        'dob[between]': [new Date(1968, 2, 14), new Date(1982, 12, 20)]
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Kristen']);
+      })
+      .then(done, done);
+    });
+
     it('supports `isull`');
 
     it('supports `contains`');
