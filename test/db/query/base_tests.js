@@ -4,13 +4,13 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var BaseQuery = require('../../../lib/db/query/base');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 
 var query;
 
 describe('BaseQuery', function() {
   beforeEach(function() {
-    query = BaseQuery.create(MockAdapter.create({}));
+    query = BaseQuery.create(FakeAdapter.create({}));
   });
 
   it('cannot generate sql', function() {

@@ -10,12 +10,12 @@ var BluebirdPromise = require('bluebird');
 var Migration = require('../../lib/db/migration');
 var EntryQuery = require('../../lib/db/query/entry');
 var Schema = require('../../lib/db/schema');
-var MockAdapter = require('../mocks/adapter');
+var FakeAdapter = require('../fakes/adapter');
 var migration, schema, adapter, query;
 
 describe('Migration', function() {
   before(function() {
-    adapter = MockAdapter.create({});
+    adapter = FakeAdapter.create({});
     query = EntryQuery.create(adapter);
     schema = Schema.create(adapter);
     migration = Migration.create(query, schema,

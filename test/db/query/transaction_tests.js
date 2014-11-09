@@ -5,7 +5,7 @@ var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var Database = require('../../../lib/db');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var BaseQuery = require('../../../lib/db/query/base');
 
@@ -13,7 +13,7 @@ var db;
 
 describe('Transaction Mixin', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter.create({}) });
+    db = Database.create({ adapter: FakeAdapter.create({}) });
   });
 
   beforeEach(function(done) {

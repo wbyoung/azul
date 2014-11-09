@@ -3,13 +3,13 @@
 var expect = require('chai').expect;
 
 var Schema = require('../../../lib/db/schema');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var schema;
 
 describe('Schema', function() {
   before(function() {
-    schema = Schema.create(MockAdapter.create({}));
+    schema = Schema.create(FakeAdapter.create({}));
   });
 
   it('cannot generate sql', function() {

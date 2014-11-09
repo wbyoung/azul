@@ -7,7 +7,7 @@ var cmd = require('./cli_helpers').cmd;
 var path = require('path');
 require('bluebird').longStackTraces();
 
-var adapter = require('../mocks/adapter').create({});
+var adapter = require('../fakes/adapter').create({});
 var config = { adapter: adapter };
 var migrations = path.join(__dirname, '../fixtures/migrations/blog');
 var azulfile = {

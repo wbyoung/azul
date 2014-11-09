@@ -5,13 +5,13 @@ var expect = chai.expect;
 
 var Database = require('../../../lib/db');
 var EntryQuery = require('../../../lib/db/query/entry');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 
 var db, adapter;
 
 describe('EntryQuery', function() {
   before(function() {
-    adapter = MockAdapter.create({});
+    adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
   });
 

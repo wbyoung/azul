@@ -5,7 +5,7 @@ var expect = chai.expect;
 
 var Database = require('../../../lib/db');
 var SelectQuery = require('../../../lib/db/query/select');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var Condition = require('../../../lib/db/condition'),
   f = Condition.f;
@@ -14,7 +14,7 @@ var db;
 
 describe('SelectQuery', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter.create({}) });
+    db = Database.create({ adapter: FakeAdapter.create({}) });
   });
 
   it('cannot be created directly', function() {

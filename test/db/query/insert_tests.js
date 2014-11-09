@@ -5,14 +5,14 @@ var expect = chai.expect;
 
 var Database = require('../../../lib/db');
 var InsertQuery = require('../../../lib/db/query/insert');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 
 var db;
 
 describe('InsertQuery', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter.create({}) });
+    db = Database.create({ adapter: FakeAdapter.create({}) });
   });
 
   it('cannot be created directly', function() {

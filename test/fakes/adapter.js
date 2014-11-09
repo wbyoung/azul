@@ -4,7 +4,7 @@ var BluebirdPromise = require('bluebird');
 var Adapter = require('../../lib/db/adapters/base');
 
 var sequence = 0;
-function MockAdapterClient() { this.id = sequence++; }
+function FakeAdapterClient() { this.id = sequence++; }
 
 /**
  * Mock adapter for testing.
@@ -14,21 +14,21 @@ function MockAdapterClient() { this.id = sequence++; }
  * @constructor
  * @extends Adapter
  */
-var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
+var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
 
   /**
-   * Connect for MockAdapter.
+   * Connect for FakeAdapter.
    *
    * @method
    * @protected
    * @see {Adapter#_connect}
    */
   _connect: BluebirdPromise.method(function() {
-    return new MockAdapterClient();
+    return new FakeAdapterClient();
   }),
 
   /**
-   * Disconnect for MockAdapter.
+   * Disconnect for FakeAdapter.
    *
    * @method
    * @protected
@@ -38,7 +38,7 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
   }),
 
   /**
-   * Execute for MockAdapter.
+   * Execute for FakeAdapter.
    *
    * @method
    * @protected
@@ -53,4 +53,4 @@ var MockAdapter = Adapter.extend(/** @lends MockAdapter# */ {
 
 });
 
-module.exports = MockAdapter.reopenClass({ __name__: 'MockAdapter' });
+module.exports = FakeAdapter.reopenClass({ __name__: 'FakeAdapter' });

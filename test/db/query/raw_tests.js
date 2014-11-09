@@ -7,7 +7,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var Database = require('../../../lib/db');
 var RawQuery = require('../../../lib/db/query/raw');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var BluebirdPromise = require('bluebird');
 
@@ -15,7 +15,7 @@ var db;
 
 describe('RawQuery', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter.create({}) });
+    db = Database.create({ adapter: FakeAdapter.create({}) });
   });
 
   it('cannot be created directly', function() {

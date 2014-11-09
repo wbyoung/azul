@@ -5,7 +5,7 @@ var expect = chai.expect;
 
 var Database = require('../../../lib/db');
 var UpdateQuery = require('../../../lib/db/query/update');
-var MockAdapter = require('../../mocks/adapter');
+var FakeAdapter = require('../../fakes/adapter');
 var Statement = require('../../../lib/db/grammar/statement');
 var LiteralString = require('../../../lib/db/grammar/literal'),
   l = LiteralString.l;
@@ -16,7 +16,7 @@ var db;
 
 describe('UpdateQuery', function() {
   before(function() {
-    db = Database.create({ adapter: MockAdapter.create({}) });
+    db = Database.create({ adapter: FakeAdapter.create({}) });
   });
 
   it('cannot be created directly', function() {
