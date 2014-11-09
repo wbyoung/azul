@@ -211,6 +211,7 @@ module.exports.shouldSupportStandardConditions = function() {
       })
       .then(function() {
         return db.insert('people')
+          .values({ name: 'Brad' })
           .values({ name: 'Jim', height: 69, dob: new Date(1968, 2, 14) })
           .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12, 20) })
           .values({ name: 'Sarah', height: 64, dob: new Date(1991, 9, 1) })
@@ -343,7 +344,18 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `isull`');
+    it('supports `isull`', function(done) {
+      db.select('people').where(w({
+        'height[isnull]': true,
+        'dob[isnull]': true
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Brad']);
+      })
+      .then(done, done);
+    });
 
     it('supports `contains`');
     it('supports `icontains`');
