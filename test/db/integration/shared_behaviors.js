@@ -276,7 +276,20 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `gte`');
+    it('supports `gte`', function(done) {
+      db.select('people').where(w({
+        'height[gte]': 69,
+        'dob[gte]': new Date(1958, 4, 14)
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Tim']);
+      })
+      .then(done, done);
+    });
+
     it('supports `lt`');
     it('supports `lte`');
     it('supports `between`');
