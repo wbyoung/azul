@@ -209,13 +209,13 @@ shared.shouldSupportStandardConditions = function(it) {
       db.schema.createTable('people', function(table) {
         table.string('name');
         table.integer('height');
-        table.date('dob');
+        table.dateTime('dob');
       })
       .then(function() {
         return db.insert('people')
           .values({ name: 'Brad' })
           .values({ name: 'Jim', height: 69, dob: new Date(1968, 2-1, 14) })
-          .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12-1, 20) })
+          .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12-1, 20, 20, 31, 43) })
           .values({ name: 'Sarah', height: 64, dob: new Date(1991, 9-1, 1) })
           .values({ name: 'Tim', height: 72, dob: new Date(1958, 4-1, 14) });
       })
@@ -335,7 +335,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `between` with dates', function(done) {
       db.select('people').where(w({
-        'dob[between]': [new Date(1968, 2-1, 14), new Date(1982, 12-1, 20)]
+        'dob[between]': [new Date(1968, 2-1, 14), new Date(1982, 12-1, 20, 20, 31, 43)]
       }))
       .order('name')
       .execute()
@@ -511,9 +511,41 @@ shared.shouldSupportStandardConditions = function(it) {
       .then(done, done);
     });
 
-    it('supports `hour`');
-    it('supports `minute`');
-    it('supports `second`');
+    it('supports `hour`', function(done) {
+      db.select('people').where(w({
+        'dob[hour]': 20
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `minute`', function(done) {
+      db.select('people').where(w({
+        'dob[minute]': 31
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `second`', function(done) {
+      db.select('people').where(w({
+        'dob[second]': 43
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
   });
 };
 
