@@ -46,7 +46,7 @@ describe('CLI', function() {
       .then(function(proc) {
         expect(proc.exitStatus).to.eql(1);
         expect(proc.exitCalled).to.eql(true);
-        expect(proc.stdout).to.match(/failed.*ENOENT.*missing-dir/i);
+        expect(proc.stderr).to.match(/failed.*ENOENT.*missing-dir/i);
       })
       .done(done, done);
     });
@@ -104,7 +104,7 @@ describe('CLI', function() {
         .then(function(proc) {
           expect(proc.exitStatus).to.eql(1);
           expect(proc.exitCalled).to.eql(true);
-          expect(proc.stdout).to.match(/cannot find module.*missing-dir/i);
+          expect(proc.stderr).to.match(/cannot find module.*missing-dir/i);
         })
         .done(done, done);
       });
