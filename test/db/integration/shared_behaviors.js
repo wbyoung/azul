@@ -290,7 +290,19 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `lt`');
+    it('supports `lt`', function(done) {
+      db.select('people').where(w({
+        'height[lt]': 69,
+        'dob[lt]': new Date(1991, 9, 1)
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
     it('supports `lte`');
     it('supports `between`');
     it('supports `isull`');
