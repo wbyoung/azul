@@ -238,7 +238,18 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `iexact`');
+    it('supports `iexact`', function(done) {
+      db.select('people').where(w({
+        'name[iexact]': 'kristen'
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
+      })
+      .then(done, done);
+    });
+
     it('supports `in`');
     it('supports `gt`');
     it('supports `gte`');
