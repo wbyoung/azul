@@ -5,6 +5,8 @@ var util = require('util');
 var expect = require('chai').expect;
 var path = require('path');
 var BluebirdPromise = require('bluebird');
+var Condition = require('../../../lib/db/condition'),
+  w = Condition.w;
 
 module.exports.shouldRunMigrationsAndQueries = function() {
   var db; before(function() { db = this.db; });
@@ -201,7 +203,41 @@ module.exports.shouldSupportStandardConditions = function() {
   var db; before(function() { db = this.db; });
 
   describe('conditions', function() {
-    it('supports `exact`');
+    beforeEach(function(done) {
+      db.schema.createTable('people', function(table) {
+        table.string('name');
+        table.integer('height');
+        table.date('dob');
+      })
+      .then(function() {
+        return db.insert('people')
+          .values({ name: 'Jim', height: 69, dob: new Date(1968, 2, 14) })
+          .values({ name: 'Kristen', height: 65, dob: new Date(1982, 12, 20) })
+          .values({ name: 'Sarah', height: 64, dob: new Date(1991, 9, 1) })
+          .values({ name: 'Tim', height: 72, dob: new Date(1958, 4, 14) });
+      })
+      .then(function() { done(); }, done);
+    });
+
+    afterEach(function(done) {
+      db.schema.dropTable('people').ifExists()
+        .then(function() { done(); }, done);
+    });
+
+    it('supports `exact`', function(done) {
+      db.select('people').where(w({
+        'name[exact]': 'Jim',
+        'height[exact]': 69,
+        'dob[exact]': new Date(1968, 2, 14)
+      }))
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim']);
+      })
+      .then(done, done);
+    });
+
     it('supports `iexact`');
     it('supports `in`');
     it('supports `gt`');
