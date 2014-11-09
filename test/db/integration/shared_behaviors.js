@@ -435,8 +435,33 @@ module.exports.shouldSupportStandardConditions = function() {
       .then(done, done);
     });
 
-    it('supports `regex`');
-    it('supports `iregex`');
+    // TODO: get this working for sqlite (or specifically skip for sqlite)
+    it.skip('supports `regex`', function(done) {
+      db.select('people').where(w({
+        'name[regex]': /Jim|Kristen/
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Kristen']);
+      })
+      .then(done, done);
+    });
+
+    // TODO: get this working for sqlite (or specifically skip for sqlite)
+    it.skip('supports `iregex`', function(done) {
+      db.select('people').where(w({
+        'name[iregex]': /jim|kristen/i
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Jim', 'Kristen']);
+      })
+      .then(done, done);
+    });
 
     it('supports `year`');
     it('supports `month`');
