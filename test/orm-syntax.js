@@ -1,6 +1,6 @@
 'use strict';
 
-/* global db, select, update, Model, Manager, hasMany, belongsTo, w, f, User */
+/* global select, update, Model, Manager, hasMany, belongsTo, w, f */
 function dontRun() {
 
 // db abstraction layer
@@ -10,21 +10,9 @@ select('users').join('posts'); // select * from users left join posts on users.i
 
 // REVISIT: distinct
 // REVISIT: return values (rather than objects)
+// REVISIT: express transaction middleware (every request wrapped in a transaction)
 
 // types
-
-var table;
-table.auto('id');
-table.integer('name');
-table.integer64('name');
-table.binary('name');
-table.bool('name');
-table.string('name');
-table.text('name');
-table.date('name');
-table.time('name');
-table.dateTime('name'); // REVISIT: at model level support { autoNow: false, autoNowAddd: false }
-table.decimal('name');
 
 update('people').set({ name: 'Whit' }).where({ id: '1' });
 
@@ -138,72 +126,7 @@ qs.clone(); // creates duplicate that you can do different things with (generall
 
 
 
-// REVISIT: express transaction middleware
 
-// transactions will consume a database transaction until committed/rolled back
-var asyncOperation;
-
-// REVISIT: the saves/fetches are not able to be added to this transaction in any way
-var transaction = db.transaction();
-Person.where('...').fetch().then(function(person) { person.set('name', 'Jim'); return person.save(); })
-.then(function(person) { return person.get('comments'); })
-.then(function(comments) { comments.at(0).set('body', 'hello'); return comments.at(0).save(); })
-.then(function() { transaction.commit(); });
-
-Promise.bind({})
-.then(function() { return db.transaction(); })
-.then(function(transaction) { this.parentTransaction = transaction; })
-.then(function() { return Person.where('...').transaction(this.parentTransaction).fetch(); })
-.then(function() { return asyncOperation(); })
-.then(function() { return db.transaction({ parent: this.parentTransaction }); })
-.then(function(transaction) { this.childTransaction = transaction; })
-.then(function() { return asyncOperation(); })
-.then(function() { return Person.where('...').transaction(this.childTransaction).fetch(); })
-// .then(function() { return Person.where('...').transaction(this.parentTransaction).fetch(); }) // this would throw an error because the child is not closed
-// .then(function() { return this.parentTransaction.commit(); }) // this would auto-commit the child
-.then(function() { return this.childTransaction.commit(); })
-.then(function() { return this.parentTransaction.commit(); });
-
-// this would be a more ideal syntax, but may require monkeying with promises in some way.
-// this also better supports the ability to handle saves/fetches in the same way (especially when they may be implicit for relationships).
-db.transaction.begin()
-.then(function() {
-  return Person.where('...').fetch(); // part of transaction because returned from a then
-})
-.done(); // commits transaction (or rolls back if error)
-
-// REVISIT: does this rely too heavily on bluebird feature set by assuming a binding via `this`?
-// can this be combined with the ideas from above of creating a transaction object to allow a more explicit use of transactions as well as explicitly setting transactions in queries, but also this more convenient way?
-db.transaction.begin()
-.then(function() { return db.transaction.begin(); }) // nested transaction
-.then(function() { return db.transaction.begin(); }) // 2nd nested transaction
-.then(function() { this.transaction.commit(); }) // REVISIT: i don't love this idea, but it's growing on me. perhaps nesting should be accomplished in another way?
-.then(function() { this.transaction.commit(); }) // close second
-.done(); // commits transaction (or rolls back if error)
-
-// REVISIT:
-// queries bound to a transaction that aren't executed until after the transaction is closed
-// would have to throw an error.
-
-// REVISIT:
-// would it be easier for each iteration through the run loop to get a new shared connection?
-// this would mean that all queries that are created back to back would enter the same connection
-// and basically be serial. this may be something that would have to be disabled, but it could also
-// cause problems if someone tried to do something that they expected to be on a new connection that
-// occurred a little too early (they did something like process.nextTick & it got in before our stuff).
-
-db.serial(function() {
-  // anything executed synchronously in here will automatically be added to the serial operation
-  // any use of then on an executed query within a serial callback would result in an error (which would limit its practicality
-  // and/or cause problems when blanket applying it to migrations -- migrations could opt out, though).
-}); // returns a promise that resolves to an array. each item in the array is the result of one of the database queries.
-
-// REVISIT: this may not be needed
-db.serial(function(queue, done) {
-  queue.add('...'.fetch());
-  queue.add('...'.fetch());
-  done(); // returns a promise
-}); // returns the same promise
 
 var createTable, createJoinTable;
 
@@ -235,90 +158,8 @@ exports.down = function() {
 
 };
 
-// simple transaction support with automatic automatically added to transaction, commit & rollback on exceptions
-db.transaction(function() {
-  db.transaction(function() {
-  });
-});
 
-// simple transaction support with queries automatically added to transaction
-db.transaction(function(a) {
-  a.commit();
-  db.transaction(function(b) {
-    b.rollback();
-  });
-});
-
-// exception thrown because transaction not committed at the end of the callback.
-// asynchronous operations via transactions are not supported via the callback and
-// instead must use the result variable and explicitly add queries to the transaction
-// via the query interface.
-db.transaction(function(transaction) {
-  /* jshint unused:false */
-});
-
-// other errors:
-qs = User.where('...');
-db.transaction(function() {
-  db.transaction(function() {
-    User.where('...').transaction(null).fetch(); // not in transaction (or throws an error)
-    qs.fetch(); // not in transaction (or throws an error)
-  });
-});
-
-
-// // mysql operators
-
-//         'exact': '= %s',
-//         'iexact': 'LIKE %s',
-//         'contains': 'LIKE BINARY %s',
-//         'icontains': 'LIKE %s',
-//         'regex': 'REGEXP BINARY %s',
-//         'iregex': 'REGEXP %s',
-//         'gt': '> %s',
-//         'gte': '>= %s',
-//         'lt': '< %s',
-//         'lte': '<= %s',
-//         'startswith': 'LIKE BINARY %s',
-//         'endswith': 'LIKE BINARY %s',
-//         'istartswith': 'LIKE %s',
-//         'iendswith': 'LIKE %s',
-
-// // PG operators
-
-//         'exact': '= %s',
-//         'iexact': '= UPPER(%s)',
-//         'contains': 'LIKE %s',
-//         'icontains': 'LIKE UPPER(%s)',
-//         'regex': '~ %s',
-//         'iregex': '~* %s',
-//         'gt': '> %s',
-//         'gte': '>= %s',
-//         'lt': '< %s',
-//         'lte': '<= %s',
-//         'startswith': 'LIKE %s',
-//         'endswith': 'LIKE %s',
-//         'istartswith': 'LIKE UPPER(%s)',
-//         'iendswith': 'LIKE UPPER(%s)',
-
-// // sqlite3 operators
-
-//         'exact': '= %s',
-//         'iexact': "LIKE %s ESCAPE '\\'",
-//         'contains': "LIKE %s ESCAPE '\\'",
-//         'icontains': "LIKE %s ESCAPE '\\'",
-//         'regex': 'REGEXP %s',
-//         'iregex': "REGEXP '(?i)' || %s",
-//         'gt': '> %s',
-//         'gte': '>= %s',
-//         'lt': '< %s',
-//         'lte': '<= %s',
-//         'startswith': "LIKE %s ESCAPE '\\'",
-//         'endswith': "LIKE %s ESCAPE '\\'",
-//         'istartswith': "LIKE %s ESCAPE '\\'",
-//         'iendswith': "LIKE %s ESCAPE '\\'",
-
-console.log(query + transaction);
+console.log(query);
 
 }
 if (dontRun) {}
