@@ -5,26 +5,14 @@ function dontRun() {
 
 // db abstraction layer
 
-select('users').join('posts', 'users.id', 'posts.user_id'); // select * from users left join posts on users.id = posts.user_id;
-select('users').join('posts'); // select * from users left join posts on users.id = posts.user_id;
-
 // REVISIT: distinct
 // REVISIT: return values (rather than objects)
 // REVISIT: express transaction middleware (every request wrapped in a transaction)
 
-// types
-
-update('people').set({ name: 'Whit' }).where({ id: '1' });
-
-// REVISIT: testing. here are some things to consider
+// REVISIT: testing helpers. here are some things to consider that are nice to have
+// during app development:
 //   - handle insert of objects with specific IDs
 //   - handle reseting sequence ids for testing
-
-var query = w({ 'id[gte]': 4 }, w.and, w({ name: 'Whit' }, w.or, { name: 'Brit' }));
-// id >= $1 && (name = $2 || name = $3) [4, 'Whit', 'Brit']
-
-update('people').set({ fullName: f('firstName + " " + lastName') });
-
 
 // orm layer
 
