@@ -7,6 +7,10 @@
 // during app development:
 //   - handle insert of objects with specific IDs
 //   - handle reseting sequence ids for testing
+//   - handle stubbing timestamp based fields during testing allowing easier
+//     assertions to be made. for instance, a model that has a field that is
+//     configured to be set to the current time during update (or insert)
+//     should be able to stub that.
 
 // REVISIT: cli features that would be nice:
 //   - azul migrate --all (which would migrate all databases that could be
