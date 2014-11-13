@@ -42,4 +42,9 @@ describe('Inflection', function() {
       expect(i.singularize('octopus')).to.eql('octopus');
     });
   });
+
+  it('does not break with no rules & does nothing', function() {
+    var i = new inflection.Inflection();
+    expect(i.singularize('word')).to.eql('word');
+  });
 });
