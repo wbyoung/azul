@@ -67,6 +67,13 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can be ordered via orderBy', function() {
+    var query = db.select('users').orderBy('signup');
+    expect(query.sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" ORDER BY "signup" ASC', []
+    ));
+  });
+
   it('can be ordered descending', function() {
     var query = db.select('users').order('-signup');
     expect(query.sql()).to.eql(Statement.create(
