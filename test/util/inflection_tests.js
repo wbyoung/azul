@@ -27,24 +27,12 @@ describe('Inflection', function() {
       expect(inflection.pluralize('person')).to.eql('people');
     });
 
-    it('pluralizes with capitalization', function() {
-      expect(inflection.pluralize('Person')).to.eql('People');
-    });
-
     it('pluralizes when already plural', function() {
       expect(inflection.pluralize('people')).to.eql('people');
     });
 
-    it('pluralizes when already plural with capitalization', function() {
-      expect(inflection.pluralize('People')).to.eql('People');
-    });
-
     it('singularizes', function() {
       expect(inflection.singularize('people')).to.eql('person');
-    });
-
-    it('singularizes with capitalization', function() {
-      expect(inflection.singularize('People')).to.eql('Person');
     });
 
     it('singularizes when already singular', function() {
@@ -52,13 +40,6 @@ describe('Inflection', function() {
       i.singular(/s$/, '');
       i.irregular('octopus', 'octopi');
       expect(i.singularize('octopus')).to.eql('octopus');
-    });
-
-    it('singularizes when already singular with capitalization', function() {
-      var i = new inflection.Inflection();
-      i.singular(/s$/, '');
-      i.irregular('octopus', 'octopi');
-      expect(i.singularize('Octopus')).to.eql('Octopus');
     });
   });
 });
