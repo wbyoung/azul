@@ -16,6 +16,9 @@ describe('Model', function() {
     db = Database.create({ adapter: FakeAdapter.create({}) });
     Article = db.Model.extend({});
     Article.reopenClass({ __name__: 'Article' });
+
+    User = db.Model.extend({});
+    User.reopenClass({ __name__: 'User' });
   });
 
   it('knows its table', function() {
@@ -26,5 +29,5 @@ describe('Model', function() {
     expect(Article.objects.sql()).to.eql(Statement.create(
       'SELECT * FROM "articles"', []
     ));
-  })
+  });
 });
