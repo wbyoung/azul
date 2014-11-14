@@ -5,6 +5,7 @@ var expect = chai.expect;
 
 var Database = require('../lib/db');
 var FakeAdapter = require('./fakes/adapter');
+var Statement = require('../lib/db/grammar/statement');
 
 var db,
   Article,
@@ -20,4 +21,10 @@ describe('Model', function() {
   it('knows its table', function() {
     expect(Article.tableName()).to.eql('articles');
   });
+
+  it('can get objects', function() {
+    expect(Article.objects.sql()).to.eql(Statement.create(
+      'SELECT * FROM "articles"', []
+    ));
+  })
 });
