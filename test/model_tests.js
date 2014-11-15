@@ -7,6 +7,7 @@ var Database = require('../lib/db');
 var FakeAdapter = require('./fakes/adapter');
 var Statement = require('../lib/db/grammar/statement');
 var Manager = require('../lib/model/manager');
+var BluebirdPromise = require('bluebird');
 
 var db,
   adapter,
@@ -42,6 +43,20 @@ describe('Model', function() {
       // anything.
       expect(articles).to.eql([
         Article.create({ id: 1, title: 'Existing Article' })
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can get objects multiple times', function(done) {
+    BluebirdPromise.all([
+      Article.objects,
+      Article.objects
+    ])
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles"', []],
+        ['SELECT * FROM "articles"', []]
       ]);
     })
     .done(done, done);
