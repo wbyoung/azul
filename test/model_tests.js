@@ -88,6 +88,20 @@ describe('Model', function() {
     });
   });
 
+  describe('with a custom table', function() {
+    beforeEach(function() {
+      Article.reopenClass({ tableName: 'article_table' });
+    });
+    it('executes custom SQL', function(done) {
+      Article.objects.fetch().then(function(/*articles*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "article_table"', []]
+        ]);
+      })
+      .done(done, done);
+    });
+  });
+
   it.skip('can create objects', function() {
     var article = Article.create({ title: 'Azul News' });
     expect(article.save().sql()).to.eql(Statement.create(
