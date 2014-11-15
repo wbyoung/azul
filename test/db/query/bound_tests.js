@@ -62,4 +62,41 @@ describe('BoundQuery', function() {
       'SELECT * FROM "users"', []
     ));
   });
+
+  describe('pre-specified condition', function() {
+    var query;
+    before(function() {
+      query = db.query.bind('users').where({ name: 'Whitney' });
+    });
+
+    it('allows select', function() {
+      expect(query.all().sql()).to.eql(Statement.create(
+        'SELECT * FROM "users" WHERE "name" = ?', ['Whitney']
+      ));
+    });
+
+    it('allows update', function() {
+      expect(query.update({ name: 'Whit' }).sql()).to.eql(Statement.create(
+        'UPDATE "users" SET "name" = ? WHERE "name" = ?', ['Whit', 'Whitney']
+      ));
+    });
+
+    it('allows delete', function() {
+      expect(query.delete().sql()).to.eql(Statement.create(
+        'DELETE FROM "users" WHERE "name" = ?', ['Whitney']
+      ));
+    });
+
+    it('does not allow insert', function() {
+      expect(function() {
+        query.insert({ name: 'Whit' });
+      }).to.throw(/cannot.*insert.*query.*where/i);
+    });
+
+    it('does not allow raw', function() {
+      expect(function() {
+        query.raw('SELECT * FROM "users"');
+      }).to.throw(/cannot.*raw.*query.*where/i);
+    });
+  });
 });
