@@ -6,6 +6,7 @@ var expect = chai.expect;
 var Database = require('../lib/db');
 var FakeAdapter = require('./fakes/adapter');
 var Statement = require('../lib/db/grammar/statement');
+var Manager = require('../lib/model/manager');
 
 var db,
   adapter,
@@ -44,6 +45,32 @@ describe('Model', function() {
       ]);
     })
     .done(done, done);
+  });
+
+  it('always gets a new query', function() {
+    expect(Article.objects).to.not.equal(Article.objects);
+  });
+
+  describe('with a custom manager', function() {
+    beforeEach(function() {
+      var PublishedManager = Manager.extend({
+        query: function() {
+          return this._super().where({ published: true });
+        }
+      });
+      Article.reopenClass({
+        published: PublishedManager.create()
+      });
+    });
+
+    it('executes custom SQL', function(done) {
+      Article.published.fetch().then(function(/*articles*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE "published" = ?', [true]]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   it.skip('can create objects', function() {
