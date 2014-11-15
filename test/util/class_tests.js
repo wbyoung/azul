@@ -4,6 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Class = require('../../lib/util/class');
+var property = require('../../lib/util/property');
 
 describe('Class', function() {
 
@@ -253,9 +254,9 @@ describe('Class', function() {
 
   it('allows getter-only accessor definition', function() {
     var Dog = Class.extend({
-      init: function() { this._type = 'canine'; }
+      init: function() { this._type = 'canine'; },
+      type: property()
     });
-    Dog.defineAccessor('type');
     var dog = Dog.create();
     expect(dog.type).to.eql('canine');
     expect(function() {
@@ -265,9 +266,9 @@ describe('Class', function() {
 
   it('allows getter-setter accessor definition', function() {
     var Dog = Class.extend({
-      init: function() { this._type = 'canine'; }
+      init: function() { this._type = 'canine'; },
+      type: property({ writable: true }),
     });
-    Dog.defineAccessor('type', { writable: true });
     var dog = Dog.create();
     expect(dog.type).to.eql('canine');
     dog.type = 'animal';
@@ -277,8 +278,9 @@ describe('Class', function() {
 
   it('allows custom getter-only accessor definition', function() {
     var spy = sinon.spy();
-    var Dog = Class.extend({});
-    Dog.defineAccessor('type', spy);
+    var Dog = Class.extend({
+      type: property(spy)
+    });
     var dog = Dog.create();
     expect(spy).to.not.have.been.called;
     dog.type;
@@ -287,8 +289,9 @@ describe('Class', function() {
 
   it('allows custom setter-only accessor definition', function() {
     var spy = sinon.spy();
-    var Dog = Class.extend({});
-    Dog.defineAccessor('type', undefined, spy);
+    var Dog = Class.extend({
+      type: property(undefined, spy)
+    });
     var dog = Dog.create();
     expect(spy).to.not.have.been.called;
     dog.type = 'canine';
