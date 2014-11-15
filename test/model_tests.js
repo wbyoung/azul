@@ -31,7 +31,7 @@ describe('Model', function() {
   });
 
   it('knows its table', function() {
-    expect(Article.tableName()).to.eql('articles');
+    expect(Article.tableName).to.eql('articles');
   });
 
   it('can get objects', function(done) {
