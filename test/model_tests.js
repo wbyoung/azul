@@ -92,6 +92,12 @@ describe('Model', function() {
     beforeEach(function() {
       Article.reopenClass({ tableName: 'article_table' });
     });
+    it('knows its table', function() {
+      expect(Article.tableName).to.eql('article_table');
+    });
+    it('still calculates other tables names', function() {
+      expect(User.tableName).to.eql('users');
+    });
     it('executes custom SQL', function(done) {
       Article.objects.fetch().then(function(/*articles*/) {
         expect(adapter.executedSQL()).to.eql([
