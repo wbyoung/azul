@@ -2,11 +2,20 @@
 
 var _ = require('lodash');
 var chai = require('chai');
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 var Class = require('../../lib/util/class');
 var Mixin = require('../../lib/util/mixin');
 
 describe('Mixin', function() {
+  beforeEach(function() {
+    sinon.spy(Class.__metaclass__.prototype, 'reopen');
+  });
+
+  afterEach(function() {
+    Class.__metaclass__.prototype.reopen.restore();
+  });
+
   it('looks like an object', function() {
     var properties = {
       first: 'first',
@@ -37,6 +46,14 @@ describe('Mixin', function() {
     var Animal = Class.extend(BarkMixin);
     var animal = Animal.create();
     expect(animal.bark()).to.eql('bark');
+  });
+
+  it('calls reopen with the mixin contents', function() {
+    var attrs = { bark: 'bark' };
+    var BarkMixin = Mixin.create(attrs);
+    Class.extend(BarkMixin);
+    expect(Class.reopen).to.have.been.calledWithExactly(BarkMixin);
+    expect(Class.reopen).to.have.been.calledWithExactly(attrs);
   });
 
   it('can be passed to Class.reopen', function() {
