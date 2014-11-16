@@ -4,7 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Class = require('../../lib/util/class');
-var property = require('../../lib/util/property');
+var property = require('../../lib/util/property').fn;
 
 describe('Class', function() {
 
