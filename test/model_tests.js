@@ -18,10 +18,16 @@ describe('Model', function() {
   beforeEach(function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
+
+    var Model = db.Model;
+    var hasMany = Model.hasMany;
+
     Article = db.Model.extend({});
     Article.reopenClass({ __name__: 'Article' });
 
-    User = db.Model.extend({});
+    User = db.Model.extend({
+      articles: hasMany(Article)
+    });
     User.reopenClass({ __name__: 'User' });
 
     adapter.intercept(/select.*from "articles"/i, {
@@ -106,6 +112,18 @@ describe('Model', function() {
       })
       .done(done, done);
     });
+  });
+
+  it('has related methods', function() {
+    var user = User.create();
+    // expect(user.articles).to.exist;
+    expect(user.articlesRelation).to.exist;
+    expect(user.createArticle).to.exist;
+    expect(user.addArticle).to.exist;
+    expect(user.addArticles).to.exist;
+    expect(user.removeArticle).to.exist;
+    expect(user.removeArticles).to.exist;
+    expect(user.clearArticles).to.exist;
   });
 
   it.skip('can create objects', function() {
