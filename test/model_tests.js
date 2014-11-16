@@ -116,14 +116,15 @@ describe('Model', function() {
 
   it('has related methods', function() {
     var user = User.create();
-    // expect(user.articles).to.exist;
-    expect(user.articlesRelation).to.exist;
-    expect(user.createArticle).to.exist;
-    expect(user.addArticle).to.exist;
-    expect(user.addArticles).to.exist;
-    expect(user.removeArticle).to.exist;
-    expect(user.removeArticles).to.exist;
-    expect(user.clearArticles).to.exist;
+    expect(User.__class__.prototype).to.have.ownProperty('articles');
+    expect(user).to.have.property('articlesRelation');
+    expect(user).to.respondTo('createArticle');
+    expect(user).to.respondTo('createArticle');
+    expect(user).to.respondTo('addArticle');
+    expect(user).to.respondTo('addArticles');
+    expect(user).to.respondTo('removeArticle');
+    expect(user).to.respondTo('removeArticles');
+    expect(user).to.respondTo('clearArticles');
   });
 
   it.skip('can create objects', function() {
