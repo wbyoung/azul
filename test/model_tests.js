@@ -158,6 +158,43 @@ describe('Model', function() {
       })
       .done(done, done);
     });
+
+    it('allows update', function(done) {
+      articleObjects.update({ title: 'Azul' }).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ? ' +
+           'WHERE "author_id" = ?', ['Azul', 1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows delete', function(done) {
+      articleObjects.delete().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows clear', function(done) {
+      articleObjects.clear().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows clear via helper', function(done) {
+      user.clearArticles().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   it.skip('can create objects', function() {
