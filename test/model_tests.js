@@ -117,7 +117,7 @@ describe('Model', function() {
   it('has related methods', function() {
     var user = User.create();
     expect(User.__class__.prototype).to.have.ownProperty('articles');
-    expect(user).to.have.property('articlesRelation');
+    expect(user).to.have.property('articleObjects');
     expect(user).to.respondTo('createArticle');
     expect(user).to.respondTo('createArticle');
     expect(user).to.respondTo('addArticle');
