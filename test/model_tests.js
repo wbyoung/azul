@@ -26,7 +26,8 @@ describe('Model', function() {
     Article.reopenClass({ __name__: 'Article' });
 
     User = db.Model.extend({
-      articles: hasMany(Article)
+      // TODO: what if article class have name yet
+      articles: hasMany(Article, { foreignKey: 'author_id', primaryKey: 'id' })
     });
     User.reopenClass({ __name__: 'User' });
 
@@ -125,6 +126,38 @@ describe('Model', function() {
     expect(user).to.respondTo('removeArticle');
     expect(user).to.respondTo('removeArticles');
     expect(user).to.respondTo('clearArticles');
+  });
+
+  describe('has many relation', function() {
+    var user;
+    var articleObjects;
+
+    beforeEach(function() {
+      user = User.create({ id: 1 });
+      articleObjects = user.articleObjects;
+    });
+
+    it('fetches articles', function(done) {
+      articleObjects.fetch().then(function(articles) {
+        expect(articles).to.eql([
+          Article.create({ id: 1, title: 'Existing Article' })
+        ]);
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('can be filtered', function(done) {
+      articleObjects.where({ title: 'Azul' }).fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE ("author_id" = ?) AND ' +
+           '"title" = ?', [1, 'Azul']]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   it.skip('can create objects', function() {
