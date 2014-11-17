@@ -19,16 +19,10 @@ describe('Model', function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
 
-    var Model = db.Model;
-    var hasMany = Model.hasMany;
-
     Article = db.Model.extend({});
     Article.reopenClass({ __name__: 'Article' });
 
-    User = db.Model.extend({
-      // TODO: what if article class have name yet
-      articles: hasMany(Article, { foreignKey: 'author_id', primaryKey: 'id' })
-    });
+    User = db.Model.extend({});
     User.reopenClass({ __name__: 'User' });
 
     adapter.intercept(/select.*from "articles"/i, {
