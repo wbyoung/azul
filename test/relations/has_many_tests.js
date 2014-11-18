@@ -26,7 +26,11 @@ describe('Model.hasMany', function() {
 
     User = db.Model.extend({
       // TODO: what if article class have name yet
-      articles: hasMany(Article, { foreignKey: 'author_id', primaryKey: 'id' })
+      articles: hasMany(Article, {
+        inverse: 'author',
+        foreignKey: 'author_id', // TODO: change to camel case?
+        primaryKey: 'id'
+      })
     });
     User.reopenClass({ __name__: 'User' });
 
@@ -108,5 +112,19 @@ describe('Model.hasMany', function() {
       ]);
     })
     .done(done, done);
+  });
+
+  it('allows create', function() {
+    var article = articleObjects.create({ title: 'Hello' });
+    expect(article.authorId).to.eql(user.id);
+    expect(article.author).to.equal(user);
+    expect(article).to.to.be.an.instanceOf(Article.__class__);
+  });
+
+  it('allows create via helper', function() {
+    var article = user.createArticle({ title: 'Hello' });
+    expect(article.authorId).to.eql(user.id);
+    expect(article.author).to.equal(user);
+    expect(article).to.to.be.an.instanceOf(Article.__class__);
   });
 });
