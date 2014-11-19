@@ -107,12 +107,14 @@ describe('Model.hasMany', function() {
 
     it('allows add with existing objects', function(done) {
       var article = Article.create({ id: 5, title: 'Hello' });
-      var query = articleObjects.add(article);
 
-      expect(article.authorId).to.eql(user.id);
-      expect(article.author).to.equal(user);
+      // these are set after the query is executed
+      expect(article.authorId).to.not.exist;
+      expect(article.author).to.not.exist;
 
-      query.execute().then(function() {
+      articleObjects.add(article).then(function() {
+        expect(article.authorId).to.eql(user.id);
+        expect(article.author).to.equal(user);
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [1, 5]]
         ]);
