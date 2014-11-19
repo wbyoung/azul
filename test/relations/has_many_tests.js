@@ -107,16 +107,18 @@ describe('Model.hasMany', function() {
 
     it('allows add with existing objects', function(done) {
       var article = Article.create({ id: 5, title: 'Hello' });
+      var query = articleObjects.add(article);
 
       // these are set after the query is executed
       expect(article.authorId).to.not.exist;
       expect(article.author).to.not.exist;
 
-      articleObjects.add(article).then(function() {
+      query.then(function() {
         expect(article.authorId).to.eql(user.id);
         expect(article.author).to.equal(user);
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [1, 5]]
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" = ?', [1, 5]]
         ]);
       })
       .done(done, done);
@@ -127,15 +129,48 @@ describe('Model.hasMany', function() {
       var article2 = Article.create({ id: 8, title: 'Hello' });
       articleObjects.add(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? WHERE "id" ' +
-           'IN (?, ?)', [1, 5, 8]]
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" IN (?, ?)', [1, 5, 8]]
         ]);
       })
       .done(done, done);
     });
 
     it('allows add with unsaved objects');
-    it('allows remove with existing objects');
+
+    it('allows remove with existing objects', function(done) {
+      var article = Article.create({ id: 5, title: 'Hello' });
+      article.authorId = user.id;
+      article.author = user;
+      var query = articleObjects.remove(article);
+
+      // these are set after the query is executed
+      expect(article.authorId).to.exist;
+      expect(article.author).to.exist;
+
+      query.then(function() {
+        expect(article.authorId).to.not.exist;
+        expect(article.author).to.not.exist;
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" = ?', [undefined, 5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows remove with multiple existing objects', function(done) {
+      var article1 = Article.create({ id: 5, title: 'Hello' });
+      var article2 = Article.create({ id: 8, title: 'Hello' });
+      articleObjects.remove(article1, article2).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" IN (?, ?)', [undefined, 5, 8]]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('allows remove with unsaved objects');
 
     it('allows clear', function(done) {
