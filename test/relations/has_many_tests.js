@@ -55,76 +55,83 @@ describe('Model.hasMany', function() {
     expect(user).to.respondTo('clearArticles');
   });
 
-  it('fetches articles', function(done) {
-    articleObjects.fetch().then(function(articles) {
-      expect(articles).to.eql([
-        Article.create({ id: 1, title: 'Existing Article' })
-      ]);
-      expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
+  describe('relation', function() {
+
+    it('fetches articles', function(done) {
+      articleObjects.fetch().then(function(articles) {
+        expect(articles).to.eql([
+          Article.create({ id: 1, title: 'Existing Article' })
+        ]);
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('can be filtered', function(done) {
+      articleObjects.where({ title: 'Azul' }).fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE ("author_id" = ?) AND ' +
+           '"title" = ?', [1, 'Azul']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows update', function(done) {
+      articleObjects.update({ title: 'Azul' }).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ? ' +
+           'WHERE "author_id" = ?', ['Azul', 1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows delete', function(done) {
+      articleObjects.delete().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows clear', function(done) {
+      articleObjects.clear().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows create', function() {
+      var article = articleObjects.create({ title: 'Hello' });
+      expect(article.authorId).to.eql(user.id);
+      expect(article.author).to.equal(user);
+      expect(article).to.to.be.an.instanceOf(Article.__class__);
+    });
   });
 
-  it('can be filtered', function(done) {
-    articleObjects.where({ title: 'Azul' }).fetch().then(function() {
-      expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE ("author_id" = ?) AND ' +
-         '"title" = ?', [1, 'Azul']]
-      ]);
-    })
-    .done(done, done);
-  });
+  describe('helpers', function() {
 
-  it('allows update', function(done) {
-    articleObjects.update({ title: 'Azul' }).then(function() {
-      expect(adapter.executedSQL()).to.eql([
-        ['UPDATE "articles" SET "title" = ? ' +
-         'WHERE "author_id" = ?', ['Azul', 1]]
-      ]);
-    })
-    .done(done, done);
-  });
+    it('allows clear', function(done) {
+      user.clearArticles().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
 
-  it('allows delete', function(done) {
-    articleObjects.delete().then(function() {
-      expect(adapter.executedSQL()).to.eql([
-        ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
-  });
 
-  it('allows clear', function(done) {
-    articleObjects.clear().then(function() {
-      expect(adapter.executedSQL()).to.eql([
-        ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
-  });
-
-  it('allows clear via helper', function(done) {
-    user.clearArticles().then(function() {
-      expect(adapter.executedSQL()).to.eql([
-        ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
-  });
-
-  it('allows create', function() {
-    var article = articleObjects.create({ title: 'Hello' });
-    expect(article.authorId).to.eql(user.id);
-    expect(article.author).to.equal(user);
-    expect(article).to.to.be.an.instanceOf(Article.__class__);
-  });
-
-  it('allows create via helper', function() {
-    var article = user.createArticle({ title: 'Hello' });
-    expect(article.authorId).to.eql(user.id);
-    expect(article.author).to.equal(user);
-    expect(article).to.to.be.an.instanceOf(Article.__class__);
+    it('allows create', function() {
+      var article = user.createArticle({ title: 'Hello' });
+      expect(article.authorId).to.eql(user.id);
+      expect(article.author).to.equal(user);
+      expect(article).to.to.be.an.instanceOf(Article.__class__);
+    });
   });
 });
