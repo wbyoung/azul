@@ -21,22 +21,28 @@ describe('Model.hasMany', function() {
     var Model = db.Model;
     var hasMany = Model.hasMany;
 
-    Article = db.Model.extend({});
-    Article.reopenClass({ __name__: 'Article' });
-
+    Article = db.Model.extend();
     User = db.Model.extend({
-      // TODO: what if article class have name yet
       articles: hasMany(Article, {
         inverse: 'author',
         foreignKey: 'author_id', // TODO: write tests when using camel case
         primaryKey: 'id'
       })
     });
-    User.reopenClass({ __name__: 'User' });
 
+    // name the classes as late as possible to ensure we're not locking in
+    // anything based on the class name. all information should be computed
+    // from property names or delayed until the time of access to the db.
+    Article.reopenClass({ __name__: 'Article' });
+    User.reopenClass({ __name__: 'User' });
+  });
+
+  beforeEach(function() {
     user = User.create({ id: 1 });
     articleObjects = user.articleObjects;
+  });
 
+  beforeEach(function() {
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: 'Existing Article' }]
