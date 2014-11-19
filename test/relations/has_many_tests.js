@@ -28,7 +28,7 @@ describe('Model.hasMany', function() {
       // TODO: what if article class have name yet
       articles: hasMany(Article, {
         inverse: 'author',
-        foreignKey: 'author_id', // TODO: change to camel case?
+        foreignKey: 'author_id', // TODO: write tests when using camel case
         primaryKey: 'id'
       })
     });
