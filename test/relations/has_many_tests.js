@@ -105,8 +105,24 @@ describe('Model.hasMany', function() {
       expect(article).to.to.be.an.instanceOf(Article.__class__);
     });
 
-    it('allows add');
-    it('allows remove');
+    it('allows add with existing objects', function(done) {
+      var article = Article.create({ id: 5, title: 'Hello' });
+      var query = articleObjects.add(article);
+
+      expect(article.authorId).to.eql(user.id);
+      expect(article.author).to.equal(user);
+
+      query.execute().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [1, 5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows add with unsaved objects');
+    it('allows remove with existing objects');
+    it('allows remove with unsaved objects');
 
     it('allows clear', function(done) {
       articleObjects.clear().then(function() {
@@ -135,7 +151,9 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('allows add');
-    it('allows remove');
+    it('allows add with existing objects');
+    it('allows add with unsaved objects');
+    it('allows remove with existing objects');
+    it('allows remove with unsaved objects');
   });
 });
