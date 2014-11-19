@@ -122,6 +122,18 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('allows add with multiple existing objects', function(done) {
+      var article1 = Article.create({ id: 5, title: 'Hello' });
+      var article2 = Article.create({ id: 8, title: 'Hello' });
+      articleObjects.add(article1, article2).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? WHERE "id" ' +
+           'IN (?, ?)', [1, 5, 8]]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('allows add with unsaved objects');
     it('allows remove with existing objects');
     it('allows remove with unsaved objects');
