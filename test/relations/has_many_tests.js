@@ -98,6 +98,16 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('allows create', function() {
+      var article = articleObjects.create({ title: 'Hello' });
+      expect(article.authorId).to.eql(user.id);
+      expect(article.author).to.equal(user);
+      expect(article).to.to.be.an.instanceOf(Article.__class__);
+    });
+
+    it('allows add');
+    it('allows remove');
+
     it('allows clear', function(done) {
       articleObjects.clear().then(function() {
         expect(adapter.executedSQL()).to.eql([
@@ -106,16 +116,15 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
+  });
 
+  describe('helpers', function() {
     it('allows create', function() {
-      var article = articleObjects.create({ title: 'Hello' });
+      var article = user.createArticle({ title: 'Hello' });
       expect(article.authorId).to.eql(user.id);
       expect(article.author).to.equal(user);
       expect(article).to.to.be.an.instanceOf(Article.__class__);
     });
-  });
-
-  describe('helpers', function() {
 
     it('allows clear', function(done) {
       user.clearArticles().then(function() {
@@ -126,12 +135,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-
-    it('allows create', function() {
-      var article = user.createArticle({ title: 'Hello' });
-      expect(article.authorId).to.eql(user.id);
-      expect(article.author).to.equal(user);
-      expect(article).to.to.be.an.instanceOf(Article.__class__);
-    });
+    it('allows add');
+    it('allows remove');
   });
 });
