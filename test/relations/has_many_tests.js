@@ -23,11 +23,7 @@ describe('Model.hasMany', function() {
 
     Article = db.Model.extend();
     User = db.Model.extend({
-      articles: hasMany(Article, {
-        inverse: 'author',
-        foreignKey: 'author_id', // TODO: write tests when using camel case
-        primaryKey: 'id'
-      })
+      articles: hasMany(Article, { inverse: 'author' })
     });
 
     // name the classes as late as possible to ensure we're not locking in
