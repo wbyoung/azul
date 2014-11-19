@@ -99,9 +99,11 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
+  });
 
+  describe('helpers', function() {
     it('allows create', function() {
-      var article = articleObjects.create({ title: 'Hello' });
+      var article = user.createArticle({ title: 'Hello' });
       expect(article.authorId).to.eql(user.id);
       expect(article.author).to.equal(user);
       expect(article).to.to.be.an.instanceOf(Article.__class__);
@@ -109,7 +111,7 @@ describe('Model.hasMany', function() {
 
     it('allows add with existing objects', function(done) {
       var article = Article.create({ id: 5, title: 'Hello' });
-      var query = articleObjects.add(article);
+      var query = user.addArticle(article);
 
       // these are set after the query is executed
       expect(article.authorId).to.not.exist;
@@ -129,7 +131,7 @@ describe('Model.hasMany', function() {
     it('allows add with multiple existing objects', function(done) {
       var article1 = Article.create({ id: 5, title: 'Hello' });
       var article2 = Article.create({ id: 8, title: 'Hello' });
-      articleObjects.add(article1, article2).then(function() {
+      user.addArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +
            'WHERE "id" IN (?, ?)', [1, 5, 8]]
@@ -144,7 +146,7 @@ describe('Model.hasMany', function() {
       var article = Article.create({ id: 5, title: 'Hello' });
       article.authorId = user.id;
       article.author = user;
-      var query = articleObjects.remove(article);
+      var query = user.removeArticle(article);
 
       // these are set after the query is executed
       expect(article.authorId).to.exist;
@@ -164,7 +166,7 @@ describe('Model.hasMany', function() {
     it('allows remove with multiple existing objects', function(done) {
       var article1 = Article.create({ id: 5, title: 'Hello' });
       var article2 = Article.create({ id: 8, title: 'Hello' });
-      articleObjects.remove(article1, article2).then(function() {
+      user.removeArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +
            'WHERE "id" IN (?, ?)', [undefined, 5, 8]]
@@ -176,24 +178,6 @@ describe('Model.hasMany', function() {
     it('allows remove with unsaved objects');
 
     it('allows clear', function(done) {
-      articleObjects.clear().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
-    });
-  });
-
-  describe('helpers', function() {
-    it('allows create', function() {
-      var article = user.createArticle({ title: 'Hello' });
-      expect(article.authorId).to.eql(user.id);
-      expect(article.author).to.equal(user);
-      expect(article).to.to.be.an.instanceOf(Article.__class__);
-    });
-
-    it('allows clear', function(done) {
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
@@ -201,10 +185,5 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
-
-    it('allows add with existing objects');
-    it('allows add with unsaved objects');
-    it('allows remove with existing objects');
-    it('allows remove with unsaved objects');
   });
 });
