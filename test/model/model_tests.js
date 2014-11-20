@@ -5,7 +5,6 @@ var expect = chai.expect;
 
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
 var Manager = require('../../lib/model/manager');
 var BluebirdPromise = require('bluebird');
 
@@ -142,10 +141,15 @@ describe('Model', function() {
     });
   });
 
-  it.skip('can create objects', function() {
+  it('can create objects', function(done) {
+    // TODO: intercept insert statement to return the proper id (34)
     var article = Article.create({ title: 'Azul News' });
-    expect(article.save().sql()).to.eql(Statement.create(
-      'INSERT INTO "articles" ("title") VALUES (?)', ['Azul News']
-    ));
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("title") VALUES (?)', ['Azul News']]
+      ]);
+      expect(article.id).to.eql(34);
+    })
+    .done(done, done);
   });
 });
