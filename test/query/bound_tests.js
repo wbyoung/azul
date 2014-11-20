@@ -99,4 +99,35 @@ describe('BoundQuery', function() {
       }).to.throw(/cannot.*raw.*query.*where/i);
     });
   });
+
+  describe('pre-specified order', function() {
+    var query;
+    before(function() {
+      query = db.query.bind('users').orderBy('name');
+    });
+
+    it('does not allow insert', function() {
+      expect(function() {
+        query.insert({ name: 'Whit' });
+      }).to.throw(/cannot.*insert.*query.*orderBy/i);
+    });
+
+    it('does not allow update', function() {
+      expect(function() {
+        query.update({ name: 'Whit' });
+      }).to.throw(/cannot.*update.*query.*orderBy/i);
+    });
+
+    it('does not allow delete', function() {
+      expect(function() {
+        query.delete();
+      }).to.throw(/cannot.*delete.*query.*orderBy/i);
+    });
+
+    it('does not allow raw', function() {
+      expect(function() {
+        query.raw('SELECT * FROM "users"');
+      }).to.throw(/cannot.*raw.*query.*orderBy/i);
+    });
+  });
 });
