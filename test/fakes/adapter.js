@@ -84,7 +84,7 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
    * execution result or a function whose result will serve the same purpose.
    */
   intercept: function(regex, result) {
-    this._interceptors.push({
+    this._interceptors.unshift({
       regex: regex,
       result: result
     });
