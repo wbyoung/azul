@@ -119,7 +119,6 @@ describe('Model.hasMany', function() {
         expect(users[0].username).to.eql('wbyoung');
         expect(users[1].username).to.eql('kate');
         expect(users[2].username).to.eql('sam');
-        console.log(users[0].articles)
         expect(_.map(users[0].articles, 'title')).to.eql([
           'Announcing Azul', 'Node.js ORM'
         ]);
