@@ -10,6 +10,7 @@ var Manager = require('../../lib/model/manager');
 var BluebirdPromise = require('bluebird');
 
 var db,
+  attr,
   adapter,
   Article,
   User;
@@ -18,11 +19,17 @@ describe('Model', function() {
   beforeEach(function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
+    attr = db.Model.attr;
 
-    Article = db.Model.extend({});
+    Article = db.Model.extend({
+      title: attr()
+    });
     Article.reopenClass({ __name__: 'Article' });
 
-    User = db.Model.extend({});
+    User = db.Model.extend({
+      username: attr(),
+      authorId: attr('author_id')
+    });
     User.reopenClass({ __name__: 'User' });
 
     adapter.intercept(/select.*from "articles"/i, {
@@ -104,6 +111,34 @@ describe('Model', function() {
         ]);
       })
       .done(done, done);
+    });
+  });
+
+  describe('attribute storage', function() {
+    it('works with custom column via setters', function() {
+      var user = User.create();
+      user.authorId = 1;
+      expect(user.authorId).to.eql(1);
+      expect(user._attrs).to.have.property('author_id', 1);
+    });
+
+    it('works with custom column via constructor', function() {
+      var user = User.create({ authorId: 1 });
+      expect(user.authorId).to.eql(1);
+      expect(user._attrs).to.have.property('author_id', 1);
+    });
+
+    it('works via setters', function() {
+      var user = User.create();
+      user.username = 'wbyoung';
+      expect(user.username).to.eql('wbyoung');
+      expect(user._attrs).to.have.property('username', 'wbyoung');
+    });
+
+    it('works via constructor', function() {
+      var user = User.create({ username: 'wbyoung' });
+      expect(user.username).to.eql('wbyoung');
+      expect(user._attrs).to.have.property('username', 'wbyoung');
     });
   });
 
