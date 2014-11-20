@@ -39,6 +39,10 @@ describe('Model.hasMany', function() {
   });
 
   beforeEach(function() {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, username: 'wbyoung' }]
+    });
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: 'Existing Article' }]
@@ -55,6 +59,31 @@ describe('Model.hasMany', function() {
     expect(user).to.respondTo('removeArticle');
     expect(user).to.respondTo('removeArticles');
     expect(user).to.respondTo('clearArticles');
+  });
+
+  describe('pre-fetch', function() {
+    it('executes multiple queries', function(done) {
+      User.objects.with('articles').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users"', []],
+          ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('caches related objects', function(done) {
+      User.objects.with('articles').fetch().get('0').then(function(foundUser) {
+        expect(foundUser.id).to.eql(1);
+        expect(foundUser.username).to.eql('wbyoung');
+        expect(foundUser.articles).to.eql([
+          Article.create({ id: 1, title: 'Existing Article' })
+        ]);
+      })
+      .done(done, done);
+    });
+
+    // TODO: expand tests to return multiple users each with multiple articles
   });
 
   describe('relation', function() {
