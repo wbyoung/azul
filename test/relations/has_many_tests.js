@@ -26,9 +26,14 @@ describe('Model.hasMany', function() {
 
     var Model = db.Model;
     var hasMany = Model.hasMany;
+    var attr = Model.attr;
 
-    Article = db.Model.extend();
+    Article = db.Model.extend({
+      title: attr(),
+      authorId: attr('author_id') // TODO: replace with belongsTo
+    });
     User = db.Model.extend({
+      username: attr(),
       articles: hasMany(Article, { inverse: 'author' })
     });
 
@@ -83,7 +88,7 @@ describe('Model.hasMany', function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
+          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
       })
       .done(done, done);
@@ -114,6 +119,7 @@ describe('Model.hasMany', function() {
         expect(users[0].username).to.eql('wbyoung');
         expect(users[1].username).to.eql('kate');
         expect(users[2].username).to.eql('sam');
+        console.log(users[0].articles)
         expect(_.map(users[0].articles, 'title')).to.eql([
           'Announcing Azul', 'Node.js ORM'
         ]);
@@ -133,7 +139,7 @@ describe('Model.hasMany', function() {
     it('fetches articles', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
+          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
@@ -155,7 +161,7 @@ describe('Model.hasMany', function() {
     it('allows access loaded articles', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
+          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
       })
       .done(done, done);
