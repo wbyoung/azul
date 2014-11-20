@@ -35,6 +35,11 @@ describe('Model', function() {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: 'Existing Article' }]
     });
+
+    adapter.intercept(/insert into "articles".*returning "id"/i, {
+      fields: ['id'],
+      rows: [{ id: 34 }]
+    });
   });
 
   it('knows its table', function() {
@@ -142,11 +147,11 @@ describe('Model', function() {
   });
 
   it('can create objects', function(done) {
-    // TODO: intercept insert statement to return the proper id (34)
     var article = Article.create({ title: 'Azul News' });
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['INSERT INTO "articles" ("title") VALUES (?)', ['Azul News']]
+        ['INSERT INTO "articles" ("title") VALUES (?) '+
+         'RETURNING "id"', ['Azul News']]
       ]);
       expect(article.id).to.eql(34);
     })
