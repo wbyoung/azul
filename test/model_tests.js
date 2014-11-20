@@ -40,8 +40,6 @@ describe('Model', function() {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT * FROM "articles"', []]
       ]);
-      // TODO: create doesn't do anything yet, so this really isn't testing
-      // anything.
       expect(articles).to.eql([
         Article.create({ id: 1, title: 'Existing Article' })
       ]);
