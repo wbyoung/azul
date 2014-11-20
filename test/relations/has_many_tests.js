@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -12,6 +13,11 @@ var db,
   User,
   user,
   articleObjects;
+
+var withAuthor = function(authorId, attrs) {
+  var authorAttr = _.object([['author_id', authorId]]);
+  return _.extend(attrs, authorAttr);
+};
 
 describe('Model.hasMany', function() {
   beforeEach(function() {
@@ -40,12 +46,12 @@ describe('Model.hasMany', function() {
 
   beforeEach(function() {
     adapter.intercept(/select.*from "users"/i, {
-      fields: ['id', 'title'],
+      fields: ['id', 'username'],
       rows: [{ id: 1, username: 'wbyoung' }]
     });
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
-      rows: [{ id: 1, title: 'Existing Article' }]
+      rows: [withAuthor(1, { id: 1, title: 'Existing Article' })]
     });
   });
 
@@ -77,13 +83,49 @@ describe('Model.hasMany', function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article' })
+          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
         ]);
       })
       .done(done, done);
     });
 
-    // TODO: expand tests to return multiple users each with multiple articles
+    it('works with multiple users each authoring multiple articles', function(done) {
+      adapter.intercept(/select.*from "users".*order by "id"/i, {
+        fields: ['id', 'username'],
+        rows: [
+          { id: 1, username: 'wbyoung' },
+          { id: 2, username: 'kate' },
+          { id: 4, username: 'sam' },
+        ]
+      });
+      adapter.intercept(/select.*from "articles"/i, {
+        fields: ['id', 'title', 'author_id'],
+        rows: [
+          withAuthor(1, { id: 3, title: 'Announcing Azul' }),
+          withAuthor(1, { id: 5, title: 'Node.js ORM' }),
+          withAuthor(2, { id: 9, title: 'Delicious Pancakes' }),
+          withAuthor(2, { id: 8, title: 'Awesome Margaritas' }),
+          withAuthor(2, { id: 5, title: 'Tasty Kale Salad' }),
+          withAuthor(4, { id: 6, title: 'The Bipartisan System' }),
+        ]
+      });
+
+      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+        expect(users[0].username).to.eql('wbyoung');
+        expect(users[1].username).to.eql('kate');
+        expect(users[2].username).to.eql('sam');
+        expect(_.map(users[0].articles, 'title')).to.eql([
+          'Announcing Azul', 'Node.js ORM'
+        ]);
+        expect(_.map(users[1].articles, 'title')).to.eql([
+          'Delicious Pancakes', 'Awesome Margaritas', 'Tasty Kale Salad'
+        ]);
+        expect(_.map(users[2].articles, 'title')).to.eql([
+          'The Bipartisan System'
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   describe('relation', function() {
@@ -91,7 +133,7 @@ describe('Model.hasMany', function() {
     it('fetches articles', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article' })
+          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
         ]);
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
@@ -113,7 +155,7 @@ describe('Model.hasMany', function() {
     it('allows access loaded articles', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article' })
+          Article.create(withAuthor(1, { id: 1, title: 'Existing Article' }))
         ]);
       })
       .done(done, done);
