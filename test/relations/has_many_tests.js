@@ -71,6 +71,25 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('caches the related objects query', function() {
+      expect(user.articleObjects).to.equal(articleObjects);
+    });
+
+    it('throws when attempting to access un-loaded articles', function() {
+      expect(function() {
+        user.articles;
+      }).to.throw(/articles.*not yet.*loaded/i);
+    });
+
+    it('allows access loaded articles', function(done) {
+      articleObjects.fetch().then(function() {
+        expect(user.articles).to.eql([
+          Article.create({ id: 1, title: 'Existing Article' })
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('can be filtered', function(done) {
       articleObjects.where({ title: 'Azul' }).fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
