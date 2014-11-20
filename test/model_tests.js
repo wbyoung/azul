@@ -3,9 +3,9 @@
 var chai = require('chai');
 var expect = chai.expect;
 
-var Database = require('../lib/db');
+var Database = require('../lib/database');
 var FakeAdapter = require('./fakes/adapter');
-var Statement = require('../lib/db/grammar/statement');
+var Statement = require('../lib/grammar/statement');
 var Manager = require('../lib/model/manager');
 var BluebirdPromise = require('bluebird');
 

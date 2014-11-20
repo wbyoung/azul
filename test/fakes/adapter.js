@@ -1,7 +1,7 @@
 'use strict';
 
 var BluebirdPromise = require('bluebird');
-var Adapter = require('../../lib/db/adapters/base');
+var Adapter = require('../../lib/adapters/base');
 
 var sequence = 0;
 function FakeAdapterClient() { this.id = sequence++; }

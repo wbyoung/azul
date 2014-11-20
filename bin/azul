@@ -8,7 +8,7 @@ var path = require('path');
 var argv = require('minimist')(process.argv.slice(2));
 var interpret = require('interpret');
 var v8flags = require('v8flags');
-var cli = require('../lib/cli');
+var cli = require('../../lib/cli');
 
 var invoke = function(env) {
   if (process.cwd() !== env.cwd) {
@@ -16,7 +16,7 @@ var invoke = function(env) {
   }
   // prefer local, but fall back on global install
   var modulePath = env.modulePath || '.';
-  var cliPath = path.join(modulePath, '../lib/cli');
+  var cliPath = path.join(modulePath, '../../lib/cli');
   var cli = require(cliPath);
   cli(env);
 };
