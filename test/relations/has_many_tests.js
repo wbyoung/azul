@@ -17,8 +17,7 @@ var db,
   articleObjects;
 
 var withAuthor = function(authorId, attrs) {
-  var authorAttr = _.object([['author_id', authorId]]);
-  return _.extend(attrs, authorAttr);
+  return _.extend(attrs, { 'author_id': authorId });
 };
 
 describe('Model.hasMany', function() {
