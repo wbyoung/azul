@@ -12,6 +12,9 @@ with other ORM tools. If you're interested in helping, please reach out.
 
 ## Contributing
 
+Please join us on [HipChat](http://www.hipchat.com/g0ggZ58LV) to discuss
+how to help out.
+
 ### Testing
 
 Simply run `gulp test` to run the full test suite.
