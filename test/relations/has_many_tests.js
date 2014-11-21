@@ -30,9 +30,7 @@ describe('Model.hasMany', function() {
 
     Model.reopenClass({
       createLoaded: function() {
-        return _.extend(this.create.apply(this, arguments), {
-          persisted: true
-        });
+        return this.create.apply(this, arguments).reset();
       }
     });
 

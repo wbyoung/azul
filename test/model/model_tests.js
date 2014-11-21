@@ -20,6 +20,13 @@ describe('Model', function() {
     db = Database.create({ adapter: adapter });
     attr = db.Model.attr;
 
+    // TODO: duplicated code
+    db.Model.reopenClass({
+      createLoaded: function() {
+        return this.create.apply(this, arguments).reset();
+      }
+    });
+
     Article = db.Model.extend({
       title: attr()
     });
@@ -158,6 +165,18 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can update objects', function(done) {
+    var article = Article.createLoaded({ id: 5, title: 'Azul News' });
+    article.title = 'Breaking Azul News';
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ? '+
+         'WHERE "id" = ?', ['Breaking Azul News', 5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('marks fetched objects as persisted', function(done) {
     Article.objects.fetch().get('0').then(function(article) {
       expect(article.persisted).to.eql(true);
@@ -167,6 +186,15 @@ describe('Model', function() {
 
   it('does not mark fetched objects as dirty', function(done) {
     Article.objects.fetch().get('0').then(function(article) {
+      expect(article.dirty).to.eql(false);
+    })
+    .done(done, done);
+  });
+
+  it('marks updated objects as no longer being dirty', function(done) {
+    var article = Article.createLoaded({ id: 5, title: 'Azul News' });
+    article.title = 'Breaking Azul News';
+    article.save().then(function() {
       expect(article.dirty).to.eql(false);
     })
     .done(done, done);
