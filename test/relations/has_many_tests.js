@@ -7,6 +7,8 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 
+require('../helpers/model');
+
 var db,
   adapter,
   Article,
@@ -46,7 +48,7 @@ describe('Model.hasMany', function() {
   });
 
   beforeEach(function() {
-    user = User.create({ id: 1 }).reset();
+    user = User.create({ id: 1 }).fresh;
     articleObjects = user.articleObjects;
   });
 
@@ -89,7 +91,7 @@ describe('Model.hasMany', function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.create({ id: 1, title: 'Journal', authorId: 1 }).reset()
+          Article.create({ id: 1, title: 'Journal', authorId: 1 }).fresh
         ]);
       })
       .done(done, done);
@@ -139,7 +141,7 @@ describe('Model.hasMany', function() {
     it('fetches articles', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.create({ id: 1, title: 'Journal', authorId: 1 }).reset()
+          Article.create({ id: 1, title: 'Journal', authorId: 1 }).fresh
         ]);
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
@@ -161,7 +163,7 @@ describe('Model.hasMany', function() {
     it('allows access loaded articles', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.create({ id: 1, title: 'Journal', authorId: 1 }).reset()
+          Article.create({ id: 1, title: 'Journal', authorId: 1 }).fresh
         ]);
       })
       .done(done, done);
@@ -206,7 +208,7 @@ describe('Model.hasMany', function() {
     });
 
     it('allows add with existing objects', function(done) {
-      var article = Article.create({ id: 5, title: 'Hello' }).reset();
+      var article = Article.create({ id: 5, title: 'Hello' }).fresh;
       var query = user.addArticle(article);
 
       // these are set after the query is executed
@@ -225,8 +227,8 @@ describe('Model.hasMany', function() {
     });
 
     it('allows add with multiple existing objects', function(done) {
-      var article1 = Article.create({ id: 5, title: 'Hello' }).reset();
-      var article2 = Article.create({ id: 8, title: 'Hello' }).reset();
+      var article1 = Article.create({ id: 5, title: 'Hello' }).fresh;
+      var article2 = Article.create({ id: 8, title: 'Hello' }).fresh;
       user.addArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +
@@ -239,7 +241,7 @@ describe('Model.hasMany', function() {
     it('allows add with unsaved objects');
 
     it('allows remove with existing objects', function(done) {
-      var article = Article.create({ id: 5, title: 'Hello' }).reset();
+      var article = Article.create({ id: 5, title: 'Hello' }).fresh;
       article.authorId = user.id;
       article.author = user;
       var query = user.removeArticle(article);
@@ -260,8 +262,8 @@ describe('Model.hasMany', function() {
     });
 
     it('allows remove with multiple existing objects', function(done) {
-      var article1 = Article.create({ id: 5, title: 'Hello' }).reset();
-      var article2 = Article.create({ id: 8, title: 'Hello' }).reset();
+      var article1 = Article.create({ id: 5, title: 'Hello' }).fresh;
+      var article2 = Article.create({ id: 8, title: 'Hello' }).fresh;
       user.removeArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +

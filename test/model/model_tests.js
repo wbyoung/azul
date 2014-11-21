@@ -8,6 +8,8 @@ var FakeAdapter = require('../fakes/adapter');
 var Manager = require('../../lib/model/manager');
 var BluebirdPromise = require('bluebird');
 
+require('../helpers/model');
+
 var db,
   attr,
   adapter,
@@ -176,7 +178,7 @@ describe('Model', function() {
   });
 
   it('can update objects', function(done) {
-    var article = Article.create({ id: 5, title: 'Azul News' }).reset();
+    var article = Article.create({ id: 5, title: 'Azul News' }).fresh;
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([
@@ -202,7 +204,7 @@ describe('Model', function() {
   });
 
   it('marks updated objects as no longer being dirty', function(done) {
-    var article = Article.create({ id: 5, title: 'Azul News' }).reset();
+    var article = Article.create({ id: 5, title: 'Azul News' }).fresh;
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(article.dirty).to.eql(false);
