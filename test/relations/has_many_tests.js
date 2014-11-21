@@ -16,10 +16,6 @@ var db,
   user,
   articleObjects;
 
-var withAuthor = function(authorId, attrs) {
-  return _.extend(attrs, { 'author_id': authorId });
-};
-
 describe('Model.hasMany', function() {
   beforeEach(function() {
     adapter = FakeAdapter.create({});
@@ -58,7 +54,7 @@ describe('Model.hasMany', function() {
     });
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
-      rows: [withAuthor(1, { id: 1, title: 'Journal' })]
+      rows: [{ id: 1, title: 'Journal', 'author_id': 1 }]
     });
   });
 
@@ -108,12 +104,12 @@ describe('Model.hasMany', function() {
       adapter.intercept(/select.*from "articles"/i, {
         fields: ['id', 'title', 'author_id'],
         rows: [
-          withAuthor(1, { id: 3, title: 'Announcing Azul' }),
-          withAuthor(1, { id: 5, title: 'Node.js ORM' }),
-          withAuthor(2, { id: 9, title: 'Delicious Pancakes' }),
-          withAuthor(2, { id: 8, title: 'Awesome Margaritas' }),
-          withAuthor(2, { id: 5, title: 'Tasty Kale Salad' }),
-          withAuthor(4, { id: 6, title: 'The Bipartisan System' }),
+          { id: 3, title: 'Announcing Azul', 'author_id': 1 },
+          { id: 5, title: 'Node.js ORM', 'author_id': 1 },
+          { id: 9, title: 'Delicious Pancakes', 'author_id': 2 },
+          { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
+          { id: 5, title: 'Tasty Kale Salad', 'author_id': 2 },
+          { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
         ]
       });
 
