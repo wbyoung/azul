@@ -167,6 +167,14 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('saving gives back the original object', function(done) {
+    var article = Article.create({ title: 'Azul News' });
+    article.save().then(function(result) {
+      expect(result).to.equal(article);
+    })
+    .done(done, done);
+  });
+
   it('can update objects', function(done) {
     var article = Article.create({ id: 5, title: 'Azul News' }).reset();
     article.title = 'Breaking Azul News';
