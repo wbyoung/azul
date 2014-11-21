@@ -58,6 +58,15 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can get objects through raw queries', function(done) {
+    Article.objects.raw('select * from "articles"').then(function(articles) {
+      expect(articles).to.eql([
+        Article.load({ id: 1, title: 'Existing Article' })
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can get objects multiple times', function(done) {
     BluebirdPromise.all([
       Article.objects,
