@@ -28,6 +28,14 @@ describe('Model.hasMany', function() {
     var hasMany = Model.hasMany;
     var attr = Model.attr;
 
+    Model.reopenClass({
+      createLoaded: function() {
+        return _.extend(this.create.apply(this, arguments), {
+          persisted: true
+        });
+      }
+    });
+
     Article = db.Model.extend({
       title: attr(),
       authorId: attr('author_id') // TODO: replace with belongsTo
@@ -45,7 +53,7 @@ describe('Model.hasMany', function() {
   });
 
   beforeEach(function() {
-    user = User.create({ id: 1 });
+    user = User.createLoaded({ id: 1 });
     articleObjects = user.articleObjects;
   });
 
@@ -88,7 +96,7 @@ describe('Model.hasMany', function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
+          Article.createLoaded({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
       })
       .done(done, done);
@@ -138,7 +146,7 @@ describe('Model.hasMany', function() {
     it('fetches articles', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
+          Article.createLoaded({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
@@ -160,7 +168,7 @@ describe('Model.hasMany', function() {
     it('allows access loaded articles', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.create({ id: 1, title: 'Existing Article', authorId: 1 })
+          Article.createLoaded({ id: 1, title: 'Existing Article', authorId: 1 })
         ]);
       })
       .done(done, done);
@@ -205,7 +213,7 @@ describe('Model.hasMany', function() {
     });
 
     it('allows add with existing objects', function(done) {
-      var article = Article.create({ id: 5, title: 'Hello' });
+      var article = Article.createLoaded({ id: 5, title: 'Hello' });
       var query = user.addArticle(article);
 
       // these are set after the query is executed
@@ -224,8 +232,8 @@ describe('Model.hasMany', function() {
     });
 
     it('allows add with multiple existing objects', function(done) {
-      var article1 = Article.create({ id: 5, title: 'Hello' });
-      var article2 = Article.create({ id: 8, title: 'Hello' });
+      var article1 = Article.createLoaded({ id: 5, title: 'Hello' });
+      var article2 = Article.createLoaded({ id: 8, title: 'Hello' });
       user.addArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +
@@ -238,7 +246,7 @@ describe('Model.hasMany', function() {
     it('allows add with unsaved objects');
 
     it('allows remove with existing objects', function(done) {
-      var article = Article.create({ id: 5, title: 'Hello' });
+      var article = Article.createLoaded({ id: 5, title: 'Hello' });
       article.authorId = user.id;
       article.author = user;
       var query = user.removeArticle(article);
@@ -259,8 +267,8 @@ describe('Model.hasMany', function() {
     });
 
     it('allows remove with multiple existing objects', function(done) {
-      var article1 = Article.create({ id: 5, title: 'Hello' });
-      var article2 = Article.create({ id: 8, title: 'Hello' });
+      var article1 = Article.createLoaded({ id: 5, title: 'Hello' });
+      var article2 = Article.createLoaded({ id: 8, title: 'Hello' });
       user.removeArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? ' +

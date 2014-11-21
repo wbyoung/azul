@@ -52,7 +52,7 @@ describe('Model', function() {
         ['SELECT * FROM "articles"', []]
       ]);
       expect(articles).to.eql([
-        Article.create({ id: 1, title: 'Existing Article' })
+        Article.load({ id: 1, title: 'Existing Article' })
       ]);
     })
     .done(done, done);
