@@ -27,7 +27,7 @@ describe('Model', function() {
 
     User = db.Model.extend({
       username: attr(),
-      authorId: attr('author_id')
+      email: attr('email_addr')
     });
     User.reopenClass({ __name__: 'User' });
 
@@ -130,15 +130,15 @@ describe('Model', function() {
   describe('attribute storage', function() {
     it('works with custom column via setters', function() {
       var user = User.create();
-      user.authorId = 1;
-      expect(user.authorId).to.eql(1);
-      expect(user._attrs).to.have.property('author_id', 1);
+      user.email = 'wbyoung@azuljs.com';
+      expect(user.email).to.eql('wbyoung@azuljs.com');
+      expect(user._attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works with custom column via constructor', function() {
-      var user = User.create({ authorId: 1 });
-      expect(user.authorId).to.eql(1);
-      expect(user._attrs).to.have.property('author_id', 1);
+      var user = User.create({ email: 'wbyoung@azuljs.com' });
+      expect(user.email).to.eql('wbyoung@azuljs.com');
+      expect(user._attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works via setters', function() {
