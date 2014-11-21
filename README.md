@@ -37,7 +37,14 @@ $ mysql -u root
 > CREATE DATABASE azul_test;
 > exit
 ```
+### Documentation
 
+Generate and access documentation locally:
+
+```bash
+$ jsdoc --private -c jsdoc.json
+$ open out/index.html
+```
 
 ## License
 
