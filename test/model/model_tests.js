@@ -20,13 +20,6 @@ describe('Model', function() {
     db = Database.create({ adapter: adapter });
     attr = db.Model.attr;
 
-    // TODO: duplicated code
-    db.Model.reopenClass({
-      createLoaded: function() {
-        return this.create.apply(this, arguments).reset();
-      }
-    });
-
     Article = db.Model.extend({
       title: attr()
     });
@@ -166,7 +159,7 @@ describe('Model', function() {
   });
 
   it('can update objects', function(done) {
-    var article = Article.createLoaded({ id: 5, title: 'Azul News' });
+    var article = Article.create({ id: 5, title: 'Azul News' }).reset();
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([
@@ -192,7 +185,7 @@ describe('Model', function() {
   });
 
   it('marks updated objects as no longer being dirty', function(done) {
-    var article = Article.createLoaded({ id: 5, title: 'Azul News' });
+    var article = Article.create({ id: 5, title: 'Azul News' }).reset();
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(article.dirty).to.eql(false);
