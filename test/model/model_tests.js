@@ -178,7 +178,7 @@ describe('Model', function() {
   });
 
   it('can update objects', function(done) {
-    var article = Article.create({ id: 5, title: 'Azul News' }).fresh;
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([
@@ -204,7 +204,7 @@ describe('Model', function() {
   });
 
   it('marks updated objects as no longer being dirty', function(done) {
-    var article = Article.create({ id: 5, title: 'Azul News' }).fresh;
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
     article.save().then(function() {
       expect(article.dirty).to.eql(false);

@@ -1,12 +1,13 @@
 'use strict';
 
+var _ = require('lodash');
 var Model = require('../../lib/model');
-var property = require('../../lib/util/property').fn;
 
-Model.reopen({
-  fresh: property(function() {
-    this._super();
-    this.reset();
-    return this;
-  })
+Model.reopenClass({
+  fresh: function() {
+    return _.extend(this.create.apply(this, arguments), {
+      dirty: false,
+      persisted: true
+    });
+  }
 });
