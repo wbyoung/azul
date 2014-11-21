@@ -157,4 +157,36 @@ describe('Model', function() {
     })
     .done(done, done);
   });
+
+  it('marks fetched objects as persisted', function(done) {
+    Article.objects.fetch().get('0').then(function(article) {
+      expect(article.persisted).to.eql(true);
+    })
+    .done(done, done);
+  });
+
+  it('does not mark fetched objects as dirty', function(done) {
+    Article.objects.fetch().get('0').then(function(article) {
+      expect(article.dirty).to.eql(false);
+    })
+    .done(done, done);
+  });
+
+  it('marks saved objects as persisted', function(done) {
+    var article = Article.create({ title: 'Azul News' });
+    expect(article.persisted).to.eql(false);
+    article.save().then(function() {
+      expect(article.persisted).to.eql(true);
+    })
+    .done(done, done);
+  });
+
+  it('does not perform updates on persisted objects', function(done) {
+    var article = Article.create({ title: 'Azul News' });
+    article.persisted = true;
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([]);
+    })
+    .done(done, done);
+  });
 });
