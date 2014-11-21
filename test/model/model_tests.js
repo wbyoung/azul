@@ -229,4 +229,14 @@ describe('Model', function() {
     })
     .done(done, done);
   });
+
+  it('cannot save while a save is in flight', function(done) {
+    var article = Article.create({ title: 'Azul News' });
+    article.save();
+    article.save().throw(new Error('Expected save to fail'))
+    .catch(function(e) {
+      expect(e).to.match(/Cannot save.*article.*in flight/i);
+    })
+    .done(done, done);
+  });
 });
