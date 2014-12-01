@@ -197,6 +197,9 @@ describe('Model.hasMany', function() {
     });
   });
 
+  // TODO: add/remove/clear/create should invalidate the cache of
+  // user.articleObjects and user.articles.
+
   describe('helpers', function() {
     it('allows create', function() {
       var article = user.createArticle({ title: 'Hello' });
