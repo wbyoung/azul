@@ -111,7 +111,7 @@ describe('Model.hasMany', function() {
           { id: 5, title: 'Node.js ORM', 'author_id': 1 },
           { id: 9, title: 'Delicious Pancakes', 'author_id': 2 },
           { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
-          { id: 5, title: 'Tasty Kale Salad', 'author_id': 2 },
+          { id: 4, title: 'Tasty Kale Salad', 'author_id': 2 },
           { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
         ]
       });
