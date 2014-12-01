@@ -132,8 +132,8 @@ describe('Model.belongsTo', function() {
       var promise = article.storeAuthor(user);
 
       // these are set after the promise is executed
-      expect(user.articleId).to.not.exist;
-      expect(user.article).to.not.exist; // TODO: add to the inverse set?
+      expect(article.authorId).to.not.exist;
+      expect(article.author).to.not.exist; // TODO: add to the inverse set?
 
       promise.then(function() {
         expect(article.authorId).to.eql(user.id);
@@ -146,6 +146,35 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it('allows store with unsaved object');
+    it.skip('allows store with unsaved object', function(done) {
+      var user = User.create({ username: 'jack' });
+      article.author = user;
+      var promise = article.save();
+
+      // TODO: when do we want the following values to be set altered? before
+      // or after the save of the article?
+      //   - article.author
+      //   - article.authorId
+      //   - article.attrs.author_id
+      //   - user.articles << article
+      // TODO: what happens when there is an error during the save? do the
+      // values get reverted?
+      // these are set after the promise is executed
+      // expect(article.authorId).to.not.exist;
+      // expect(article.author).to.not.exist;
+
+      promise.then(function() {
+        // TODO: see above
+        // expect(article.authorId).to.eql(user.id);
+        // expect(article.author).to.equal(user);
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "users" ("username") VALUES (?) ' +
+           'RETURNING "id" = ?', ['jack']],
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" = ?', [1, 5]]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 });
