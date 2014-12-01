@@ -207,13 +207,13 @@ describe('Model.hasMany', function() {
 
     it('allows add with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
-      var query = user.addArticle(article);
+      var promise = user.addArticle(article);
 
-      // these are set after the query is executed
+      // these are set after the promise is executed
       expect(article.authorId).to.not.exist;
       expect(article.author).to.not.exist;
 
-      query.then(function() {
+      promise.then(function() {
         expect(article.authorId).to.eql(user.id);
         expect(article.author).to.equal(user);
         expect(adapter.executedSQL()).to.eql([
@@ -242,13 +242,13 @@ describe('Model.hasMany', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       article.authorId = user.id;
       article.author = user;
-      var query = user.removeArticle(article);
+      var promise = user.removeArticle(article);
 
-      // these are set after the query is executed
+      // these are set after the promise is executed
       expect(article.authorId).to.exist;
       expect(article.author).to.exist;
 
-      query.then(function() {
+      promise.then(function() {
         expect(article.authorId).to.not.exist;
         expect(article.author).to.not.exist;
         expect(adapter.executedSQL()).to.eql([
