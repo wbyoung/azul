@@ -221,6 +221,7 @@ describe('Model.hasMany', function() {
       expect(function() {
         user.articles;
       }).to.throw(/articles.*not yet.*loaded/i);
+      expect(article).to.exist;
     });
 
     it('updates collection cache during create', function(done) {
@@ -234,10 +235,11 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('clears relation cache during create', function() {
+    it('clears query cache during create', function() {
       var articleObjects = user.articleObjects;
       var article = user.createArticle({ title: 'Hello' });
       expect(user.articleObjects).to.not.equal(articleObjects);
+      expect(article).to.exist;
     });
 
     it('allows add with existing objects', function(done) {
@@ -284,7 +286,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('clears relation cache during add', function(done) {
+    it('clears query cache during add', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       var articleObjects = user.articleObjects;
       articleObjects.fetch().then(function() {
@@ -343,7 +345,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('clears relation cache during remove', function(done) {
+    it('clears query cache during remove', function(done) {
       var articleObjects = user.articleObjects;
       articleObjects.fetch().then(function() {
         return user.removeArticle(user.articles[0]);
@@ -373,7 +375,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('clears relation cache during clear', function(done) {
+    it('clears query cache during clear', function(done) {
       var articleObjects = user.articleObjects;
       articleObjects.fetch().then(function() {
         return user.clearArticles();
