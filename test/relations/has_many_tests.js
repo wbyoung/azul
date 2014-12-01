@@ -92,7 +92,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('works with multiple users each authoring multiple articles', function(done) {
+    it('works with multiple models each having multiple related objects', function(done) {
       var usersRegex = /select.*from "users".*order by "id"/i;
       var articleRegex =
         /select.*from "articles" where "author_id" in \(\?, \?, \?\)/i;
@@ -136,7 +136,7 @@ describe('Model.hasMany', function() {
 
   describe('relation', function() {
 
-    it('fetches articles', function(done) {
+    it('fetches related objects', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorId: 1 })
@@ -152,7 +152,7 @@ describe('Model.hasMany', function() {
       expect(user.articleObjects).to.equal(articleObjects);
     });
 
-    it('throws when attempting to access un-loaded articles', function() {
+    it('throws when attempting to access un-loaded collection', function() {
       expect(function() {
         user.articles;
       }).to.throw(/articles.*not yet.*loaded/i);
@@ -169,7 +169,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('allows access loaded articles', function(done) {
+    it('allows access loaded collection', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorId: 1 })
