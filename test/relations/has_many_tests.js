@@ -93,7 +93,10 @@ describe('Model.hasMany', function() {
     });
 
     it('works with multiple users each authoring multiple articles', function(done) {
-      adapter.intercept(/select.*from "users".*order by "id"/i, {
+      var usersRegex = /select.*from "users".*order by "id"/i;
+      var articleRegex =
+        /select.*from "articles" where "author_id" in \(\?, \?, \?\)/i;
+      adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
           { id: 1, username: 'wbyoung' },
@@ -101,7 +104,7 @@ describe('Model.hasMany', function() {
           { id: 4, username: 'sam' },
         ]
       });
-      adapter.intercept(/select.*from "articles"/i, {
+      adapter.intercept(articleRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
           { id: 3, title: 'Announcing Azul', 'author_id': 1 },
