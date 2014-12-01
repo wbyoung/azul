@@ -208,15 +208,36 @@ describe('Model.hasMany', function() {
     });
   });
 
-  // TODO: create should maybe invalidate the cache of
-  // user.articleObjects and user.articles.
-
   describe('helpers', function() {
     it('allows create', function() {
       var article = user.createArticle({ title: 'Hello' });
       expect(article.authorId).to.eql(user.id);
       expect(article.author).to.equal(user);
       expect(article).to.to.be.an.instanceOf(Article.__class__);
+    });
+
+    it('does not create collection cache during create', function() {
+      var article = user.createArticle({ title: 'Hello' });
+      expect(function() {
+        user.articles;
+      }).to.throw(/articles.*not yet.*loaded/i);
+    });
+
+    it('updates collection cache during create', function(done) {
+      var article;
+      user.articleObjects.fetch().then(function() {
+        article = user.createArticle({ title: 'Hello' });
+      })
+      .then(function() {
+        expect(user.articles).to.contain(article);
+      })
+      .done(done, done);
+    });
+
+    it('clears relation cache during create', function() {
+      var articleObjects = user.articleObjects;
+      var article = user.createArticle({ title: 'Hello' });
+      expect(user.articleObjects).to.not.equal(articleObjects);
     });
 
     it('allows add with existing objects', function(done) {
