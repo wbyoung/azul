@@ -158,6 +158,17 @@ describe('Model.hasMany', function() {
       }).to.throw(/articles.*not yet.*loaded/i);
     });
 
+    it('does not consider relation loaded when fetched on a duplicated query', function(done) {
+      articleObjects.clone().fetch().then(function() {
+        return user.articles;
+      })
+      .throw(new Error('Expected access to relation to fail.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/articles.*not yet.*loaded/i);
+      })
+      .done(done, done);
+    });
+
     it('allows access loaded articles', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
@@ -197,7 +208,7 @@ describe('Model.hasMany', function() {
     });
   });
 
-  // TODO: add/remove/clear/create should invalidate the cache of
+  // TODO: create should maybe invalidate the cache of
   // user.articleObjects and user.articles.
 
   describe('helpers', function() {
@@ -241,6 +252,29 @@ describe('Model.hasMany', function() {
 
     it('allows add with unsaved objects');
 
+    it('updates collection cache during add', function(done) {
+      var article = Article.fresh({ id: 5, title: 'Hello' });
+      user.articleObjects.fetch().then(function() {
+        return user.addArticle(article);
+      })
+      .then(function() {
+        expect(user.articles).to.contain(article);
+      })
+      .done(done, done);
+    });
+
+    it('clears relation cache during add', function(done) {
+      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var articleObjects = user.articleObjects;
+      articleObjects.fetch().then(function() {
+        return user.addArticle(article);
+      })
+      .then(function() {
+        expect(user.articleObjects).to.not.equal(articleObjects);
+      })
+      .done(done, done);
+    });
+
     it('allows remove with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       article.authorId = user.id;
@@ -276,11 +310,55 @@ describe('Model.hasMany', function() {
 
     it('allows remove with unsaved objects');
 
+    it('updates collection cache during remove', function(done) {
+      var article;
+      user.articleObjects.fetch().then(function() {
+        article = user.articles[0];
+        return user.removeArticle(article);
+      })
+      .then(function() {
+        expect(user.articles).to.not.contain(article);
+      })
+      .done(done, done);
+    });
+
+    it('clears relation cache during remove', function(done) {
+      var articleObjects = user.articleObjects;
+      articleObjects.fetch().then(function() {
+        return user.removeArticle(user.articles[0]);
+      })
+      .then(function() {
+        expect(user.articleObjects).to.not.equal(articleObjects);
+      })
+      .done(done, done);
+    });
+
     it('allows clear', function(done) {
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
         ]);
+      })
+      .done(done, done);
+    });
+
+    it('updates collection cache during clear', function(done) {
+      user.articleObjects.fetch().then(function() {
+        return user.clearArticles();
+      })
+      .then(function() {
+        expect(user.articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
+    it('clears relation cache during clear', function(done) {
+      var articleObjects = user.articleObjects;
+      articleObjects.fetch().then(function() {
+        return user.clearArticles();
+      })
+      .then(function() {
+        expect(user.articleObjects).to.not.equal(articleObjects);
       })
       .done(done, done);
     });
