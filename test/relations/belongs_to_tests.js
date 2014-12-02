@@ -141,9 +141,8 @@ describe('Model.belongsTo', function() {
   });
 
   describe('helpers', function() {
-    it.skip('allows create', function() {
+    it('allows create', function() {
       var user = article.createAuthor({ username: 'jill' });
-      expect(user.articleId).to.eql(article.id);
       expect(article.author).to.equal(user);
       expect(user).to.to.be.an.instanceOf(User.__class__);
     });
