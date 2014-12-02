@@ -34,7 +34,7 @@ describe('Model.belongsTo', function() {
   });
 
   beforeEach(function() {
-    article = Article.fresh({ id: 1, authorId: 1 });
+    article = Article.fresh({ id: 1, title: 'Azul News', authorId: 1 });
   });
 
   beforeEach(function() {
@@ -147,13 +147,12 @@ describe('Model.belongsTo', function() {
       expect(user).to.to.be.an.instanceOf(User.__class__);
     });
 
-    it.skip('allows store with existing object', function(done) {
-      var user = User.fresh({ username: 'jack' });
-      var promise = article.storeAuthor(user);
-      promise.then(function() {
+    it('allows store with existing object', function(done) {
+      article.author = User.fresh({ id: 3, username: 'jack' });
+      article.save().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
-           'WHERE "id" = ?', [1, 5]]
+          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Azul News', 3, 1]]
         ]);
       })
       .done(done, done);
