@@ -79,13 +79,13 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it.skip('caches related objects', function(done) {
+    it('caches related objects', function(done) {
       Article.objects.with('author').fetch().get('0').then(function(foundArticle) {
-        expect(foundArticle.id).to.eql(1);
-        expect(foundArticle.authorId).to.eql(1);
-        expect(foundArticle.author).to.eql([
-          User.fresh({ id: 1, username: 'wbyoung' })
-        ]);
+        expect(foundArticle.id).to.eql(448);
+        expect(foundArticle.authorId).to.eql(623);
+        expect(foundArticle.author).to.eql(
+          User.fresh({ id: 623, username: 'wbyoung' })
+        );
       })
       .done(done, done);
     });
