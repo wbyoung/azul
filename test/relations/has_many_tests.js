@@ -51,6 +51,15 @@ describe('Model.hasMany', function() {
     });
   });
 
+  describe('definition', function() {
+    it('does not need to provide name', function() {
+      User.reopen({
+        books: db.Model.hasMany()
+      });
+      expect(user.booksRelation._relatedModel).to.eql(db.model('book'));
+    });
+  });
+
   it('has related methods', function() {
     expect(User.__class__.prototype).to.have.ownProperty('articles');
     expect(user).to.have.property('articleObjects');

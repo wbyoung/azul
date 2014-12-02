@@ -52,6 +52,15 @@ describe('Model.belongsTo', function() {
     });
   });
 
+  describe('definition', function() {
+    it('does not need to provide name', function() {
+      Article.reopen({
+        user: db.Model.belongsTo()
+      });
+      expect(article.userRelation._relatedModel).to.eql(db.model('user'));
+    });
+  });
+
   it('has related methods', function() {
     expect(Article.__class__.prototype).to.have.ownProperty('author');
     expect(Article.__class__.prototype).to.have.ownProperty('authorId');
