@@ -78,7 +78,10 @@ describe('Model.belongsTo', function() {
     });
 
     it.skip('works with multiple articles each authored by multiple users', function(done) {
-      adapter.intercept(/select.*from "articles".*order by "id"/i, {
+      var articlesRegex = /select.*from "articles".*order by "id"/i;
+      var usersRegex =
+        /select.*from "users" where "author_id" in \(\?, \?, \?\)/i;
+      adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
           { id: 3, title: 'Announcing Azul', 'author_id': 1 },
@@ -89,7 +92,7 @@ describe('Model.belongsTo', function() {
           { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
         ]
       });
-      adapter.intercept(/select.*from "users"/i, { // TODO: add where id in?
+      adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
           { id: 1, username: 'wbyoung' },
