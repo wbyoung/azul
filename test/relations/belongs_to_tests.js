@@ -50,9 +50,9 @@ describe('Model.belongsTo', function() {
 
   it('has related methods', function() {
     expect(Article.__class__.prototype).to.have.ownProperty('author');
+    expect(Article.__class__.prototype).to.have.ownProperty('authorId');
     expect(article).to.respondTo('fetchAuthor');
     expect(article).to.respondTo('setAuthor');
-    expect(article).to.respondTo('storeAuthor');
   });
 
   describe('pre-fetch', function() {
