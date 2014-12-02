@@ -34,17 +34,17 @@ describe('Model.belongsTo', function() {
   });
 
   beforeEach(function() {
-    article = Article.fresh({ id: 1, title: 'Azul News', authorId: 1 });
+    article = Article.fresh({ id: 932, title: 'Azul News', authorId: 623 });
   });
 
   beforeEach(function() {
     adapter.intercept(/select.*from "users"/i, {
       fields: ['id', 'username'],
-      rows: [{ id: 1, username: 'wbyoung' }]
+      rows: [{ id: 623, username: 'wbyoung' }]
     });
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
-      rows: [{ id: 1, title: 'Journal', 'author_id': 1 }]
+      rows: [{ id: 448, title: 'Journal', 'author_id': 623 }]
     });
   });
 
@@ -60,7 +60,7 @@ describe('Model.belongsTo', function() {
       Article.objects.with('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles"', []],
-          ['SELECT * FROM "users" WHERE "id" = ?', [1]]
+          ['SELECT * FROM "users" WHERE "id" = ?', [623]]
         ]);
       })
       .done(done, done);
@@ -118,9 +118,9 @@ describe('Model.belongsTo', function() {
 
     it('fetches related object', function(done) {
       article.fetchAuthor().then(function(user) {
-        expect(user.attrs).to.eql({ id: 1, username: 'wbyoung' });
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "id" = ?', [1]]
+          ['SELECT * FROM "users" WHERE "id" = ?', [623]]
         ]);
       })
       .done(done, done);
@@ -134,7 +134,7 @@ describe('Model.belongsTo', function() {
 
     it('allows access loaded item', function(done) {
       article.fetchAuthor().then(function() {
-        expect(article.author.attrs).to.eql({ id: 1, username: 'wbyoung' });
+        expect(article.author.attrs).to.eql({ id: 623, username: 'wbyoung' });
       })
       .done(done, done);
     });
@@ -152,7 +152,7 @@ describe('Model.belongsTo', function() {
       article.save().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-           'WHERE "id" = ?', ['Azul News', 3, 1]]
+           'WHERE "id" = ?', ['Azul News', 3, 932]]
         ]);
       })
       .done(done, done);
