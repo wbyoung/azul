@@ -125,7 +125,35 @@ describe('Model.belongsTo', function() {
       })
       .done(done, done);
     });
+
+    it('works when the related value is sometimes absent', function(done) {
+      var articlesRegex = /select.*from "articles".*order by "id"/i;
+      var usersRegex = /select.*from "users" where "id" in \(\?, \?\)/i;
+      adapter.intercept(articlesRegex, {
+        fields: ['id', 'title', 'author_id'],
+        rows: [
+          { id: 3, title: 'Announcing Azul', 'author_id': 874 },
+          { id: 4, title: 'Tasty Kale Salad', 'author_id': null },
+          { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
+        ]
+      });
+      adapter.intercept(usersRegex, {
+        fields: ['id', 'username'],
+        rows: [{ id: 874, username: 'wbyoung' }]
+      });
+
+      Article.objects.with('author').orderBy('id').fetch().then(function(articles) {
+        expect(_(articles).map('title').value()).to.eql([
+          'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System'
+        ]);
+        expect(_.map(articles, 'author')).to.eql([
+          User.fresh({ id: 874, username: 'wbyoung' }), null, null
+        ]);
+      })
+      .done(done, done);
+    });
   });
+
 
   describe('relation', function() {
 
