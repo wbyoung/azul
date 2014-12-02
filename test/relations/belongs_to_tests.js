@@ -46,6 +46,10 @@ describe('Model.belongsTo', function() {
       fields: ['id', 'title'],
       rows: [{ id: 448, title: 'Journal', 'author_id': 623 }]
     });
+    adapter.intercept(/insert into "users"/i, {
+      fields: ['id'],
+      rows: [{ id: 838 }]
+    });
   });
 
   it('has related methods', function() {
@@ -158,7 +162,7 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it.skip('allows store with unsaved object', function(done) {
+    it('allows store with unsaved object', function(done) {
       // this will require allowing relations to get involved in the save
       // process for instances. in this case, it will require that when the
       // author is saved, that the relation is able to override the save method
@@ -169,9 +173,9 @@ describe('Model.belongsTo', function() {
       article.save().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['INSERT INTO "users" ("username") VALUES (?) ' +
-           'RETURNING "id" = ?', ['jack']],
+           'RETURNING "id"', ['jack']],
           ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-           'WHERE "id" = ?', ['Azul News', 3, 1]]
+           'WHERE "id" = ?', ['Azul News', 838, 932]]
         ]);
       })
       .done(done, done);

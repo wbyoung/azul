@@ -95,6 +95,10 @@ describe('Model.hasMany + Model.belongsTo', function() {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: 'Journal', 'author_id': 1 }]
     });
+    adapter.intercept(/insert into "users"/i, {
+      fields: ['id'],
+      rows: [{ id: 43 }]
+    });
   });
 
   describe('when creating via belongsTo', function() {
