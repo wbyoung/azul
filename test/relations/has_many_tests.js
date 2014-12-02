@@ -27,7 +27,7 @@ describe('Model.hasMany', function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      authorId: attr('author_id') // placeholder for belongTo
+      authorId: attr('author_id') // fake belongTo
     });
     User = db.model('user').reopen({
       username: attr(),
