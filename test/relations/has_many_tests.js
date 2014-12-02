@@ -23,12 +23,11 @@ describe('Model.hasMany', function() {
 
     var Model = db.Model;
     var hasMany = Model.hasMany;
-    var belongsTo = Model.belongsTo;
     var attr = Model.attr;
 
     Article = db.Model.extend({
       title: attr(),
-      author: belongsTo(User)
+      authorId: attr('author_id') // placeholder for belongTo
     });
     User = db.Model.extend({
       username: attr(),
