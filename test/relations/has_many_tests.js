@@ -87,7 +87,7 @@ describe('Model.hasMany', function() {
 
     it('works with multiple models each having multiple related objects', function(done) {
       var usersRegex = /select.*from "users".*order by "id"/i;
-      var articleRegex =
+      var articlesRegex =
         /select.*from "articles" where "author_id" in \(\?, \?, \?\)/i;
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
@@ -97,7 +97,7 @@ describe('Model.hasMany', function() {
           { id: 4, username: 'sam' },
         ]
       });
-      adapter.intercept(articleRegex, {
+      adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
           { id: 3, title: 'Announcing Azul', 'author_id': 1 },
