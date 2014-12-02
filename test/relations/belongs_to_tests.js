@@ -21,17 +21,15 @@ describe('Model.belongsTo', function() {
     db = Database.create({ adapter: adapter });
 
     var Model = db.Model;
-    var hasMany = Model.hasMany;
     var belongsTo = Model.belongsTo;
     var attr = Model.attr;
 
+    User = db.Model.extend({
+      username: attr()
+    });
     Article = db.Model.extend({
       title: attr(),
       author: belongsTo(User)
-    });
-    User = db.Model.extend({
-      username: attr(),
-      articles: hasMany(Article, { inverse: 'author' })
     });
 
     // name the classes as late as possible to ensure we're not locking in
@@ -42,7 +40,7 @@ describe('Model.belongsTo', function() {
   });
 
   beforeEach(function() {
-    article = Article.fresh({ id: 1 });
+    article = Article.fresh({ id: 1, authorId: 1 });
   });
 
   beforeEach(function() {
@@ -114,6 +112,32 @@ describe('Model.belongsTo', function() {
         expect(_(articles).map('author').map('username').value()).to.eql([
           'wbyoung', 'kate', 'wbyoung', 'sam', 'kate', 'kate'
         ]);
+      })
+      .done(done, done);
+    });
+  });
+
+  describe('relation', function() {
+
+    it('fetches related object', function(done) {
+      article.fetchAuthor().then(function(user) {
+        expect(user.attrs).to.eql({ id: 1, username: 'wbyoung' });
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" WHERE "id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('throws when attempting to access un-loaded item', function() {
+      expect(function() {
+        article.author;
+      }).to.throw(/author.*not yet.*loaded/i);
+    });
+
+    it('allows access loaded item', function(done) {
+      article.fetchAuthor().then(function() {
+        expect(article.author.attrs).to.eql({ id: 1, username: 'wbyoung' });
       })
       .done(done, done);
     });
