@@ -163,11 +163,6 @@ describe('Model.belongsTo', function() {
     });
 
     it('allows store with unsaved object', function(done) {
-      // this will require allowing relations to get involved in the save
-      // process for instances. in this case, it will require that when the
-      // author is saved, that the relation is able to override the save method
-      // to first save the author. this could be an override or it could be
-      // done via some other system.
       var user = User.create({ username: 'jack' });
       article.author = user;
       article.save().then(function() {
