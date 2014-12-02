@@ -204,6 +204,7 @@ describe('Model.hasMany', function() {
   describe('helpers', function() {
     it('allows create', function() {
       var article = user.createArticle({ title: 'Hello' });
+      // TODO: remove this one line once inverse_tests are working
       expect(article.authorId).to.eql(user.id);
       expect(article.author).to.equal(user);
       expect(article).to.to.be.an.instanceOf(Article.__class__);
@@ -239,11 +240,13 @@ describe('Model.hasMany', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       var promise = user.addArticle(article);
 
+      // TODO: remove these once inverse_tests are working
       // these are set after the promise is executed
       expect(article.authorId).to.not.exist;
       expect(article.author).to.not.exist;
 
       promise.then(function() {
+        // TODO: remove these once inverse_tests are working
         expect(article.authorId).to.eql(user.id);
         expect(article.author).to.equal(user);
         expect(adapter.executedSQL()).to.eql([
@@ -297,11 +300,13 @@ describe('Model.hasMany', function() {
       article.author = user;
       var promise = user.removeArticle(article);
 
+      // TODO: remove these once inverse_tests are working
       // these are set after the promise is executed
       expect(article.authorId).to.exist;
       expect(article.author).to.exist;
 
       promise.then(function() {
+        // TODO: remove these once inverse_tests are working
         expect(article.authorId).to.not.exist;
         expect(article.author).to.not.exist;
         expect(adapter.executedSQL()).to.eql([
