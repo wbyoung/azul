@@ -25,20 +25,14 @@ describe('Model.hasMany', function() {
     var hasMany = Model.hasMany;
     var attr = Model.attr;
 
-    Article = db.Model.extend({
+    Article = db.model('article').reopen({
       title: attr(),
       authorId: attr('author_id') // placeholder for belongTo
     });
-    User = db.Model.extend({
+    User = db.model('user').reopen({
       username: attr(),
       articles: hasMany(Article, { inverse: 'author' })
     });
-
-    // name the classes as late as possible to ensure we're not locking in
-    // anything based on the class name. all information should be computed
-    // from property names or delayed until the time of access to the db.
-    Article.reopenClass({ __name__: 'Article' });
-    User.reopenClass({ __name__: 'User' });
   });
 
   beforeEach(function() {

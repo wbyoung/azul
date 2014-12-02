@@ -24,19 +24,13 @@ describe('Model.belongsTo', function() {
     var belongsTo = Model.belongsTo;
     var attr = Model.attr;
 
-    User = db.Model.extend({
+    Article = db.model('article').reopen({
+      title: attr(),
+      author: belongsTo('user')
+    });
+    User = db.model('user').reopen({
       username: attr()
     });
-    Article = db.Model.extend({
-      title: attr(),
-      author: belongsTo(User)
-    });
-
-    // name the classes as late as possible to ensure we're not locking in
-    // anything based on the class name. all information should be computed
-    // from property names or delayed until the time of access to the db.
-    Article.reopenClass({ __name__: 'Article' });
-    User.reopenClass({ __name__: 'User' });
   });
 
   beforeEach(function() {
