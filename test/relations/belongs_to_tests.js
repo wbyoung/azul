@@ -56,7 +56,7 @@ describe('Model.belongsTo', function() {
   });
 
   describe('pre-fetch', function() {
-    it.skip('executes multiple queries', function(done) {
+    it('executes multiple queries', function(done) {
       Article.objects.with('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles"', []],
