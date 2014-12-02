@@ -90,27 +90,27 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it.skip('works with multiple articles each authored by multiple users', function(done) {
+    it('works with models each having multiple related objects', function(done) {
       var articlesRegex = /select.*from "articles".*order by "id"/i;
       var usersRegex =
-        /select.*from "users" where "author_id" in \(\?, \?, \?\)/i;
+        /select.*from "users" where "id" in \(\?, \?, \?\)/i;
       adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
           { id: 3, title: 'Announcing Azul', 'author_id': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_id': 1 },
-          { id: 9, title: 'Delicious Pancakes', 'author_id': 2 },
-          { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
           { id: 4, title: 'Tasty Kale Salad', 'author_id': 2 },
+          { id: 5, title: 'Node.js ORM', 'author_id': 1 },
           { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
+          { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
+          { id: 9, title: 'Delicious Pancakes', 'author_id': 2 }
         ]
       });
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
           { id: 1, username: 'wbyoung' },
-          { id: 2, username: 'kate' },
           { id: 4, username: 'sam' },
+          { id: 2, username: 'kate' }
         ]
       });
 
