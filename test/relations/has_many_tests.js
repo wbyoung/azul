@@ -394,6 +394,9 @@ describe('Model.hasMany', function() {
     });
 
     it('allows clear', function(done) {
+      // TODO: this was not what was originally intended, but is still good
+      // functionality. it was intended to d:
+      // UPDATE "articles" SET "author_num" = null WHERE "author_num" = 1
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['DELETE FROM "articles" WHERE "author_num" = ?', [1]]
