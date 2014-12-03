@@ -23,7 +23,8 @@ var shared = {};
 
 shared.storeExistingAuthor = function(done) {
   storedAuthor = User.fresh({ id: 5, username: 'jack' });
-  var promise = article.storeAuthor(storedAuthor);
+  article.author = storedAuthor;
+  var promise = article.save();
 
   // TODO: see comments below about expectations here
   // expect(article.authorId).to.not.exist;
@@ -196,7 +197,7 @@ describe('Model.hasMany+belongsTo', function() {
     describe('when storing existing object via belongsTo', function() {
       beforeEach(shared.storeExistingAuthor);
 
-      it.skip('does not load hasMany collection cache', function() {
+      it('does not load hasMany collection cache', function() {
         expect(function() {
           user.articles;
         }).to.throw(/articles.*not yet.*loaded/i);
