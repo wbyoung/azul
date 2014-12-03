@@ -117,6 +117,10 @@ describe('Model.hasMany + Model.belongsTo', function() {
       createdArticle = user.createArticle({ title: 'Hello' });
     });
 
+    it('creates an object of the correct type', function() {
+      expect(createdArticle).to.to.be.an.instanceOf(Article.__class__);
+    });
+
     it('sets inverse/belongsTo attribute', function() {
       expect(createdArticle.author).to.equal(user);
     });

@@ -26,11 +26,11 @@ describe('Model.hasMany', function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      authorId: attr('author_id') // fake belongTo
+      authorKey: attr('author_num') // easy access to foreign key attr
     });
     User = db.model('user').reopen({
       username: attr(),
-      articles: hasMany(Article, { inverse: 'author' })
+      articles: hasMany(Article, { foreignKey: 'author_num' })
     });
   });
 
@@ -46,7 +46,7 @@ describe('Model.hasMany', function() {
     });
     adapter.intercept(/select.*from "articles"/i, {
       fields: ['id', 'title'],
-      rows: [{ id: 1, title: 'Journal', 'author_id': 1 }]
+      rows: [{ id: 1, title: 'Journal', 'author_num': 1 }]
     });
   });
 
@@ -56,6 +56,13 @@ describe('Model.hasMany', function() {
         books: db.Model.hasMany()
       });
       expect(user.booksRelation._relatedModel).to.eql(db.model('book'));
+    });
+
+    it('calculates foreign key from inverse', function() {
+      User.reopen({
+        books: db.Model.hasMany({ inverse: 'writer' })
+      });
+      expect(user.booksRelation.foreignKey).to.eql('writer_id');
     });
   });
 
@@ -76,7 +83,7 @@ describe('Model.hasMany', function() {
       User.objects.with('articles').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users"', []],
-          ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
+          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -87,7 +94,7 @@ describe('Model.hasMany', function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorId: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
       })
       .done(done, done);
@@ -96,7 +103,7 @@ describe('Model.hasMany', function() {
     it('works with multiple models each having multiple related objects', function(done) {
       var usersRegex = /select.*from "users".*order by "id"/i;
       var articlesRegex =
-        /select.*from "articles" where "author_id" in \(\?, \?, \?\)/i;
+        /select.*from "articles" where "author_num" in \(\?, \?, \?\)/i;
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
@@ -106,14 +113,14 @@ describe('Model.hasMany', function() {
         ]
       });
       adapter.intercept(articlesRegex, {
-        fields: ['id', 'title', 'author_id'],
+        fields: ['id', 'title', 'author_num'],
         rows: [
-          { id: 3, title: 'Announcing Azul', 'author_id': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_id': 1 },
-          { id: 9, title: 'Delicious Pancakes', 'author_id': 2 },
-          { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
-          { id: 4, title: 'Tasty Kale Salad', 'author_id': 2 },
-          { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
+          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+          { id: 9, title: 'Delicious Pancakes', 'author_num': 2 },
+          { id: 8, title: 'Awesome Margaritas', 'author_num': 2 },
+          { id: 4, title: 'Tasty Kale Salad', 'author_num': 2 },
+          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
         ]
       });
 
@@ -140,10 +147,10 @@ describe('Model.hasMany', function() {
     it('fetches related objects', function(done) {
       articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorId: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "author_id" = ?', [1]]
+          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -173,7 +180,7 @@ describe('Model.hasMany', function() {
     it('allows access loaded collection', function(done) {
       articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorId: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
       })
       .done(done, done);
@@ -182,7 +189,7 @@ describe('Model.hasMany', function() {
     it('can be filtered', function(done) {
       articleObjects.where({ title: 'Azul' }).fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE ("author_id" = ?) AND ' +
+          ['SELECT * FROM "articles" WHERE ("author_num" = ?) AND ' +
            '"title" = ?', [1, 'Azul']]
         ]);
       })
@@ -193,7 +200,7 @@ describe('Model.hasMany', function() {
       articleObjects.update({ title: 'Azul' }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "title" = ? ' +
-           'WHERE "author_id" = ?', ['Azul', 1]]
+           'WHERE "author_num" = ?', ['Azul', 1]]
         ]);
       })
       .done(done, done);
@@ -202,7 +209,7 @@ describe('Model.hasMany', function() {
     it('allows delete', function(done) {
       articleObjects.delete().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+          ['DELETE FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -212,9 +219,7 @@ describe('Model.hasMany', function() {
   describe('helpers', function() {
     it('allows create', function() {
       var article = user.createArticle({ title: 'Hello' });
-      // TODO: remove this one line once inverse_tests are working
-      expect(article.authorId).to.eql(user.id);
-      expect(article.author).to.equal(user);
+      expect(article.authorKey).to.eql(user.id);
       expect(article).to.to.be.an.instanceOf(Article.__class__);
     });
 
@@ -250,15 +255,15 @@ describe('Model.hasMany', function() {
 
       // TODO: remove these once inverse_tests are working
       // these are set after the promise is executed
-      expect(article.authorId).to.not.exist;
-      expect(article.author).to.not.exist;
+      // expect(article.authorKey).to.not.exist;
+      // expect(article.author).to.not.exist;
 
       promise.then(function() {
         // TODO: remove these once inverse_tests are working
-        expect(article.authorId).to.eql(user.id);
-        expect(article.author).to.equal(user);
+        // expect(article.authorKey).to.eql(user.id);
+        // expect(article.author).to.equal(user);
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
+          ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [1, 5]]
         ]);
       })
@@ -270,7 +275,7 @@ describe('Model.hasMany', function() {
       var article2 = Article.fresh({ id: 8, title: 'Hello' });
       user.addArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
+          ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [1, 5, 8]]
         ]);
       })
@@ -304,21 +309,21 @@ describe('Model.hasMany', function() {
 
     it('allows remove with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
-      article.authorId = user.id;
+      article.authorKey = user.id;
       article.author = user;
       var promise = user.removeArticle(article);
 
       // TODO: remove these once inverse_tests are working
       // these are set after the promise is executed
-      expect(article.authorId).to.exist;
-      expect(article.author).to.exist;
+      // expect(article.authorKey).to.exist;
+      // expect(article.author).to.exist;
 
       promise.then(function() {
         // TODO: remove these once inverse_tests are working
-        expect(article.authorId).to.not.exist;
-        expect(article.author).to.not.exist;
+        // expect(article.authorKey).to.not.exist;
+        // expect(article.author).to.not.exist;
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
+          ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [undefined, 5]]
         ]);
       })
@@ -330,7 +335,7 @@ describe('Model.hasMany', function() {
       var article2 = Article.fresh({ id: 8, title: 'Hello' });
       user.removeArticles(article1, article2).then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
+          ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [undefined, 5, 8]]
         ]);
       })
@@ -365,7 +370,7 @@ describe('Model.hasMany', function() {
     it('allows clear', function(done) {
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['DELETE FROM "articles" WHERE "author_id" = ?', [1]]
+          ['DELETE FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
