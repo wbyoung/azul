@@ -251,17 +251,7 @@ describe('Model.hasMany', function() {
 
     it('allows add with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
-      var promise = user.addArticle(article);
-
-      // TODO: remove these once inverse_tests are working
-      // these are set after the promise is executed
-      // expect(article.authorKey).to.not.exist;
-      // expect(article.author).to.not.exist;
-
-      promise.then(function() {
-        // TODO: remove these once inverse_tests are working
-        // expect(article.authorKey).to.eql(user.id);
-        // expect(article.author).to.equal(user);
+      user.addArticle(article).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [1, 5]]
@@ -308,20 +298,8 @@ describe('Model.hasMany', function() {
     });
 
     it('allows remove with existing objects', function(done) {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
-      article.authorKey = user.id;
-      article.author = user;
-      var promise = user.removeArticle(article);
-
-      // TODO: remove these once inverse_tests are working
-      // these are set after the promise is executed
-      // expect(article.authorKey).to.exist;
-      // expect(article.author).to.exist;
-
-      promise.then(function() {
-        // TODO: remove these once inverse_tests are working
-        // expect(article.authorKey).to.not.exist;
-        // expect(article.author).to.not.exist;
+      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
+      user.removeArticle(article).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [undefined, 5]]
