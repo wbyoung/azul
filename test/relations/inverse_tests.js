@@ -16,6 +16,7 @@ var db,
   article,
   articleObjects;
 
+var createdArticle;
 var createdAuthor;
 var storedAuthor;
 var shared = {};
@@ -110,6 +111,17 @@ describe('Model.hasMany + Model.belongsTo', function() {
     it.skip('creates hasMany collection cache', function() {
       expect(createdAuthor.articles).to.eql([article]);
     });
+  });
+
+  describe('when creating via hasMany', function() {
+    beforeEach(function() {
+      createdArticle = user.createArticle({ title: 'Hello' });
+    });
+
+    it('sets inverse/belongsTo attribute', function() {
+      expect(createdArticle.author).to.equal(user);
+    });
+
   });
 
   describe('when hasMany collection cache is loaded', function() {
