@@ -20,9 +20,8 @@ describe('Model.belongsTo', function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
 
-    var Model = db.Model;
-    var belongsTo = Model.belongsTo;
-    var attr = Model.attr;
+    var belongsTo = db.belongsTo;
+    var attr = db.attr;
 
     Article = db.model('article').reopen({
       title: attr(),

@@ -66,10 +66,9 @@ describe('Model.hasMany + Model.belongsTo', function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
 
-    var Model = db.Model;
-    var hasMany = Model.hasMany;
-    var belongsTo = Model.belongsTo;
-    var attr = Model.attr;
+    var hasMany = db.hasMany;
+    var belongsTo = db.belongsTo;
+    var attr = db.attr;
 
     Article = db.model('article').reopen({
       title: attr(),

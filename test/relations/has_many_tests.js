@@ -21,9 +21,8 @@ describe('Model.hasMany', function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
 
-    var Model = db.Model;
-    var hasMany = Model.hasMany;
-    var attr = Model.attr;
+    var hasMany = db.hasMany;
+    var attr = db.attr;
 
     Article = db.model('article').reopen({
       title: attr(),
