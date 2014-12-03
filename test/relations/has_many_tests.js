@@ -48,6 +48,10 @@ describe('Model.hasMany', function() {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: 'Journal', 'author_num': 1 }]
     });
+    adapter.intercept(/insert into "articles"/i, {
+      fields: ['id'],
+      rows: [{ id: 23 }]
+    });
   });
 
   describe('definition', function() {
@@ -272,7 +276,30 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('allows add with unsaved objects');
+    it('allows add with unsaved objects', function(done) {
+      var article = Article.fresh({ id: 12, title: 'Hello' });
+      article.title = 'Renamed';
+      user.addArticle(article).then(function() {
+        // note that this expectation depends on ordering of object properties
+        // which is not guaranteed to be a stable ordering.
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
+           'WHERE "id" = ?', ['Renamed', 1, 12]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows add with created objects', function(done) {
+      var article = Article.create({ title: 'Hello' });
+      user.addArticle(article).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "articles" ("title", "author_num") VALUES (?, ?) ' +
+           'RETURNING "id"', ['Hello', 1]]
+        ]);
+      })
+      .done(done, done);
+    });
 
     it('updates collection cache during add', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
@@ -320,7 +347,9 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('allows remove with unsaved objects');
+    it.skip('allows remove with unsaved objects', function() {
+
+    });
 
     it('updates collection cache during remove', function(done) {
       var article;
