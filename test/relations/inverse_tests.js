@@ -38,8 +38,22 @@ shared.storeExistingAuthor = function(done) {
   .done(done, done);
 };
 
-shared.storeUnsavedAuthor = function(done) {
+shared.storeCreatedAuthor = function(done) {
   storedAuthor = User.create({ username: 'jack' });
+  article.author = storedAuthor;
+  var promise = article.save();
+
+  // TODO: see comments below about expectations here
+
+  promise.then(function() {
+    // TODO: see comments below about expectations here
+  })
+  .done(done, done);
+};
+
+shared.storeUnsavedAuthor = function(done) {
+  storedAuthor = user;
+  user.username = user.username + '_updated';
   article.author = storedAuthor;
   var promise = article.save();
 
@@ -109,7 +123,7 @@ describe('Model.hasMany+belongsTo', function() {
       createdAuthor = article.createAuthor({ username: 'phil' });
     });
 
-    it.skip('creates hasMany collection cache', function() {
+    it('creates hasMany collection cache', function() {
       expect(createdAuthor.articles).to.eql([article]);
     });
   });
@@ -185,25 +199,31 @@ describe('Model.hasMany+belongsTo', function() {
     });
   });
 
-  describe('when hasMany collection cache is not loaded', function() {
-    describe('when storing existing object via belongsTo', function() {
-      beforeEach(shared.storeExistingAuthor);
+  describe('when storing existing object via belongsTo', function() {
+    beforeEach(shared.storeExistingAuthor);
 
-      it('does not load hasMany collection cache', function() {
-        expect(function() {
-          storedAuthor.articles;
-        }).to.throw(/articles.*not yet.*loaded/i);
-      });
+    it('does not load hasMany collection cache', function() {
+      expect(function() {
+        storedAuthor.articles;
+      }).to.throw(/articles.*not yet.*loaded/i);
     });
+  });
 
-    describe('when storing unsaved object via belongsTo', function() {
-      beforeEach(shared.storeUnsavedAuthor);
+  describe('when storing created object via belongsTo', function() {
+    beforeEach(shared.storeCreatedAuthor);
 
-      it('does not load hasMany collection cache', function() {
-        expect(function() {
-          storedAuthor.articles;
-        }).to.throw(/articles.*not yet.*loaded/i);
-      });
+    it('adds to hasMany collection cache', function() {
+      expect(storedAuthor.articles).to.contain(article);
+    });
+  });
+
+  describe('when storing unsaved object via belongsTo', function() {
+    beforeEach(shared.storeUnsavedAuthor);
+
+    it('does not load hasMany collection cache', function() {
+      expect(function() {
+        storedAuthor.articles;
+      }).to.throw(/articles.*not yet.*loaded/i);
     });
   });
 });
