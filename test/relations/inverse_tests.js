@@ -191,7 +191,7 @@ describe('Model.hasMany+belongsTo', function() {
 
       it('does not load hasMany collection cache', function() {
         expect(function() {
-          user.articles;
+          storedAuthor.articles;
         }).to.throw(/articles.*not yet.*loaded/i);
       });
     });
@@ -201,7 +201,7 @@ describe('Model.hasMany+belongsTo', function() {
 
       it('does not load hasMany collection cache', function() {
         expect(function() {
-          user.articles;
+          storedAuthor.articles;
         }).to.throw(/articles.*not yet.*loaded/i);
       });
     });
