@@ -347,8 +347,27 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it.skip('allows remove with unsaved objects', function() {
+    it.skip('allows remove with unsaved objects', function(done) {
+      var article = Article.fresh({ id: 12, title: 'Hello' });
+      article.title = 'Renamed';
+      user.removeArticle(article).then(function() {
+        // note that this expectation depends on ordering of object properties
+        // which is not guaranteed to be a stable ordering.
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
+           'WHERE "id" = ?', ['Renamed', undefined, 12]]
+        ]);
+      })
+      .done(done, done);
+    });
 
+    it.skip('allows remove with created objects', function(done) {
+      var article = Article.create({ title: 'Hello' });
+      user.removeArticle(article).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+        ]);
+      })
+      .done(done, done);
     });
 
     it('updates collection cache during remove', function(done) {
