@@ -222,8 +222,7 @@ describe('Model', function() {
   });
 
   it('does not perform updates on persisted objects', function(done) {
-    var article = Article.create({ title: 'Azul News' });
-    article.persisted = true;
+    var article = Article.fresh({ title: 'Azul News' });
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([]);
     })
