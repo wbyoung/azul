@@ -130,49 +130,43 @@ describe('Model.hasMany+belongsTo', function() {
 
   describe('when adding existing object via hasMany', function() {
     beforeEach(function(done) {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
       var promise = user.addArticle(article);
 
       // TODO: determine exactly how we want this to work & then add assertions
       // these are set after the promise is executed
-      // expect(article.authorKey).to.not.exist;
+      // expect(article.authorId).to.not.exist;
       // expect(article.author).to.not.exist;
 
-      promise.then(function() {
-        // TODO: see above
-        // expect(article.authorKey).to.eql(user.id);
-        // expect(article.author).to.equal(user);
-      })
-      .done(done, done);
+      promise.done(function() { done(); }, done);
     });
 
-    it('works', function() {
-
+    it('sets foreign key', function() {
+      expect(article.authorId).to.eql(user.id);
+    });
+    it('sets related object', function() {
+      expect(article.author).to.equal(user);
     });
   });
 
   describe('when removing existing object via hasMany', function() {
     beforeEach(function(done) {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
       article.authorId = user.id;
       article.author = user;
       var promise = user.removeArticle(article);
 
       // TODO: determine exactly how we want this to work & then add assertions
       // these are set after the promise is executed
-      // expect(article.authorKey).to.exist;
+      // expect(article.authorId).to.exist;
       // expect(article.author).to.exist;
 
-      promise.then(function() {
-        // TODO: see above
-        // expect(article.authorKey).to.not.exist;
-        // expect(article.author).to.not.exist;
-      })
-      .done(done, done);
+      promise.done(function() { done(); }, done);
     });
 
-    it.skip('works', function() {
-
+    it('clears foreign key', function() {
+      expect(article.authorId).to.not.exist;
+    });
+    it('clears related object', function() {
+      expect(article.author).to.not.exist;
     });
   });
 
