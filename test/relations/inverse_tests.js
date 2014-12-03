@@ -183,14 +183,6 @@ describe('Model.hasMany+belongsTo', function() {
         expect(storedAuthor.articles).to.contain(article);
       });
     });
-
-    describe('when storing unsaved object via belongsTo', function() {
-      beforeEach(shared.storeUnsavedAuthor);
-
-      it.skip('adds to hasMany collection cache', function() {
-        expect(storedAuthor.articles).to.contain(article);
-      });
-    });
   });
 
   describe('when hasMany collection cache is not loaded', function() {
