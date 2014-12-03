@@ -22,7 +22,7 @@ var storedAuthor;
 var shared = {};
 
 shared.storeExistingAuthor = function(done) {
-  storedAuthor = User.fresh({ id: 5, username: 'jack' });
+  storedAuthor = user;
   article.author = storedAuthor;
   var promise = article.save();
 
@@ -179,7 +179,7 @@ describe('Model.hasMany+belongsTo', function() {
     describe('when storing existing object via belongsTo', function() {
       beforeEach(shared.storeExistingAuthor);
 
-      it.skip('adds to hasMany collection cache', function() {
+      it('adds to hasMany collection cache', function() {
         expect(storedAuthor.articles).to.contain(article);
       });
     });
