@@ -5,9 +5,10 @@ var Model = require('../../lib/model');
 
 Model.reopenClass({
   fresh: function() {
-    return _.extend(this.create.apply(this, arguments), {
-      dirty: false,
-      persisted: true
-    });
+    var args = Array.prototype.slice.call(arguments);
+    var data = args.shift();
+    var alteredData = _.extend({ persisted: true }, data);
+    args.unshift(alteredData);
+    return this.create.apply(this, args);
   }
 });
