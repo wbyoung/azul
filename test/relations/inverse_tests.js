@@ -152,7 +152,7 @@ describe('Model.hasMany+belongsTo', function() {
       // expect(article.authorId).to.not.exist;
       // expect(article.author).to.not.exist;
 
-      promise.done(function() { done(); }, done);
+      promise.then(function() { done(); }, done);
     });
 
     it('sets foreign key', function() {
@@ -174,7 +174,7 @@ describe('Model.hasMany+belongsTo', function() {
       // expect(article.authorId).to.exist;
       // expect(article.author).to.exist;
 
-      promise.done(function() { done(); }, done);
+      promise.then(function() { done(); }, done);
     });
 
     it('clears foreign key', function() {

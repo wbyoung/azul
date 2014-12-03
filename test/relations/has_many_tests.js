@@ -347,7 +347,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it.skip('allows remove with unsaved objects', function(done) {
+    it('allows remove with unsaved objects', function(done) {
       var article = Article.fresh({ id: 12, title: 'Hello' });
       article.title = 'Renamed';
       user.removeArticle(article).then(function() {
@@ -361,7 +361,7 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it.skip('allows remove with created objects', function(done) {
+    it('allows remove with created objects', function(done) {
       var article = Article.create({ title: 'Hello' });
       user.removeArticle(article).then(function() {
         expect(adapter.executedSQL()).to.eql([
@@ -394,12 +394,10 @@ describe('Model.hasMany', function() {
     });
 
     it('allows clear', function(done) {
-      // TODO: this was not what was originally intended, but is still good
-      // functionality. it was intended to d:
-      // UPDATE "articles" SET "author_num" = null WHERE "author_num" = 1
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['DELETE FROM "articles" WHERE "author_num" = ?', [1]]
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "author_num" = ?', [undefined, 1]]
         ]);
       })
       .done(done, done);
@@ -422,6 +420,49 @@ describe('Model.hasMany', function() {
       })
       .then(function() {
         expect(user.articleObjects).to.not.equal(articleObjects);
+      })
+      .done(done, done);
+    });
+
+    it('processes a complex sequence using add, remove, and clear', function(done) {
+      var article1 = Article.fresh({ id: 1, title: '#1' });
+      var article2 = Article.fresh({ id: 2, title: '#2' });
+      var article3 = Article.fresh({ id: 3, title: '#3' });
+      var article4 = Article.fresh({ id: 4, title: '#4' });
+      var article5 = Article.fresh({ id: 5, title: '#5' });
+      var article6 = Article.fresh({ id: 6, title: '#6' });
+      var article7 = Article.fresh({ id: 7, title: '#7' });
+
+      user.addArticles(article1, article2, article3, article7);
+      user.removeArticle(article1);
+      user.addArticles(article4);
+      user.clearArticles(); // clear makes nothing above matter
+      user.addArticle(article1);
+      user.addArticles(article6, article7);
+      user.removeArticles(article2, article5, article1, article4);
+      user.addArticle(article2);
+      user.removeArticles(article6);
+      user.addArticle(article2);
+
+      user.save().then(function() {
+        var executed = adapter.executedSQL();
+        var clear = executed[0];
+        expect(clear).to.eql(
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "author_num" = ?', [undefined, 1]]);
+        // the order is not guaranteed between add & remove so they are sorted
+        // based on the first argument (the argument corresponding to
+        // SET "author_num" = ?)
+        var remaining = executed.slice(1).sort(function(sql) {
+          var args = sql[1];
+          return args[0] === undefined;
+        });
+        expect(remaining).to.eql([
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "id" IN (?, ?)', [1, 7, 2]],
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "id" IN (?, ?)', [undefined, 5, 4]],
+        ]);
       })
       .done(done, done);
     });
