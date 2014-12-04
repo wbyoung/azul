@@ -100,6 +100,33 @@ describe('Model.hasMany+belongsTo', function() {
     });
   });
 
+  describe('when setting via belongsTo', function() {
+    beforeEach(function() {
+      article.author = user;
+    });
+
+    it('does not load hasMany collection cache', function() {
+      expect(function() {
+        user.articles;
+      }).to.throw(/articles.*not yet.*loaded/i);
+    });
+
+    describe('when saved', function() {
+      beforeEach(function(done) {
+        article.save().then(function() { done(); }, done);
+      });
+
+      it('executes the proper sql', function() {
+        expect(adapter.executedSQL()).to.eql([
+          // note that this expectation depends on ordering of object
+          // properties which is not guaranteed to be a stable ordering.
+          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Dog Psychology', 395, 828]]
+        ]);
+      });
+    });
+  });
+
   describe('when creating via hasMany', function() {
     beforeEach(function() {
       createdArticle = user.createArticle({ title: 'Hello' });
