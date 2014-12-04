@@ -18,6 +18,7 @@ var db,
 
 var createdArticle;
 var createdAuthor;
+var removedAuthor;
 var storedAuthor;
 var storePromise;
 var shared = {};
@@ -25,6 +26,18 @@ var shared = {};
 shared.storeExistingAuthor = function() {
   storedAuthor = user;
   article.author = storedAuthor;
+  storePromise = article.save();
+};
+
+// TODO: in the only current use case for this, the user already has loaded the
+// articles. that means that we could simply access one of those loaded
+// articles & clear the author on that instead.
+shared.clearExistingAuthor = function() {
+  removedAuthor = user;
+  // use relation method to make it seem like this was loaded with the user
+  article.authorRelation.associate(article, user);
+  expect(removedAuthor.articles).to.contain(article);
+  article.author = null;
   storePromise = article.save();
 };
 
@@ -200,6 +213,14 @@ describe('Model.hasMany+belongsTo', function() {
              'WHERE "id" = ?', ['Dog Psychology', 395, 828]]
           ]);
         });
+      });
+    });
+
+    describe('when removing existing object via belongsTo', function() {
+      beforeEach(shared.clearExistingAuthor);
+
+      it('removes from hasMany collection cache', function() {
+        expect(removedAuthor.articles).to.not.contain(article);
       });
     });
   });
