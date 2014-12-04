@@ -19,62 +19,34 @@ var db,
 var createdArticle;
 var createdAuthor;
 var storedAuthor;
+var storePromise;
 var shared = {};
 
-shared.storeExistingAuthor = function(done) {
+shared.storeExistingAuthor = function() {
   storedAuthor = user;
   article.author = storedAuthor;
-  var promise = article.save();
-
-  // TODO: see comments below about expectations here
-  // expect(article.authorId).to.not.exist;
-  // expect(article.author).to.not.exist;
-
-  promise.then(function() {
-    // TODO: see comments below about expectations here
-    // expect(article.authorId).to.eql(storedAuthor.id);
-    // expect(article.author).to.equal(storedAuthor);
-  })
-  .done(done, done);
+  storePromise = article.save();
 };
 
-shared.storeCreatedAuthor = function(done) {
+shared.storeCreatedAuthor = function() {
   storedAuthor = User.create({ username: 'jack' });
   article.author = storedAuthor;
-  var promise = article.save();
-
-  // TODO: see comments below about expectations here
-
-  promise.then(function() {
-    // TODO: see comments below about expectations here
-  })
-  .done(done, done);
+  storePromise = article.save();
 };
 
-shared.storeUnsavedAuthor = function(done) {
+shared.storeUnsavedAuthor = function() {
   storedAuthor = user;
   user.username = user.username + '_updated';
   article.author = storedAuthor;
-  var promise = article.save();
+  storePromise = article.save();
 
-  // TODO: when do we want the following values to be set altered? before
-  // or after the save of the article?
+  // TODO: what happens when there is an error during the save? do in flight
+  // values get reverted? do they get re-tried the next time around? consider
+  // the following attributes when thinking about this:
   //   - article.author
   //   - article.authorId
   //   - article.attrs.author_id
   //   - storedAuthor.articles << article
-  // TODO: what happens when there is an error during the save? do the
-  // values get reverted?
-  // these are set after the promise is executed
-  // expect(article.authorId).to.not.exist;
-  // expect(article.author).to.not.exist;
-
-  promise.then(function() {
-    // TODO: see above
-    // expect(article.authorId).to.eql(storedAuthor.id);
-    // expect(article.author).to.equal(storedAuthor);
-  })
-  .done(done, done);
 };
 
 describe('Model.hasMany+belongsTo', function() {
@@ -213,6 +185,12 @@ describe('Model.hasMany+belongsTo', function() {
       it('adds to hasMany collection cache', function() {
         expect(storedAuthor.articles).to.contain(article);
       });
+
+      describe('when executed', function() {
+        beforeEach(function(done) {
+          storePromise.then(function() { done(); }, done);
+        });
+      });
     });
   });
 
@@ -224,6 +202,12 @@ describe('Model.hasMany+belongsTo', function() {
         storedAuthor.articles;
       }).to.throw(/articles.*not yet.*loaded/i);
     });
+
+    describe('when executed', function() {
+      beforeEach(function(done) {
+        storePromise.then(function() { done(); }, done);
+      });
+    });
   });
 
   describe('when storing created object via belongsTo', function() {
@@ -231,6 +215,13 @@ describe('Model.hasMany+belongsTo', function() {
 
     it('adds to hasMany collection cache', function() {
       expect(storedAuthor.articles).to.contain(article);
+    });
+
+
+    describe('when executed', function() {
+      beforeEach(function(done) {
+        storePromise.then(function() { done(); }, done);
+      });
     });
   });
 
@@ -241,6 +232,13 @@ describe('Model.hasMany+belongsTo', function() {
       expect(function() {
         storedAuthor.articles;
       }).to.throw(/articles.*not yet.*loaded/i);
+    });
+
+
+    describe('when executed', function() {
+      beforeEach(function(done) {
+        storePromise.then(function() { done(); }, done);
+      });
     });
   });
 });
