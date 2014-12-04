@@ -186,9 +186,30 @@ describe('Model.hasMany+belongsTo', function() {
     });
   });
 
+  describe('when a hasMany relationship is pre-fetched', function() {
+    var users;
+
+    beforeEach(function(done) {
+      User.objects.with('articles').fetch().then(function(result) {
+        users = result;
+      })
+      .then(done, done);
+    });
+
+    it('caches the relevant belongsTo objects', function() {
+      var user = users[0];
+      expect(user.articles[0].author).to.eql(user);
+    });
+  });
+
   describe('when hasMany collection cache is loaded', function() {
     beforeEach(function(done) {
       user.articleObjects.fetch().then(function() { done(); }, done);
+    });
+
+    it('caches the relevant belongsTo objects', function() {
+      expect(user.articles.length).to.eql(1);
+      expect(user.articles[0].author).to.equal(user);
     });
 
     describe('when storing existing object via belongsTo', function() {
