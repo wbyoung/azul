@@ -97,8 +97,8 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   beforeEach(function() {
-    user = User.fresh({ id: 1 });
-    article = Article.fresh({ id: 1 });
+    user = User.fresh({ id: 395, username: 'miles' });
+    article = Article.fresh({ id: 828, title: 'Dog Psychology' });
     articleObjects = user.articleObjects;
   });
 
@@ -144,44 +144,61 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   describe('when adding existing object via hasMany', function() {
-    beforeEach(function(done) {
-      var promise = user.addArticle(article);
-
-      // TODO: determine exactly how we want this to work & then add assertions
-      // these are set after the promise is executed
-      // expect(article.authorId).to.not.exist;
-      // expect(article.author).to.not.exist;
-
-      promise.then(function() { done(); }, done);
-    });
+    var promise;
+    beforeEach(function() { promise = user.addArticle(article); });
 
     it('sets foreign key', function() {
       expect(article.authorId).to.eql(user.id);
     });
+
     it('sets related object', function() {
       expect(article.author).to.equal(user);
+    });
+
+    describe('when executed', function() {
+      beforeEach(function(done) {
+        promise.then(function() { done(); }, done);
+      });
+
+      it.skip('invalidates the hasMany collection cache');
+
+      it('executes the proper sql', function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
+        ]);
+      });
     });
   });
 
   describe('when removing existing object via hasMany', function() {
-    beforeEach(function(done) {
+    var promise;
+    beforeEach(function() {
       article.authorId = user.id;
       article.author = user;
-      var promise = user.removeArticle(article);
-
-      // TODO: determine exactly how we want this to work & then add assertions
-      // these are set after the promise is executed
-      // expect(article.authorId).to.exist;
-      // expect(article.author).to.exist;
-
-      promise.then(function() { done(); }, done);
+      promise = user.removeArticle(article);
     });
 
     it('clears foreign key', function() {
       expect(article.authorId).to.not.exist;
     });
+
     it('clears related object', function() {
       expect(article.author).to.not.exist;
+    });
+
+    describe('when executed', function() {
+      beforeEach(function(done) {
+        promise.then(function() { done(); }, done);
+      });
+
+      it.skip('invalidates the hasMany collection cache');
+
+      it('executes the proper sql', function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" = ?', [undefined, 828]]
+        ]);
+      });
     });
   });
 
