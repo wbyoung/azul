@@ -95,8 +95,6 @@ describe('Model.hasMany+belongsTo', function() {
         promise.then(function() { done(); }, done);
       });
 
-      it.skip('invalidates the hasMany collection cache');
-
       it('executes the proper sql', function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
@@ -195,6 +193,24 @@ describe('Model.hasMany+belongsTo', function() {
 
       it('removes from hasMany collection cache', function() {
         expect(this.author.articles).to.not.contain(this.article);
+      });
+    });
+
+    describe('when adding existing object via hasMany', function() {
+      beforeEach(function() {
+        this.promise = this.author.addArticle(this.article);
+      });
+
+      describe('when executed', function() {
+        beforeEach(function(done) {
+          this.promise.then(function() { done(); }, done);
+        });
+
+        it.skip('invalidates the hasMany collection cache', function() {
+          expect(function() {
+            this.author.articles;
+          }.bind(this)).to.throw(/articles.*not yet.*loaded/i);
+        });
       });
     });
   });
