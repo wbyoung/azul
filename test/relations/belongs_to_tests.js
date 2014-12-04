@@ -25,7 +25,8 @@ describe('Model.belongsTo', function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      author: belongsTo('user')
+      author: belongsTo('user'),
+      authorKey: attr('author_id') // writable access to foreign key attr
     });
     User = db.model('user').reopen({
       username: attr()
@@ -33,7 +34,7 @@ describe('Model.belongsTo', function() {
   });
 
   beforeEach(function() {
-    article = Article.fresh({ id: 932, title: 'Azul News', authorId: 623 });
+    article = Article.fresh({ id: 932, title: 'Azul News', authorKey: 623 });
   });
 
   beforeEach(function() {
@@ -181,6 +182,16 @@ describe('Model.belongsTo', function() {
   });
 
   describe('helpers', function() {
+    it('provides a getter method for the foreign key', function() {
+      expect(article.authorId).to.eql(623);
+    });
+
+    it('does not provide a setter method for the foreign key', function() {
+      expect(function() {
+        article.authorId = 25;
+      }).to.throw(/cannot set.*authorId/i);
+    });
+
     it('allows create', function() {
       var user = article.createAuthor({ username: 'jill' });
       expect(article.author).to.equal(user);
