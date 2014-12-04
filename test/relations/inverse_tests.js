@@ -11,43 +11,7 @@ require('../helpers/model');
 var db,
   adapter,
   Article,
-  User,
-  user,
-  article,
-  articleObjects;
-
-var createdArticle;
-var createdAuthor;
-var storedAuthor;
-var storePromise;
-var shared = {};
-
-shared.storeExistingAuthor = function() {
-  storedAuthor = user;
-  article.author = storedAuthor;
-  storePromise = article.save();
-};
-
-shared.storeCreatedAuthor = function() {
-  storedAuthor = User.create({ username: 'jack' });
-  article.author = storedAuthor;
-  storePromise = article.save();
-};
-
-shared.storeUnsavedAuthor = function() {
-  storedAuthor = user;
-  user.username = user.username + '_updated';
-  article.author = storedAuthor;
-  storePromise = article.save();
-
-  // TODO: what happens when there is an error during the save? do in flight
-  // values get reverted? do they get re-tried the next time around? consider
-  // the following attributes when thinking about this:
-  //   - article.author
-  //   - article.authorId
-  //   - article.attrs.author_id
-  //   - storedAuthor.articles << article
-};
+  User;
 
 describe('Model.hasMany+belongsTo', function() {
   beforeEach(function() {
@@ -69,9 +33,8 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   beforeEach(function() {
-    user = User.fresh({ id: 395, username: 'miles' });
-    article = Article.fresh({ id: 828, title: 'Dog Psychology' });
-    articleObjects = user.articleObjects;
+    this.author = User.fresh({ id: 395, username: 'miles' });
+    this.article = Article.fresh({ id: 828, title: 'Dog Psychology' });
   });
 
   beforeEach(function() {
@@ -92,39 +55,39 @@ describe('Model.hasMany+belongsTo', function() {
   describe('when creating via belongsTo', function() {
 
     beforeEach(function() {
-      createdAuthor = article.createAuthor({ username: 'phil' });
+      this.author = this.article.createAuthor({ username: 'phil' });
     });
 
     it('creates hasMany collection cache', function() {
-      expect(createdAuthor.articles).to.eql([article]);
+      expect(this.author.articles).to.eql([this.article]);
     });
   });
 
   describe('when creating via hasMany', function() {
     beforeEach(function() {
-      createdArticle = user.createArticle({ title: 'Hello' });
+      this.article = this.author.createArticle({ title: 'Hello' });
     });
 
     it('creates an object of the correct type', function() {
-      expect(createdArticle).to.to.be.an.instanceOf(Article.__class__);
+      expect(this.article).to.to.be.an.instanceOf(Article.__class__);
     });
 
     it('sets inverse/belongsTo attribute', function() {
-      expect(createdArticle.author).to.equal(user);
+      expect(this.article.author).to.equal(this.author);
     });
 
   });
 
   describe('when adding existing object via hasMany', function() {
     var promise;
-    beforeEach(function() { promise = user.addArticle(article); });
+    beforeEach(function() { promise = this.author.addArticle(this.article); });
 
     it('sets foreign key', function() {
-      expect(article.authorId).to.eql(user.id);
+      expect(this.article.authorId).to.eql(this.author.id);
     });
 
     it('sets related object', function() {
-      expect(article.author).to.equal(user);
+      expect(this.article.author).to.equal(this.author);
     });
 
     describe('when executed', function() {
@@ -145,16 +108,16 @@ describe('Model.hasMany+belongsTo', function() {
   describe('when removing existing object via hasMany', function() {
     var promise;
     beforeEach(function() {
-      article.author = user;
-      promise = user.removeArticle(article);
+      this.article.author = this.author;
+      promise = this.author.removeArticle(this.article);
     });
 
     it('clears foreign key', function() {
-      expect(article.authorId).to.not.exist;
+      expect(this.article.authorId).to.not.exist;
     });
 
     it('clears related object', function() {
-      expect(article.author).to.not.exist;
+      expect(this.article.author).to.not.exist;
     });
 
     describe('when executed', function() {
@@ -191,24 +154,24 @@ describe('Model.hasMany+belongsTo', function() {
 
   describe('when hasMany collection cache is loaded', function() {
     beforeEach(function(done) {
-      user.articleObjects.fetch().then(function() { done(); }, done);
+      this.author.articleObjects.fetch().then(function() { done(); }, done);
     });
 
     it('caches the relevant belongsTo objects', function() {
-      expect(user.articles.length).to.eql(1);
-      expect(user.articles[0].author).to.equal(user);
+      expect(this.author.articles.length).to.eql(1);
+      expect(this.author.articles[0].author).to.equal(this.author);
     });
 
     describe('when storing existing object via belongsTo', function() {
-      beforeEach(shared.storeExistingAuthor);
+      beforeEach(function() { this.article.author = this.author; });
 
       it('adds to hasMany collection cache', function() {
-        expect(storedAuthor.articles).to.contain(article);
+        expect(this.author.articles).to.contain(this.article);
       });
 
       describe('when executed', function() {
         beforeEach(function(done) {
-          storePromise.then(function() { done(); }, done);
+          this.article.save().then(function() { done(); }, done);
         });
 
         it('executes the proper sql', function() {
@@ -226,28 +189,28 @@ describe('Model.hasMany+belongsTo', function() {
 
     describe('when removing existing object via belongsTo', function() {
       beforeEach(function() {
-        this.article = user.articles[0];
+        this.article = this.author.articles[0];
         this.article.author = null;
       });
 
       it('removes from hasMany collection cache', function() {
-        expect(user.articles).to.not.contain(this.article);
+        expect(this.author.articles).to.not.contain(this.article);
       });
     });
   });
 
   describe('when storing existing object via belongsTo', function() {
-    beforeEach(shared.storeExistingAuthor);
+    beforeEach(function() { this.article.author = this.author; });
 
     it('does not load hasMany collection cache', function() {
       expect(function() {
-        storedAuthor.articles;
-      }).to.throw(/articles.*not yet.*loaded/i);
+        this.author.articles;
+      }.bind(this)).to.throw(/articles.*not yet.*loaded/i);
     });
 
     describe('when executed', function() {
       beforeEach(function(done) {
-        storePromise.then(function() { done(); }, done);
+        this.article.save().then(function() { done(); }, done);
       });
 
       it('executes the proper sql', function() {
@@ -262,33 +225,45 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   describe('when storing created object via belongsTo', function() {
-    beforeEach(shared.storeCreatedAuthor);
+    beforeEach(function() {
+      this.author = User.create({ username: 'jack' });
+      this.article.author = this.author;
+    });
 
     it('adds to hasMany collection cache', function() {
-      expect(storedAuthor.articles).to.contain(article);
+      expect(this.author.articles).to.contain(this.article);
     });
 
 
     describe('when executed', function() {
       beforeEach(function(done) {
-        storePromise.then(function() { done(); }, done);
+        this.article.save().then(function() { done(); }, done);
       });
     });
   });
 
   describe('when storing unsaved object via belongsTo', function() {
-    beforeEach(shared.storeUnsavedAuthor);
+    beforeEach(function() {
+      this.author.username = this.author.username + '_updated';
+      this.article.author = this.author;
+      // TODO: what happens when there is an error during the save? do in flight
+      // values get reverted? do they get re-tried the next time around? consider
+      // the following attributes when thinking about this:
+      //   - article.author
+      //   - article.authorId
+      //   - article.attrs.author_id
+      //   - this.author.articles << article
+    });
 
     it('does not load hasMany collection cache', function() {
       expect(function() {
-        storedAuthor.articles;
-      }).to.throw(/articles.*not yet.*loaded/i);
+        this.author.articles;
+      }.bind(this)).to.throw(/articles.*not yet.*loaded/i);
     });
-
 
     describe('when executed', function() {
       beforeEach(function(done) {
-        storePromise.then(function() { done(); }, done);
+        this.article.save().then(function() { done(); }, done);
       });
     });
   });
