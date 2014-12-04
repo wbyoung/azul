@@ -315,16 +315,28 @@ describe('Model.hasMany', function() {
     it('clears query cache during add', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       var articleObjects = user.articleObjects;
-      articleObjects.fetch().then(function() {
-        return user.addArticle(article);
-      })
+      var chachedValues = [articleObjects];
+
+      articleObjects.fetch()
+      .then(function() { user.addArticle(article); })
       .then(function() {
-        expect(user.articleObjects).to.not.equal(articleObjects);
+        expect(chachedValues).to.not.contain(user.articleObjects);
+        chachedValues.push(user.articleObjects);
+      })
+      .then(function() { return user.save(); })
+      .then(function() {
+        expect(chachedValues).to.not.contain(user.articleObjects);
       })
       .done(done, done);
     });
 
-    it.skip('clears query cache during add save');
+    it('does not clear query cache during save', function(done) {
+      var articleObjects = user.articleObjects;
+      user.save().then(function() {
+        expect(articleObjects).to.equal(user.articleObjects);
+      })
+      .done(done, done);
+    });
 
     it('allows remove with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
@@ -386,16 +398,20 @@ describe('Model.hasMany', function() {
 
     it('clears query cache during remove', function(done) {
       var articleObjects = user.articleObjects;
-      articleObjects.fetch().then(function() {
-        return user.removeArticle(user.articles[0]);
-      })
+      var chachedValues = [articleObjects];
+
+      articleObjects.fetch()
+      .then(function() { user.removeArticle(user.articles[0]); })
       .then(function() {
-        expect(user.articleObjects).to.not.equal(articleObjects);
+        expect(chachedValues).to.not.contain(user.articleObjects);
+        chachedValues.push(user.articleObjects);
+      })
+      .then(function() { return user.save(); })
+      .then(function() {
+        expect(chachedValues).to.not.contain(user.articleObjects);
       })
       .done(done, done);
     });
-
-    it.skip('clears query cache during remove save');
 
     it('allows clear', function(done) {
       user.clearArticles().then(function() {
@@ -419,16 +435,20 @@ describe('Model.hasMany', function() {
 
     it('clears query cache during clear', function(done) {
       var articleObjects = user.articleObjects;
-      articleObjects.fetch().then(function() {
-        return user.clearArticles();
-      })
+      var chachedValues = [articleObjects];
+
+      articleObjects.fetch()
+      .then(function() { user.clearArticles(); })
       .then(function() {
-        expect(user.articleObjects).to.not.equal(articleObjects);
+        expect(chachedValues).to.not.contain(user.articleObjects);
+        chachedValues.push(user.articleObjects);
+      })
+      .then(function() { return user.save(); })
+      .then(function() {
+        expect(chachedValues).to.not.contain(user.articleObjects);
       })
       .done(done, done);
     });
-
-    it.skip('clears query cache during clear save');
 
     it('processes a complex sequence using add, remove, and clear', function(done) {
       var article1 = Article.fresh({ id: 1, title: '#1' });
