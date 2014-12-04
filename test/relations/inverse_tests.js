@@ -172,7 +172,6 @@ describe('Model.hasMany+belongsTo', function() {
   describe('when removing existing object via hasMany', function() {
     var promise;
     beforeEach(function() {
-      article.authorId = user.id;
       article.author = user;
       promise = user.removeArticle(article);
     });
