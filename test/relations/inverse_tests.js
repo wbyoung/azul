@@ -193,43 +193,6 @@ describe('Model.hasMany+belongsTo', function() {
         expect(this.author.articles).to.not.contain(this.article);
       });
     });
-
-    describe('when adding existing object via hasMany', function() {
-      beforeEach(function() {
-        this.author.addArticle(this.article);
-      });
-
-      describe('when executed', function() {
-        beforeEach(function(done) {
-          this.author.save().then(function() { done(); }, done);
-        });
-
-        it.skip('invalidates the hasMany collection cache', function() {
-          expect(function() {
-            this.author.articles;
-          }.bind(this)).to.throw(/articles.*not yet.*loaded/i);
-        });
-      });
-    });
-
-    describe('when removing existing object via hasMany', function() {
-      beforeEach(function() {
-        this.article.author = this.author;
-        this.author.removeArticle(this.article);
-      });
-
-      describe('when executed', function() {
-        beforeEach(function(done) {
-          this.author.save().then(function() { done(); }, done);
-        });
-
-        it.skip('invalidates the hasMany collection cache', function() {
-          expect(function() {
-            this.author.articles;
-          }.bind(this)).to.throw(/articles.*not yet.*loaded/i);
-        });
-      });
-    });
   });
 
   describe('when storing existing object via belongsTo', function() {

@@ -324,6 +324,8 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it.skip('clears query cache during add save');
+
     it('allows remove with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
       user.removeArticle(article).then(function() {
@@ -393,6 +395,8 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it.skip('clears query cache during remove save');
+
     it('allows clear', function(done) {
       user.clearArticles().then(function() {
         expect(adapter.executedSQL()).to.eql([
@@ -423,6 +427,8 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
+
+    it.skip('clears query cache during clear save');
 
     it('processes a complex sequence using add, remove, and clear', function(done) {
       var article1 = Article.fresh({ id: 1, title: '#1' });
