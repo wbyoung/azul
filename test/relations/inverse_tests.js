@@ -79,8 +79,9 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   describe('when adding existing object via hasMany', function() {
-    var promise;
-    beforeEach(function() { promise = this.author.addArticle(this.article); });
+    beforeEach(function() {
+      this.promise = this.author.addArticle(this.article);
+    });
 
     it('sets foreign key', function() {
       expect(this.article.authorId).to.eql(this.author.id);
@@ -92,7 +93,7 @@ describe('Model.hasMany+belongsTo', function() {
 
     describe('when executed', function() {
       beforeEach(function(done) {
-        promise.then(function() { done(); }, done);
+        this.promise.then(function() { done(); }, done);
       });
 
       it('executes the proper sql', function() {
@@ -104,10 +105,9 @@ describe('Model.hasMany+belongsTo', function() {
   });
 
   describe('when removing existing object via hasMany', function() {
-    var promise;
     beforeEach(function() {
       this.article.author = this.author;
-      promise = this.author.removeArticle(this.article);
+      this.promise = this.author.removeArticle(this.article);
     });
 
     it('clears foreign key', function() {
@@ -120,7 +120,7 @@ describe('Model.hasMany+belongsTo', function() {
 
     describe('when executed', function() {
       beforeEach(function(done) {
-        promise.then(function() { done(); }, done);
+        this.promise.then(function() { done(); }, done);
       });
 
       it.skip('invalidates the hasMany collection cache');
