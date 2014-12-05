@@ -4,6 +4,7 @@ var chai = require('chai');
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
+var BluebirdPromise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 
@@ -319,13 +320,6 @@ describe('Model.hasMany+belongsTo', function() {
     beforeEach(function() {
       this.author.username = this.author.username + '_updated';
       this.article.author = this.author;
-      // TODO: what happens when there is an error during the save? do in flight
-      // values get reverted? do they get re-tried the next time around? consider
-      // the following attributes when thinking about this:
-      //   - article.author
-      //   - article.authorId
-      //   - article.attrs.author_id
-      //   - this.author.articles << article
     });
 
     it('does not load hasMany collection cache', function() {
@@ -337,6 +331,64 @@ describe('Model.hasMany+belongsTo', function() {
     describe('when executed', function() {
       beforeEach(function(done) {
         this.article.save().then(function() { done(); }, done);
+      });
+    });
+  });
+
+  describe('when adding to a hasMany fails in the database', function() {
+    beforeEach(function() {
+      sinon.stub(adapter, '_execute', function() {
+        return new BluebirdPromise.reject(new Error('Intended test error.'));
+      });
+    });
+
+    afterEach(function() {
+      adapter._execute.restore();
+    });
+
+    beforeEach(function(done) {
+      this.author.addArticle(this.article);
+      this.author.save()
+      .bind(this)
+      .catch(function(e) {
+        this.error = e;
+      })
+      .then(done, done);
+    });
+
+    it('gives a descriptive error', function() {
+      expect(this.error).to.match(/intended test error/i);
+    });
+
+    it('leaves the belongsTo object in a dirty state', function() {
+      expect(this.article).to.have.property('dirty', true);
+    });
+
+    it('leaves the hasMany object with in flight data', function() {
+      var author = this.author;
+      var relation = author.articlesRelation;
+      var inFlight = relation._getInFlightData(author);
+      expect(inFlight).to.eql({
+        clear: false,
+        add: [this.article],
+        remove: []
+      });
+    });
+
+    describe('when retried & the database accepts it', function() {
+      beforeEach(function() {
+        adapter._execute.restore();
+        sinon.spy(adapter, '_execute');
+      });
+
+      beforeEach(function(done) {
+        this.author.save().then(function() { done(); }, done);
+      });
+
+      it('executes the proper sql', function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
+        ]);
       });
     });
   });
