@@ -193,6 +193,22 @@ describe('Model.hasMany+belongsTo', function() {
         expect(this.author.articles).to.not.contain(this.article);
       });
     });
+
+    describe('when changing existing object to new object via belongsTo', function() {
+      beforeEach(function() {
+        this.newAuthor = User.create({ username: 'reed' });
+        this.article = this.author.articles[0];
+        this.article.author = this.newAuthor;
+      });
+
+      it('removes from hasMany collection cache', function() {
+        expect(this.author.articles).to.not.contain(this.article);
+      });
+
+      it('adds to hasMany collection cache', function() {
+        expect(this.newAuthor.articles).to.contain(this.article);
+      });
+    });
   });
 
   describe('when storing existing object via belongsTo', function() {
