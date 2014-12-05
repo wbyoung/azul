@@ -330,14 +330,6 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
-    it('does not clear query cache during save', function(done) {
-      var articleObjects = user.articleObjects;
-      user.save().then(function() {
-        expect(articleObjects).to.equal(user.articleObjects);
-      })
-      .done(done, done);
-    });
-
     it('allows remove with existing objects', function(done) {
       var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
       user.removeArticle(article).then(function() {
@@ -446,6 +438,14 @@ describe('Model.hasMany', function() {
       .then(function() { return user.save(); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
+      })
+      .done(done, done);
+    });
+
+    it('does not clear query cache during save', function(done) {
+      var articleObjects = user.articleObjects;
+      user.save().then(function() {
+        expect(articleObjects).to.equal(user.articleObjects);
       })
       .done(done, done);
     });
