@@ -169,6 +169,18 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('specifies all attributes when creating objects', function(done) {
+    var article = Article.create();
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("title") VALUES (?) '+
+         'RETURNING "id"', [undefined]]
+      ]);
+      expect(article.id).to.eql(34);
+    })
+    .done(done, done);
+  });
+
   it('saving gives back the original object', function(done) {
     var article = Article.create({ title: 'Azul News' });
     article.save().then(function(result) {
@@ -184,6 +196,18 @@ describe('Model', function() {
       expect(adapter.executedSQL()).to.eql([
         ['UPDATE "articles" SET "title" = ? '+
          'WHERE "id" = ?', ['Breaking Azul News', 5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('specifies all attributes when updating objects', function(done) {
+    var article = Article.fresh({ id: 5 });
+    article.id = 5; // mark as dirty
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ? '+
+         'WHERE "id" = ?', [undefined, 5]]
       ]);
     })
     .done(done, done);
