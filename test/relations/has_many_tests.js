@@ -260,6 +260,7 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [1, 5]]
         ]);
+        expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -272,6 +273,8 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [1, 5, 8]]
         ]);
+        expect(article1).to.have.property('dirty', false);
+        expect(article2).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -286,6 +289,7 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
            'WHERE "id" = ?', ['Renamed', 1, 12]]
         ]);
+        expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -297,6 +301,7 @@ describe('Model.hasMany', function() {
           ['INSERT INTO "articles" ("title", "author_num") VALUES (?, ?) ' +
            'RETURNING "id"', ['Hello', 1]]
         ]);
+        expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -337,6 +342,7 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [undefined, 5]]
         ]);
+        expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -349,6 +355,8 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [undefined, 5, 8]]
         ]);
+        expect(article1).to.have.property('dirty', false);
+        expect(article2).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -363,6 +371,7 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
            'WHERE "id" = ?', ['Renamed', undefined, 12]]
         ]);
+        expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
     });
@@ -372,6 +381,7 @@ describe('Model.hasMany', function() {
       user.removeArticle(article).then(function() {
         expect(adapter.executedSQL()).to.eql([
         ]);
+        expect(article).to.have.property('persisted', false);
       })
       .done(done, done);
     });
