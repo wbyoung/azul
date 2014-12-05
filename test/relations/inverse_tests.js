@@ -1,6 +1,7 @@
 'use strict';
 
 var chai = require('chai');
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
@@ -49,6 +50,66 @@ describe('Model.hasMany+belongsTo', function() {
     adapter.intercept(/insert into "users"/i, {
       fields: ['id'],
       rows: [{ id: 43 }]
+    });
+  });
+
+  describe('belongsTo with hasMany associations disabled', function() {
+    beforeEach(function() {
+      sinon.spy(this.article, 'setAttribute');
+      sinon.stub(this.author.articlesRelation, 'associate');
+      sinon.stub(this.author.articlesRelation, 'disassociate');
+    });
+
+    it('sets the foreign key before the inverse when associating', function() {
+      this.article.authorRelation
+        .associate(this.article, this.author);
+
+      var attrSpy = this.article.setAttribute;
+      var associateSpy = this.author.articlesRelation.associate;
+      expect(attrSpy).to.have.been.calledOnce;
+      expect(associateSpy).to.have.been.calledOnce;
+      expect(attrSpy).to.have.been.calledBefore(associateSpy);
+    });
+
+    it('sets the foreign key before the inverse when disassociating', function() {
+      this.article.authorRelation
+        .disassociate(this.article, this.author);
+
+      var attrSpy = this.article.setAttribute;
+      var disassociateSpy = this.author.articlesRelation.disassociate;
+      expect(attrSpy).to.have.been.calledOnce;
+      expect(disassociateSpy).to.have.been.calledOnce;
+      expect(attrSpy).to.have.been.calledBefore(disassociateSpy);
+    });
+  });
+
+  describe('hasMany with belongsTo associations disabled', function() {
+    beforeEach(function() {
+      sinon.spy(this.article, 'setAttribute');
+      sinon.stub(this.article.authorRelation, 'associate');
+      sinon.stub(this.article.authorRelation, 'disassociate');
+    });
+
+    it('sets the foreign key before the inverse when associating', function() {
+      this.author.articlesRelation
+        .associate(this.author, this.article);
+
+      var attrSpy = this.article.setAttribute;
+      var associateSpy = this.article.authorRelation.associate;
+      expect(attrSpy).to.have.been.calledOnce;
+      expect(associateSpy).to.have.been.calledOnce;
+      expect(attrSpy).to.have.been.calledBefore(associateSpy);
+    });
+
+    it('sets the foreign key before the inverse when disassociating', function() {
+      this.author.articlesRelation
+        .disassociate(this.author, this.article);
+
+      var attrSpy = this.article.setAttribute;
+      var disassociateSpy = this.article.authorRelation.disassociate;
+      expect(attrSpy).to.have.been.calledOnce;
+      expect(disassociateSpy).to.have.been.calledOnce;
+      expect(attrSpy).to.have.been.calledBefore(disassociateSpy);
     });
   });
 
