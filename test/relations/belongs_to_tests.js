@@ -167,6 +167,16 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('does not fetch when the foreign key is not defined', function(done) {
+      var unauthoredArticle = Article.fresh({ id: 932, title: 'Azul News' });
+      unauthoredArticle.fetchAuthor().then(function(user) {
+        expect(user).to.not.exist;
+        expect(unauthoredArticle.author).to.not.exist;
+        expect(adapter.executedSQL()).to.eql([]);
+      })
+      .done(done, done);
+    });
+
     it('throws when attempting to access un-loaded item', function() {
       expect(function() {
         article.author;
