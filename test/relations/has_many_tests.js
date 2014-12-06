@@ -199,6 +199,17 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('fetches related objects when the result set is empty', function(done) {
+      adapter.intercept(/select.*from "articles"/i, {
+        fields: ['id', 'title', 'author_num'],
+        rows: []
+      });
+      articleObjects.fetch().then(function(articles) {
+        expect(articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
     it('caches the related objects query', function() {
       expect(user.articleObjects).to.equal(articleObjects);
     });
@@ -225,6 +236,17 @@ describe('Model.hasMany', function() {
         expect(user.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows access loaded collection when the result set is empty', function(done) {
+      adapter.intercept(/select.*from "articles"/i, {
+        fields: ['id', 'title', 'author_num'],
+        rows: []
+      });
+      articleObjects.fetch().then(function() {
+        expect(user.articles).to.eql([]);
       })
       .done(done, done);
     });
