@@ -161,7 +161,7 @@ describe('Model.belongsTo', function() {
       article.fetchAuthor().then(function(user) {
         expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "id" = ?', [623]]
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
       })
       .done(done, done);
