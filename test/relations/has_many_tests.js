@@ -144,6 +144,45 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
+
+    it('works when some the objects have an empty result set', function(done) {
+      var usersRegex = /select.*from "users".*order by "id"/i;
+      var articlesRegex =
+        /select.*from "articles" where "author_num" in \(\?, \?, \?\, \?\)/i;
+      adapter.intercept(usersRegex, {
+        fields: ['id', 'username'],
+        rows: [
+          { id: 1, username: 'wbyoung' },
+          { id: 2, username: 'kate' },
+          { id: 3, username: 'vanessa' },
+          { id: 4, username: 'sam' },
+        ]
+      });
+      adapter.intercept(articlesRegex, {
+        fields: ['id', 'title', 'author_num'],
+        rows: [
+          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
+        ]
+      });
+
+      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+        expect(users[0].username).to.eql('wbyoung');
+        expect(users[1].username).to.eql('kate');
+        expect(users[2].username).to.eql('vanessa');
+        expect(users[3].username).to.eql('sam');
+        expect(_.map(users[0].articles, 'title')).to.eql([
+          'Announcing Azul', 'Node.js ORM'
+        ]);
+        expect(_.map(users[1].articles, 'title')).to.eql([]);
+        expect(_.map(users[2].articles, 'title')).to.eql([]);
+        expect(_.map(users[3].articles, 'title')).to.eql([
+          'The Bipartisan System'
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   describe('relation', function() {
