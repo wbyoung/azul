@@ -385,6 +385,21 @@ describe('Model.hasMany+belongsTo', function() {
         this.author.save().then(function() { done(); }, done);
       });
 
+      it('leaves the belongsTo object in a clean state', function() {
+        expect(this.article).to.have.property('dirty', false);
+      });
+
+      it('leaves the hasMany object with no flight data', function() {
+        var author = this.author;
+        var relation = author.articlesRelation;
+        var inFlight = relation._getInFlightData(author);
+        expect(inFlight).to.eql({
+          clear: false,
+          add: [],
+          remove: []
+        });
+      });
+
       it('executes the proper sql', function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
