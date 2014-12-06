@@ -98,6 +98,12 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can be limited', function() {
+    expect(db.select('users').limit(5).sql()).to.eql(Statement.create(
+      'SELECT * FROM "users" LIMIT 5', []
+    ));
+  });
+
   it('handles predicates', function() {
     expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
       'SELECT * FROM "articles" WHERE "words" > ?', [200]
