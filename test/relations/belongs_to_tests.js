@@ -73,7 +73,7 @@ describe('Model.belongsTo', function() {
       Article.objects.with('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles"', []],
-          ['SELECT * FROM "users" WHERE "id" = ?', [623]]
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
       })
       .done(done, done);
@@ -93,7 +93,7 @@ describe('Model.belongsTo', function() {
     it('works with models each having multiple related objects', function(done) {
       var articlesRegex = /select.*from "articles".*order by "id"/i;
       var usersRegex =
-        /select.*from "users" where "id" in \(\?, \?, \?\)/i;
+        /select.*from "users" where "id" in \(\?, \?, \?\) limit 3/i;
       adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
@@ -128,7 +128,8 @@ describe('Model.belongsTo', function() {
 
     it('works when the related value is sometimes absent', function(done) {
       var articlesRegex = /select.*from "articles".*order by "id"/i;
-      var usersRegex = /select.*from "users" where "id" in \(\?, \?\)/i;
+      var usersRegex =
+        /select.*from "users" where "id" in \(\?, \?\) limit 2/i;
       adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
