@@ -167,6 +167,19 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('gives an error when it cannot fetch the related object', function(done) {
+      adapter.intercept(/select.*from "users"/i, {
+        fields: ['id', 'username'],
+        rows: []
+      });
+      article.fetchAuthor()
+      .throw(new Error('Expected fetch to fail.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/found no.*User.*author_id.*623/i);
+      })
+      .done(done, done);
+    });
+
     it('does not fetch when the foreign key is not defined', function(done) {
       var unauthoredArticle = Article.fresh({ id: 932, title: 'Azul News' });
       unauthoredArticle.fetchAuthor().then(function(user) {
