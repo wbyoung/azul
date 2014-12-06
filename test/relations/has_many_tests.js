@@ -265,6 +265,27 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('does not try to repeat addition updates', function(done) {
+      var article = Article.fresh({ id: 5, title: 'Hello' });
+      user.addArticle(article);
+      user.save().then(function() {
+        return user.save();
+      })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "id" = ?', [1, 5]]
+        ]);
+        expect(user.articlesRelation._getInFlightData(user)).to.eql({
+          clear: false,
+          add: [],
+          remove: []
+        });
+        expect(article).to.have.property('dirty', false);
+      })
+      .done(done, done);
+    });
+
     it('allows add with multiple existing objects', function(done) {
       var article1 = Article.fresh({ id: 5, title: 'Hello' });
       var article2 = Article.fresh({ id: 8, title: 'Hello' });
@@ -342,6 +363,27 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" = ?', [undefined, 5]]
         ]);
+        expect(article).to.have.property('dirty', false);
+      })
+      .done(done, done);
+    });
+
+    it('does not try to repeat removal updates', function(done) {
+      var article = Article.fresh({ id: 5, title: 'Hello' });
+      user.removeArticle(article);
+      user.save().then(function() {
+        return user.save();
+      })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "author_num" = ? ' +
+           'WHERE "id" = ?', [undefined, 5]]
+        ]);
+        expect(user.articlesRelation._getInFlightData(user)).to.eql({
+          clear: false,
+          add: [],
+          remove: []
+        });
         expect(article).to.have.property('dirty', false);
       })
       .done(done, done);
