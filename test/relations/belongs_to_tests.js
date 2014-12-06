@@ -140,7 +140,7 @@ describe('Model.belongsTo', function() {
       });
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
-        rows: [{ id: 874, username: 'wbyoung' }]
+        rows: [{ id: 874, username: 'wbyoung' }, { id: 4, username: 'kate' }]
       });
 
       Article.objects.with('author').orderBy('id').fetch().then(function(articles) {
@@ -148,8 +148,22 @@ describe('Model.belongsTo', function() {
           'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System'
         ]);
         expect(_.map(articles, 'author')).to.eql([
-          User.fresh({ id: 874, username: 'wbyoung' }), null, null
+          User.fresh({ id: 874, username: 'wbyoung' }), null,
+          User.fresh({ id: 4, username: 'kate' })
         ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives an error when it cannot find the related object', function(done) {
+      adapter.intercept(/select.*from "users"/i, {
+        fields: ['id', 'username'],
+        rows: []
+      });
+      Article.objects.with('author').fetch()
+      .throw(new Error('Expected fetch to fail.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/found no.*User.*author_id.*623/i);
       })
       .done(done, done);
     });
