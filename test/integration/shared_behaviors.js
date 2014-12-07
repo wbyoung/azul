@@ -553,7 +553,7 @@ module.exports = function(options) {
   var opts = options || {};
   var skip = opts.skip;
   var replacementIt = function(description) {
-    var args = Array.prototype.slice.call(arguments);
+    var args = _.toArray(arguments);
     if (skip && description && description.match(skip)) {
       args.splice(1);
     }
