@@ -271,6 +271,17 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can forcefully update objects', function(done) {
+    var article = Article.fresh({ id: 8, title: 'Azul News' });
+    article.save({ force: true }).then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ? '+
+         'WHERE "id" = ?', ['Azul News', 8]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('cannot save while a save is in flight', function(done) {
     var article = Article.create({ title: 'Azul News' });
     article.save();
