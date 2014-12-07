@@ -130,4 +130,41 @@ describe('BoundQuery', function() {
       }).to.throw(/cannot.*raw.*query.*orderBy/i);
     });
   });
+
+  describe('pre-specified limit', function() {
+    var query;
+    before(function() {
+      query = db.query.bind('users').limit(3);
+    });
+
+    it('allows select', function() {
+      expect(query.all().sql()).to.eql(Statement.create(
+        'SELECT * FROM "users" LIMIT 3', []
+      ));
+    });
+
+    it('does not allow insert', function() {
+      expect(function() {
+        query.insert({ name: 'Whit' });
+      }).to.throw(/cannot.*insert.*query.*limit/i);
+    });
+
+    it('does not allow update', function() {
+      expect(function() {
+        query.update({ name: 'Whit' });
+      }).to.throw(/cannot.*update.*query.*limit/i);
+    });
+
+    it('does not allow delete', function() {
+      expect(function() {
+        query.delete();
+      }).to.throw(/cannot.*delete.*query.*limit/i);
+    });
+
+    it('does not allow raw', function() {
+      expect(function() {
+        query.raw('SELECT * FROM "users"');
+      }).to.throw(/cannot.*raw.*query.*limit/i);
+    });
+  });
 });
