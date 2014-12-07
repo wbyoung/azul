@@ -60,6 +60,24 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('has a `pk` property', function() {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    expect(article.pk).to.eql(5);
+  });
+
+  it('can set the `pk` property', function() {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    article.pk = 7;
+    expect(article.pk).to.eql(7);
+    expect(article.id).to.eql(7);
+  });
+
+  it('can set the `id` property', function() {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    article.id = 7;
+    expect(article.id).to.eql(7);
+  });
+
   it('can get objects through raw queries', function(done) {
     Article.objects.raw('select * from "articles"').then(function(articles) {
       expect(articles).to.eql([
