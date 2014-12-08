@@ -96,4 +96,14 @@ describe('CreateTableQuery', function() {
   });
 
   it('generates columns using foreign keys that specify delete actions');
+
+  it('can combine options', function() {
+    var query = db.schema.createTable('users', function(table) {
+      table.integer('profile_id').references('profiles.id').notNull().unique();
+    });
+    expect(query.sql()).to.eql(Statement.create(
+      'CREATE TABLE "users" ("profile_id" integer NOT NULL UNIQUE ' +
+        'FOREIGN KEY "profiles"."id")', []
+    ));
+  });
 });
