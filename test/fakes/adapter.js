@@ -9,7 +9,6 @@ function FakeAdapterClient() { this.id = sequence++; }
 /**
  * Mock adapter for testing.
  *
- * @since 1.0
  * @public
  * @constructor
  * @extends Adapter
