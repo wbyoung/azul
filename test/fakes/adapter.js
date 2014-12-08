@@ -27,7 +27,7 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
    *
    * @method
    * @protected
-   * @see {Adapter#_connect}
+   * @see {@link Adapter#_connect}
    */
   _connect: BluebirdPromise.method(function() {
     return new FakeAdapterClient();
@@ -38,7 +38,7 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
    *
    * @method
    * @protected
-   * @see {Adapter#_disconnect}
+   * @see {@link Adapter#_disconnect}
    */
   _disconnect: BluebirdPromise.method(function(/*client*/) {
   }),
@@ -48,7 +48,7 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
    *
    * @method
    * @protected
-   * @see {Adapter#_execute}
+   * @see {@link Adapter#_execute}
    */
   _execute: BluebirdPromise.method(function(client, sql, args) {
     var result = { rows: [], fields: [] };
