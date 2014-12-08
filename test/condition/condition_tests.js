@@ -304,7 +304,7 @@ describe('Condition', function() {
       expect(result).to.eql('first = "Whitney" AND last = "Young"');
     });
 
-    it('supports "and"  joining conditions', function() {
+    it('supports "and" joining conditions', function() {
       var condition = w({ first: 'Whitney' }, w.and, { last: 'Young' });
       var result = this.stringify(condition);
       expect(result).to.eql('first = "Whitney" AND last = "Young"');
