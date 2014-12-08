@@ -118,6 +118,42 @@ describe('Class', function() {
     });
   });
 
+  it('can call super when it may not exist', function() {
+    var after = sinon.spy(function() { this._super.apply(this, arguments); });
+    var before = sinon.spy(function() { this._super.apply(this, arguments); });
+    var speak = sinon.spy(function() {
+      return this._super();
+    });
+
+    var Dog = Class.extend({ speak: speak });
+
+    Dog.reopen({ // notify of speak changes
+      speak: function() {
+        this.beforeSpeak();
+        this._super();
+        this.afterSpeak();
+      }
+    });
+    Dog.reopen({ afterSpeak: after }); // observe after speak
+    Dog.reopen({ beforeSpeak: before }); // observe before speak
+
+    var dog = Dog.create();
+    dog.speak();
+
+    expect(speak).to.have.been.calledOnce;
+    expect(after).to.have.been.calledOnce;
+    expect(before).to.have.been.calledOnce;
+  });
+
+  it('copies any attributes on functions to the wrapper', function() {
+    var method = function() {};
+    method.testing = 'Example';
+    var Person = Class.extend({ method: method }, { method: method });
+    var person = Person.create();
+    expect(person.method.testing).to.eql('Example');
+    expect(Person.method.testing).to.eql('Example');
+  });
+
   it('can specify methods', function() {
     var Animal = Class.extend({
       speak: function() { return 'hi'; }
@@ -165,6 +201,29 @@ describe('Class', function() {
     var dog = Dog.create();
     expect(dog.animal).to.eql(0);
     expect(dog.dog).to.eql(1);
+  });
+
+  it('does not prevent unbound function calls', function() {
+    var Dog = Class.extend();
+    Dog.reopen({ noise: function() { return 'bark'; }});
+    var dog = Dog.create();
+    var noise = dog.noise;
+    expect(noise()).to.eql('bark');
+  });
+
+  it('does not prevent unbound, static function calls', function() {
+    var Dog = Class.extend();
+    Dog.reopenClass({ noise: function() { return 'bark'; }});
+    var noise = Dog.noise;
+    expect(noise()).to.eql('bark');
+  });
+
+  it('only wraps function once', function() {
+    var Dog = Class.extend();
+    Dog.reopen({ init: function() {}});
+    var init = Dog.__class__.prototype.init;
+    expect(init.wrappedFunction).to.exist;
+    expect(init.wrappedFunction.wrappedFunction).to.not.exist;
   });
 
   it('can be created uninitialized', function() {
