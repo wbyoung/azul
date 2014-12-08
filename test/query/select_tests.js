@@ -125,15 +125,15 @@ describe('SelectQuery', function() {
   });
 
   describe('joins', function() {
-    it('defaults to a cross join', function() {
+    it('defaults to an inner join', function() {
       expect(db.select('articles').join('authors').sql()).to.eql(Statement.create(
-        'SELECT * FROM "articles" CROSS JOIN "authors"', []
+        'SELECT * FROM "articles" INNER JOIN "authors" ON TRUE', []
       ));
     });
 
     it('accepts type', function() {
       expect(db.select('articles').join('authors', 'inner').sql()).to.eql(Statement.create(
-        'SELECT * FROM "articles" INNER JOIN "authors"', []
+        'SELECT * FROM "articles" INNER JOIN "authors" ON TRUE', []
       ));
     });
 
@@ -152,7 +152,7 @@ describe('SelectQuery', function() {
         .join('authors')
         .where({ name: 'Whitney' })
         .sql();
-      expect(result.sql).to.match(/JOIN "authors" WHERE "name" = \?$/);
+      expect(result.sql).to.match(/JOIN "authors" ON TRUE WHERE "name" = \?$/);
     });
   });
 
