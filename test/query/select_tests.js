@@ -1,6 +1,7 @@
 'use strict';
 
 var chai = require('chai');
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
@@ -21,6 +22,18 @@ describe('SelectQuery', function() {
     expect(function() {
       SelectQuery.create();
     }).to.throw(/SelectQuery must be spawned/i);
+  });
+
+  it('has a fetch method that aliases execute', function() {
+    var query = db.select('users');
+    sinon.stub(query, 'execute');
+    try {
+      query.fetch();
+      expect(query.execute).to.have.been.calledOnce;
+    }
+    finally {
+      query.execute.restore();
+    }
   });
 
   it('accesses a table', function() {

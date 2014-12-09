@@ -1,6 +1,7 @@
 'use strict';
 
 var chai = require('chai');
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
@@ -19,6 +20,18 @@ describe('BoundQuery', function() {
     expect(function() {
       BoundQuery.create();
     }).to.throw(/BoundQuery must be spawned/i);
+  });
+
+  it('has a fetch method that aliases execute', function() {
+    var query = db.query.bind('users');
+    sinon.stub(query, 'execute');
+    try {
+      query.fetch();
+      expect(query.execute).to.have.been.calledOnce;
+    }
+    finally {
+      query.execute.restore();
+    }
   });
 
   it('defaults to selecting data', function() {

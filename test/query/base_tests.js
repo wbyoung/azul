@@ -1,7 +1,6 @@
 'use strict';
 
 var chai = require('chai');
-var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var BaseQuery = require('../../lib/query/base');
@@ -23,17 +22,6 @@ describe('BaseQuery', function() {
     var clone = query.clone();
     expect(clone).to.not.equal(query);
     expect(clone._promise).to.not.equal(query._promise);
-  });
-
-  it('has a fetch method that aliases execute', function() {
-    sinon.stub(query, 'execute');
-    try {
-      query.fetch();
-      expect(query.execute).to.have.been.calledOnce;
-    }
-    finally {
-      query.execute.restore();
-    }
   });
 
   it('cannot be executed', function(done) {
