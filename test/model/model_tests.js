@@ -261,6 +261,70 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can update via query', function(done) {
+    Article.objects.update({ title: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ?', ['Breaking News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields when updating via query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.where({ headline: 'News' }).update({ headline: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "headline" = ? ' +
+         'WHERE "headline" = ?', ['Breaking News', 'News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can insert via query', function(done) {
+    Article.objects.insert({ title: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("title") VALUES (?)', ['Breaking News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields when inserting via query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.insert({ headline: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("headline") VALUES (?)', ['Breaking News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can delete via query', function(done) {
+    Article.objects.delete()
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles"', []]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields when deleting via query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.where({ headline: 'News' }).delete()
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE "headline" = ?', ['News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('specifies all attributes when updating objects', function(done) {
     var article = Article.fresh({ id: 5 });
     article.id = 5; // mark as dirty
