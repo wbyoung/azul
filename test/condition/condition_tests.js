@@ -38,7 +38,7 @@ describe('Condition', function() {
     });
   });
 
-  describe('it must yield an expression when being constructed', function() {
+  it('must yield an expression when being constructed', function() {
     // the only way to test this is to override a private method
     var ConditionOverride = Condition.extend({
       _reduceBinary: function() { return []; }
@@ -48,7 +48,7 @@ describe('Condition', function() {
     }).to.throw(/binary.*failed.*yield.*single expression/i);
   });
 
-  describe('requires expression left hand side to be a leaf', function() {
+  it('requires expression left hand side to be a leaf', function() {
     // the only way to test this is to call a private method
     var c = w({});
     var lhs = Node.create({ type: 'expression' });
@@ -62,7 +62,7 @@ describe('Condition', function() {
     }.bind(this)).to.throw(/left hand side.*must be.*leaf/i);
   });
 
-  describe('requires expression left hand side to be a leaf', function() {
+  it('requires expression right hand side to be a leaf', function() {
     // the only way to test this is to call a private method
     var c = w({});
     var lhs = Node.create({ type: 'leaf', value: 'value' });
