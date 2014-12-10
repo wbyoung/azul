@@ -71,6 +71,55 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('gives an error when find fails', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: []
+    });
+    Article.find(1)
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/no results/i);
+      expect(e.code).to.eql('NO_RESULTS_FOUND');
+      expect(e.sql).to.eql('SELECT * FROM "articles" ' +
+        'WHERE "articles"."id" = ? LIMIT 1');
+      expect(e.args).to.eql([1]);
+    })
+    .then(done, done);
+  });
+
+  it('gives an error when findOne gets no results', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: []
+    });
+    Article.objects.fetchOne()
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/no results/i);
+      expect(e.code).to.eql('NO_RESULTS_FOUND');
+      expect(e.sql).to.eql('SELECT * FROM "articles"');
+      expect(e.args).to.eql([]);
+    })
+    .then(done, done);
+  });
+
+  it('gives an error when findOne gets multiple results', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }, { id: 2, title: '2' }]
+    });
+    Article.objects.fetchOne()
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/multiple results/i);
+      expect(e.code).to.eql('MULTIPLE_RESULTS_FOUND');
+      expect(e.sql).to.eql('SELECT * FROM "articles"');
+      expect(e.args).to.eql([]);
+    })
+    .then(done, done);
+  });
+
   it('has a `pk` property', function() {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     expect(article.pk).to.eql(5);
