@@ -220,6 +220,35 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can get via pk', function(done) {
+    Article.objects.where({ pk: 5 }).fetch().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."id" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can get via pk using custom pk', function(done) {
+    Article.reopen({ pk: attr('identifier') });
+    Article.objects.where({ pk: 5 }).fetch().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."identifier" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can get via id using custom pk', function(done) {
+    Article.reopen({ pk: attr('identifier') });
+    Article.objects.where({ id: 5 }).fetch().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."identifier" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can update objects', function(done) {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
