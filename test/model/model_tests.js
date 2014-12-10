@@ -61,7 +61,7 @@ describe('Model', function() {
   });
 
   it('can find an object', function(done) {
-    Article.find(1).then(function(article) {
+    Article.objects.find(1).then(function(article) {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [1]]
       ]);
@@ -76,7 +76,7 @@ describe('Model', function() {
       fields: ['id', 'title'],
       rows: []
     });
-    Article.find(1)
+    Article.objects.find(1)
     .throw(new Error('Expected query to fail.'))
     .catch(function(e) {
       expect(e.message).to.match(/no results/i);
