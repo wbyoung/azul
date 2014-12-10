@@ -51,28 +51,24 @@ describe('Condition', function() {
   it('requires expression left hand side to be a leaf', function() {
     // the only way to test this is to call a private method
     var c = w({});
-    var lhs = Node.create({ type: 'expression' });
-    var rhs = Node.create({ type: 'leaf', value: 'value' });
-    var expression = Node.create({ type: 'expression', lhs: lhs, rhs: rhs });
+    var lhs = Node.create('group', [], {});
+    var rhs = Node.create('leaf', [], { value: 'value' });
+    var expression = Node.create('expression', [lhs, rhs]);
+    c._tree = Node.create('tree', [expression]);
     expect(function() {
-      c._build(expression, {
-        grammar: this.grammar,
-        translator: this.translator
-      });
+      c.build(this.grammar, this.translator);
     }.bind(this)).to.throw(/left hand side.*must be.*leaf/i);
   });
 
   it('requires expression right hand side to be a leaf', function() {
     // the only way to test this is to call a private method
     var c = w({});
-    var lhs = Node.create({ type: 'leaf', value: 'value' });
-    var rhs = Node.create({ type: 'expression' });
-    var expression = Node.create({ type: 'expression', lhs: lhs, rhs: rhs });
+    var lhs = Node.create('leaf', [], { value: 'value' });
+    var rhs = Node.create('group', [], {});
+    var expression = Node.create('expression', [lhs, rhs]);
+    c._tree = Node.create('tree', [expression]);
     expect(function() {
-      c._build(expression, {
-        grammar: this.grammar,
-        translator: this.translator
-      });
+      c.build(this.grammar, this.translator);
     }.bind(this)).to.throw(/right hand side.*must be.*leaf/i);
   });
 
@@ -409,29 +405,48 @@ describe('Condition', function() {
   });
 
   describe('syntax builder', function() {
+    var reduceToString = function(node, children) {
+      var str = node.type;
+      if (node.attrs.operator) {
+        str = util.format('%s=%s', str, node.attrs.operator);
+      }
+      if (node.attrs.predicate) {
+        str = util.format('%s=%s', str, node.attrs.predicate);
+      }
+      if (node.attrs.value) {
+        str = util.format('%s=%s', str, node.attrs.value);
+      }
+      if (children.length) {
+        str = util.format('<%s %s>', str, children.join(', '));
+      }
+      return str;
+    };
+
     it('properly groups binary operators', function() {
       var c = w({ id: 1 }, w.and, { id: 2 });
-      expect(c._tree).to.have.deep.property('tree.operator', 'and');
-      expect(c._tree).to.have.deep.property('tree.lhs.rhs.value', 1);
-      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 2);
+      var s = c._tree.reduce(reduceToString);
+      expect(s).to.eql('<tree <binaryOperation=and ' +
+        '<expression=exact leaf=id, leaf=1>, ' +
+        '<expression=exact leaf=id, leaf=2>>>');
     });
 
     it('properly groups binary operators', function() {
       var c = w({ id: 1 }, w.and, { id: 2 }, w.and, { id: 3 });
-      expect(c._tree).to.have.deep.property('tree.operator', 'and');
-      expect(c._tree).to.have.deep.property('tree.lhs.operator', 'and');
-      expect(c._tree).to.have.deep.property('tree.lhs.lhs.rhs.value', 1);
-      expect(c._tree).to.have.deep.property('tree.lhs.rhs.rhs.value', 2);
-      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 3);
+      var s = c._tree.reduce(reduceToString);
+      expect(s).to.eql('<tree <binaryOperation=and ' +
+        '<binaryOperation=and ' +
+        '<expression=exact leaf=id, leaf=1>, ' +
+        '<expression=exact leaf=id, leaf=2>>, ' +
+        '<expression=exact leaf=id, leaf=3>>>');
     });
 
     it('properly groups unary and binary operators', function() {
       var c = w(w.not, w.not, { id: 1 }, { id: 2 });
-      expect(c._tree).to.have.deep.property('tree.operator', 'and');
-      expect(c._tree).to.have.deep.property('tree.lhs.operator', 'not');
-      expect(c._tree).to.have.deep.property('tree.lhs.operand.operator', 'not');
-      expect(c._tree).to.have.deep.property('tree.lhs.operand.operand.rhs.value', 1);
-      expect(c._tree).to.have.deep.property('tree.rhs.rhs.value', 2);
+      var s = c._tree.reduce(reduceToString);
+      expect(s).to.eql('<tree <binaryOperation=and ' +
+        '<unaryOperation=not <unaryOperation=not ' +
+        '<expression=exact leaf=id, leaf=1>>>, ' +
+        '<expression=exact leaf=id, leaf=2>>>');
     });
   });
 });
