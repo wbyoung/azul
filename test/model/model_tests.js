@@ -120,7 +120,7 @@ describe('Model', function() {
     it('executes custom SQL', function(done) {
       Article.published.fetch().then(function(/*articles*/) {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "published" = ?', [true]]
+          ['SELECT * FROM "articles" WHERE "articles"."published" = ?', [true]]
         ]);
       })
       .done(done, done);
