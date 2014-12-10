@@ -207,6 +207,19 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can get with a custom query', function(done) {
+    Article.objects.where({ id: 5, 'user.id': 7 }).fetch().then(function(articles) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."id" = ? ' +
+         'AND "user"."id" = ?', [5, 7]]
+      ]);
+      expect(articles).to.eql([
+        Article.load({ id: 1, title: 'Existing Article' })
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can update objects', function(done) {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
