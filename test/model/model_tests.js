@@ -332,6 +332,27 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can delete objects', function(done) {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    article.delete();
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE "id" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('can delete objects with implicit save', function(done) {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    article.delete().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE "id" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can delete via query', function(done) {
     Article.objects.delete()
     .then(function() {
