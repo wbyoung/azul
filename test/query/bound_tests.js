@@ -1,7 +1,6 @@
 'use strict';
 
 var chai = require('chai');
-var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
@@ -9,29 +8,19 @@ var BoundQuery = require('../../lib/query/bound');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/grammar/statement');
 
-var db;
+var db,
+  adapter;
 
 describe('BoundQuery', function() {
   before(function() {
-    db = Database.create({ adapter: FakeAdapter.create({}) });
+    adapter = FakeAdapter.create({});
+    db = Database.create({ adapter: adapter });
   });
 
   it('cannot be created directly', function() {
     expect(function() {
       BoundQuery.create();
     }).to.throw(/BoundQuery must be spawned/i);
-  });
-
-  it('has a fetch method that aliases execute', function() {
-    var query = db.query.bind('users');
-    sinon.stub(query, 'execute');
-    try {
-      query.fetch();
-      expect(query.execute).to.have.been.calledOnce;
-    }
-    finally {
-      query.execute.restore();
-    }
   });
 
   it('defaults to selecting data', function() {
@@ -179,5 +168,27 @@ describe('BoundQuery', function() {
         query.raw('SELECT * FROM "users"');
       }).to.throw(/cannot.*raw.*query.*limit/i);
     });
+  });
+
+  it('has a fetch method', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }]
+    });
+    db.query.bind('users').fetch().then(function(rows) {
+      expect(rows).to.eql([{ id: 1, title: '1' }]);
+    })
+    .then(done, done);
+  });
+
+  it('has a fetchOne method', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }]
+    });
+    db.select('users').fetchOne().then(function(result) {
+      expect(result).to.eql({ id: 1, title: '1' });
+    })
+    .then(done, done);
   });
 });

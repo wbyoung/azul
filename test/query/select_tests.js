@@ -1,7 +1,6 @@
 'use strict';
 
 var chai = require('chai');
-var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
@@ -11,29 +10,19 @@ var Statement = require('../../lib/grammar/statement');
 var Condition = require('../../lib/condition'),
   f = Condition.f;
 
-var db;
+var db,
+  adapter;
 
 describe('SelectQuery', function() {
-  before(function() {
-    db = Database.create({ adapter: FakeAdapter.create({}) });
+  beforeEach(function() {
+    adapter = FakeAdapter.create({});
+    db = Database.create({ adapter: adapter });
   });
 
   it('cannot be created directly', function() {
     expect(function() {
       SelectQuery.create();
     }).to.throw(/SelectQuery must be spawned/i);
-  });
-
-  it('has a fetch method that aliases execute', function() {
-    var query = db.select('users');
-    sinon.stub(query, 'execute');
-    try {
-      query.fetch();
-      expect(query.execute).to.have.been.calledOnce;
-    }
-    finally {
-      query.execute.restore();
-    }
   });
 
   it('accesses a table', function() {
@@ -178,5 +167,59 @@ describe('SelectQuery', function() {
     var original = db.select('users');
     var filtered = original.where({ id: 2 });
     expect(original.sql()).to.not.eql(filtered.sql());
+  });
+
+  it('has a fetch method', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }]
+    });
+    db.select('users').fetch().then(function(rows) {
+      expect(rows).to.eql([{ id: 1, title: '1' }]);
+    })
+    .then(done, done);
+  });
+
+  it('has a fetchOne method', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }]
+    });
+    db.select('users').fetchOne().then(function(result) {
+      expect(result).to.eql({ id: 1, title: '1' });
+    })
+    .then(done, done);
+  });
+
+  it('gives an error when fetchOne gets no results', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: []
+    });
+    db.select('users').fetchOne()
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/no results/i);
+      expect(e.code).to.eql('NO_RESULTS_FOUND');
+      expect(e.sql).to.eql('SELECT * FROM "users"');
+      expect(e.args).to.eql([]);
+    })
+    .then(done, done);
+  });
+
+  it('gives an error when fetchOne gets multiple results', function(done) {
+    adapter.intercept(/select.*from "users"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: '1' }, { id: 2, title: '2' }]
+    });
+    db.select('users').fetchOne()
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/multiple results/i);
+      expect(e.code).to.eql('MULTIPLE_RESULTS_FOUND');
+      expect(e.sql).to.eql('SELECT * FROM "users"');
+      expect(e.args).to.eql([]);
+    })
+    .then(done, done);
   });
 });
