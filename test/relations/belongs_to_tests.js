@@ -167,6 +167,25 @@ describe('Model.belongsTo', function() {
       })
       .done(done, done);
     });
+
+    it('works via `fetchOne`', function(done) {
+      Article.objects.where({ id: 1 }).with('author').fetchOne()
+      .then(function(fetchedArticle) {
+        expect(fetchedArticle.author).to.eql(
+          User.fresh({ id: 623, username: 'wbyoung' })
+        );
+      })
+      .done(done, done);
+    });
+
+    it('works via `find`', function(done) {
+      Article.objects.with('author').find(1).then(function(fetchedArticle) {
+        expect(fetchedArticle.author).to.eql(
+          User.fresh({ id: 623, username: 'wbyoung' })
+        );
+      })
+      .done(done, done);
+    });
   });
 
 

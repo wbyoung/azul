@@ -183,6 +183,25 @@ describe('Model.hasMany', function() {
       })
       .done(done, done);
     });
+
+    it('works via `fetchOne`', function(done) {
+      User.objects.where({ id: 1 }).with('articles').fetchOne()
+      .then(function(fetchedUser) {
+        expect(fetchedUser.articles).to.eql([
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works via `find`', function(done) {
+      User.objects.with('articles').find(1).then(function(fetchedUser) {
+        expect(fetchedUser.articles).to.eql([
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   describe('relation', function() {
