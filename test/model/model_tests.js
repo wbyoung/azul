@@ -60,6 +60,17 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can find an object', function(done) {
+    Article.find(1).then(function(article) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [1]]
+      ]);
+      expect(article)
+        .to.eql(Article.load({ id: 1, title: 'Existing Article' }));
+    })
+    .done(done, done);
+  });
+
   it('has a `pk` property', function() {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     expect(article.pk).to.eql(5);
