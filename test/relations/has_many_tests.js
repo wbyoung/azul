@@ -184,6 +184,17 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('works when no objects are returned', function(done) {
+      adapter.intercept(/select.*from "users"/i, {
+        fields: ['id', 'title', 'author_id'],
+        rows: []
+      });
+      User.objects.with('articles').fetch().then(function(articles) {
+        expect(articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
     it('works via `fetchOne`', function(done) {
       User.objects.where({ id: 1 }).with('articles').fetchOne()
       .then(function(fetchedUser) {

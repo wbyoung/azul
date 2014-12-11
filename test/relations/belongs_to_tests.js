@@ -155,6 +155,17 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('works when no objects are returned', function(done) {
+      adapter.intercept(/select.*from "articles"/i, {
+        fields: ['id', 'title', 'author_id'],
+        rows: []
+      });
+      Article.objects.with('author').fetch().then(function(articles) {
+        expect(articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
     it('gives an error when it cannot find the related object', function(done) {
       adapter.intercept(/select.*from "users"/i, {
         fields: ['id', 'username'],
