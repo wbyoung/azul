@@ -181,6 +181,15 @@ describe('SelectQuery', function() {
     .then(done, done);
   });
 
+  it('gives an error when using fetch with a non-array transform', function(done) {
+    db.select('users').transform(function(result) { return result; }).fetch()
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(e.message).to.match(/transform.*did not produce.*array/i);
+    })
+    .then(done, done);
+  });
+
   it('has a fetchOne method', function(done) {
     adapter.intercept(/select.*from "users"/i, {
       fields: ['id', 'title'],
