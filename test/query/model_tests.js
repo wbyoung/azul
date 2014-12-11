@@ -11,7 +11,7 @@ var db,
   adapter;
 
 describe('ModelQuery', function() {
-  before(function() {
+  beforeEach(function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
   });
