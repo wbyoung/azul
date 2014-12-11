@@ -201,6 +201,18 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('caches the fetched object (one query for two fetches)', function(done) {
+      article.fetchAuthor()
+      .then(function() { return article.fetchAuthor(); })
+      .then(function(user) {
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('gives an error when it cannot fetch the related object', function(done) {
       adapter.intercept(/select.*from "users"/i, {
         fields: ['id', 'username'],
