@@ -2,6 +2,7 @@
 
 var chai = require('chai');
 var expect = chai.expect;
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var Database = require('../../lib/database');
 var SelectQuery = require('../../lib/query/select');
@@ -221,5 +222,34 @@ describe('SelectQuery', function() {
       expect(e.args).to.eql([]);
     })
     .then(done, done);
+  });
+
+  describe('when adapter throws an error', function() {
+    beforeEach(function() {
+      adapter.intercept(/.*/, function() {
+        throw new Error('This adapter fails every time');
+      });
+    });
+
+    it('emits errors', function(done) {
+      var spy = sinon.spy();
+
+      db.select('users').on('error', spy).execute()
+      .catch(function() {})
+      .then(function() {
+        expect(spy).to.have.been.calledOnce;
+        expect(spy.getCall(0).args[0].message).to.match(/adapter fails/i);
+      })
+      .then(done, done);
+    });
+
+    it('rejects with the error', function(done) {
+      db.select('users').execute()
+      .throw(new Error('Expected query to fail.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/adapter fails/i);
+      })
+      .then(done, done);
+    });
   });
 });
