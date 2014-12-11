@@ -366,6 +366,18 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can delete multiple times without causing problems', function(done) {
+    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    article.delete()
+    .then(function() { return article.delete(); })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE "id" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('does not update objects after delete', function(done) {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.delete()
