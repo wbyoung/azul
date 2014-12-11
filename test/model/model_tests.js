@@ -253,6 +253,18 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('updates created objects with primary key specified', function(done) {
+    var article = Article.create({ id: 12, title: 'Azul News' });
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ? WHERE "id" = ?', ['Azul News', 12]]
+      ]);
+      expect(article.id).to.eql(12);
+    })
+    .done(done, done);
+  });
+
+
   it('specifies all attributes when creating objects', function(done) {
     var article = Article.create();
     article.save().then(function() {
@@ -497,20 +509,35 @@ describe('Model', function() {
   });
 
   it('does not perform updates on persisted objects', function(done) {
-    var article = Article.fresh({ title: 'Azul News' });
+    var article = Article.fresh({ id: 2, title: 'Azul News' });
     article.save().then(function() {
       expect(adapter.executedSQL()).to.eql([]);
     })
     .done(done, done);
   });
 
-  it('can forcefully update objects', function(done) {
-    var article = Article.fresh({ id: 8, title: 'Azul News' });
-    article.save({ force: true }).then(function() {
+  it('can force an update during save', function(done) {
+    var article = Article.create({ title: 'Azul News' });
+    article.save({ method: 'update' }).then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['UPDATE "articles" SET "title" = ? '+
-         'WHERE "id" = ?', ['Azul News', 8]]
+        ['UPDATE "articles" SET "title" = ? ' +
+         'WHERE "id" = ?', ['Azul News', undefined]]
       ]);
+      expect(article.id).to.eql(undefined);
+    })
+    .done(done, done);
+  });
+
+  it('can force an insert during save', function(done) {
+    var article = Article.create({ id: 12, title: 'Azul News' });
+    article.save({ method: 'insert' }).then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        // note that this expectation depends on ordering of object
+        // properties which is not guaranteed to be a stable ordering.
+        ['INSERT INTO "articles" ("id", "title") ' +
+         'VALUES (?, ?) RETURNING "id"', [12, 'Azul News']]
+      ]);
+      expect(article.id).to.eql(34); // fake adapter still returning 34 for id
     })
     .done(done, done);
   });
