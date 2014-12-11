@@ -303,4 +303,20 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
   });
+
+  describe('internal methods', function() {
+    it('handles disassociate', function() {
+      var user = User.fresh({ id: 4, username: 'jack' });
+      article.authorKey = 5;
+      article.authorRelation.disassociate(article, user);
+      expect(article.authorKey).to.eql(undefined);
+    });
+
+    it('handles disassociate ignoring attrs', function() {
+      var user = User.fresh({ id: 4, username: 'jack' });
+      article.authorKey = 5;
+      article.authorRelation.disassociate(article, user, { attrs: false });
+      expect(article.authorKey).to.eql(5);
+    });
+  });
 });

@@ -637,4 +637,18 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
   });
+
+  describe('internal methods', function() {
+    it('handles disassociate', function() {
+      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: 5 });
+      user.articlesRelation.disassociate(user, article);
+      expect(article.authorKey).to.eql(undefined);
+    });
+
+    it('handles disassociate ignoring attrs', function() {
+      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: 5 });
+      user.articlesRelation.disassociate(user, article, { attrs: false });
+      expect(article.authorKey).to.eql(5);
+    });
+  });
 });
