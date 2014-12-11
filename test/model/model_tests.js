@@ -208,6 +208,12 @@ describe('Model', function() {
   });
 
   describe('attribute storage', function() {
+    it('includes undefined pk value', function() {
+      var user = User.create();
+      expect(user.attrs).to.haveOwnProperty('id');
+      expect(user.attrs.id).to.equal(undefined);
+    });
+
     it('works with custom column via setters', function() {
       var user = User.create();
       user.email = 'wbyoung@azuljs.com';
