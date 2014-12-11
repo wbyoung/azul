@@ -21,4 +21,10 @@ describe('ModelQuery', function() {
       ModelQuery.create();
     }).to.throw(/ModelQuery must be spawned/i);
   });
+
+  it('gives a useful error when bad relation is used for `with`', function() {
+    expect(function() {
+      db.query.bindModel(db.model('user')).with('streets');
+    }).to.throw(/no relation.*"streets".*user query/i);
+  });
 });
