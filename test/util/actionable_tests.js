@@ -20,11 +20,10 @@ describe('Actionable', function() {
     action.execute();
     action.execute();
     expect(spy).to.have.been.calledOnce;
-    expect
   });
 
   it('returns the first result when executed multiple times', function() {
-    var action = Actionable.create(function() { return 'value' });
+    var action = Actionable.create(function() { return 'value'; });
     action.execute();
     expect(action.execute()).to.eql('value');
   });
