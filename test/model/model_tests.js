@@ -218,26 +218,26 @@ describe('Model', function() {
       var user = User.create();
       user.email = 'wbyoung@azuljs.com';
       expect(user.email).to.eql('wbyoung@azuljs.com');
-      expect(user._attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
+      expect(user.attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works with custom column via constructor', function() {
       var user = User.create({ email: 'wbyoung@azuljs.com' });
       expect(user.email).to.eql('wbyoung@azuljs.com');
-      expect(user._attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
+      expect(user.attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works via setters', function() {
       var user = User.create();
       user.username = 'wbyoung';
       expect(user.username).to.eql('wbyoung');
-      expect(user._attrs).to.have.property('username', 'wbyoung');
+      expect(user.attrs).to.have.property('username', 'wbyoung');
     });
 
     it('works via constructor', function() {
       var user = User.create({ username: 'wbyoung' });
       expect(user.username).to.eql('wbyoung');
-      expect(user._attrs).to.have.property('username', 'wbyoung');
+      expect(user.attrs).to.have.property('username', 'wbyoung');
     });
   });
 
