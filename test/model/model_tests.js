@@ -155,6 +155,38 @@ describe('Model', function() {
     });
   });
 
+  describe('with a objects replaced by a custom manager', function() {
+    beforeEach(function() {
+      var PublishedManager = Manager.extend({
+        query: function() {
+          return this._super().where({ published: true });
+        }
+      });
+      Article.reopenClass({
+        objects: PublishedManager.create(),
+        allObjects: Manager.create()
+      });
+    });
+
+    it('executes custom SQL', function(done) {
+      Article.objects.fetch().then(function(/*articles*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE "articles"."published" = ?', [true]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('executes standard SQL through extra manager', function(done) {
+      Article.allObjects.fetch().then(function(/*articles*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles"', []]
+        ]);
+      })
+      .done(done, done);
+    });
+  });
+
   describe('with a custom table', function() {
     beforeEach(function() {
       Article.reopenClass({ tableName: 'article_table' });
