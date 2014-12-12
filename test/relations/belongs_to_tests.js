@@ -68,6 +68,110 @@ describe('Model.belongsTo', function() {
     expect(article).to.respondTo('setAuthor');
   });
 
+  describe('relation', function() {
+
+    it('fetches related object', function(done) {
+      article.fetchAuthor().then(function(user) {
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('caches the fetched object (one query for two fetches)', function(done) {
+      article.fetchAuthor()
+      .then(function() { return article.fetchAuthor(); })
+      .then(function(user) {
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives an error when it cannot fetch the related object', function(done) {
+      adapter.intercept(/select.*from "users"/i, {
+        fields: ['id', 'username'],
+        rows: []
+      });
+      article.fetchAuthor()
+      .throw(new Error('Expected fetch to fail.'))
+      .catch(function(e) {
+        expect(e.message).to.match(/found no.*User.*author_id.*623/i);
+      })
+      .done(done, done);
+    });
+
+    it('does not fetch when the foreign key is not defined', function(done) {
+      var unauthoredArticle = Article.fresh({ id: 932, title: 'Azul News' });
+      unauthoredArticle.fetchAuthor().then(function(user) {
+        expect(user).to.not.exist;
+        expect(unauthoredArticle.author).to.not.exist;
+        expect(adapter.executedSQL()).to.eql([]);
+      })
+      .done(done, done);
+    });
+
+    it('throws when attempting to access un-loaded item', function() {
+      expect(function() {
+        article.author;
+      }).to.throw(/author.*not yet.*loaded/i);
+    });
+
+    it('allows access loaded item', function(done) {
+      article.fetchAuthor().then(function() {
+        expect(article.author.attrs).to.eql({ id: 623, username: 'wbyoung' });
+      })
+      .done(done, done);
+    });
+  });
+
+  describe('helpers', function() {
+    it('provides a getter method for the foreign key', function() {
+      expect(article.authorId).to.eql(623);
+    });
+
+    it('does not provide a setter method for the foreign key', function() {
+      expect(function() {
+        article.authorId = 25;
+      }).to.throw(/cannot set.*authorId/i);
+    });
+
+    it('allows create', function() {
+      var user = article.createAuthor({ username: 'jill' });
+      expect(article.author).to.equal(user);
+      expect(user).to.to.be.an.instanceOf(User.__class__);
+    });
+
+    it('allows store with existing object', function(done) {
+      article.author = User.fresh({ id: 3, username: 'jack' });
+      article.save().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Azul News', 3, 932]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows store with unsaved object', function(done) {
+      var user = User.create({ username: 'jack' });
+      article.author = user;
+      article.save().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "users" ("username") VALUES (?) ' +
+           'RETURNING "id"', ['jack']],
+          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Azul News', 838, 932]]
+        ]);
+      })
+      .done(done, done);
+    });
+  });
+
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       Article.objects.with('author').fetch().then(function() {
@@ -194,111 +298,6 @@ describe('Model.belongsTo', function() {
         expect(fetchedArticle.author).to.eql(
           User.fresh({ id: 623, username: 'wbyoung' })
         );
-      })
-      .done(done, done);
-    });
-  });
-
-
-  describe('relation', function() {
-
-    it('fetches related object', function(done) {
-      article.fetchAuthor().then(function(user) {
-        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('caches the fetched object (one query for two fetches)', function(done) {
-      article.fetchAuthor()
-      .then(function() { return article.fetchAuthor(); })
-      .then(function(user) {
-        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('gives an error when it cannot fetch the related object', function(done) {
-      adapter.intercept(/select.*from "users"/i, {
-        fields: ['id', 'username'],
-        rows: []
-      });
-      article.fetchAuthor()
-      .throw(new Error('Expected fetch to fail.'))
-      .catch(function(e) {
-        expect(e.message).to.match(/found no.*User.*author_id.*623/i);
-      })
-      .done(done, done);
-    });
-
-    it('does not fetch when the foreign key is not defined', function(done) {
-      var unauthoredArticle = Article.fresh({ id: 932, title: 'Azul News' });
-      unauthoredArticle.fetchAuthor().then(function(user) {
-        expect(user).to.not.exist;
-        expect(unauthoredArticle.author).to.not.exist;
-        expect(adapter.executedSQL()).to.eql([]);
-      })
-      .done(done, done);
-    });
-
-    it('throws when attempting to access un-loaded item', function() {
-      expect(function() {
-        article.author;
-      }).to.throw(/author.*not yet.*loaded/i);
-    });
-
-    it('allows access loaded item', function(done) {
-      article.fetchAuthor().then(function() {
-        expect(article.author.attrs).to.eql({ id: 623, username: 'wbyoung' });
-      })
-      .done(done, done);
-    });
-  });
-
-  describe('helpers', function() {
-    it('provides a getter method for the foreign key', function() {
-      expect(article.authorId).to.eql(623);
-    });
-
-    it('does not provide a setter method for the foreign key', function() {
-      expect(function() {
-        article.authorId = 25;
-      }).to.throw(/cannot set.*authorId/i);
-    });
-
-    it('allows create', function() {
-      var user = article.createAuthor({ username: 'jill' });
-      expect(article.author).to.equal(user);
-      expect(user).to.to.be.an.instanceOf(User.__class__);
-    });
-
-    it('allows store with existing object', function(done) {
-      article.author = User.fresh({ id: 3, username: 'jack' });
-      article.save().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-           'WHERE "id" = ?', ['Azul News', 3, 932]]
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('allows store with unsaved object', function(done) {
-      var user = User.create({ username: 'jack' });
-      article.author = user;
-      article.save().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['INSERT INTO "users" ("username") VALUES (?) ' +
-           'RETURNING "id"', ['jack']],
-          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-           'WHERE "id" = ?', ['Azul News', 838, 932]]
-        ]);
       })
       .done(done, done);
     });

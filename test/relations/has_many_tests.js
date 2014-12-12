@@ -82,139 +82,6 @@ describe('Model.hasMany', function() {
     expect(user).to.respondTo('clearArticles');
   });
 
-  describe('pre-fetch', function() {
-    it('executes multiple queries', function(done) {
-      User.objects.with('articles').fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users"', []],
-          ['SELECT * FROM "articles" WHERE "articles"."author_num" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('caches related objects', function(done) {
-      User.objects.with('articles').fetch().get('0').then(function(foundUser) {
-        expect(foundUser.id).to.eql(1);
-        expect(foundUser.username).to.eql('wbyoung');
-        expect(foundUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('works with multiple models each having multiple related objects', function(done) {
-      var usersRegex = /select.*from "users".*order by "id"/i;
-      var articlesRegex =
-        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\)/i;
-      adapter.intercept(usersRegex, {
-        fields: ['id', 'username'],
-        rows: [
-          { id: 1, username: 'wbyoung' },
-          { id: 2, username: 'kate' },
-          { id: 4, username: 'sam' },
-        ]
-      });
-      adapter.intercept(articlesRegex, {
-        fields: ['id', 'title', 'author_num'],
-        rows: [
-          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
-          { id: 9, title: 'Delicious Pancakes', 'author_num': 2 },
-          { id: 8, title: 'Awesome Margaritas', 'author_num': 2 },
-          { id: 4, title: 'Tasty Kale Salad', 'author_num': 2 },
-          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
-        ]
-      });
-
-      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
-        expect(users[0].username).to.eql('wbyoung');
-        expect(users[1].username).to.eql('kate');
-        expect(users[2].username).to.eql('sam');
-        expect(_.map(users[0].articles, 'title')).to.eql([
-          'Announcing Azul', 'Node.js ORM'
-        ]);
-        expect(_.map(users[1].articles, 'title')).to.eql([
-          'Delicious Pancakes', 'Awesome Margaritas', 'Tasty Kale Salad'
-        ]);
-        expect(_.map(users[2].articles, 'title')).to.eql([
-          'The Bipartisan System'
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('works when some the objects have an empty result set', function(done) {
-      var usersRegex = /select.*from "users".*order by "id"/i;
-      var articlesRegex =
-        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\, \?\)/i;
-      adapter.intercept(usersRegex, {
-        fields: ['id', 'username'],
-        rows: [
-          { id: 1, username: 'wbyoung' },
-          { id: 2, username: 'kate' },
-          { id: 3, username: 'vanessa' },
-          { id: 4, username: 'sam' },
-        ]
-      });
-      adapter.intercept(articlesRegex, {
-        fields: ['id', 'title', 'author_num'],
-        rows: [
-          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
-          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
-        ]
-      });
-
-      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
-        expect(users[0].username).to.eql('wbyoung');
-        expect(users[1].username).to.eql('kate');
-        expect(users[2].username).to.eql('vanessa');
-        expect(users[3].username).to.eql('sam');
-        expect(_.map(users[0].articles, 'title')).to.eql([
-          'Announcing Azul', 'Node.js ORM'
-        ]);
-        expect(_.map(users[1].articles, 'title')).to.eql([]);
-        expect(_.map(users[2].articles, 'title')).to.eql([]);
-        expect(_.map(users[3].articles, 'title')).to.eql([
-          'The Bipartisan System'
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('works when no objects are returned', function(done) {
-      adapter.intercept(/select.*from "users"/i, {
-        fields: ['id', 'title', 'author_id'],
-        rows: []
-      });
-      User.objects.with('articles').fetch().then(function(articles) {
-        expect(articles).to.eql([]);
-      })
-      .done(done, done);
-    });
-
-    it('works via `fetchOne`', function(done) {
-      User.objects.where({ id: 1 }).with('articles').fetchOne()
-      .then(function(fetchedUser) {
-        expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('works via `find`', function(done) {
-      User.objects.with('articles').find(1).then(function(fetchedUser) {
-        expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
-        ]);
-      })
-      .done(done, done);
-    });
-  });
-
   describe('relation', function() {
 
     it('fetches related objects', function(done) {
@@ -632,6 +499,139 @@ describe('Model.hasMany', function() {
            'WHERE "id" IN (?, ?)', [1, 7, 2]],
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [undefined, 5, 4]],
+        ]);
+      })
+      .done(done, done);
+    });
+  });
+
+  describe('pre-fetch', function() {
+    it('executes multiple queries', function(done) {
+      User.objects.with('articles').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users"', []],
+          ['SELECT * FROM "articles" WHERE "articles"."author_num" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('caches related objects', function(done) {
+      User.objects.with('articles').fetch().get('0').then(function(foundUser) {
+        expect(foundUser.id).to.eql(1);
+        expect(foundUser.username).to.eql('wbyoung');
+        expect(foundUser.articles).to.eql([
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works with multiple models each having multiple related objects', function(done) {
+      var usersRegex = /select.*from "users".*order by "id"/i;
+      var articlesRegex =
+        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\)/i;
+      adapter.intercept(usersRegex, {
+        fields: ['id', 'username'],
+        rows: [
+          { id: 1, username: 'wbyoung' },
+          { id: 2, username: 'kate' },
+          { id: 4, username: 'sam' },
+        ]
+      });
+      adapter.intercept(articlesRegex, {
+        fields: ['id', 'title', 'author_num'],
+        rows: [
+          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+          { id: 9, title: 'Delicious Pancakes', 'author_num': 2 },
+          { id: 8, title: 'Awesome Margaritas', 'author_num': 2 },
+          { id: 4, title: 'Tasty Kale Salad', 'author_num': 2 },
+          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
+        ]
+      });
+
+      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+        expect(users[0].username).to.eql('wbyoung');
+        expect(users[1].username).to.eql('kate');
+        expect(users[2].username).to.eql('sam');
+        expect(_.map(users[0].articles, 'title')).to.eql([
+          'Announcing Azul', 'Node.js ORM'
+        ]);
+        expect(_.map(users[1].articles, 'title')).to.eql([
+          'Delicious Pancakes', 'Awesome Margaritas', 'Tasty Kale Salad'
+        ]);
+        expect(_.map(users[2].articles, 'title')).to.eql([
+          'The Bipartisan System'
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works when some the objects have an empty result set', function(done) {
+      var usersRegex = /select.*from "users".*order by "id"/i;
+      var articlesRegex =
+        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\, \?\)/i;
+      adapter.intercept(usersRegex, {
+        fields: ['id', 'username'],
+        rows: [
+          { id: 1, username: 'wbyoung' },
+          { id: 2, username: 'kate' },
+          { id: 3, username: 'vanessa' },
+          { id: 4, username: 'sam' },
+        ]
+      });
+      adapter.intercept(articlesRegex, {
+        fields: ['id', 'title', 'author_num'],
+        rows: [
+          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
+        ]
+      });
+
+      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+        expect(users[0].username).to.eql('wbyoung');
+        expect(users[1].username).to.eql('kate');
+        expect(users[2].username).to.eql('vanessa');
+        expect(users[3].username).to.eql('sam');
+        expect(_.map(users[0].articles, 'title')).to.eql([
+          'Announcing Azul', 'Node.js ORM'
+        ]);
+        expect(_.map(users[1].articles, 'title')).to.eql([]);
+        expect(_.map(users[2].articles, 'title')).to.eql([]);
+        expect(_.map(users[3].articles, 'title')).to.eql([
+          'The Bipartisan System'
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works when no objects are returned', function(done) {
+      adapter.intercept(/select.*from "users"/i, {
+        fields: ['id', 'title', 'author_id'],
+        rows: []
+      });
+      User.objects.with('articles').fetch().then(function(articles) {
+        expect(articles).to.eql([]);
+      })
+      .done(done, done);
+    });
+
+    it('works via `fetchOne`', function(done) {
+      User.objects.where({ id: 1 }).with('articles').fetchOne()
+      .then(function(fetchedUser) {
+        expect(fetchedUser.articles).to.eql([
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works via `find`', function(done) {
+      User.objects.with('articles').find(1).then(function(fetchedUser) {
+        expect(fetchedUser.articles).to.eql([
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
       })
       .done(done, done);
