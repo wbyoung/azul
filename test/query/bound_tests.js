@@ -170,6 +170,45 @@ describe('BoundQuery', function() {
     });
   });
 
+  describe('pre-specified join', function() {
+    var query;
+    before(function() {
+      query = db.query.bind('users')
+        .join('profiles', 'left', 'users.profile_id=profiles.id');
+    });
+
+    it('allows select', function() {
+      expect(query.all().sql()).to.eql(Statement.create(
+        'SELECT * FROM "users" LEFT JOIN "profiles" ' +
+        'ON "users"."profile_id" = "profiles"."id"', []
+      ));
+    });
+
+    it('does not allow insert', function() {
+      expect(function() {
+        query.insert({ name: 'Whit' });
+      }).to.throw(/cannot.*insert.*query.*join/i);
+    });
+
+    it('does not allow update', function() {
+      expect(function() {
+        query.update({ name: 'Whit' });
+      }).to.throw(/cannot.*update.*query.*join/i);
+    });
+
+    it('does not allow delete', function() {
+      expect(function() {
+        query.delete();
+      }).to.throw(/cannot.*delete.*query.*join/i);
+    });
+
+    it('does not allow raw', function() {
+      expect(function() {
+        query.raw('SELECT * FROM "users"');
+      }).to.throw(/cannot.*raw.*query.*join/i);
+    });
+  });
+
   it('has a fetch method', function(done) {
     adapter.intercept(/select.*from "users"/i, {
       fields: ['id', 'title'],

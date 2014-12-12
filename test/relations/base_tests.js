@@ -39,6 +39,15 @@ describe('BaseRelation', function() {
     }).to.throw(/disassociate.*must.*implemented.*subclass/i);
   });
 
+  it('requires subclass to implement join', function() {
+    var user1 = User.create();
+    var user2 = User.create();
+    var relation = BaseRelation.create('article', User);
+    expect(function() {
+      relation.join(user1, user2);
+    }).to.throw(/join.*must.*implemented.*subclass/i);
+  });
+
   it('requires subclass to implement prefetch', function() {
     var user1 = User.create();
     var user2 = User.create();

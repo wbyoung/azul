@@ -327,6 +327,16 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('does not translate values qualified by table name', function(done) {
+    Article.reopen({ pk: attr('identifier') });
+    Article.objects.where({ 'articles.pk': 5 }).fetch().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "articles"."pk" = ?', [5]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can update objects', function(done) {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';

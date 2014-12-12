@@ -172,6 +172,103 @@ describe('Model.belongsTo', function() {
     });
   });
 
+  describe('joins', function() {
+    it('generates simple join queries', function(done) {
+      Article.objects.join('author').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id"', []]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('generates join queries that use where accessing fields in both types', function(done) {
+      Article.objects.join('author').where({
+        username: 'wbyoung',
+        'title[contains]': 'News'
+      }).fetch().then(function() {
+        // note that this expectation depends on ordering of object
+        // properties which is not guaranteed to be a stable ordering.
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."username" = ? ' +
+           'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('defaults to the main model on ambiguous property', function(done) {
+      Article.objects.join('author').where({ id: 5 })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "articles"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives an error when there is an ambiguous property in two joins', function() {
+      var belongsTo = db.belongsTo;
+      var attr = db.attr;
+      var Blog = db.model('blog');
+      Blog.reopen({ name: attr() });
+      User.reopen({ name: attr() });
+      Article.reopen({ blog: belongsTo('blog') });
+
+      var query = Article.objects
+        .join('author')
+        .join('blog')
+        .where({ name: 'John/Azul Blog' });
+
+      expect(function() {
+        query.sql();
+      }).to.throw(/ambiguous.*"name".*"(author|blog)".*"(author|blog)"/i);
+    });
+
+    it('resolves fields specified by relation name', function(done) {
+      Article.objects.join('author').where({ 'author.id': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('resolves the relation name when the attribute is not defined', function(done) {
+      Article.objects.join('author').where({ 'author.dbonly_field': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."dbonly_field" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('resolves fields specified by relation name & attr name', function(done) {
+      Article.objects.join('author').where({ 'author.pk': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+  });
+
+
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       Article.objects.with('author').fetch().then(function() {

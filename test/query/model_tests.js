@@ -25,6 +25,12 @@ describe('ModelQuery', function() {
   it('gives a useful error when bad relation is used for `with`', function() {
     expect(function() {
       db.query.bindModel(db.model('user')).with('streets');
-    }).to.throw(/no relation.*"streets".*user query/i);
+    }).to.throw(/no relation.*"streets".*with.*user query/i);
+  });
+
+  it('gives a useful error when bad relation is used for `join`', function() {
+    expect(function() {
+      db.query.bindModel(db.model('user')).join('streets');
+    }).to.throw(/no relation.*"streets".*join.*user query/i);
   });
 });
