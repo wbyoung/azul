@@ -177,7 +177,7 @@ describe('Model.belongsTo', function() {
       Article.objects.join('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id"', []]
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id"', []]
         ]);
       })
       .done(done, done);
@@ -192,7 +192,7 @@ describe('Model.belongsTo', function() {
         // properties which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" = ? ' +
            'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
         ]);
@@ -205,7 +205,7 @@ describe('Model.belongsTo', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "articles"."id" = ?', [5]]
         ]);
       })
@@ -235,7 +235,7 @@ describe('Model.belongsTo', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
       })
@@ -247,7 +247,7 @@ describe('Model.belongsTo', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."dbonly_field" = ?', [5]]
         ]);
       })
@@ -259,7 +259,7 @@ describe('Model.belongsTo', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'LEFT JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
       })
