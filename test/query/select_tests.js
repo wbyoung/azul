@@ -145,6 +145,12 @@ describe('SelectQuery', function() {
       expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
     });
 
+    it('accepts alternate name', function() {
+      expect(db.select('articles').join('authors', 'authors_alias').sql()).to.eql(Statement.create(
+        'SELECT * FROM "articles" INNER JOIN "authors" "authors_alias" ON TRUE', []
+      ));
+    });
+
     it('accepts conditions as a simple string', function() {
       var result = db.select('articles').join('authors', 'articles.author_id=authors.id').sql();
       expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
