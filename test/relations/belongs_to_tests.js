@@ -450,6 +450,36 @@ describe('Model.belongsTo', function() {
       })
       .done(done, done);
     });
+
+    it('handles multiple items at once', function(done) {
+      var Blog = db.model('blog');
+      Blog.reopen({ name: db.attr() });
+      Article.reopen({ blog: db.belongsTo('blog') });
+      adapter.intercept(/select.*from "articles"/i, {
+        fields: ['id', 'title'],
+        rows: [{ id: 448, title: 'Journal', 'author_id': 623, 'blog_id': 82 }]
+      });
+      adapter.intercept(/select.*from "blogs"/i, {
+        fields: ['id', 'name'],
+        rows: [{ id: 82, name: 'Azul News' }]
+      });
+
+      Article.objects.with('author', 'blog').find(1).then(function(foundArticle) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [1]],
+          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]],
+          ['SELECT * FROM "blogs" WHERE "blogs"."id" = ? LIMIT 1', [82]]
+        ]);
+        expect(foundArticle.author).to.eql(
+          User.fresh({ id: 623, username: 'wbyoung' })
+        );
+        expect(foundArticle.blog).to.eql(
+          Blog.fresh({ id: 82, name: 'Azul News' })
+        );
+      })
+      .done(done, done);
+    });
+
   });
 
   describe('internal methods', function() {
