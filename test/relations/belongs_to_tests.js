@@ -266,6 +266,18 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('automatically determines joins from conditions', function(done) {
+      Article.objects.where({ 'author.username': 'wbyoung', })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."username" = ?', ['wbyoung']]
+        ]);
+      })
+      .done(done, done);
+    });
+
   });
 
 
