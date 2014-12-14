@@ -146,7 +146,7 @@ describe('SelectQuery', function() {
     });
 
     it('accepts alternate name', function() {
-      expect(db.select('articles').join('authors', 'authors_alias').sql()).to.eql(Statement.create(
+      expect(db.select('articles').join({ authors: 'authors_alias' }).sql()).to.eql(Statement.create(
         'SELECT * FROM "articles" INNER JOIN "authors" "authors_alias" ON TRUE', []
       ));
     });
