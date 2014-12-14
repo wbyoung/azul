@@ -111,6 +111,12 @@ describe('Condition', function() {
       expect(details.predicate).to.equal('gt');
     });
 
+    it('extracts predicates with table names', function() {
+      var details = Condition._extractPredicate('users.id[gt]');
+      expect(details.key).to.eql('users.id');
+      expect(details.predicate).to.equal('gt');
+    });
+
     it('defaults to exact', function() {
       var details = Condition._extractPredicate('address');
       expect(details.key).to.eql('address');
