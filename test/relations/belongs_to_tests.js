@@ -301,6 +301,23 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('works with a complex query', function(done) {
+      Article.objects.where({ 'author.username[contains]': 'w', })
+      .orderBy('title', '-author.name')
+      .limit(10)
+      .offset(20)
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."username" LIKE ? ' +
+           'ORDER BY "articles"."title" ASC, "users"."name" DESC ' +
+           'LIMIT 10 OFFSET 20', ['%w%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
   });
 
 
@@ -327,7 +344,7 @@ describe('Model.belongsTo', function() {
     });
 
     it('works with models each having multiple related objects', function(done) {
-      var articlesRegex = /select.*from "articles".*order by "id"/i;
+      var articlesRegex = /select.*from "articles".*order by "articles"."id"/i;
       var usersRegex =
         /select.*from "users" where "users"."id" in \(\?, \?, \?\) limit 3/i;
       adapter.intercept(articlesRegex, {
@@ -363,7 +380,7 @@ describe('Model.belongsTo', function() {
     });
 
     it('works when the related value is sometimes absent', function(done) {
-      var articlesRegex = /select.*from "articles".*order by "id"/i;
+      var articlesRegex = /select.*from "articles".*order by "articles"."id"/i;
       var usersRegex =
         /select.*from "users" where "users"."id" in \(\?, \?\) limit 2/i;
       adapter.intercept(articlesRegex, {

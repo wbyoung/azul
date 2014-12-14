@@ -528,7 +528,7 @@ describe('Model.hasMany', function() {
     });
 
     it('works with multiple models each having multiple related objects', function(done) {
-      var usersRegex = /select.*from "users".*order by "id"/i;
+      var usersRegex = /select.*from "users".*order by "users"."id"/i;
       var articlesRegex =
         /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\)/i;
       adapter.intercept(usersRegex, {
@@ -569,7 +569,7 @@ describe('Model.hasMany', function() {
     });
 
     it('works when some the objects have an empty result set', function(done) {
-      var usersRegex = /select.*from "users".*order by "id"/i;
+      var usersRegex = /select.*from "users".*order by "users"."id"/i;
       var articlesRegex =
         /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\, \?\)/i;
       adapter.intercept(usersRegex, {
