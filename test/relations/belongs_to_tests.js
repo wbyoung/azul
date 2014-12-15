@@ -352,7 +352,6 @@ describe('Model.belongsTo', function() {
     });
   });
 
-
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       Article.objects.with('author').fetch().then(function() {
