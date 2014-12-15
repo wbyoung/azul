@@ -38,4 +38,16 @@ describe('Model self-joins', function() {
     .done(done, done);
   });
 
+  it('expands attributes', function(done) {
+    Employee.objects.where({ 'manager.pk': 1 }).then(function(/*employee*/) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "employees" ' +
+         'INNER JOIN "employees" "manager" ' +
+         'ON "employees"."manager_id" = "manager"."id" ' +
+         'WHERE "manager"."id" = ?', [1]]
+      ]);
+    })
+    .done(done, done);
+  });
+
 });
