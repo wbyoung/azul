@@ -27,6 +27,18 @@ describe('Model self-joins', function() {
   });
 
   it('generates the proper sql', function(done) {
+    Employee.objects.join('manager').where({ id: 1 }).then(function(/*employee*/) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "employees" ' +
+         'INNER JOIN "employees" "manager" ' +
+         'ON "employees"."manager_id" = "manager"."id" ' +
+         'WHERE "employees"."id" = ?', [1]]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('uses the correct table when where uses relation', function(done) {
     Employee.objects.where({ 'manager.id': 1 }).then(function(/*employee*/) {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT * FROM "employees" ' +
