@@ -10,7 +10,8 @@ require('../helpers/model');
 
 var db,
   adapter,
-  Employee;
+  Employee,
+  Node;
 
 describe('Model self-joins', function() {
   beforeEach(function() {
@@ -23,6 +24,11 @@ describe('Model self-joins', function() {
     Employee = db.model('employee').reopen({
       subordinates: hasMany('employee', { inverse: 'manager' }),
       manager: belongsTo('employee', { inverse: 'subordinates' })
+    });
+
+    Node = db.model('node').reopen({
+      parent: belongsTo('node', { inverse: 'nodes' }),
+      nodes: hasMany('node', { inverse: 'parent' })
     });
   });
 
@@ -96,6 +102,69 @@ describe('Model self-joins', function() {
            'INNER JOIN "employees" "subordinates" ' +
            'ON "employees"."id" = "subordinates"."manager_id" ' +
            'WHERE "subordinates"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+  });
+
+  describe('name conflicts', function() {
+    it('works for a single join', function(done) {
+      Node.objects.join('nodes').where({ 'nodes.pk': 1 })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "nodes" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'WHERE "nodes_j1"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('is automatically joined via the condition', function(done) {
+      Node.objects.where({ 'nodes.pk': 1 })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "nodes" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'WHERE "nodes_j1"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('does not use attributes without prefix for the relation', function(done) {
+      Node.objects.join('nodes').where({ pk: 1 })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "nodes" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'WHERE "nodes"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('still generates standard statements', function(done) {
+      Node.objects.where({ id: 1 })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "nodes" ' +
+           'WHERE "nodes"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works across multiple joins', function(done) {
+      Node.objects.where({ 'nodes.nodes.nodes.pk': 5 })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "nodes" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j2" ON "nodes_j1"."id" = "nodes_j2"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j3" ON "nodes_j2"."id" = "nodes_j3"."parent_id" ' +
+           'WHERE "nodes_j3"."id" = ?', [5]]
         ]);
       })
       .done(done, done);
