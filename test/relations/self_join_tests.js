@@ -26,40 +26,79 @@ describe('Model self-joins', function() {
     });
   });
 
-  it('generates the proper sql', function(done) {
-    Employee.objects.join('manager').where({ id: 1 }).then(function(/*employee*/) {
-      expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "employees" ' +
-         'INNER JOIN "employees" "manager" ' +
-         'ON "employees"."manager_id" = "manager"."id" ' +
-         'WHERE "employees"."id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
+  describe('belongsTo', function() {
+    it('generates the proper sql', function(done) {
+      Employee.objects.join('manager').where({ id: 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "manager" ' +
+           'ON "employees"."manager_id" = "manager"."id" ' +
+           'WHERE "employees"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('uses the correct table when where uses relation', function(done) {
+      Employee.objects.where({ 'manager.id': 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "manager" ' +
+           'ON "employees"."manager_id" = "manager"."id" ' +
+           'WHERE "manager"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('expands attributes', function(done) {
+      Employee.objects.where({ 'manager.pk': 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "manager" ' +
+           'ON "employees"."manager_id" = "manager"."id" ' +
+           'WHERE "manager"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
-  it('uses the correct table when where uses relation', function(done) {
-    Employee.objects.where({ 'manager.id': 1 }).then(function(/*employee*/) {
-      expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "employees" ' +
-         'INNER JOIN "employees" "manager" ' +
-         'ON "employees"."manager_id" = "manager"."id" ' +
-         'WHERE "manager"."id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
-  });
+  describe('hasMany', function() {
+    it('generates the proper sql', function(done) {
+      Employee.objects.join('subordinates').where({ id: 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "subordinates" ' +
+           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'WHERE "employees"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
 
-  it('expands attributes', function(done) {
-    Employee.objects.where({ 'manager.pk': 1 }).then(function(/*employee*/) {
-      expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "employees" ' +
-         'INNER JOIN "employees" "manager" ' +
-         'ON "employees"."manager_id" = "manager"."id" ' +
-         'WHERE "manager"."id" = ?', [1]]
-      ]);
-    })
-    .done(done, done);
-  });
+    it('uses the correct table when where uses relation', function(done) {
+      Employee.objects.where({ 'subordinates.id': 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "subordinates" ' +
+           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'WHERE "subordinates"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
 
+    it('expands attributes', function(done) {
+      Employee.objects.where({ 'subordinates.pk': 1 }).then(function(/*employee*/) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "employees" ' +
+           'INNER JOIN "employees" "subordinates" ' +
+           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'WHERE "subordinates"."id" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+  });
 });

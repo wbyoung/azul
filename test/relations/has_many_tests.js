@@ -505,6 +505,177 @@ describe('Model.hasMany', function() {
     });
   });
 
+  describe('joins', function() {
+    it('generates simple join queries', function(done) {
+      User.objects.join('articles').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num"', []]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('generates join queries that use where accessing fields in both types', function(done) {
+      User.objects.join('articles').where({
+        username: 'wbyoung',
+        'title[contains]': 'News'
+      }).fetch().then(function() {
+        // note that this expectation depends on ordering of object
+        // properties which is not guaranteed to be a stable ordering.
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "users"."username" = ? ' +
+           'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('defaults to the main model on ambiguous property', function(done) {
+      User.objects.join('articles').where({ id: 5 })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "users"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives an error when there is an ambiguous property in two joins', function() {
+      var Blog = db.model('blog');
+      Blog.reopen({ title: db.attr() });
+      User.reopen({ blogs: db.hasMany('blog') });
+
+      var query = User.objects
+        .join('articles')
+        .join('blogs')
+        .where({ title: 'Azul Article/Azul Blog' });
+
+      expect(function() {
+        query.sql();
+      }).to.throw(/ambiguous.*"title".*"(articles|blogs)".*"(articles|blogs)"/i);
+    });
+
+    it('resolves fields specified by relation name', function(done) {
+      User.objects.join('articles').where({ 'articles.id': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('resolves the relation name when the attribute is not defined', function(done) {
+      User.objects.join('articles').where({ 'articles.dbonly_field': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."dbonly_field" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('resolves fields specified by relation name & attr name', function(done) {
+      User.objects.join('articles').where({ 'articles.pk': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('automatically determines joins from conditions', function(done) {
+      User.objects.where({ 'articles.title': 'News', })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."title" = ?', ['News']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('handles attrs during automatic joining', function(done) {
+      User.objects.where({ 'articles.pk': 5, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."id" = ?', [5]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('does not automatically join based on attributes', function(done) {
+      User.objects.where({ 'username': 'wbyoung', })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'WHERE "users"."username" = ?', ['wbyoung']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works with a complex query', function(done) {
+      User.objects.where({ 'articles.title[contains]': 'news', })
+      .orderBy('username', '-articles.title')
+      .limit(10)
+      .offset(20)
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'WHERE "articles"."title" LIKE ? ' +
+           'ORDER BY "users"."username" ASC, "articles"."title" DESC ' +
+           'LIMIT 10 OFFSET 20', ['%news%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('joins & orders across multiple relationships', function(done) {
+      var Comment = db.model('comment');
+      Comment.reopen({ body: db.attr() });
+      Article.reopen({ comments: db.hasMany() });
+      User.objects.where({ 'articles.comments.body[contains]': 'rolex', })
+      .orderBy('username', 'articles.comments.body')
+      .limit(10)
+      .offset(20)
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'INNER JOIN "comments" ON "articles"."id" = "comments"."article_id" ' +
+           'WHERE "comments"."body" LIKE ? ' +
+           'ORDER BY "users"."username" ASC, "comments"."body" ASC ' +
+           'LIMIT 10 OFFSET 20', ['%rolex%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives a useful error when second bad relation is used for `join`', function() {
+      expect(function() {
+        User.objects.join('articles.streets');
+      }).to.throw(/no relation.*"streets".*join.*user query.*articles/i);
+    });
+  });
+
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       User.objects.with('articles').fetch().then(function() {
