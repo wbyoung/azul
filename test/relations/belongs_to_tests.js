@@ -12,6 +12,7 @@ require('../helpers/model');
 var db,
   adapter,
   Article,
+  Comment,
   User,
   article;
 
@@ -28,6 +29,10 @@ describe('Model.belongsTo', function() {
       author: belongsTo('user'),
       authorKey: attr('author_id') // writable access to foreign key attr
     });
+    Comment = db.model('comment').reopen({
+      body: db.attr(),
+      article: db.belongsTo('article')
+    });
     User = db.model('user').reopen({
       username: attr()
     });
@@ -43,8 +48,12 @@ describe('Model.belongsTo', function() {
       rows: [{ id: 623, username: 'wbyoung' }]
     });
     adapter.intercept(/select.*from "articles"/i, {
-      fields: ['id', 'title'],
+      fields: ['id', 'title', 'author_id'],
       rows: [{ id: 448, title: 'Journal', 'author_id': 623 }]
+    });
+    adapter.intercept(/select.*from "comments"/i, {
+      fields: ['id', 'body', 'article_id'],
+      rows: [{ id: 384, body: 'Great Post!', 'article_id': 448 }]
     });
     adapter.intercept(/insert into "users"/i, {
       fields: ['id'],
@@ -318,6 +327,29 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('joins & orders across multiple relationships', function(done) {
+      Comment.objects.where({ 'article.author.username[contains]': 'w', })
+      .orderBy('title', 'article.author.name')
+      .limit(10)
+      .offset(20)
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "comments" ' +
+           'INNER JOIN "articles" ON "comments"."article_id" = "articles"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."username" LIKE ? ' +
+           'ORDER BY "articles"."title" ASC, "users"."name" ASC ' +
+           'LIMIT 10 OFFSET 20', ['%w%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives a useful error when second bad relation is used for `join`', function() {
+      expect(function() {
+        Comment.objects.join('article.streets');
+      }).to.throw(/no relation.*"streets".*join.*comment query.*article/i);
+    });
   });
 
 
@@ -480,6 +512,20 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('works across multiple relationships', function(done) {
+      Comment.objects.with('article.author').find(384)
+      .then(function(foundComment) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "comments" WHERE "comments"."id" = ? LIMIT 1', [384]],
+          ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [448]],
+          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]],
+        ]);
+        expect(foundComment.article.author).to.eql(
+          User.fresh({ id: 623, username: 'wbyoung' })
+        );
+      })
+      .done(done, done);
+    });
   });
 
   describe('internal methods', function() {
