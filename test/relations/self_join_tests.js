@@ -28,7 +28,7 @@ describe('Model self-joins', function() {
 
   describe('belongsTo', function() {
     it('generates the proper sql', function(done) {
-      Employee.objects.join('manager').where({ id: 1 }).then(function(/*employee*/) {
+      Employee.objects.join('manager').where({ id: 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "manager" ' +
@@ -40,7 +40,7 @@ describe('Model self-joins', function() {
     });
 
     it('uses the correct table when where uses relation', function(done) {
-      Employee.objects.where({ 'manager.id': 1 }).then(function(/*employee*/) {
+      Employee.objects.where({ 'manager.id': 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "manager" ' +
@@ -52,7 +52,7 @@ describe('Model self-joins', function() {
     });
 
     it('expands attributes', function(done) {
-      Employee.objects.where({ 'manager.pk': 1 }).then(function(/*employee*/) {
+      Employee.objects.where({ 'manager.pk': 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "manager" ' +
@@ -66,7 +66,7 @@ describe('Model self-joins', function() {
 
   describe('hasMany', function() {
     it('generates the proper sql', function(done) {
-      Employee.objects.join('subordinates').where({ id: 1 }).then(function(/*employee*/) {
+      Employee.objects.join('subordinates').where({ id: 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
@@ -78,7 +78,7 @@ describe('Model self-joins', function() {
     });
 
     it('uses the correct table when where uses relation', function(done) {
-      Employee.objects.where({ 'subordinates.id': 1 }).then(function(/*employee*/) {
+      Employee.objects.where({ 'subordinates.id': 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
@@ -90,7 +90,7 @@ describe('Model self-joins', function() {
     });
 
     it('expands attributes', function(done) {
-      Employee.objects.where({ 'subordinates.pk': 1 }).then(function(/*employee*/) {
+      Employee.objects.where({ 'subordinates.pk': 1 }).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
