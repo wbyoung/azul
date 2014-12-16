@@ -1,8 +1,14 @@
 'use strict';
 
-// TODO: add more stuff here.
-exports.up = function(/*schema*/) {
+exports.up = function(schema) {
+  return schema.createTable('comments', function(table) {
+    table.serial('id').primaryKey();
+    table.string('email');
+    table.text('body');
+    table.integer('article_id').references('articles.id');
+  });
 };
 
-exports.down = function(/*schema*/) {
+exports.down = function(schema) {
+  return schema.dropTable('comments');
 };
