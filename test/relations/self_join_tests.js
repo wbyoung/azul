@@ -76,7 +76,7 @@ describe('Model self-joins', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
-           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'ON "subordinates"."manager_id" = "employees"."id" ' +
            'WHERE "employees"."id" = ?', [1]]
         ]);
       })
@@ -88,7 +88,7 @@ describe('Model self-joins', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
-           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'ON "subordinates"."manager_id" = "employees"."id" ' +
            'WHERE "subordinates"."id" = ?', [1]]
         ]);
       })
@@ -100,7 +100,7 @@ describe('Model self-joins', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
-           'ON "employees"."id" = "subordinates"."manager_id" ' +
+           'ON "subordinates"."manager_id" = "employees"."id" ' +
            'WHERE "subordinates"."id" = ?', [1]]
         ]);
       })
@@ -114,7 +114,7 @@ describe('Model self-joins', function() {
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "nodes".* FROM "nodes" ' +
-           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
            'WHERE "nodes_j1"."id" = ?', [1]]
         ]);
       })
@@ -126,7 +126,7 @@ describe('Model self-joins', function() {
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "nodes".* FROM "nodes" ' +
-           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
            'WHERE "nodes_j1"."id" = ?', [1]]
         ]);
       })
@@ -138,7 +138,7 @@ describe('Model self-joins', function() {
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "nodes".* FROM "nodes" ' +
-           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
            'WHERE "nodes"."id" = ?', [1]]
         ]);
       })
@@ -161,9 +161,9 @@ describe('Model self-joins', function() {
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "nodes".* FROM "nodes" ' +
-           'INNER JOIN "nodes" "nodes_j1" ON "nodes"."id" = "nodes_j1"."parent_id" ' +
-           'INNER JOIN "nodes" "nodes_j2" ON "nodes_j1"."id" = "nodes_j2"."parent_id" ' +
-           'INNER JOIN "nodes" "nodes_j3" ON "nodes_j2"."id" = "nodes_j3"."parent_id" ' +
+           'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
+           'INNER JOIN "nodes" "nodes_j2" ON "nodes_j2"."parent_id" = "nodes_j1"."id" ' +
+           'INNER JOIN "nodes" "nodes_j3" ON "nodes_j3"."parent_id" = "nodes_j2"."id" ' +
            'WHERE "nodes_j3"."id" = ?', [5]]
         ]);
       })
