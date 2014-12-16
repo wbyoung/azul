@@ -132,7 +132,7 @@ describe('Migration', function() {
           { name: '20141022202634_create_comments', batch: 1 }
         ]);
         expect(_.last(adapter.executedSQL())[0])
-          .to.match(/select.*from "azul_migrations".*order by "name" asc/i);
+          .to.match(/select.*from "azul_migrations".*order by "name" desc/i);
       })
       .done(done, done);
     });
