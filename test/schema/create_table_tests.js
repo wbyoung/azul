@@ -91,8 +91,26 @@ describe('CreateTableQuery', function() {
       table.integer('profile_id').references('profiles.id');
     });
     expect(query.sql()).to.eql(Statement.create(
-      'CREATE TABLE "users" ("profile_id" integer FOREIGN KEY "profiles"."id")', []
+      'CREATE TABLE "users" ("profile_id" integer REFERENCES "profiles" ("id"))', []
     ));
+  });
+
+  it('generates columns using foreign key on self', function() {
+    var query = db.schema.createTable('users', function(table) {
+      table.integer('boss_id').references('id');
+    });
+    expect(query.sql()).to.eql(Statement.create(
+      'CREATE TABLE "users" ("boss_id" integer REFERENCES "id")', []
+    ));
+  });
+
+  it('gives error when foreign key is invalid', function() {
+    expect(function() {
+      db.schema.createTable('users', function(table) {
+        table.integer('foreign_id').references('bad.foreign.key');
+      })
+      .sql();
+    }).to.throw(/invalid.*"bad\.foreign\.key"/i);
   });
 
   it('generates columns using foreign keys that specify delete actions');
@@ -103,7 +121,7 @@ describe('CreateTableQuery', function() {
     });
     expect(query.sql()).to.eql(Statement.create(
       'CREATE TABLE "users" ("profile_id" integer NOT NULL UNIQUE ' +
-        'FOREIGN KEY "profiles"."id")', []
+        'REFERENCES "profiles" ("id"))', []
     ));
   });
 });
