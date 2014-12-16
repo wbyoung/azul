@@ -287,6 +287,18 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('automatically determines joins from order by', function(done) {
+      Article.objects.orderBy('-author.username')
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'ORDER BY "users"."username" DESC', []]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('handles attrs during automatic joining', function(done) {
       Article.objects.where({ 'author.pk': 5, })
       .fetch().then(function() {

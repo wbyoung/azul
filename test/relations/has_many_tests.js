@@ -608,6 +608,18 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('automatically determines joins from order by', function(done) {
+      User.objects.orderBy('-articles.title')
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users" ' +
+           'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
+           'ORDER BY "articles"."title" DESC', []]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('handles attrs during automatic joining', function(done) {
       User.objects.where({ 'articles.pk': 5, })
       .fetch().then(function() {
