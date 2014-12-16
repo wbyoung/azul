@@ -32,6 +32,12 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can use table name in a select all', function() {
+    expect(db.select('users', ['users.*']).sql()).to.eql(Statement.create(
+      'SELECT "users".* FROM "users"', []
+    ));
+  });
+
   it('can be filtered', function() {
     expect(db.select('users').where({ id: 1 }).sql()).to.eql(Statement.create(
       'SELECT * FROM "users" WHERE "id" = ?', [1]

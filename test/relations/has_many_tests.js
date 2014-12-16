@@ -509,7 +509,7 @@ describe('Model.hasMany', function() {
     it('generates simple join queries', function(done) {
       User.objects.join('articles').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num"', []]
         ]);
       })
@@ -524,7 +524,7 @@ describe('Model.hasMany', function() {
         // note that this expectation depends on ordering of object
         // properties which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "users"."username" = ? ' +
            'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
@@ -537,7 +537,7 @@ describe('Model.hasMany', function() {
       User.objects.join('articles').where({ id: 5 })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
@@ -564,7 +564,7 @@ describe('Model.hasMany', function() {
       User.objects.join('articles').where({ 'articles.id': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."id" = ?', [5]]
         ]);
@@ -576,7 +576,7 @@ describe('Model.hasMany', function() {
       User.objects.join('articles').where({ 'articles.dbonly_field': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."dbonly_field" = ?', [5]]
         ]);
@@ -588,7 +588,7 @@ describe('Model.hasMany', function() {
       User.objects.join('articles').where({ 'articles.pk': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."id" = ?', [5]]
         ]);
@@ -600,7 +600,7 @@ describe('Model.hasMany', function() {
       User.objects.where({ 'articles.title': 'News', })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."title" = ?', ['News']]
         ]);
@@ -612,7 +612,7 @@ describe('Model.hasMany', function() {
       User.objects.orderBy('-articles.pk')
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'ORDER BY "articles"."id" DESC', []]
         ]);
@@ -624,7 +624,7 @@ describe('Model.hasMany', function() {
       User.objects.where({ 'articles.pk': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."id" = ?', [5]]
         ]);
@@ -650,7 +650,7 @@ describe('Model.hasMany', function() {
       .offset(20)
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'WHERE "articles"."title" LIKE ? ' +
            'ORDER BY "users"."username" ASC, "articles"."title" DESC ' +
@@ -670,7 +670,7 @@ describe('Model.hasMany', function() {
       .offset(20)
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
+          ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
            'INNER JOIN "comments" ON "articles"."id" = "comments"."article_id" ' +
            'WHERE "comments"."body" LIKE ? ' +

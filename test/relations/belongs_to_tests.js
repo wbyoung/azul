@@ -185,7 +185,7 @@ describe('Model.belongsTo', function() {
     it('generates simple join queries', function(done) {
       Article.objects.join('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id"', []]
         ]);
       })
@@ -200,7 +200,7 @@ describe('Model.belongsTo', function() {
         // note that this expectation depends on ordering of object
         // properties which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" = ? ' +
            'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
@@ -213,7 +213,7 @@ describe('Model.belongsTo', function() {
       Article.objects.join('author').where({ id: 5 })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "articles"."id" = ?', [5]]
         ]);
@@ -243,7 +243,7 @@ describe('Model.belongsTo', function() {
       Article.objects.join('author').where({ 'author.id': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
@@ -255,7 +255,7 @@ describe('Model.belongsTo', function() {
       Article.objects.join('author').where({ 'author.dbonly_field': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."dbonly_field" = ?', [5]]
         ]);
@@ -267,7 +267,7 @@ describe('Model.belongsTo', function() {
       Article.objects.join('author').where({ 'author.pk': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
@@ -279,7 +279,7 @@ describe('Model.belongsTo', function() {
       Article.objects.where({ 'author.username': 'wbyoung', })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" = ?', ['wbyoung']]
         ]);
@@ -291,7 +291,7 @@ describe('Model.belongsTo', function() {
       Article.objects.orderBy('-author.pk')
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'ORDER BY "users"."id" DESC', []]
         ]);
@@ -303,7 +303,7 @@ describe('Model.belongsTo', function() {
       Article.objects.where({ 'author.pk': 5, })
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."id" = ?', [5]]
         ]);
@@ -329,7 +329,7 @@ describe('Model.belongsTo', function() {
       .offset(20)
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
+          ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
            'ORDER BY "articles"."title" ASC, "users"."name" DESC ' +
@@ -346,7 +346,7 @@ describe('Model.belongsTo', function() {
       .offset(20)
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "comments" ' +
+          ['SELECT "comments".* FROM "comments" ' +
            'INNER JOIN "articles" ON "comments"."article_id" = "articles"."id" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
