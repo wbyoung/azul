@@ -288,12 +288,12 @@ describe('Model.belongsTo', function() {
     });
 
     it('automatically determines joins from order by', function(done) {
-      Article.objects.orderBy('-author.username')
+      Article.objects.orderBy('-author.pk')
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
-           'ORDER BY "users"."username" DESC', []]
+           'ORDER BY "users"."id" DESC', []]
         ]);
       })
       .done(done, done);

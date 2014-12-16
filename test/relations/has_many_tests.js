@@ -609,12 +609,12 @@ describe('Model.hasMany', function() {
     });
 
     it('automatically determines joins from order by', function(done) {
-      User.objects.orderBy('-articles.title')
+      User.objects.orderBy('-articles.pk')
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users" ' +
            'INNER JOIN "articles" ON "users"."id" = "articles"."author_num" ' +
-           'ORDER BY "articles"."title" DESC', []]
+           'ORDER BY "articles"."id" DESC', []]
         ]);
       })
       .done(done, done);
