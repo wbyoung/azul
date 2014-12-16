@@ -8,6 +8,8 @@ var BluebirdPromise = require('bluebird');
 var Condition = require('../../lib/condition'),
   w = Condition.w;
 
+require('../helpers/model');
+
 var shared = {};
 
 shared.shouldRunMigrationsAndQueries = function(it) {
@@ -66,6 +68,94 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       })
       .done(done, done);
     });
+
+    it('can create, update, read, and delete models', function(done) {
+
+      var Article = db.model('article').reopen({
+        title: db.attr(),
+        body: db.attr(),
+        comments: db.hasMany()
+      });
+
+      var Comment = db.model('comment').reopen({
+        email: db.attr(),
+        body: db.attr(),
+        article: db.belongsTo()
+      });
+
+      BluebirdPromise.bind({})
+      .then(function() {
+        this.article1 = Article.create({ title: 'News', body: 'Azul 1.0' });
+        return this.article1.save();
+      })
+      .then(function() {
+        this.article2 = Article.create({ title: 'Update', body: 'Azul 2.0' });
+        return this.article2.save();
+      })
+      .then(function() {
+        this.comment1 = this.article1.createComment({
+          email: 'info@azuljs.com', body: 'Sweet initial release.'
+        });
+        return this.comment1.save();
+      })
+      .then(function() {
+        this.comment2 = this.article1.createComment({
+          email: 'person@azuljs.com', body: 'Great initial release!'
+        });
+        return this.comment2.save();
+      })
+      .then(function() {
+        this.comment3 = this.article2.createComment({
+          email: 'another@azuljs.com', body: 'Good update.'
+        });
+        return this.comment3.save();
+      })
+      .then(function() {
+        this.comment4 = this.article2.createComment({
+          email: 'spam@azuljs.com', body: 'Rolex watches.'
+        });
+        return this.comment4.save();
+      })
+      .then(function() { return Article.objects.fetch(); })
+      .then(function(articles) {
+        expect(_.map(articles, 'attrs')).to.eql([
+          { id: 1, title: 'News', body: 'Azul 1.0' },
+          { id: 2, title: 'Update', body: 'Azul 2.0' },
+        ]);
+      })
+      .then(function() {
+        return Article.objects.where({ 'comments.body[icontains]': 'rolex' });
+      })
+      .then(function(articles) {
+        expect(_.map(articles, 'attrs')).to.eql([
+          { id: 2, title: 'Update', body: 'Azul 2.0' },
+        ]);
+      })
+      .then(function() {
+        return Article.objects
+          .where({ 'comments.body[icontains]': 'initial' });
+      })
+      .then(function(articles) {
+        expect(_.map(articles, 'attrs')).to.eql([
+          { id: 1, title: 'News', body: 'Azul 1.0' },
+          { id: 1, title: 'News', body: 'Azul 1.0' },
+        ]);
+      })
+      .then(function() {
+        return Comment.objects.where({ 'article.title': 'News' });
+      })
+      .then(function(articles) {
+        expect(_.map(articles, 'attrs')).to.eql([
+          { id: 1, article_id: 1,
+            email: 'info@azuljs.com', body: 'Sweet initial release.' },
+          { id: 2, article_id: 1,
+            email: 'person@azuljs.com', body: 'Great initial release!' }
+        ]);
+      })
+      .then(done, done);
+
+    });
+
   });
 };
 
