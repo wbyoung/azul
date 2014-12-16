@@ -150,7 +150,7 @@ describe('Model self-joins', function() {
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "nodes" ' +
-           'WHERE "nodes"."id" = ?', [1]]
+           'WHERE "id" = ?', [1]]
         ]);
       })
       .done(done, done);

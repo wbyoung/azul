@@ -63,7 +63,7 @@ describe('Model', function() {
   it('can find an object', function(done) {
     Article.objects.find(1).then(function(article) {
       expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [1]]
+        ['SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [1]]
       ]);
       expect(article)
         .to.eql(Article.load({ id: 1, title: 'Existing Article' }));
@@ -82,7 +82,7 @@ describe('Model', function() {
       expect(e.message).to.match(/no results/i);
       expect(e.code).to.eql('NO_RESULTS_FOUND');
       expect(e.sql).to.eql('SELECT * FROM "articles" ' +
-        'WHERE "articles"."id" = ? LIMIT 1');
+        'WHERE "id" = ? LIMIT 1');
       expect(e.args).to.eql([1]);
     })
     .then(done, done);
@@ -148,7 +148,7 @@ describe('Model', function() {
     it('executes custom SQL', function(done) {
       Article.published.fetch().then(function(/*articles*/) {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "articles"."published" = ?', [true]]
+          ['SELECT * FROM "articles" WHERE "published" = ?', [true]]
         ]);
       })
       .done(done, done);
@@ -171,7 +171,7 @@ describe('Model', function() {
     it('executes custom SQL', function(done) {
       Article.objects.fetch().then(function(/*articles*/) {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "articles"."published" = ?', [true]]
+          ['SELECT * FROM "articles" WHERE "published" = ?', [true]]
         ]);
       })
       .done(done, done);
@@ -288,7 +288,7 @@ describe('Model', function() {
   it('can get with a custom query', function(done) {
     Article.objects.where({ id: 5, 'user.id': 7 }).fetch().then(function(articles) {
       expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "articles"."id" = ? ' +
+        ['SELECT * FROM "articles" WHERE "id" = ? ' +
          'AND "user"."id" = ?', [5, 7]]
       ]);
       expect(articles).to.eql([
@@ -301,7 +301,7 @@ describe('Model', function() {
   it('can get via pk', function(done) {
     Article.objects.where({ pk: 5 }).fetch().then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "articles"."id" = ?', [5]]
+        ['SELECT * FROM "articles" WHERE "id" = ?', [5]]
       ]);
     })
     .done(done, done);
@@ -311,7 +311,7 @@ describe('Model', function() {
     Article.reopen({ pk: attr('identifier') });
     Article.objects.where({ pk: 5 }).fetch().then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "articles"."identifier" = ?', [5]]
+        ['SELECT * FROM "articles" WHERE "identifier" = ?', [5]]
       ]);
     })
     .done(done, done);
@@ -321,7 +321,7 @@ describe('Model', function() {
     Article.reopen({ pk: attr('identifier') });
     Article.objects.where({ id: 5 }).fetch().then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['SELECT * FROM "articles" WHERE "articles"."identifier" = ?', [5]]
+        ['SELECT * FROM "articles" WHERE "identifier" = ?', [5]]
       ]);
     })
     .done(done, done);

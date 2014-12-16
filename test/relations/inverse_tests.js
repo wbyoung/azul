@@ -235,7 +235,7 @@ describe('Model.hasMany+belongsTo', function() {
         it('executes the proper sql', function() {
           expect(adapter.executedSQL()).to.eql([
             // included from the fetch when loading the cache
-            ['SELECT * FROM "articles" WHERE "articles"."author_id" = ?', [395]],
+            ['SELECT * FROM "articles" WHERE "author_id" = ?', [395]],
             // note that this expectation depends on ordering of object
             // properties which is not guaranteed to be a stable ordering.
             ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +

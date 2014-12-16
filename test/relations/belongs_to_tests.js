@@ -83,7 +83,7 @@ describe('Model.belongsTo', function() {
       article.fetchAuthor().then(function(user) {
         expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
       })
       .done(done, done);
@@ -95,7 +95,7 @@ describe('Model.belongsTo', function() {
       .then(function(user) {
         expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
       })
       .done(done, done);
@@ -316,7 +316,7 @@ describe('Model.belongsTo', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'WHERE "articles"."username" = ?', ['wbyoung']]
+           'WHERE "username" = ?', ['wbyoung']]
         ]);
       })
       .done(done, done);
@@ -369,7 +369,7 @@ describe('Model.belongsTo', function() {
       Article.objects.with('author').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles"', []],
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]]
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
       })
       .done(done, done);
@@ -387,9 +387,9 @@ describe('Model.belongsTo', function() {
     });
 
     it('works with models each having multiple related objects', function(done) {
-      var articlesRegex = /select.*from "articles".*order by "articles"."id"/i;
+      var articlesRegex = /select.*from "articles".*order by "id"/i;
       var usersRegex =
-        /select.*from "users" where "users"."id" in \(\?, \?, \?\) limit 3/i;
+        /select.*from "users" where "id" in \(\?, \?, \?\) limit 3/i;
       adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
@@ -423,9 +423,9 @@ describe('Model.belongsTo', function() {
     });
 
     it('works when the related value is sometimes absent', function(done) {
-      var articlesRegex = /select.*from "articles".*order by "articles"."id"/i;
+      var articlesRegex = /select.*from "articles".*order by "id"/i;
       var usersRegex =
-        /select.*from "users" where "users"."id" in \(\?, \?\) limit 2/i;
+        /select.*from "users" where "id" in \(\?, \?\) limit 2/i;
       adapter.intercept(articlesRegex, {
         fields: ['id', 'title', 'author_id'],
         rows: [
@@ -509,9 +509,9 @@ describe('Model.belongsTo', function() {
 
       Article.objects.with('author', 'blog').find(1).then(function(foundArticle) {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [1]],
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]],
-          ['SELECT * FROM "blogs" WHERE "blogs"."id" = ? LIMIT 1', [82]]
+          ['SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [1]],
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]],
+          ['SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82]]
         ]);
         expect(foundArticle.author).to.eql(
           User.fresh({ id: 623, username: 'wbyoung' })
@@ -527,9 +527,9 @@ describe('Model.belongsTo', function() {
       Comment.objects.with('article.author').find(384)
       .then(function(foundComment) {
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "comments" WHERE "comments"."id" = ? LIMIT 1', [384]],
-          ['SELECT * FROM "articles" WHERE "articles"."id" = ? LIMIT 1', [448]],
-          ['SELECT * FROM "users" WHERE "users"."id" = ? LIMIT 1', [623]],
+          ['SELECT * FROM "comments" WHERE "id" = ? LIMIT 1', [384]],
+          ['SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [448]],
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]],
         ]);
         expect(foundComment.article.author).to.eql(
           User.fresh({ id: 623, username: 'wbyoung' })

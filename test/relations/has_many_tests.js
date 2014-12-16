@@ -90,7 +90,7 @@ describe('Model.hasMany', function() {
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
         expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "articles"."author_num" = ?', [1]]
+          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -152,8 +152,8 @@ describe('Model.hasMany', function() {
       articleObjects.where({ title: 'Azul' }).fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
-           'WHERE ("articles"."author_num" = ?) AND ' +
-           '"articles"."title" = ?', [1, 'Azul']]
+           'WHERE ("author_num" = ?) AND ' +
+           '"title" = ?', [1, 'Azul']]
         ]);
       })
       .done(done, done);
@@ -637,7 +637,7 @@ describe('Model.hasMany', function() {
       .fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users" ' +
-           'WHERE "users"."username" = ?', ['wbyoung']]
+           'WHERE "username" = ?', ['wbyoung']]
         ]);
       })
       .done(done, done);
@@ -693,7 +693,7 @@ describe('Model.hasMany', function() {
       User.objects.with('articles').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users"', []],
-          ['SELECT * FROM "articles" WHERE "articles"."author_num" = ?', [1]]
+          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -711,9 +711,9 @@ describe('Model.hasMany', function() {
     });
 
     it('works with multiple models each having multiple related objects', function(done) {
-      var usersRegex = /select.*from "users".*order by "users"."id"/i;
+      var usersRegex = /select.*from "users".*order by "id"/i;
       var articlesRegex =
-        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\)/i;
+        /select.*from "articles" where "author_num" in \(\?, \?, \?\)/i;
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
@@ -752,9 +752,9 @@ describe('Model.hasMany', function() {
     });
 
     it('works when some the objects have an empty result set', function(done) {
-      var usersRegex = /select.*from "users".*order by "users"."id"/i;
+      var usersRegex = /select.*from "users".*order by "id"/i;
       var articlesRegex =
-        /select.*from "articles" where "articles"."author_num" in \(\?, \?, \?\, \?\)/i;
+        /select.*from "articles" where "author_num" in \(\?, \?, \?\, \?\)/i;
       adapter.intercept(usersRegex, {
         fields: ['id', 'username'],
         rows: [
