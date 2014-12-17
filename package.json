@@ -55,7 +55,7 @@
     "commander": "^2.5.0",
     "generic-pool": "^2.1.1",
     "interpret": "^0.3.7",
-    "liftoff": "^0.13.5",
+    "liftoff": "^1.0.0",
     "lodash": "^2.4.1",
     "minimist": "^1.1.0",
     "tildify": "^1.0.0",
