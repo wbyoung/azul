@@ -146,9 +146,9 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       })
       .then(function(articles) {
         expect(_.map(articles, 'attrs')).to.eql([
-          { id: 1, article_id: 1,
+          { id: 1, 'article_id': 1,
             email: 'info@azuljs.com', body: 'Sweet initial release.' },
-          { id: 2, article_id: 1,
+          { id: 2, 'article_id': 1,
             email: 'person@azuljs.com', body: 'Great initial release!' }
         ]);
       })
