@@ -167,6 +167,17 @@ describe('Model.hasMany :through-shortcut', function() {
       .done(done, done);
     });
 
+    it('throws an error when it cannot find a through relation', function() {
+      db = Database.create({ adapter: adapter });
+      Site = db.model('site').reopen({
+        posts: db.hasMany({ through: 'authors', autoJoin: false }),
+        comments: db.hasMany({ through: 'posts' }),
+      });
+      var site = Site.fresh({ id: 6 });
+      expect(function() {
+        site.commentObjects.fetch();
+      }).to.throw(/through.*authors.*site#posts.*has-many/i);
+    });
 
     it('fetches through many relationships', function(done) {
       db = Database.create({ adapter: adapter });

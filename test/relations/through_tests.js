@@ -140,6 +140,33 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
+    it('throws an error when it cannot find the source relation', function() {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        courses: db.hasMany({ through: 'enrollments' })
+      });
+      Course = db.model('course').reopen({
+        students: db.hasMany({ through: 'enrollments' })
+      });
+      Enrollment = db.model('enrollment');
+      student = Student.fresh({ id: 6 });
+
+      expect(function() {
+        student.courseObjects.fetch();
+      }).to.throw(/source.*enrollment#courses.*enrollment#course.*student#courses.*has-many/i);
+    });
+
+    it('throws an error when it cannot find a through relation', function() {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        courses: db.hasMany({ through: 'enrollments', autoJoin: false })
+      });
+      student = Student.fresh({ id: 6 });
+      expect(function() {
+        student.courseObjects.fetch();
+      }).to.throw(/through.*enrollments.*student#courses.*has-many/i);
+    });
+
     it('allows source to be specified', function(done) {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
