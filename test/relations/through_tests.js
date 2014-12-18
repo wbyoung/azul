@@ -5,6 +5,7 @@ var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 
+var BluebirdPromise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 
@@ -14,6 +15,7 @@ var db,
   adapter,
   student,
   Student,
+  course,
   Course,
   Enrollment;
 
@@ -133,6 +135,48 @@ describe('Model.hasMany :through', function() {
         expect(_.map(courses, 'attrs')).to.eql([
           { id: 1, subject: 'CS 101' },
           { id: 2, subject: 'History 101' }
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows source to be specified', function(done) {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        enrollments: db.hasMany({ inverse: 'participant' }),
+        workshops: db.hasMany('course', {
+          through: 'enrollments',
+          source: 'course'
+        })
+      });
+      Course = db.model('course').reopen({
+        students: db.hasMany({ through: 'enrollments', source: 'participant' })
+      });
+      Enrollment = db.model('enrollment').reopen({
+        participant: db.belongsTo('student'),
+        course: db.belongsTo()
+      });
+
+      student = Student.fresh({ id: 6 });
+      course = Course.fresh({ id: 2 });
+
+      BluebirdPromise.bind()
+      .then(function() {
+        return student.workshopObjects;
+      })
+      .then(function() {
+        return course.studentObjects;
+      })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "courses".* FROM "courses" ' +
+           'INNER JOIN "enrollments" ' +
+           'ON "enrollments"."course_id" = "courses"."id" ' +
+           'WHERE "enrollments"."participant_id" = ?', [6]],
+          ['SELECT "students".* FROM "students" ' +
+           'INNER JOIN "enrollments" ' +
+           'ON "enrollments"."participant_id" = "students"."id" ' +
+           'WHERE "enrollments"."course_id" = ?', [2]]
         ]);
       })
       .done(done, done);
