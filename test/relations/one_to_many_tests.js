@@ -15,7 +15,7 @@ var db,
   Article,
   User;
 
-describe('Model.hasMany+belongsTo', function() {
+describe('Model one-to-many', function() {
   beforeEach(function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
