@@ -24,7 +24,7 @@ describe('BaseRelation', function() {
   it('requires subclass to implement associate', function() {
     var user1 = User.create();
     var user2 = User.create();
-    var relation = BaseRelation.create('article', User);
+    var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.associate(user1, user2);
     }).to.throw(/associate.*must.*implemented.*subclass/i);
@@ -33,7 +33,7 @@ describe('BaseRelation', function() {
   it('requires subclass to implement disassociate', function() {
     var user1 = User.create();
     var user2 = User.create();
-    var relation = BaseRelation.create('article', User);
+    var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.disassociate(user1, user2);
     }).to.throw(/disassociate.*must.*implemented.*subclass/i);
@@ -42,7 +42,7 @@ describe('BaseRelation', function() {
   it('requires subclass to implement join', function() {
     var user1 = User.create();
     var user2 = User.create();
-    var relation = BaseRelation.create('article', User);
+    var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.joinCondition(user1, user2);
     }).to.throw(/joinCondition.*must.*implemented.*subclass/i);
@@ -51,7 +51,7 @@ describe('BaseRelation', function() {
   it('requires subclass to implement prefetch', function() {
     var user1 = User.create();
     var user2 = User.create();
-    var relation = BaseRelation.create('article', User);
+    var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.prefetch(user1, user2);
     }).to.throw(/prefetch.*must.*implemented.*subclass/i);
