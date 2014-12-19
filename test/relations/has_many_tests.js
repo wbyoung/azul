@@ -247,7 +247,8 @@ describe('Model.hasMany', function() {
         expect(user.articlesRelation._getInFlightData(user)).to.eql({
           clear: false,
           add: [],
-          remove: []
+          remove: [],
+          save: [],
         });
         expect(article).to.have.property('dirty', false);
       })
@@ -350,7 +351,8 @@ describe('Model.hasMany', function() {
         expect(user.articlesRelation._getInFlightData(user)).to.eql({
           clear: false,
           add: [],
-          remove: []
+          remove: [],
+          save: [],
         });
         expect(article).to.have.property('dirty', false);
       })

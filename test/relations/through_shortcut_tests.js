@@ -111,6 +111,26 @@ describe('Model.hasMany :through-shortcut', function() {
       .done(done, done);
     });
 
+    it.skip('does not allow creating objects', function() {
+
+    });
+
+    it.skip('does not allow adding objects', function() {
+
+    });
+
+    it.skip('does not allow removing objects', function() {
+
+    });
+
+    it.skip('does not allow clearing objects', function() {
+
+    });
+
+    it.skip('does not do anything special on save', function() {
+
+    });
+
     it('fetches through two relationships', function(done) {
       user.commentObjects.fetch().then(function(comments) {
         expect(adapter.executedSQL()).to.eql([

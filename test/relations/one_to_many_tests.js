@@ -371,7 +371,8 @@ describe('Model one-to-many', function() {
       expect(inFlight).to.eql({
         clear: false,
         add: [this.article],
-        remove: []
+        remove: [],
+        save: [],
       });
     });
 
@@ -396,7 +397,8 @@ describe('Model one-to-many', function() {
         expect(inFlight).to.eql({
           clear: false,
           add: [],
-          remove: []
+          remove: [],
+          save: [],
         });
       });
 
