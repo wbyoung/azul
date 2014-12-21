@@ -260,7 +260,7 @@ describe('Model.hasMany :through', function() {
       expect(course).to.exist;
     });
 
-    it('updates collection cache during create', function(done) {
+    it.skip('updates collection cache during create', function(done) {
       var course;
       student.courseObjects.fetch().then(function() {
         course = student.createCourse({ subject: 'CS 101' });
@@ -823,14 +823,12 @@ describe('Model.hasMany :through', function() {
 
   // TODO: test pre-fetch
   describe('pre-fetch', function() {
-    it.only('executes multiple queries', function(done) {
+    it('executes multiple queries', function(done) {
       Student.objects.with('courses').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "students"', []],
-          ['SELECT "courses".*, "enrollments"."student_id" FROM "courses" ' +
-           'INNER JOIN "enrollments" ' +
-           'ON "enrollments"."course_id" = "courses"."id" ' +
-           'WHERE "enrollments"."student_id" IN (?, ?) LIMIT 2', [1, 2]]
+          ['SELECT * FROM "enrollments" WHERE "student_id" IN (?, ?) LIMIT 2', [1, 2]],
+          ['SELECT * FROM "courses" WHERE "id" IN (?, ?) LIMIT 2', [9, 4]]
         ]);
       })
       .done(done, done);
@@ -849,7 +847,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('caches related objects', function(done) {
+    it('caches related objects', function(done) {
       Student.objects.with('courses').fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
         expect(foundStudent.name).to.eql('Whitney');
@@ -861,10 +859,12 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('works with multiple models each having multiple related objects', function(done) {
+    it('works with multiple models each having multiple related objects', function(done) {
       var studentsRegex = /select.*from "students".*order by "id"/i;
+      var enrollmentsRegex =
+        /select.*from "enrollments" where "student_id" in \(\?, \?, \?\)/i;
       var coursesRegex =
-        /select.*"enrollments"\."student_id".*from "courses".*"student_id" in \(\?, \?, \?\)/i;
+        /select.*from "courses" where "id" in \(\?, \?, \?, \?, \?, \?\)/i;
       adapter.intercept(studentsRegex, {
         fields: ['id', 'name'],
         rows: [
@@ -873,15 +873,27 @@ describe('Model.hasMany :through', function() {
           { id: 4, name: 'Sam' },
         ]
       });
-      adapter.intercept(coursesRegex, {
-        fields: ['id', 'subject', 'student_id'],
+      adapter.intercept(enrollmentsRegex, {
+        fields: ['student_id', 'course_id'],
         rows: [
-          { id: 3, subject: 'CS 101', 'student_id': 1 },
-          { id: 5, subject: 'Art History 101', 'student_id': 1 },
-          { id: 9, subject: 'Roman Literature 101', 'student_id': 2 },
-          { id: 8, subject: 'Calculus 101', 'student_id': 2 },
-          { id: 4, subject: 'Spanish 101', 'student_id': 2 },
-          { id: 6, subject: 'Chemistry 101', 'student_id': 4 },
+          { 'student_id': 1, 'course_id': 3 },
+          { 'student_id': 1, 'course_id': 5 },
+          { 'student_id': 2, 'course_id': 9 },
+          { 'student_id': 2, 'course_id': 3 },
+          { 'student_id': 2, 'course_id': 8 },
+          { 'student_id': 2, 'course_id': 4 },
+          { 'student_id': 4, 'course_id': 6 },
+        ]
+      });
+      adapter.intercept(coursesRegex, {
+        fields: ['id', 'subject'],
+        rows: [
+          { id: 3, subject: 'CS 101' },
+          { id: 5, subject: 'Art History 101' },
+          { id: 9, subject: 'Roman Literature 101' },
+          { id: 8, subject: 'Calculus 101' },
+          { id: 4, subject: 'Spanish 101' },
+          { id: 6, subject: 'Chemistry 101' },
         ]
       });
 
