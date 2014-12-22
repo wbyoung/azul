@@ -116,19 +116,29 @@ describe('Model.hasMany :through-shortcut', function() {
     });
 
     it.skip('does not allow creating objects', function() {
-
+      expect(function() {
+        user.createComment();
+      }).to.throw(/cannot create.*through.*multiple.*associations/i);
     });
 
     it.skip('does not allow adding objects', function() {
-
+      var comment = Comment.fresh({ id: 5, body: 'Nicely worded.' });
+      expect(function() {
+        user.addComment(comment);
+      }).to.throw(/cannot create.*through.*multiple.*associations/i);
     });
 
     it.skip('does not allow removing objects', function() {
-
+      var comment = Comment.fresh({ id: 5, body: 'Nicely worded.' });
+      expect(function() {
+        user.removeComment(comment);
+      }).to.throw(/cannot create.*through.*multiple.*associations/i);
     });
 
     it.skip('does not allow clearing objects', function() {
-
+      expect(function() {
+        user.clearComments();
+      }).to.throw(/cannot create.*through.*multiple.*associations/i);
     });
 
     it.skip('does not do anything special on save', function() {
