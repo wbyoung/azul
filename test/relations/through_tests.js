@@ -821,7 +821,6 @@ describe('Model.hasMany :through', function() {
     });
   });
 
-  // TODO: test pre-fetch
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       Student.objects.with('courses').fetch().then(function() {
