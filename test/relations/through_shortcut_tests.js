@@ -239,4 +239,128 @@ describe('Model.hasMany :through-shortcut', function() {
     });
 
   });
+
+  describe('pre-fetch', function() {
+    it('executes multiple queries', function(done) {
+      Site.objects.with('comments').find(41).then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "sites" WHERE "id" = ? LIMIT 1', [41]],
+          ['SELECT * FROM "users" WHERE "site_id" = ?', [41]],
+          ['SELECT * FROM "blogs" WHERE "owner_id" = ?', [4]],
+          ['SELECT * FROM "articles" WHERE "blog_id" = ?', [12]],
+          ['SELECT * FROM "comments" WHERE "article_id" = ?', [9]],
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('does not cache related objects that it went through', function(done) {
+      Site.objects.with('comments').find(41).then(function(fetchedSite) {
+        expect(function() { fetchedSite.users; })
+          .to.throw(/users.*not yet.*loaded/i);
+        expect(function() { fetchedSite.blogs; })
+          .to.throw(/blogs.*not yet.*loaded/i);
+        expect(function() { fetchedSite.articles; })
+          .to.throw(/articles.*not yet.*loaded/i);
+      })
+      .done(done, done);
+    });
+
+    it('caches related objects', function(done) {
+      Site.objects.with('comments').find(41).then(function(fetchedSite) {
+        expect(fetchedSite.id).to.eql(41);
+        expect(fetchedSite.name).to.eql('azuljs.com');
+        expect(_.map(fetchedSite.comments, 'attrs')).to.eql([
+          { id: 1, body: 'Great post.', 'article_id': 9 },
+          { id: 2, body: 'Nicely worded.', 'article_id': 9 },
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('caches related through complex relation', function(done) {
+      db = Database.create({ adapter: adapter });
+      Site = db.model('site').reopen({
+        authors: db.hasMany(),
+        commenters: db.hasMany({ through: 'authors' }),
+      });
+      db.model('author').reopen({
+        posts: db.hasMany(),
+        commenters: db.hasMany({ through: 'posts' }),
+      });
+      db.model('post').reopen({
+        comments: db.hasMany(),
+        commenters: db.hasMany({ through: 'comments' })
+      });
+      db.model('comment').reopen({
+        commenter: db.belongsTo()
+      });
+      db.model('commenter');
+
+      adapter.intercept(/select.*from "sites"/i, {
+        fields: ['id', 'name'],
+        rows: [{ id: 37, name: 'azuljs.com' }]
+      });
+      adapter.intercept(/select.*from "authors"/i, {
+        fields: ['id', 'name', 'site_id'],
+        rows: [
+          { id: 93, name: 'Tom', 'site_id': 37 },
+          { id: 10, name: 'Jessie', 'site_id': 37 },
+        ]
+      });
+      adapter.intercept(/select.*from "posts"/i, {
+        fields: ['id', 'title', 'author_id'],
+        rows: [
+          { id: 14, title: 'First Post', 'author_id': 93 },
+          { id: 94, title: 'Second Post', 'author_id': 10 },
+          { id: 52, title: 'First Post', 'author_id': 10 },
+          { id: 18, title: 'Second Post', 'author_id': 93 },
+          { id: 10, title: 'Third Post', 'author_id': 10 },
+        ]
+      });
+      adapter.intercept(/select.*from "comments"/i, {
+        fields: ['id', 'body', 'post_id'],
+        rows: [
+          { id: 11, body: 'Comment #1 on first post by Tom',
+            'post_id': 14, 'commenter_id': 1 },
+          { id: 83, body: 'Comment #2 on first post by Tom',
+            'post_id': 14, 'commenter_id': 2 },
+          { id: 64, body: 'Comment #1 on first post by Jessie',
+            'post_id': 52, 'commenter_id': 2 },
+          { id: 98, body: 'Comment #1 on 3rd post by Jessie',
+            'post_id': 10, 'commenter_id': 3 },
+        ]
+      });
+      adapter.intercept(/select.*from "commenters"/i, {
+        fields: ['id', 'name'],
+        rows: [
+          { id: 1, name: 'John' },
+          { id: 2, name: 'Katy' },
+          { id: 3, name: 'Phil' },
+        ]
+      });
+
+      Site.objects.with('commenters').find(37).then(function(fetchedSite) {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "sites" WHERE "id" = ? LIMIT 1', [37]],
+          ['SELECT * FROM "authors" WHERE "site_id" = ?', [37]],
+          ['SELECT * FROM "posts" WHERE "author_id" IN (?, ?)', [93, 10]],
+          ['SELECT * FROM "comments" WHERE "post_id" IN (?, ?, ?, ?, ?)',
+           [94, 52, 10, 14, 18]],
+          ['SELECT * FROM "commenters" WHERE "id" IN (?, ?, ?) LIMIT 3',
+           [3, 1, 2]],
+        ]);
+        expect(function() { fetchedSite.authors; })
+          .to.throw(/authors.*not yet.*loaded/i);
+        expect(_.map(fetchedSite.commenters, 'attrs')).to.eql([
+          { id: 1, name: 'John' },
+          { id: 2, name: 'Katy' },
+          { id: 3, name: 'Phil' },
+        ]);
+      })
+      .done(done, done);
+    });
+
+  });
+
 });
