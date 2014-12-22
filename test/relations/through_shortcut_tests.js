@@ -55,16 +55,20 @@ describe('Model.hasMany :through-shortcut', function() {
   });
 
   beforeEach(function() {
+    adapter.intercept(/select.*from "sites"/i, {
+      fields: ['id', 'name'],
+      rows: [{ id: 41, name: 'azuljs.com' }]
+    });
     adapter.intercept(/select.*from "users"/i, {
-      fields: ['id', 'username'],
-      rows: [{ id: 4, username: 'wbyoung' }]
+      fields: ['id', 'username', 'site_id'],
+      rows: [{ id: 4, username: 'wbyoung', 'site_id': 41 }]
     });
     adapter.intercept(/select.*from "blogs"/i, {
-      fields: ['id', 'title'],
+      fields: ['id', 'title', 'owner_id'],
       rows: [{ id: 12, title: 'Azul Blog', 'owner_id': 4 }]
     });
     adapter.intercept(/select.*from "articles"/i, {
-      fields: ['id', 'title', 'author_id'],
+      fields: ['id', 'title', 'blog_id'],
       rows: [{ id: 9, title: 'Journal', 'blog_id': 12 }]
     });
     adapter.intercept(/select.*from "comments"/i, {
