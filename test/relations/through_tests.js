@@ -834,15 +834,13 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('does not cache related objects that it went through', function(done) {
+    it('does not cache related objects that it went through', function(done) {
       Student.objects.with('courses').fetch().get('0').then(function(foundStudent) {
-        expect('test to be re-written').to.eql('since it was first written expecting objects to be cached');
         expect(foundStudent.id).to.eql(1);
         expect(foundStudent.name).to.eql('Whitney');
-        expect(_(foundStudent.enrollments).map('course').map('attrs').value()).to.eql([
-          { id: 9, subject: 'CS 101' },
-          { id: 4, subject: 'History 101' },
-        ]);
+        expect(function() {
+          foundStudent.enrollments;
+        }).to.throw(/enrollments.*not yet.*loaded/i);
       })
       .done(done, done);
     });
