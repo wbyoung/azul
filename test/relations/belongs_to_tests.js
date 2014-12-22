@@ -519,8 +519,8 @@ describe('Model.belongsTo', function() {
       Article.objects.with('author', 'blog').find(1).then(function(foundArticle) {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [1]],
+          ['SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82]],
           ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]],
-          ['SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82]]
         ]);
         expect(foundArticle.author).to.eql(
           User.fresh({ id: 623, username: 'wbyoung' })

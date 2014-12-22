@@ -834,6 +834,18 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
+    it('executes the minimal number of queries', function(done) {
+      Student.objects.with('enrollments.course', 'courses')
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "students"', []],
+          ['SELECT * FROM "enrollments" WHERE "student_id" IN (?, ?)', [1, 2]],
+          ['SELECT * FROM "courses" WHERE "id" IN (?, ?) LIMIT 2', [9, 4]]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('does not cache related objects that it went through', function(done) {
       Student.objects.with('courses').fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
@@ -849,6 +861,26 @@ describe('Model.hasMany :through', function() {
       Student.objects.with('courses').fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
         expect(foundStudent.name).to.eql('Whitney');
+        expect(_.map(foundStudent.courses, 'attrs')).to.eql([
+          { id: 9, subject: 'CS 101' },
+          { id: 4, subject: 'History 101' },
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it.skip('caches related objects of all pre-fetches', function(done) {
+      // TODO: enable this once the TODO in `_associateObjectsThrough` has been
+      // handled.
+      Student.objects.with('enrollments.course', 'courses')
+      .fetch().get('0').then(function(foundStudent) {
+        expect(foundStudent.id).to.eql(1);
+        expect(foundStudent.name).to.eql('Whitney');
+        expect(_(foundStudent.enrollments).map('course').map('attrs').value())
+        .to.eql([
+          { id: 9, subject: 'CS 101' },
+          { id: 4, subject: 'History 101' },
+        ]);
         expect(_.map(foundStudent.courses, 'attrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
