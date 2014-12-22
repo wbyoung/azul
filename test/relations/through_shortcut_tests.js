@@ -203,7 +203,7 @@ describe('Model.hasMany :through-shortcut', function() {
       }).to.throw(/through.*authors.*site#posts.*has-many/i);
     });
 
-    it('fetches through many relationships', function(done) {
+    it('fetches through many relationships (style two)', function(done) {
       db = Database.create({ adapter: adapter });
       Site = db.model('site').reopen({
         authors: db.hasMany(),
