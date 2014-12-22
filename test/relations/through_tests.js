@@ -827,7 +827,7 @@ describe('Model.hasMany :through', function() {
       Student.objects.with('courses').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "students"', []],
-          ['SELECT * FROM "enrollments" WHERE "student_id" IN (?, ?) LIMIT 2', [1, 2]],
+          ['SELECT * FROM "enrollments" WHERE "student_id" IN (?, ?)', [1, 2]],
           ['SELECT * FROM "courses" WHERE "id" IN (?, ?) LIMIT 2', [9, 4]]
         ]);
       })
