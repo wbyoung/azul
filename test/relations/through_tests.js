@@ -260,7 +260,7 @@ describe('Model.hasMany :through', function() {
       expect(course).to.exist;
     });
 
-    it.skip('updates collection cache during create', function(done) {
+    it('updates collection cache during create', function(done) {
       var course;
       student.courseObjects.fetch().then(function() {
         course = student.createCourse({ subject: 'CS 101' });
@@ -327,8 +327,9 @@ describe('Model.hasMany :through', function() {
            'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 5]],
           ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
            'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 8]]
-          // TODO: this could be a single query (expectation below), but will
-          // require supporting _RETURNING_ statements with multiple values.
+          // REVISIT: this could be a single query (expectation below), but
+          // will require supporting _RETURNING_ statements with multiple
+          // values.
           // ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
           //  'VALUES (?, ?, ?), (?, ?, ?) ' +
           //  'RETURNING "id"', [undefined, 1, 5, undefined, 1, 8]]
@@ -450,7 +451,7 @@ describe('Model.hasMany :through', function() {
            'WHERE "student_id" = ? AND "course_id" = ?', [1, 5]],
           ['DELETE FROM "enrollments" ' +
            'WHERE "student_id" = ? AND "course_id" = ?', [1, 8]]
-          // TODO: this could be a single query (expectation below).
+          // REVISIT: this could be a single query (expectation below).
           // ['DELETE FROM "enrollments" ' +
           //  'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 8]]
         ]);
@@ -487,7 +488,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('updates collection cache during remove', function(done) {
+    it('updates collection cache during remove', function(done) {
       var course;
       student.courseObjects.fetch().then(function() {
         course = student.courses[0];
@@ -499,7 +500,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('clears query cache during remove', function(done) {
+    it('clears query cache during remove', function(done) {
       var courseObjects = student.courseObjects;
       var chachedValues = [courseObjects];
 
