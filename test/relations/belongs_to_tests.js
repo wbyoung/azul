@@ -136,6 +136,15 @@ describe('Model.belongsTo', function() {
       })
       .done(done, done);
     });
+
+    it('does not load the item during model load', function(done) {
+      Article.objects.fetchOne().then(function(fetchedArticle) {
+        expect(function() {
+          fetchedArticle.author;
+        }).to.throw(/author.*not yet.*loaded/i);
+      })
+      .done(done, done);
+    });
   });
 
   describe('helpers', function() {

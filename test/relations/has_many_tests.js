@@ -137,6 +137,15 @@ describe('Model.hasMany', function() {
       .done(done, done);
     });
 
+    it('does not load collection cache during model load', function(done) {
+      User.objects.fetchOne().then(function(fetchedUser) {
+        expect(function() {
+          fetchedUser.articles;
+        }).to.throw(/articles.*not yet.*loaded/i);
+      })
+      .done(done, done);
+    });
+
     it('allows access loaded collection when the result set is empty', function(done) {
       adapter.intercept(/select.*from "articles"/i, {
         fields: ['id', 'title', 'author_num'],
