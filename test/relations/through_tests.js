@@ -386,13 +386,13 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('updates collection cache during add', function(done) {
+    it('updates collection cache during add', function(done) {
       var course = Course.fresh({ id: 5, subject: 'CS 101' });
       student.courseObjects.fetch().then(function() {
         return student.addCourse(course);
       })
       .then(function() {
-        expect(student.courses).to.contain(course);
+        expect(_.last(student.courses)).to.eql(course);
       })
       .done(done, done);
     });
