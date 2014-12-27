@@ -305,8 +305,8 @@ describe('Model.hasMany :through', function() {
         // note that this expectation depends on ordering of object properties
         // which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 5]]
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 5]]
         ]);
         expect(course).to.have.property('dirty', false);
       })
@@ -323,8 +323,8 @@ describe('Model.hasMany :through', function() {
         // note that this expectation depends on ordering of object properties
         // which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 5]]
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 5]]
         ]);
         expect(student.coursesRelation._getInFlightData(student)).to.eql({
           clear: false,
@@ -344,16 +344,15 @@ describe('Model.hasMany :through', function() {
         // note that this expectation depends on ordering of object properties
         // which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 5]],
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 8]]
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 5]],
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 8]]
           // REVISIT: this could be a single query (expectation below), but
           // will require supporting _RETURNING_ statements with multiple
           // values.
-          // ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-          //  'VALUES (?, ?, ?), (?, ?, ?) ' +
-          //  'RETURNING "id"', [undefined, 1, 5, undefined, 1, 8]]
+          // ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+          //  'VALUES (?, ?), (?, ?)', [1, 5, 1, 8]]
         ]);
         expect(course1).to.have.property('dirty', false);
         expect(course2).to.have.property('dirty', false);
@@ -370,8 +369,8 @@ describe('Model.hasMany :through', function() {
         expect(adapter.executedSQL()).to.eql([
           ['UPDATE "courses" SET "subject" = ? ' +
            'WHERE "id" = ?', ['Renamed', 12]],
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 12]]
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 12]]
         ]);
         expect(course).to.have.property('dirty', false);
       })
@@ -386,8 +385,8 @@ describe('Model.hasMany :through', function() {
         expect(adapter.executedSQL()).to.eql([
           ['INSERT INTO "courses" ("subject") VALUES (?) ' +
            'RETURNING "id"', ['CS 101']],
-          ['INSERT INTO "enrollments" ("date", "student_id", "course_id") ' +
-           'VALUES (?, ?, ?) RETURNING "id"', [undefined, 1, 82]]
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [1, 82]]
         ]);
         expect(course).to.have.property('dirty', false);
       })
