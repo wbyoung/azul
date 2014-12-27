@@ -877,9 +877,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('caches related objects of all pre-fetches', function(done) {
-      // TODO: enable this once the TODO in `_associateObjectsThrough` has been
-      // handled.
+    it('caches related objects of all pre-fetches', function(done) {
       Student.objects.with('enrollments.course', 'courses')
       .fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
