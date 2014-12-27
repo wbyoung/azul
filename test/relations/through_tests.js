@@ -486,7 +486,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('allows remove with created objects', function(done) {
+    it('allows remove with created objects', function(done) {
       var course = Course.create({ subject: 'CS 101' });
       student.removeCourse(course).then(function() {
         expect(adapter.executedSQL()).to.eql([
