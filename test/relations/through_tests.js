@@ -525,11 +525,10 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('allows clear', function(done) {
+    it('allows clear', function(done) {
       student.clearCourses().then(function() {
         expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "courses" SET "student_id" = ? ' +
-           'WHERE "student_id" = ?', [undefined, 1]]
+          ['DELETE FROM "enrollments" WHERE "student_id" = ?', [1]]
         ]);
       })
       .done(done, done);
@@ -545,7 +544,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('clears query cache during clear', function(done) {
+    it('clears query cache during clear', function(done) {
       var courseObjects = student.courseObjects;
       var chachedValues = [courseObjects];
 
