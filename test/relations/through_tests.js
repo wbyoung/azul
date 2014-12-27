@@ -247,8 +247,6 @@ describe('Model.hasMany :through', function() {
   describe('helpers', function() {
     it('allows create', function() {
       var course = student.createCourse({ subject: 'CS 101' });
-      expect(course.enrollments.length).to.eql(1);
-      expect(course.enrollments[0].studentId).to.eql(student.id);
       expect(course).to.to.be.an.instanceOf(Course.__class__);
     });
 
@@ -258,6 +256,17 @@ describe('Model.hasMany :through', function() {
         student.courses;
       }).to.throw(/courses.*not yet.*loaded/i);
       expect(course).to.exist;
+    });
+
+    it.skip('does not create through collection cache during create', function() {
+      var course = student.createCourse({ subject: 'CS 101' });
+
+      expect(function() {
+        student.enrollments;
+      }).to.throw(/enrollments.*not yet.*loaded/i);
+      expect(function() {
+        course.enrollments;
+      }).to.throw(/enrollments.*not yet.*loaded/i);
     });
 
     it('updates collection cache during create', function(done) {
