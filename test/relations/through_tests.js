@@ -345,14 +345,7 @@ describe('Model.hasMany :through', function() {
         // which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
           ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
-           'VALUES (?, ?)', [1, 5]],
-          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
-           'VALUES (?, ?)', [1, 8]]
-          // REVISIT: this could be a single query (expectation below), but
-          // will require supporting _RETURNING_ statements with multiple
-          // values.
-          // ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
-          //  'VALUES (?, ?), (?, ?)', [1, 5, 1, 8]]
+           'VALUES (?, ?), (?, ?)', [1, 5, 1, 8]]
         ]);
         expect(course1).to.have.property('dirty', false);
         expect(course2).to.have.property('dirty', false);
@@ -468,12 +461,7 @@ describe('Model.hasMany :through', function() {
         // which is not guaranteed to be a stable ordering.
         expect(adapter.executedSQL()).to.eql([
           ['DELETE FROM "enrollments" ' +
-           'WHERE "student_id" = ? AND "course_id" = ?', [1, 5]],
-          ['DELETE FROM "enrollments" ' +
-           'WHERE "student_id" = ? AND "course_id" = ?', [1, 8]]
-          // REVISIT: this could be a single query (expectation below).
-          // ['DELETE FROM "enrollments" ' +
-          //  'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 8]]
+           'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 8]]
         ]);
         expect(course1).to.have.property('dirty', false);
         expect(course2).to.have.property('dirty', false);
