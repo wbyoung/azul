@@ -258,14 +258,12 @@ describe('Model.hasMany :through', function() {
       expect(course).to.exist;
     });
 
-    it.skip('does not create through collection cache during create', function() {
+    it('does not create through collection cache during create', function() {
       var course = student.createCourse({ subject: 'CS 101' });
 
+      expect(course.enrollments).to.eql([]); // course is new, gets cache
       expect(function() {
         student.enrollments;
-      }).to.throw(/enrollments.*not yet.*loaded/i);
-      expect(function() {
-        course.enrollments;
       }).to.throw(/enrollments.*not yet.*loaded/i);
     });
 
@@ -276,6 +274,20 @@ describe('Model.hasMany :through', function() {
       })
       .then(function() {
         expect(student.courses).to.contain(course);
+      })
+      .done(done, done);
+    });
+
+    it('does not update through cache during create', function(done) {
+      var course;
+      student.courseObjects.fetch().then(function() {
+        course = student.createCourse({ subject: 'CS 101' });
+      })
+      .then(function() {
+        expect(course.enrollments).to.eql([]); // course is new, has cache
+        expect(function() {
+          student.enrollments;
+        }).to.throw(/enrollments.*not yet.*loaded/i);
       })
       .done(done, done);
     });
@@ -470,7 +482,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('allows remove with unsaved objects', function(done) {
+    it('allows remove with unsaved objects', function(done) {
       var course = Course.fresh({ id: 12, subject: 'CS 101' });
       course.subject = 'Renamed';
       student.removeCourse(course).then(function() {
