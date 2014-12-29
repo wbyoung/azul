@@ -4,6 +4,7 @@
 var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var BluebirdPromise = require('bluebird');
 var Database = require('../../lib/database');
@@ -74,6 +75,58 @@ describe('Model many-to-many', function() {
   beforeEach(function() {
     this.student = Student.fresh({ id: 6, name: 'Whitney' });
     this.course = Course.fresh({ id: 3, subject: 'CS' });
+  });
+
+  describe('when spying on models & relationships', function() {
+    beforeEach(function() {
+      sinon.spy(this.student, 'setAttribute');
+      sinon.spy(this.course, 'setAttribute');
+
+      sinon.spy(this.student.enrollmentsRelation, 'associate');
+      sinon.spy(this.student.enrollmentsRelation, 'disassociate');
+      sinon.spy(this.course.enrollmentsRelation, 'associate');
+      sinon.spy(this.course.enrollmentsRelation, 'disassociate');
+
+      sinon.stub(this.course.studentsRelation, 'associate');
+      sinon.stub(this.course.studentsRelation, 'disassociate');
+    });
+
+    describe('when associating', function() {
+      beforeEach(function() {
+        this.student.coursesRelation.associate(this.student, this.course);
+      });
+
+      it('does not set attributes', function() {
+        expect(this.student.setAttribute).to.not.have.been.called;
+        expect(this.course.setAttribute).to.not.have.been.called;
+      });
+
+      it('does not associate relations it is through', function() {
+        expect(this.student.enrollmentsRelation.associate)
+          .to.not.have.been.called;
+        expect(this.course.enrollmentsRelation.associate)
+          .to.not.have.been.called;
+      });
+    });
+
+    describe('when disassociating', function() {
+      beforeEach(function() {
+        this.student.coursesRelation.disassociate(this.student, this.course);
+      });
+
+      it('does not set attributes', function() {
+        expect(this.student.setAttribute).to.not.have.been.called;
+        expect(this.course.setAttribute).to.not.have.been.called;
+      });
+
+      it('does not disassociate relations it is through', function() {
+        expect(this.student.enrollmentsRelation.disassociate)
+          .to.not.have.been.called;
+        expect(this.course.enrollmentsRelation.disassociate)
+          .to.not.have.been.called;
+      });
+    });
+
   });
 
   describe('when creating an object', function() {
