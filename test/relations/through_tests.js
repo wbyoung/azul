@@ -1021,19 +1021,4 @@ describe('Model.hasMany :through', function() {
     });
   });
 
-  // TODO: test internal methods
-  describe('internal methods', function() {
-    it.skip('handles disassociate', function() {
-      var course = Course.fresh({ id: 5, subject: 'Hello', studentKey: 5 });
-      student.coursesRelation.disassociate(student, course);
-      expect(course.studentId).to.eql(undefined);
-    });
-
-    it.skip('handles disassociate ignoring attrs', function() {
-      var course = Course.fresh({ id: 5, subject: 'Hello', studentKey: 5 });
-      student.coursesRelation.disassociate(student, course, { attrs: false });
-      expect(course.studentId).to.eql(5);
-    });
-  });
-
 });
