@@ -534,7 +534,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('updates collection cache during clear', function(done) {
+    it('updates collection cache during clear', function(done) {
       student.courseObjects.fetch().then(function() {
         return student.clearCourses();
       })
