@@ -593,8 +593,7 @@ describe('Model.hasMany :through', function() {
         var executed = adapter.executedSQL();
         var clear = executed[0];
         expect(clear).to.eql(
-          ['UPDATE "courses" SET "student_id" = ? ' +
-           'WHERE "student_id" = ?', [undefined, 1]]);
+          ['DELETE FROM "enrollments" WHERE "student_id" = ?', [1]]);
         // the order is not guaranteed between add & remove so they are sorted
         // based on the first argument (the argument corresponding to
         // SET "student_id" = ?)
@@ -603,10 +602,10 @@ describe('Model.hasMany :through', function() {
           return args[0] === undefined;
         });
         expect(remaining).to.eql([
-          ['UPDATE "courses" SET "student_id" = ? ' +
-           'WHERE "id" IN (?, ?)', [1, 7, 2]],
-          ['UPDATE "courses" SET "student_id" = ? ' +
-           'WHERE "id" IN (?, ?)', [undefined, 5, 4]],
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [7, 2]],
+          ['DELETE FROM "enrollments" ' +
+           'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 4]]
         ]);
       })
       .done(done, done);
