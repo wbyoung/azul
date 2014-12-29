@@ -330,7 +330,6 @@ describe('Model.hasMany :through', function() {
           clear: false,
           add: [],
           remove: [],
-          save: []
         });
         expect(course).to.have.property('dirty', false);
       })
@@ -446,7 +445,6 @@ describe('Model.hasMany :through', function() {
           clear: false,
           add: [],
           remove: [],
-          save: []
         });
         expect(course).to.have.property('dirty', false);
       })
@@ -569,7 +567,7 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it.skip('processes a complex sequence using add, remove, and clear', function(done) {
+    it('processes a complex sequence using add, remove, and clear', function(done) {
       var course1 = Course.fresh({ id: 1, subject: '#1' });
       var course2 = Course.fresh({ id: 2, subject: '#2' });
       var course3 = Course.fresh({ id: 3, subject: '#3' });
@@ -603,7 +601,7 @@ describe('Model.hasMany :through', function() {
         });
         expect(remaining).to.eql([
           ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
-           'VALUES (?, ?)', [7, 2]],
+           'VALUES (?, ?), (?, ?)', [1, 7, 1, 2]],
           ['DELETE FROM "enrollments" ' +
            'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 4]]
         ]);

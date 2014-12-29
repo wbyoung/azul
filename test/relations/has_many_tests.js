@@ -248,7 +248,6 @@ describe('Model.hasMany', function() {
           clear: false,
           add: [],
           remove: [],
-          save: [],
         });
         expect(article).to.have.property('dirty', false);
       })
@@ -352,7 +351,6 @@ describe('Model.hasMany', function() {
           clear: false,
           add: [],
           remove: [],
-          save: [],
         });
         expect(article).to.have.property('dirty', false);
       })

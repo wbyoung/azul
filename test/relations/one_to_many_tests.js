@@ -372,7 +372,6 @@ describe('Model one-to-many', function() {
         clear: false,
         add: [this.article],
         remove: [],
-        save: [],
       });
     });
 
@@ -398,7 +397,6 @@ describe('Model one-to-many', function() {
           clear: false,
           add: [],
           remove: [],
-          save: [],
         });
       });
 
