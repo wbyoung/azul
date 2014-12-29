@@ -57,23 +57,23 @@ describe('BaseRelation', function() {
     }).to.throw(/prefetch.*must.*implemented.*subclass/i);
   });
 
-  it('requires subclass to implement prefetchAssociate', function() {
+  it('requires subclass to implement associatePrefetchResults', function() {
     var user1 = User.create();
     var user2 = User.create();
     var relation = BaseRelation.create('article', { context: User });
     expect(function() {
-      relation.prefetchAssociate(user1, user2);
-    }).to.throw(/prefetchAssociate.*must.*implemented.*subclass/i);
+      relation.associatePrefetchResults(user1, user2);
+    }).to.throw(/associatePrefetchResults.*must.*implemented.*subclass/i);
   });
 
-  it('requires subclass to implement prefetchAssociate', function() {
+  it('requires subclass to implement joinKey', function() {
     var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.joinKey;
     }).to.throw(/joinKey.*must.*implemented.*subclass/i);
   });
 
-  it('requires subclass to implement prefetchAssociate', function() {
+  it('requires subclass to implement inverseKey', function() {
     var relation = BaseRelation.create('article', { context: User });
     expect(function() {
       relation.inverseKey;
