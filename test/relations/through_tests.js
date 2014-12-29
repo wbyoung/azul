@@ -4,6 +4,7 @@
 var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
+var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var BluebirdPromise = require('bluebird');
 var Database = require('../../lib/database');
@@ -245,6 +246,16 @@ describe('Model.hasMany :through', function() {
   });
 
   describe('helpers', function() {
+    beforeEach(function() {
+      sinon.spy(Enrollment.__metaclass__.prototype, 'create');
+      sinon.spy(Enrollment.__metaclass__.prototype, 'new');
+    });
+
+    afterEach(function() {
+      Enrollment.__metaclass__.prototype.create.restore();
+      Enrollment.__metaclass__.prototype.new.restore();
+    });
+
     it('allows create', function() {
       var course = student.createCourse({ subject: 'CS 101' });
       expect(course).to.to.be.an.instanceOf(Course.__class__);
@@ -297,6 +308,12 @@ describe('Model.hasMany :through', function() {
       var course = student.createCourse({ subject: 'CS 101' });
       expect(student.courseObjects).to.not.equal(courseObjects);
       expect(course).to.exist;
+    });
+
+    it('does not create an instance of the join model during create', function() {
+      var course = student.createCourse({ subject: 'CS 101' });
+      expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
+      expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
     });
 
     it('allows add with existing objects', function(done) {
@@ -414,6 +431,15 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
+    it('does not create an instance of the join model during add', function(done) {
+      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      student.addCourse(course).then(function() {
+        expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
+        expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
+      })
+      .done(done, done);
+    });
+
     it('allows remove with existing objects', function(done) {
       var course = Course.fresh({ id: 5, subject: 'CS 101', studentKey: student.id });
       student.removeCourse(course).then(function() {
@@ -523,6 +549,15 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
+    it('does not create an instance of the join model during remove', function(done) {
+      var course = Course.fresh({ id: 5, subject: 'CS 101', studentKey: student.id });
+      student.removeCourse(course).then(function() {
+        expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
+        expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
+      })
+      .done(done, done);
+    });
+
     it('allows clear', function(done) {
       student.clearCourses().then(function() {
         expect(adapter.executedSQL()).to.eql([
@@ -563,6 +598,14 @@ describe('Model.hasMany :through', function() {
       var courseObjects = student.courseObjects;
       student.save().then(function() {
         expect(courseObjects).to.equal(student.courseObjects);
+      })
+      .done(done, done);
+    });
+
+    it('does not create an instance of the join model during clear', function(done) {
+      student.clearCourses().then(function() {
+        expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
+        expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
       })
       .done(done, done);
     });
