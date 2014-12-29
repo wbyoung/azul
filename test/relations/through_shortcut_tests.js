@@ -141,8 +141,14 @@ describe('Model.hasMany :through-shortcut', function() {
       }).to.throw(/cannot clear.*through.*User#comments/i);
     });
 
-    it.skip('does not do anything special on save', function() {
-
+    it('does not do anything special on save', function(done) {
+      blog.title = 'AzulJS Blog';
+      blog.save().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "blogs" SET "title" = ? WHERE "id" = ?', ['AzulJS Blog', 12]]
+        ]);
+      })
+      .done(done, done);
     });
 
     it('fetches through two relationships', function(done) {
