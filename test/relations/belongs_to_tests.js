@@ -68,6 +68,14 @@ describe('Model.belongsTo', function() {
       });
       expect(article.userRelation._relatedModel).to.eql(db.model('user'));
     });
+
+    it('uses the foreign key as the join key', function() {
+      expect(article.authorRelation.joinKey).to.eql(article.authorRelation.foreignKey);
+    });
+
+    it('uses the primary key as the inverse key', function() {
+      expect(article.authorRelation.inverseKey).to.eql(article.authorRelation.primaryKey);
+    });
   });
 
   it('has related methods', function() {

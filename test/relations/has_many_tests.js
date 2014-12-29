@@ -68,6 +68,14 @@ describe('Model.hasMany', function() {
       });
       expect(user.booksRelation.foreignKey).to.eql('writer_id');
     });
+
+    it('uses the primary key as the join key', function() {
+      expect(user.articlesRelation.joinKey).to.eql(user.articlesRelation.primaryKey);
+    });
+
+    it('uses the foreign key as the inverse key', function() {
+      expect(user.articlesRelation.inverseKey).to.eql(user.articlesRelation.foreignKey);
+    });
   });
 
   it('has related methods', function() {
