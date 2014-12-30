@@ -311,7 +311,6 @@ describe('Model.hasMany :through', function() {
     });
 
     it('does not create an instance of the join model during create', function() {
-      var course = student.createCourse({ subject: 'CS 101' });
       expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
       expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
     });
