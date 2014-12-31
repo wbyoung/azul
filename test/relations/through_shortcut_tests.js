@@ -97,6 +97,13 @@ describe('Model.hasMany :through-shortcut', function() {
     expect(user).to.respondTo('clearComments');
   });
 
+  describe('definition', function() {
+    it('does not have an inverse', function() {
+      expect(user.articlesRelation.inverse).to.eql(null);
+      expect(user.commentsRelation.inverse).to.eql(null);
+    });
+  });
+
   describe('relation', function() {
 
     it('fetches through one relationship', function(done) {

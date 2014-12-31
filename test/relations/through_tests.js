@@ -98,6 +98,12 @@ describe('Model.hasMany :through', function() {
     expect(student).to.respondTo('clearCourses');
   });
 
+  describe('definition', function() {
+    it('calculates the correct inverse', function() {
+      expect(student.coursesRelation.inverse).to.eql('students');
+    });
+  });
+
   describe('relation', function() {
 
     it('fetches related objects', function(done) {
