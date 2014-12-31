@@ -9,3 +9,4 @@ env: PG_USER=postgres MYSQL_USER=travis
 matrix:
   allow_failures:
   - node_js: '0.11'
+sudo: false
