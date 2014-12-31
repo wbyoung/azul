@@ -869,6 +869,13 @@ describe('Model.hasMany :through', function() {
   });
 
   describe('pre-fetch', function() {
+    it('cannot pre-fetch directly', function() {
+      var relation = student.coursesRelation;
+      expect(function() {
+        relation.prefetch([]);
+      }).to.throw(/cannot pre-?fetch.*through/i);
+    });
+
     it('executes multiple queries', function(done) {
       Student.objects.with('courses').fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
