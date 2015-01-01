@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# note that $GITHUB_REPO contains an API key in it, so be careful to not allow
+# that to end up as part of the output ever.
+
+set -e
+
+if [ "`git rev-parse HEAD`" != "`git rev-parse master --`" ]; then
+  echo "Not deploying docs for non-master commit `git rev-parse --short HEAD`"
+  exit 0
+fi
+
+mkdir -p .deploy
+cd .deploy
+git clone -q --depth 1 --branch gh-pages --single-branch $GITHUB_REPO .
+git config user.name $GITHUB_NAME
+git config user.email $GITHUB_EMAIL
+
+rm -rf ./*
+cp -r ../public/* .
+
+git add -A .
+git commit -m 'Site updated' || echo 'No update required.'
+git push -q origin gh-pages
