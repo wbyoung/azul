@@ -5,7 +5,7 @@
 
 set -e
 
-if [ "`git rev-parse HEAD`" != "`git rev-parse master --`" ]; then
+if [ "`git rev-parse HEAD`" != "`git rev-parse master 2> /dev/null`" ]; then
   echo "Not deploying docs for non-master commit `git rev-parse --short HEAD`"
   exit 0
 fi
