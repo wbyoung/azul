@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var Metalsmith = require('metalsmith');
+var templates = require('metalsmith-templates');
+var markdown = require('metalsmith-markdown');
+var serve = require('metalsmith-serve');
+var watch = require('metalsmith-watch');
+var path = require('path');
+var commander = require('commander');
+var program = new commander.Command()
+  .option('-s --serve', 'serve and watch for changes')
+
+program.parse(process.argv);
+
+var metalsmith = Metalsmith(path.join(__dirname, '..'))
+  .source('./source')
+  .destination('./build')
+  .use(templates('handlebars'))
+  .use(markdown());
+
+if (program.serve) {
+  metalsmith = metalsmith
+    .use(watch())
+    .use(serve());
+}
+
+metalsmith.build(function(err){
+  if (err) { throw err; }
+});
