@@ -3,6 +3,8 @@
 var Metalsmith = require('metalsmith');
 var templates = require('metalsmith-templates');
 var markdown = require('metalsmith-markdown');
+var sass = require('metalsmith-sass');
+var metallic = require('metalsmith-metallic');
 var serve = require('metalsmith-serve');
 var watch = require('metalsmith-watch');
 var path = require('path');
@@ -15,8 +17,10 @@ program.parse(process.argv);
 var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .source('./source')
   .destination('./build')
-  .use(templates('handlebars'))
-  .use(markdown());
+  .use(sass())
+  .use(metallic())
+  .use(markdown())
+  .use(templates('handlebars'));
 
 if (program.serve) {
   metalsmith = metalsmith
