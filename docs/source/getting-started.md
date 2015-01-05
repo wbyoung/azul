@@ -17,7 +17,7 @@ $ npm install --save azul pg
 $ npm install --global azul
 ```
 
-### Configuration
+## Configuration
 
 Both your application and the `azul` command line application will need a way
 to connect to your database in order to update the database. The `azul` command
@@ -63,7 +63,7 @@ The `azulfile` can be either a _JSON_ or _JavaScript_ file that exports the
 configuration.
 
 
-### Application
+## Application
 
 With your configuration file in place, a simple application can be built using
 that configuration file.

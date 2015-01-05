@@ -1,3 +1,29 @@
+$color-1: #ced7f2;
+$color-2: #22648c;
+$color-3: #224459;
+$color-4: #26a3bf;
+$color-5: #72dbf2;
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+body > .container {
+  font-size: 12pt;
+  font-family: 'Lora', serif;
+  line-height: 1.6em;
+
+  h1, h2, h3, h4 {
+    color: $color-4;
+    margin-top: 1.3em;
+  }
+
+  h1, h2, h3, h4, .btn {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+  }
+}
+
 body > .container {
   padding-top: 70px;
 }
@@ -5,12 +31,6 @@ body > .container {
 body > .jumbotron + .container {
   padding-top: 0px;
 }
-
-$color-1: #ced7f2;
-$color-2: #22648c;
-$color-3: #224459;
-$color-4: #26a3bf;
-$color-5: #72dbf2;
 
 .navbar-default {
   background-color: $color-2;
