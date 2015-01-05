@@ -1,6 +1,6 @@
 ---
 title: Overview
-overview: true
+active: overview
 template: base.html
 ---
 

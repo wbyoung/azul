@@ -20,7 +20,7 @@ var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .use(sass())
   .use(metallic())
   .use(markdown())
-  .use(templates('handlebars'));
+  .use(templates('swig'));
 
 if (program.serve) {
   metalsmith = metalsmith

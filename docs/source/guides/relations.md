@@ -1,7 +1,7 @@
 ---
 title: Relations
-guides: true
-template: base.html
+active: guides
+template: page.html
 ---
 
 # Relations

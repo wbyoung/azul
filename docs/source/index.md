@@ -1,7 +1,7 @@
 ---
 title: Azul.js
-home: true
-template: base.html
+category: home
+template: home.html
 ---
 
 # Simple API

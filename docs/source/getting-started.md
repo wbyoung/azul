@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-getting_started: true
+active: getting_started
 template: base.html
 ---
 

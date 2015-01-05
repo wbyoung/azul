@@ -1,7 +1,7 @@
 ---
 title: Queries
-guides: true
-template: base.html
+active: guides
+template: page.html
 ---
 
 # Queries

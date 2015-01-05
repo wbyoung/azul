@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>{{title}}</title>
+    <title>{{ title }}</title>
     <link rel="icon" href="/favicon.ico">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Satisfy">
@@ -31,8 +31,8 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li {{#if overview}}class="active"{{/if}}><a href="/overview.html">Overview</a></li>
-            <li {{#if getting_started}}class="active"{{/if}}><a href="/getting-started.html">Getting Started</a></li>
+            <li {% if active == "overview" %}class="active"{% endif %}><a href="/overview.html">Overview</a></li>
+            <li {% if active == "getting_started" %}class="active"{% endif %}><a href="/getting-started.html">Getting Started</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guides <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -49,21 +49,11 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-    {{#if home}}
-    <div class="jumbotron">
+    {% block content %}
       <div class="container">
-        <h1>Azul.js</h1>
-        <p>
-          The most elegant object-relational mapping tool for Node.js.
-          Designed with ease of use in mind, Azul.js allows you to write
-          simple, expressive statements to access your application's data.
-        </p>
+        {{ contents|safe }}
       </div>
-    </div>
-    {{/if}}
-    <div class="container">
-      {{{ contents }}}
-    </div>
+    {% endblock %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
   </body>

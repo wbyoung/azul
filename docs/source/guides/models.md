@@ -1,7 +1,7 @@
 ---
 title: Models
-guides: true
-template: base.html
+active: guides
+template: page.html
 ---
 
 # Models
