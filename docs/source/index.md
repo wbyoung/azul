@@ -6,8 +6,10 @@ template: base.html
 
 # Simple API
 
-Azul.js exposes a very API that borrows ideas from the top ORMs available in
-other languages. You'll feel right at home when working with Azul.js.
+Azul.js exposes a simple API that follows patterns found in popular tools
+available in other languages. You'll feel right at home when working with
+Azul.js.
+
 
 ```js
 var Article = db.model('article', {
@@ -23,7 +25,6 @@ var User = db.model('user', {
 
 Article.objects.with('author').fetch().then('...');
 // -> select * from "articles";
-// -> select * from "users" where "id" in (?, ?, ?)
-// -> limit 3;
+// -> select * from "users" where "id" in (?, ?, ?) limit 3;
 // !> [3,5,8]
 ```
