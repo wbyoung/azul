@@ -1,1 +1,42 @@
 {% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+<div class="row">
+<div class="col-sm-3 col-sm-push-9 guide-toc">
+
+{% for h1Section in toc %}
+  <ul>
+  {% for h2Section in h1Section.children %}
+    <li>
+      <a href="#{{ h2Section.id }}">{{ h2Section.title }}</a>
+      <ul>
+        {% for h3Section in h2Section.children %}
+          <li>
+            <a href="#{{ h3Section.id }}">{{ h3Section.title }}</a>
+            <ul>
+              {% for h4Section in h3Section.children %}
+                <li>
+                  <a href="#{{ h4Section.id }}">{{ h4Section.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% endfor %}
+  </ul>
+{% endfor %}
+
+</div>
+<div class="col-sm-9 col-sm-pull-3">
+
+
+{{ contents|safe }}
+
+</div>
+</div>
+</div>
+
+{% endblock %}

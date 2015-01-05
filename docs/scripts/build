@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var _ = require('lodash');
 var Metalsmith = require('metalsmith');
 var templates = require('metalsmith-templates');
 var markdown = require('metalsmith-markdown');
@@ -8,11 +9,55 @@ var metallic = require('metalsmith-metallic');
 var serve = require('metalsmith-serve');
 var watch = require('metalsmith-watch');
 var path = require('path');
+var cheerio = require('cheerio');
 var commander = require('commander');
 var program = new commander.Command()
   .option('-s --serve', 'serve and watch for changes')
 
 program.parse(process.argv);
+
+var toc = function() {
+  return function toc(files, metalsmith, done) {
+    _.forEach(files, function(data, file) {
+      if (!data.toc) { return; }
+      var $ = cheerio.load(data.contents);
+      var level = 0;
+      var result = [];
+      var root = { children: result };
+      var nodes = [root];
+
+      $('h1[id], h2[id], h3[id], h4[id]').each(function() {
+        var headerLevel = this.tagName.match(/h(\d)/)[1] - 1;
+
+        while (headerLevel < level) {
+          delete nodes[level];
+          level -= 1;
+        }
+
+        while (headerLevel > level) {
+          level += 1;
+          nodes[level].children = nodes[level].children || [];
+        }
+
+        var parent = nodes[headerLevel];
+        var header = $(this);
+        var title = header.text();
+        var name = header.attr('id');
+        var node = {
+          id: name,
+          title: title
+        };
+
+        parent.children.push(node);
+        nodes[headerLevel+1] = node;
+      });
+
+      data.toc = result;
+    });
+
+    done();
+  };
+};
 
 var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .source('./source')
@@ -20,6 +65,7 @@ var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .use(sass())
   .use(metallic())
   .use(markdown())
+  .use(toc())
   .use(templates('swig'));
 
 if (program.serve) {
