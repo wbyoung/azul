@@ -53,7 +53,7 @@ body > .jumbotron + .container {
   }
 }
 
-body.guide > .jumbotron {
+body.generic > .jumbotron {
   background-color: $color-5;
   border-bottom: 4px solid darken($color-5, 5);
   padding: 3.2em 0px 0.6em 0px;
@@ -65,7 +65,7 @@ body.guide > .jumbotron {
   }
 }
 
-body.guide > .container h1 {
+body.generic > .jumbotron + .container h1 {
   display: none;
 }
 

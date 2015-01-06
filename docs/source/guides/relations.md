@@ -2,7 +2,7 @@
 title: Relations
 toc: true
 active: guides
-template: page.html
+template: guide-page.html
 ---
 
 # Relations

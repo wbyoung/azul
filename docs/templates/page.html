@@ -1,51 +1,17 @@
 {% extends "base.html" %}
 
-{% block body-class %}guide{% endblock %}
 {% block content %}
 
-{% if toc[0] %}
+{% if header %}
 <div class="jumbotron">
   <div class="container">
-    <h1>{{ toc[0].title }}</h1>
+    <h1>{{ header }}</h1>
   </div>
 </div>
 {% endif %}
 
 <div class="container">
-<div class="row">
-<div class="col-sm-3 col-sm-push-9 guide-toc well">
-
-{% for h1Section in toc %}
-  <ul class="list-unstyled">
-  {% for h2Section in h1Section.children %}
-    <li>
-      <a href="#{{ h2Section.id }}">{{ h2Section.title }}</a>
-      <ul>
-        {% for h3Section in h2Section.children %}
-          <li>
-            <a href="#{{ h3Section.id }}">{{ h3Section.title }}</a>
-            <ul>
-              {% for h4Section in h3Section.children %}
-                <li>
-                  <a href="#{{ h4Section.id }}">{{ h4Section.title }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </li>
-        {% endfor %}
-      </ul>
-    </li>
-  {% endfor %}
-  </ul>
-{% endfor %}
-
-</div>
-<div class="col-sm-8 col-sm-pull-3">
-
-{{ contents|safe }}
-
-</div>
-</div>
+  {{ contents|safe }}
 </div>
 
 {% endblock %}

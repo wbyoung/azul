@@ -1,7 +1,8 @@
 ---
 title: Getting Started
+header: Getting Started
 active: getting_started
-template: base.html
+template: page.html
 ---
 
 # Getting Started

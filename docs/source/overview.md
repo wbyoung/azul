@@ -1,7 +1,8 @@
 ---
 title: Overview
+header: Overview
 active: overview
-template: base.html
+template: page.html
 ---
 
 # Overview
