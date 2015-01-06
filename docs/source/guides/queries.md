@@ -1,5 +1,6 @@
 ---
 title: Queries
+toc: true
 active: guides
 template: page.html
 ---

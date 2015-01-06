@@ -1,10 +1,10 @@
 ---
-title: Relations
+title: Managers
 toc: true
 active: guides
 template: page.html
 ---
 
-# Relations
+# Managers
 
 Content coming soon&hellip;

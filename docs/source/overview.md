@@ -28,7 +28,7 @@ We're proud to have:
 
 
 <p class="text-center">
-  <a class="btn btn-primary btn-lg" href="/guides/getting-started.html" role="button">Get Started with Azul.js &raquo;</a>
+  <a class="btn btn-primary btn-lg" href="/getting-started.html" role="button">Get Started with Azul.js &raquo;</a>
 </p>
 
 [django]: https://www.djangoproject.com/
