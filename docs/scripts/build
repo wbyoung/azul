@@ -36,6 +36,9 @@ var toc = function() {
 
         while (headerLevel > level) {
           level += 1;
+          if (!nodes[level]) {
+            throw new Error('Header level skipped, cannot generate TOC.');
+          }
           nodes[level].children = nodes[level].children || [];
         }
 
