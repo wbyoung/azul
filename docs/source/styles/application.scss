@@ -9,8 +9,7 @@ body {
 }
 
 body > .container {
-  font-size: 12pt;
-  font-family: 'Lora', serif;
+  font-size: 11pt;
   line-height: 1.6em;
 
   h1, h2, h3, h4 {
@@ -18,8 +17,7 @@ body > .container {
     margin-top: 1.3em;
   }
 
-  h1, h2, h3, h4, .btn, .guide-toc {
-    font-family: 'Open Sans', sans-serif;
+  h1, h2, h3, h4, .btn {
     font-weight: 300;
   }
 
@@ -55,7 +53,24 @@ body > .jumbotron + .container {
   }
 }
 
-body > .jumbotron {
+body.guide > .jumbotron {
+  background-color: $color-5;
+  border-bottom: 4px solid darken($color-5, 5);
+  padding: 3.2em 0px 0.6em 0px;
+  color: #fff;
+
+  h1 {
+    text-transform: lowercase;
+    font-size: 300%;
+    font-weight: 300;
+  }
+}
+
+body.guide > .container h1 {
+  display: none;
+}
+
+body.home > .jumbotron {
   background-color: $color-2;
   border-bottom: 4px solid darken($color-2, 5);
   color: #fff;
