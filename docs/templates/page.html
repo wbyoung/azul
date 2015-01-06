@@ -6,7 +6,7 @@
 <div class="col-sm-3 col-sm-push-9 guide-toc">
 
 {% for h1Section in toc %}
-  <ul>
+  <ul class="list-unstyled">
   {% for h2Section in h1Section.children %}
     <li>
       <a href="#{{ h2Section.id }}">{{ h2Section.title }}</a>
