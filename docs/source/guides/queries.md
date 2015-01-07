@@ -200,7 +200,12 @@ The standard [SQL injection][sql-injection] warning applies when using `f` and
 
 ## Lookups
 
-The following lookups are supported:
+Lookups allow an different types of operations to be performed in the database
+while evaluating a condition. Each is specified after the property name within
+square brackets (meaning you'll have to quote the property name). For instance,
+using an _exact_ comparison on `id` would mean using a property name of
+`id[exact]`. See the examples below for more detail.
+
 
 ### `exact`
 
