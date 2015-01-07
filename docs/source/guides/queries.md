@@ -274,47 +274,102 @@ Article.objects.where({ 'title[in]': ['Azul.js', 'Azul'] });
 
 ### `gt`
 
-Content coming soon&hellip;
+Greater than.
+
+```js
+Article.objects.where({ 'id[gt]': 5 });
+```
 
 ### `gte`
 
-Content coming soon&hellip;
+Greater than or equal to.
+
+```js
+Article.objects.where({ 'id[gte]': 5 });
+```
 
 ### `lt`
 
-Content coming soon&hellip;
+Less than.
+
+```js
+Article.objects.where({ 'id[lt]': 5 });
+```
 
 ### `lte`
 
-Content coming soon&hellip;
+Less than or equal to.
+
+```js
+Article.objects.where({ 'id[lte]': 5 });
+```
 
 ### `isNull`
 
-Content coming soon&hellip;
+Test for `NULL` or `NOT NULL`.
+
+```js
+Article.objects.where({ 'id[isNull]': true });
+Article.objects.where({ 'id[isNull]': false });
+```
 
 ### `year`
 
-Content coming soon&hellip;
+Test for a specific year.
+
+```js
+Article.objects.where({ 'createdAt[year]': 2014 });
+```
 
 ### `month`
 
-Content coming soon&hellip;
+Test for a specific month. (1 - 12)
+
+```js
+Article.objects.where({ 'createdAt[month]': 10 });
+```
 
 ### `day`
 
-Content coming soon&hellip;
+Test for a specific day.
+
+```js
+Article.objects.where({ 'createdAt[day]': 7 });
+```
+
+### `weekday`
+
+Test for a specific weekday.
+
+```js
+Article.objects.where({ 'createdAt[weekday]': 1 });
+Article.objects.where({ 'createdAt[weekday]': 'mon' });
+Article.objects.where({ 'createdAt[weekday]': 'monday' });
+```
 
 ### `hour`
 
-Content coming soon&hellip;
+Test for a specific hour.
+
+```js
+Article.objects.where({ 'createdAt[hour]': 22 });
+```
 
 ### `minute`
 
-Content coming soon&hellip;
+Test for a specific minute.
+
+```js
+Article.objects.where({ 'createdAt[minute]': 10 });
+```
 
 ### `second`
 
-Content coming soon&hellip;
+Test for a specific second.
+
+```js
+Article.objects.where({ 'createdAt[second]': 54 });
+```
 
 ## Executing
 
