@@ -33,7 +33,7 @@
           <ul class="nav navbar-nav">
             <li {% if active == "overview" %}class="active"{% endif %}><a href="/overview.html">Overview</a></li>
             <li {% if active == "getting_started" %}class="active"{% endif %}><a href="/getting-started.html">Getting Started</a></li>
-            <li class="dropdown">
+            <li {% if active == "guides" %}class="active"{% endif %} class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Guides <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <li><a href="/guides/models.html">Models</a></li>
