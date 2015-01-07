@@ -66,6 +66,9 @@ Azul.js does not distinguish between different attribute types when defining
 models. The types will be cast when reading and writing from the database.
 See the [migrations guide][azul-migrations] for more details.
 
+The `attr` function is also available via the main `azul` export for
+convenience.
+
 <div class="panel panel-info">
 <div class="panel-heading">
   <span class="panel-title">Coming Soon&hellip;</span>
@@ -165,8 +168,9 @@ Article.objects.find(1).then(function(article) {
 });
 ```
 
-Reading from the database is asynchronous, so `fetch` and `find` return
-promises that resolve with the results from the database.
+Reading from the database is asynchronous, so [`fetch`][azul-queries#fetch] and
+[`find`][azul-queries#find] return promises that resolve with the results from
+the database.
 
 For more information on fetching objects from the database, see the [full
 query guide][azul-queries].
@@ -240,7 +244,45 @@ article.save().then(function() {
 });
 ```
 
+## Methods
+
+### `#save`
+
+### `#delete`
+
+## Properties
+
+### `#attrs`
+
+Readonly.
+
+### `#newRecord`
+
+Readonly.
+
+### `#persisted`
+
+Readonly.
+
+### `#deleted`
+
+Readonly.
+
+### `#dirty`
+
+Readonly.
+
+### `.objects`
+
+Readonly.
+
+### `.tableName`
+
+Overridable.
+
 [azul-getting-started]: /getting-started.html
 [azul-migrations]: /guides/migrations.html
 [azul-queries]: /guides/queries.html
+[azul-queries#fetch]: /guides/queries.html#-fetch-
+[azul-queries#find]: /guides/queries.html#-find-
 [mass-assignment]: http://en.wikipedia.org/wiki/Mass_assignment_vulnerability

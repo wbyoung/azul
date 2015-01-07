@@ -83,3 +83,15 @@ body.home > .jumbotron {
     font-size: 800%;
   }
 }
+
+pre {
+  max-height: 340px;
+  overflow-y: scroll;
+}
+
+pre code.hljs {
+  overflow-wrap: normal;
+  white-space: pre;
+  overflow-x: visible;
+  background-color: transparent;
+}
