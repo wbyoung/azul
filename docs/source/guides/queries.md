@@ -561,7 +561,7 @@ The following methods support automatic joining:
 - [`where`](#-where-)
 - [`order`](#-order-)
 
-## Raw queries
+## Raw Queries
 
 Sometimes you may need to execute raw SQL queries. While this is discouraged,
 it can still be done. Raw queries on models are expected to be `SELECT`
@@ -579,9 +579,169 @@ query.fetch().then(function(articles) {
 
 Be very cautious of [SQL injection][sql-injection] when using raw queries.
 
-## Non-Model Queries & Results
+## Data Queries
 
-Content coming soon&hellip;
+At times, it may be useful to execute more basic queries. Azul.js provides
+_data queries_ that return simple data rather than model objects.
+
+Most of the methods available on these queries work the same way they do when
+used through a model class.
+
+All queries require a call to [`execute`](#-execute-) and are _thenable_
+objects. When executed, the resulting promise will resolve with an object that
+will contain at the very least a `rows` key. The value of this key will be an
+array of objects that have been read from the database. Additional data may be
+available depending on the database back-end.
+
+```js
+db.select('people').then(function(data) {
+  console.log(data.rows);
+});
+```
+
+Data queries are not aware of models and will not convert camel case property
+names into underscore case. They will not automatically join relationships.
+
+<div class="panel panel-info">
+<div class="panel-heading"><span class="panel-title">SQL</span></div>
+<div class="panel-body">
+The example queries below show how to use these basic queries as well as the
+approximate SQL that each query will produce. The exact SQL will vary by
+database back-end.
+</div>
+</div>
+
+
+### Select
+
+Select queries can be executed via `db.select` or `db.query.select`.
+
+```js
+db.select('people')
+// -> select * from people
+
+db.select('people', ['firstName', 'lastName'])
+// -> select firstName, lastName from people
+```
+
+Chainable methods include:
+
+- `where` Will not convert property names or join relationships. See
+[`#where`](#-where-).
+- `order` Will not convert property names or join relationships. See
+[`#order`](#-order-).
+- `limit` No differences. See [`#limit`](#-limit-).
+- `offset` No differences. See [`#offset`](#-offset-).
+- `join`  Joins are quite different as they require more information than
+simply a relationship name. Joins default to an `INNER` join. See more examples
+below.
+- `fetch` Executes the query and returns a promise that resolves with the
+`rows` from the result. See [`#fetch`](#-fetch-).
+- `fetchOne` No differences. See [`#fetchOne`](#-fetchOne-).
+
+
+**Joins**
+
+```js
+db.select('cities', ['cities.name', 'countries.name'])
+  .join('countries', 'cities.country_id=countries.id');
+// -> select cities.name, countries.name from cities
+// -> inner join countries on cities.country_id = countries.id
+
+db.select('cities')
+  .join('countries', 'left', { 'cities.country_id': f('countries.id') })
+  .where({ 'cities.name[icontains]': 'city' })
+// -> select * from cities
+// -> left join countries on cities.country_id = countries.id
+// -> where cities.name ilike ?
+// !> ['%city%']
+```
+
+### Insert
+
+Insert queries can be executed via `db.insert` or `db.query.insert`.
+
+```js
+db.insert('users').values({ name: 'Whitney' })
+// -> insert into "users" ("name") values (?)
+// !> ['Whitney']
+
+db.insert('users').values({ name: 'Whitney' }, { name: 'Sara' })
+// -> insert into "users" ("name") values (?), (?)
+// !> ['Whitney', 'Sara']
+
+db.insert('users').values([{ name: 'Whitney' }, { name: 'Sara' }])
+// -> insert into "users" ("name") values (?), (?)
+// !> ['Whitney', 'Sara']
+
+db.insert('users').values({ name: 'Whitney' }).values({ name: 'Sara' })
+// -> insert into "users" ("name") values (?), (?)
+// !> ['Whitney', 'Sara']
+
+db.insert('users', { name: 'Whitney' })
+// -> insert into "users" ("name") values (?)
+// !> ['Whitney']
+```
+
+Chainable methods include:
+
+- `values` Add more sets of values to insert. See examples above.
+
+### Update
+
+Update queries can be executed via `db.update` or `db.query.update`.
+
+```js
+db.update('users').set({ name: 'Whitney' }).where({ id: 5 })
+// -> update "users" set "name" = ? where "id" = ?
+// !> ['Whitney', 5]
+
+db.update('users')
+  .set({ first: 'Whitney' })
+  .set({ last: 'Young' })
+// -> update "users" set "first" = ?, "last" = ?
+// !> ['Whitney', 'Young']
+
+db.update('users', { name: 'Whitney' })
+// -> update "users" set "name" = ?
+// !> ['Whitney']
+```
+
+Chainable methods include:
+
+- `set` Add values to set. See examples above.
+- `where` Will not convert property names or join relationships. See
+[`#where`](#-where-).
+
+### Delete
+
+Delete queries can be executed via `db.delete` or `db.query.delete`.
+
+```js
+db.delete('users').where({ name: 'Whitney' })
+// -> delete from "users" where "name" = ?
+// !> ['Whitney']
+```
+
+Chainable methods include:
+
+- `where` Will not convert property names or join relationships. See
+[`#where`](#-where-).
+
+
+### Raw
+
+Update queries can be executed via `db.query.raw`.
+
+```js
+db.query.raw('select * from "users" where "id" = ?', [1])
+// -> select * from "users" where "id" = ?
+// !> [1]
+```
+
+Raw queries have no chainable methods. Be very cautious of
+[SQL injection][sql-injection] when using raw queries.
+
 
 [azul-managers]: /guides/managers.html
 [azul-models#objects]: /guides/models.html#-objects-
