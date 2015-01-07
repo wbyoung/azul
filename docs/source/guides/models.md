@@ -244,45 +244,108 @@ article.save().then(function() {
 });
 ```
 
-## Methods
+## Methods & Properties
 
 ### `#save`
 
+Saves the model if it hasn't already been saved. This method is used to persist
+in memory changes and must be called after creating, altering, or deleting a
+model in order for the changes to be saved to the database.
+
+The returned promise will resolve with the model instance when the save
+succeeds.
+
+``` js
+model.save().then(function(model) { /* ... */ });
+```
+
 ### `#delete`
 
-## Properties
+Marks the model for deletion.
+
+When a model has been marked for deletion & saved, it will still exist in
+memory. Re-saving an object in this state will have no effect.
+
+See examples in the [deleting section](#delete).
 
 ### `#attrs`
 
-Readonly.
+The attributes, keyed by database field name, currently set on this object.
+That is, a `Person` defined like so:
+
+```js
+var Person = db.model('person', {
+  firstName: db.attr(),
+  lastName: db.attr()
+});
+
+var person = Person.create({ firstName: 'Whitney', lastName: 'Young' });
+```
+
+Would have `attrs` of:
+
+```js
+person.attrs; // => { first_name: 'Whitney', last_name: 'Young' }
+```
+
+- readonly
 
 ### `#newRecord`
 
-Readonly.
+Determine if this is a new record. Model that do not have a _primary key_ are
+considered new. New records will be inserted when a model is saved. To better
+understand this behavior, read about [how the save method is
+determined](#create-update-or-delete-).
+
+- readonly
 
 ### `#persisted`
 
-Readonly.
+Determine if this model is persisted, that is, it is not deleted nor new.
+
+- readonly
 
 ### `#deleted`
 
-Readonly.
+Determine if this model is deleted or has been marked for deletion.
+
+- readonly
 
 ### `#dirty`
 
-Readonly.
+Determine if this model has changes that have not yet been persisted to the
+database.
+
+- readonly
 
 ### `.objects`
 
-Readonly.
+Access a [query object][azul-queries] that will allow you to fetch models of
+this type from the database. Note that this can be customized by creating your
+own [custom manager][azul-managers#overriding-the-default-manager].
+
+- readonly
 
 ### `.tableName`
 
-Overridable.
+The name of the table in the database which contains the data.
+
+You can override this property like so:
+
+```js
+var Article = db.model('article');
+
+Article.reopenClass({
+  tableName: 'publications',
+});
+```
+
+- readonly
 
 [azul-getting-started]: /getting-started.html
 [azul-migrations]: /guides/migrations.html
 [azul-queries]: /guides/queries.html
 [azul-queries#fetch]: /guides/queries.html#-fetch-
 [azul-queries#find]: /guides/queries.html#-find-
+[azul-managers#overriding-the-default-manager]: /guides/managers.html#overriding-the-default-manager
 [mass-assignment]: http://en.wikipedia.org/wiki/Mass_assignment_vulnerability
