@@ -240,6 +240,18 @@ describe('Model', function() {
       expect(user.attrs).to.have.property('username', 'wbyoung');
     });
 
+    it('converts attributes to underscore case by default', function() {
+      Article.reopen({ authorName: db.attr() });
+      var article = Article.create({ authorName: 'Whitney' });
+      expect(article.attrs).to.have.property('author_name', 'Whitney');
+    });
+
+    it('respects given attribute name', function() {
+      Article.reopen({ name: db.attr('authorName') });
+      var article = Article.create({ name: 'Whitney' });
+      expect(article.attrs).to.have.property('authorName', 'Whitney');
+    });
+
     it('can handles `false` as an attribute value', function() {
       Article.reopen({ published: db.attr() });
       var article = Article.create({ id: 5, published: false });
