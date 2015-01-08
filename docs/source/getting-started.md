@@ -52,7 +52,7 @@ module.exports = {
   test: {
     adapter: 'pg',
     connection: {
-      database: 'database_test'
+      database: 'database_test',
       user: 'root',
       password: ''
     }
