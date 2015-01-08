@@ -50,6 +50,19 @@ describe('CLI', function() {
       .done(done, done);
     });
 
+    it('fails when given a bad database', function(done) {
+      cmd({}, function() {
+        return actions.init({ database: 'invalid' });
+      })
+      .then(function(proc) {
+        expect(proc.exitStatus).to.eql(1);
+        expect(proc.exitCalled).to.eql(true);
+        expect(proc.stderr).to.match(/invalid database/i);
+        expect(fs.writeFileSync).to.not.have.been.called;
+      })
+      .done(done, done);
+    });
+
     describe('when azulfile.js exists', function() {
       beforeEach(function() {
         sinon.stub(fs, 'existsSync');
