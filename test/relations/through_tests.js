@@ -776,7 +776,8 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."student_id" = "students"."id" ' +
            'INNER JOIN "courses" ' +
            'ON "enrollments"."course_id" = "courses"."id" ' +
-           'WHERE "courses"."subject" = ?', ['News']]
+           'WHERE "courses"."subject" = ? ' +
+           'GROUP BY "students"."id"', ['News']]
         ]);
       })
       .done(done, done);
@@ -791,6 +792,7 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."student_id" = "students"."id" ' +
            'INNER JOIN "courses" ' +
            'ON "enrollments"."course_id" = "courses"."id" ' +
+           'GROUP BY "students"."id" ' +
            'ORDER BY "courses"."id" DESC', []]
         ]);
       })
@@ -806,7 +808,8 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."student_id" = "students"."id" ' +
            'INNER JOIN "courses" ' +
            'ON "enrollments"."course_id" = "courses"."id" ' +
-           'WHERE "courses"."id" = ?', [5]]
+           'WHERE "courses"."id" = ? ' +
+           'GROUP BY "students"."id"', [5]]
         ]);
       })
       .done(done, done);
@@ -836,6 +839,7 @@ describe('Model.hasMany :through', function() {
            'INNER JOIN "courses" ' +
            'ON "enrollments"."course_id" = "courses"."id" ' +
            'WHERE "courses"."subject" LIKE ? ' +
+           'GROUP BY "students"."id" ' +
            'ORDER BY "students"."name" ASC, "courses"."subject" DESC ' +
            'LIMIT 10 OFFSET 20', ['%news%']]
         ]);
@@ -860,6 +864,7 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."course_id" = "courses"."id" ' +
            'INNER JOIN "comments" ON "comments"."course_id" = "courses"."id" ' +
            'WHERE "comments"."body" LIKE ? ' +
+           'GROUP BY "students"."id" ' +
            'ORDER BY "students"."name" ASC, "comments"."body" ASC ' +
            'LIMIT 10 OFFSET 20', ['%rolex%']]
         ]);

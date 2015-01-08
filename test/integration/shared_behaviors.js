@@ -138,6 +138,17 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function(articles) {
         expect(_.map(articles, 'attrs')).to.eql([
           { id: 1, title: 'News', body: 'Azul 1.0' },
+        ]);
+      })
+      .then(function() {
+        // with join first, automatic joining will not occur, so duplicate
+        // results will be returned
+        return Article.objects.join('comments')
+          .where({ 'comments.body[icontains]': 'initial' });
+      })
+      .then(function(articles) {
+        expect(_.map(articles, 'attrs')).to.eql([
+          { id: 1, title: 'News', body: 'Azul 1.0' },
           { id: 1, title: 'News', body: 'Azul 1.0' },
         ]);
       })

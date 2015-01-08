@@ -209,6 +209,17 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('can be made unique', function(done) {
+      Article.objects.join('author').unique().fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "articles".* FROM "articles" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'GROUP BY "articles"."id"', []]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('generates join queries that use where accessing fields in both types', function(done) {
       Article.objects.join('author').where({
         username: 'wbyoung',
@@ -298,7 +309,8 @@ describe('Model.belongsTo', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
-           'WHERE "users"."username" = ?', ['wbyoung']]
+           'WHERE "users"."username" = ? ' +
+           'GROUP BY "articles"."id"', ['wbyoung']]
         ]);
       })
       .done(done, done);
@@ -310,6 +322,7 @@ describe('Model.belongsTo', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'GROUP BY "articles"."id" ' +
            'ORDER BY "users"."id" DESC', []]
         ]);
       })
@@ -322,7 +335,8 @@ describe('Model.belongsTo', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
-           'WHERE "users"."id" = ?', [5]]
+           'WHERE "users"."id" = ? ' +
+           'GROUP BY "articles"."id"', [5]]
         ]);
       })
       .done(done, done);
@@ -349,6 +363,7 @@ describe('Model.belongsTo', function() {
           ['SELECT "articles".* FROM "articles" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
+           'GROUP BY "articles"."id" ' +
            'ORDER BY "articles"."title" ASC, "users"."name" DESC ' +
            'LIMIT 10 OFFSET 20', ['%w%']]
         ]);
@@ -367,6 +382,7 @@ describe('Model.belongsTo', function() {
            'INNER JOIN "articles" ON "comments"."article_id" = "articles"."id" ' +
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
+           'GROUP BY "comments"."id" ' +
            'ORDER BY "articles"."title" ASC, "users"."name" ASC ' +
            'LIMIT 10 OFFSET 20', ['%w%']]
         ]);

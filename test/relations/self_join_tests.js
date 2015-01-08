@@ -51,7 +51,8 @@ describe('Model self-joins', function() {
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "manager" ' +
            'ON "employees"."manager_id" = "manager"."id" ' +
-           'WHERE "manager"."id" = ?', [1]]
+           'WHERE "manager"."id" = ? ' +
+           'GROUP BY "employees"."id"', [1]]
         ]);
       })
       .done(done, done);
@@ -63,7 +64,8 @@ describe('Model self-joins', function() {
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "manager" ' +
            'ON "employees"."manager_id" = "manager"."id" ' +
-           'WHERE "manager"."id" = ?', [1]]
+           'WHERE "manager"."id" = ? ' +
+           'GROUP BY "employees"."id"', [1]]
         ]);
       })
       .done(done, done);
@@ -89,7 +91,8 @@ describe('Model self-joins', function() {
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
            'ON "subordinates"."manager_id" = "employees"."id" ' +
-           'WHERE "subordinates"."id" = ?', [1]]
+           'WHERE "subordinates"."id" = ? ' +
+           'GROUP BY "employees"."id"', [1]]
         ]);
       })
       .done(done, done);
@@ -101,7 +104,8 @@ describe('Model self-joins', function() {
           ['SELECT "employees".* FROM "employees" ' +
            'INNER JOIN "employees" "subordinates" ' +
            'ON "subordinates"."manager_id" = "employees"."id" ' +
-           'WHERE "subordinates"."id" = ?', [1]]
+           'WHERE "subordinates"."id" = ? ' +
+           'GROUP BY "employees"."id"', [1]]
         ]);
       })
       .done(done, done);
@@ -127,7 +131,8 @@ describe('Model self-joins', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "nodes".* FROM "nodes" ' +
            'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
-           'WHERE "nodes_j1"."id" = ?', [1]]
+           'WHERE "nodes_j1"."id" = ? ' +
+           'GROUP BY "nodes"."id"', [1]]
         ]);
       })
       .done(done, done);
@@ -164,7 +169,8 @@ describe('Model self-joins', function() {
            'INNER JOIN "nodes" "nodes_j1" ON "nodes_j1"."parent_id" = "nodes"."id" ' +
            'INNER JOIN "nodes" "nodes_j2" ON "nodes_j2"."parent_id" = "nodes_j1"."id" ' +
            'INNER JOIN "nodes" "nodes_j3" ON "nodes_j3"."parent_id" = "nodes_j2"."id" ' +
-           'WHERE "nodes_j3"."id" = ?', [5]]
+           'WHERE "nodes_j3"."id" = ? ' +
+           'GROUP BY "nodes"."id"', [5]]
         ]);
       })
       .done(done, done);

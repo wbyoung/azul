@@ -169,6 +169,14 @@ describe('SelectQuery', function() {
         .sql();
       expect(result.sql).to.match(/JOIN "authors" ON TRUE WHERE "name" = \?$/);
     });
+
+    it('supports grouping', function() {
+      var result = db.select('articles')
+        .join('authors')
+        .groupBy('id')
+        .sql();
+      expect(result.sql).to.match(/JOIN "authors".*GROUP BY "id"$/);
+    });
   });
 
   describe('aggregation', function() {

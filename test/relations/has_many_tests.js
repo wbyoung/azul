@@ -619,7 +619,8 @@ describe('Model.hasMany', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."title" = ?', ['News']]
+           'WHERE "articles"."title" = ? ' +
+           'GROUP BY "users"."id"', ['News']]
         ]);
       })
       .done(done, done);
@@ -631,6 +632,7 @@ describe('Model.hasMany', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+           'GROUP BY "users"."id" ' +
            'ORDER BY "articles"."id" DESC', []]
         ]);
       })
@@ -643,7 +645,8 @@ describe('Model.hasMany', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."id" = ?', [5]]
+           'WHERE "articles"."id" = ? ' +
+           'GROUP BY "users"."id"', [5]]
         ]);
       })
       .done(done, done);
@@ -670,6 +673,7 @@ describe('Model.hasMany', function() {
           ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
            'WHERE "articles"."title" LIKE ? ' +
+           'GROUP BY "users"."id" ' +
            'ORDER BY "users"."username" ASC, "articles"."title" DESC ' +
            'LIMIT 10 OFFSET 20', ['%news%']]
         ]);
@@ -691,6 +695,7 @@ describe('Model.hasMany', function() {
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
            'INNER JOIN "comments" ON "comments"."article_id" = "articles"."id" ' +
            'WHERE "comments"."body" LIKE ? ' +
+           'GROUP BY "users"."id" ' +
            'ORDER BY "users"."username" ASC, "comments"."body" ASC ' +
            'LIMIT 10 OFFSET 20', ['%rolex%']]
         ]);
