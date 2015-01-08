@@ -295,6 +295,24 @@ the methods added to `Model`.
 - [`createAssociation()`](#-createassociation-)
 - [`fetchAssociation()`](#-fetchassociation-)
 
+#### Options
+
+If the property name does not match the name of the related model, pass the
+model name as the first argument. For instance to associate `Article` and
+`User` through the relation name `author`:
+
+```js
+Article.reopen({
+  author: db.belongsTo('user')
+})
+```
+
+`belongsTo` accepts the following options:
+
+- `inverse` The name of the inverse relationship.
+- `primaryKey` The name of the primary key in the relationship.
+- `foreignKey` The name of the foreign key in the relationship.
+
 #### `#association`
 
 Access the relation. This will throw an error if the relation has not yet been
@@ -309,6 +327,17 @@ Article.objects.with('blog').find(1).then(function(article) {
 // this will throw an exception because the blog is not loaded with the query
 Article.objects.find(1).then(function(article) {
   article.blog; // throws!
+});
+```
+
+This property is also a setter used to alter the relationship. The changes will
+remain in memory until [saved][azul-models#save]:
+
+```js
+Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
+.spread(article, blog) {
+  article.blog = blog;
+  return article.save();
 });
 ```
 
@@ -352,7 +381,7 @@ var blog = article.createBlog({ title: 'Blog' });
 Fetch the associated object.
 
 ```js
-Article.objects.find(1).then(function(result) {
+Article.objects.find(1).then(function(article) {
   return article.fetchBlog();
 })
 .then(function(blog) {
@@ -360,19 +389,17 @@ Article.objects.find(1).then(function(result) {
 });
 ```
 
-Once fetched, the value will also be accessible
-via [`association`](#-association-).
+Once fetched, the value will also be accessible via the
+[`association`](#-association-) property.
 
 ```js
-var foundArticle;
-
-Article.objects.find(1).then(function(article) {
-  foundArticle = result;
+Article.objects.find(1).tap(function(article) {
   return article.fetchBlog();
 })
 .then(function() {
-  console.log(foundArticle.blog);
+  console.log(article.blog);
 });
+// see bluebird.js for details on tap
 ```
 
 ### `#hasMany`
@@ -393,13 +420,161 @@ of the methods added to `Model`.
 - [`removeAssociations()`](#-removeassociations-)
 - [`clearAssociations()`](#-clearassociations-)
 
+#### Options
+
+If the property name does not match the name of the related model, pass the
+pluralized model name as the first argument. For instance to associate `Author`
+and `Article` through the relation name `posts`:
+
+```js
+Author.reopen({
+  posts: db.hasMany('articles')
+})
+```
+
+`hasMany` accepts the following options:
+
+- `inverse` The name of the inverse relationship.
+- `primaryKey` The name of the primary key in the relationship.
+- `foreignKey` The name of the foreign key in the relationship.
+- `through` Specify the name of a relationship through which this collection is
+accessed.
+- `source` When using `through` this is the name of the relationship on the
+destination model. The default value is the name of the attribute for the
+relationship.
+
 #### `#associations`
+
+Access the related items. This will throw an error if the relation has not yet
+been loaded. Load the association before accessing it using
+[`with`][azul-queries#with] or via
+[`associationObjects.fetch`](#-associationObjects-).
+
+```js
+Blog.objects.with('articles').find(1).then(function(blog) {
+  console.log(blog.articles);
+});
+```
+
 #### `#associationObjects`
+
+Access a query object that can be used to fetch the objects or a subset of the
+related objects.
+
+```js
+Blog.objects.find(1).then(function(blog) {
+  return blog.articleObjects.fetch();
+})
+.then(function(articles) {
+  console.log(articles);
+});
+```
+
+Once fetched, the related objects will also be accessible via the
+[`associations`](#-associations-) property.
+
+```js
+Blog.objects.find(1).tap(function(blog) {
+  return blog.articleObjects.fetch();
+})
+.then(function() {
+  console.log(blog.articles);
+});
+// see bluebird.js for details on tap
+```
+
+You can also use this [query][azul-queries] to find a subset of the related
+objects. Note, though, that since a subset is being fetched, that this will not
+make the related objects available through the
+[`associations`](#-associations-) property.
+
+```js
+Blog.objects.find(1).then(function(blog) {
+  return blog.articleObjects.where({ 'title[contains]': 'Azul' });
+})
+.then(function(articles) {
+  console.log(articles);
+});
+```
+
 #### `#createAssociation`
+
+Create a new object of the relationship type. This will also set the foreign
+key on the created object.
+
+```js
+var article = blog.createArticle({ title: 'Azul' });
+blog.id; // => 7
+article.blogId; // => 7
+```
+
 #### `#addAssociation`
+
+This method is used to add objects to the relationship. The changes will remain
+in memory until [saved][azul-models#save]:
+
+```js
+Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
+.spread(article, blog) {
+  blog.addArticle(article);
+  return blog.save();
+});
+```
+
+This method returns a _thenable_ object that simply saves the object. The above
+code could be simplified like so:
+
+```js
+Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
+.spread(article, blog) {
+  return blog.addArticle(article);
+});
+```
+
 #### `#addAssociations`
+
+Allows [adding](#-addassociations-) of multiple associations. Pass an array or
+multiple arguments.
+
+```js
+blog.addArticles([article1, article2]);
+blog.addArticles(article1, article2);
+```
+
 #### `#removeAssociation`
+
+This method is used to remove objects to the relationship. The changes will
+remain in memory until [saved][azul-models#save]:
+
+```js
+Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
+.spread(article, blog) {
+  blog.removeArticle(article);
+  return blog.save();
+});
+```
+
+Like [`addAssociation()`](#-addassociation-), this method returns a _thenable_
+object that simply saves the object.
+
 #### `#removeAssociations`
+
+Allows [removing](#-removeassociations-) of multiple associations. Pass an
+array or multiple arguments.
+
+```js
+blog.removeArticles([article1, article2]);
+blog.removeArticles(article1, article2);
+```
+
 #### `#clearAssociations`
 
-[azul-queries#with]: /guides/models.html#-with-
+Clear all related objects.
+
+```js
+blog.clearArticles();
+```
+
+[azul-models#save]: /guides/models.html#-save-
+[azul-queries]: /guides/queries.html
+[azul-queries#with]: /guides/queries.html#-with-
