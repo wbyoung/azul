@@ -149,6 +149,32 @@ Article.objects.order('-title', 'body');
 - Can be used via the `orderBy` alias
 - [Automatically joins](#automatic-joining) relationships
 
+### `#groupBy`
+
+Groups the results of a query.
+
+```js
+Article.objects.groupBy('title');
+```
+
+- [Automatically joins](#automatic-joining) relationships
+
+<div class="panel panel-info">
+<div class="panel-heading">
+  <span class="panel-title">Coming Soon&hellip;</span>
+</div>
+<div class="panel-body">
+More aggregation support is coming soon, which will make this method more
+useful.
+</div>
+</div>
+
+### `#unique`
+
+Performs a [`groupBy`](#-groupby-) with the primary key of the model. This
+is useful when [joining relations](#-join-).
+
+
 ### `#clone`
 
 Create a new query that has the exact same conditions as this query. This
@@ -228,7 +254,7 @@ Article.objects.where({ 'title[iExact]': 'azul.js' });
 A case-sensitive containment test.
 
 ```js
-Article.objects.where({ 'title[iExact]': 'azul.js' });
+Article.objects.where({ 'title[contains]': 'Azul.js' });
 ```
 
 ### `iContains`
@@ -255,13 +281,33 @@ A case-insensitive ends-with.
 
 A case-sensitive regular expression test.
 
+```js
+Article.objects.where({ 'title[regex]': /[Aa]zul\.?js/ });
+```
+
+Regular expression flags are currently ignored, so the following will still be
+case sensitive:
+
+```js
+// currently interpreted as case sensitive, but may change in the future
+Article.objects.where({ 'title[regex]': /[Aa]zul\.?js/i });
+```
+
 ### `iRegex`
 
 A case-insensitive regular expression test.
 
+```js
+Article.objects.where({ 'title[iRegex]': /azul\.?js/i });
+```
+
+While regular expression flags are currently ignored, it is recommended that
+you use a case insensitive flag on your regex for clarity.
+
+
 ### `between`
 
-A test for a value being between two values.
+A test for a value being between two values (inclusive).
 
 ```js
 Article.objects.where({ 'id[between]': [2, 8] });
@@ -520,14 +566,21 @@ Article.objects.with('comments').fetch().then(function(articles) {
 ### `#join`
 
 In certain cases, you may need to access data from two tables in order to form
-a query. This will usually be handled for you via [automatic
-joining](#automatic-joining), but you can also explicitly join a relationship
-into a query.
+a query.
 
-For instance, finding all articles that have a comment marked as spam:
+For instance, finding articles that have a comment marked as spam. This query
+will return duplicate articles if there are multiple comments marked as spam
+for the article:
 
 ```js
 Article.objects.join('comments').where({ spam: true });
+```
+
+To remove the duplicates from the results, either add [`unique`](#-unique-) or
+use [automatic joining](#automatic-joining).
+
+```js
+Article.objects.join('comments').where({ spam: true }).unique();
 ```
 
 Azul.js will resolve names to the appropriate model when possible. In this
@@ -536,15 +589,34 @@ case, it is able to determine that `spam` is an attribute that's defined on the
 `id` and `body` are ambiguous, though, and must be qualified as `comments.id`
 and `commens.body` if they refer to the joined association.
 
+---
+
+In many simple cases, [automatic joining](#automatic-joining) will be simpler
+and will also ensure the results are [`unique`](#-unique-).
+
 In the above example, the `where` call could have automatically joined the
 `comments` relation by specifying `comments.spam` rather than just `spam` in
-the where condition, and the explicit join would not have been required.
+the where condition, and the explicit join would not have been required. Read
+more about [automatic joining](#automatic-joining) to understand how this
+works.
 
+The order of a manual vs automatic join will make a difference on whether or
+not uniqueness is added to your query:
+
+```js
+// manual joined first, results are not unique (since join is first)
+Article.objects.join('comments').where({ 'comments.spam': true });
+
+// automatic joined first, unique results (since where is first)
+Article.objects.where({ 'comments.spam': true }).join('comments');
+```
 
 ### Automatic Joining
 
 Most situations that require a [`join`](#-join-) to occur between relationships
-will be handled automatically.
+will be handled automatically. Automatic joining also ensures uniqueness of
+results by automatically ensuring that [`unique`](#-unique-) has been added to
+the query.
 
 Methods that support automatic joining will use the attribute string to
 determine if a relationship exists that can be joined.
@@ -560,6 +632,7 @@ The following methods support automatic joining:
 
 - [`where`](#-where-)
 - [`order`](#-order-)
+- [`groupBy`](#-groupby-)
 
 ## Raw Queries
 
@@ -635,6 +708,8 @@ Chainable methods include:
 - `join`  Joins are quite different as they require more information than
 simply a relationship name. Joins default to an `INNER` join. See more examples
 below.
+- `groupBy` Will not convert property names or join relationships. See
+[`#groupBy`](#-groupby-).
 - `fetch` Executes the query and returns a promise that resolves with the
 `rows` from the result. See [`#fetch`](#-fetch-).
 - `fetchOne` No differences. See [`#fetchOne`](#-fetchOne-).
