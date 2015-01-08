@@ -239,6 +239,12 @@ describe('Model', function() {
       expect(user.username).to.eql('wbyoung');
       expect(user.attrs).to.have.property('username', 'wbyoung');
     });
+
+    it('can handles `false` as an attribute value', function() {
+      Article.reopen({ published: db.attr() });
+      var article = Article.create({ id: 5, published: false });
+      expect(article.published).to.equal(false);
+    });
   });
 
   it('can create objects', function(done) {
