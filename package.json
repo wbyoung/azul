@@ -7,6 +7,9 @@
     "url": "https://github.com/wbyoung/azul/issues"
   },
   "main": "index.js",
+  "bin": {
+    "azul": "./bin/azul"
+  },
   "scripts": {
     "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report $(if [ \"$TRAVIS\" ]; then echo lcovonly; else echo html; fi) -- --recursive && if [ \"$TRAVIS\" ]; then cat ./coverage/lcov.info | ./node_modules/.bin/coveralls; fi",
     "docs": "./docs/scripts/build && ./docs/scripts/deploy"

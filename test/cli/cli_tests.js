@@ -13,10 +13,12 @@ describe('CLI', function() {
   var azulfile = path.join(__dirname, '../fixtures/cli/azulfile.json');
 
   beforeEach(function() {
+    sinon.stub(actions, 'init');
     sinon.stub(actions, 'migrate');
   });
 
   afterEach(function() {
+    actions.init.restore();
     actions.migrate.restore();
   });
 
@@ -75,6 +77,18 @@ describe('CLI', function() {
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/no azulfile found/i);
       expect(actions.migrate).to.not.have.been.called;
+    })
+    .done(done, done);
+  });
+
+  it('does not need an azulfile for init', function(done) {
+    process.argv = ['node', '/path/to/azul', 'init'];
+    cmd({ modulePath: '.', configPath: null }, cli)
+    .then(function(proc) {
+      expect(proc.exitStatus).to.eql(0);
+      expect(proc.exitCalled).to.eql(false);
+      expect(proc.stdout).to.eql('');
+      expect(actions.init).to.have.been.calledOnce;
     })
     .done(done, done);
   });
