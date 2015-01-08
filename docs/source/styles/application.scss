@@ -96,3 +96,24 @@ pre code.hljs {
   overflow-x: visible;
   background-color: transparent;
 }
+
+.guide-toc ul {
+  padding-left: 0px;
+  list-style-type: none;
+}
+
+.guide-toc ul ul {
+  margin-bottom: 0.8em;
+  padding-left: 1.2em;
+  font-size: 95%;
+}
+
+.guide-toc ul ul ul {
+  margin-bottom: 0em;
+  padding-left: 1.8em;
+  list-style-type: circle;
+}
+
+.guide-toc ul ul ul ul {
+  margin-bottom: 0em;
+}

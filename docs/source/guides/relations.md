@@ -296,9 +296,84 @@ the methods added to `Model`.
 - [`fetchAssociation()`](#-fetchassociation-)
 
 #### `#association`
+
+Access the relation. This will throw an error if the relation has not yet been
+loaded. Load the association before accessing it using
+[`with`][azul-queries#with] or via [`fetchAssociation`](#-fetchassociation-).
+
+```js
+Article.objects.with('blog').find(1).then(function(article) {
+  console.log(article.blog);
+});
+
+// this will throw an exception because the blog is not loaded with the query
+Article.objects.find(1).then(function(article) {
+  article.blog; // throws!
+});
+```
+
 #### `#associationId`
+
+Access the foreign key value for this relationship.
+
+```js
+Article.objects.with('author').find(1).then(function(article) {
+  article.authorId; // => 7
+});
+// assuming article 1 is written by person 7
+```
+
+
+This will actually be generated from the `foreignKey` option given to the
+`belongsTo`. For instance:
+
+```js
+Article.reopen({
+  author: db.belongsTo({ foreignKey: 'writer_id' })
+});
+
+Article.objects.with('author').find(1).then(function(article) {
+  article.author; // => [Author { id: 7 }]
+  article.writerId; // => 7
+});
+// assuming article 1 is written by person 7
+```
+
 #### `#createAssociation`
+
+Create a new object of the relationship type.
+
+```js
+var blog = article.createBlog({ title: 'Blog' });
+```
+
 #### `#fetchAssociation`
+
+Fetch the associated object.
+
+```js
+Article.objects.find(1).then(function(result) {
+  return article.fetchBlog();
+})
+.then(function(blog) {
+  console.log(blog);
+});
+```
+
+Once fetched, the value will also be accessible
+via [`association`](#-association-).
+
+```js
+var foundArticle;
+
+Article.objects.find(1).then(function(article) {
+  foundArticle = result;
+  return article.fetchBlog();
+})
+.then(function() {
+  console.log(foundArticle.blog);
+});
+```
 
 ### `#hasMany`
 
@@ -326,3 +401,5 @@ of the methods added to `Model`.
 #### `#removeAssociation`
 #### `#removeAssociations`
 #### `#clearAssociations`
+
+[azul-queries#with]: /guides/models.html#-with-
