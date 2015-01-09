@@ -197,13 +197,13 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('calls the up methods with the schema as a transaction', function(done) {
+      it('calls the up methods with the correct args', function(done) {
         migration.migrate().bind(this).then(function() {
           var schemaTransaction = schema.begin.returnValues[0];
           expect(this.mod1.up).to.have.been
-            .calledWithExactly(schemaTransaction);
+            .calledWithExactly(schemaTransaction, migration._query);
           expect(this.mod2.up).to.have.been
-            .calledWithExactly(schemaTransaction);
+            .calledWithExactly(schemaTransaction, migration._query);
         })
         .done(done, done);
       });
@@ -361,13 +361,13 @@ describe('Migration', function() {
         .done(done, done);
       });
 
-      it('calls the down methods with the schema as a transaction', function(done) {
+      it('calls the down methods with the correct args', function(done) {
         migration.rollback().bind(this).then(function() {
           var schemaTransaction = schema.begin.returnValues[0];
           expect(this.mod1.down).to.have.been
-            .calledWithExactly(schemaTransaction);
+            .calledWithExactly(schemaTransaction, migration._query);
           expect(this.mod2.down).to.have.been
-            .calledWithExactly(schemaTransaction);
+            .calledWithExactly(schemaTransaction, migration._query);
         })
         .done(done, done);
       });
