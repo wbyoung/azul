@@ -57,6 +57,44 @@ body #overview {
   }
 }
 
+// when nav bar toggle is shown
+@media (max-width: 768px) {
+  .navbar-default .navbar-toggle {
+    border: 0px;
+  }
+
+  .navbar-default .navbar-toggle .icon-bar {
+    background-color: lighten($color-2, 10%);
+  }
+
+  .navbar-default .navbar-toggle:hover,
+  .navbar-default .navbar-toggle:focus {
+    background-color: transparent;
+    .icon-bar {
+      background-color: lighten($color-2, 80%);
+    }
+  }
+
+  .navbar-default .navbar-collapse,
+  .navbar-default .navbar-form {
+    border-width: 0px;
+    background-color: lighten($color-2, 3%);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    &, &:hover, &:focus {
+      color: #fff;
+    }
+  }
+
+  .dropdown-menu .divider {
+    background-color: $color-2;
+  }
+}
+
+
 body.generic > .jumbotron {
   background-color: $color-5;
   border-bottom: 4px solid darken($color-5, 5%);
