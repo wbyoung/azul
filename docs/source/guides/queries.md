@@ -818,7 +818,7 @@ Raw queries have no chainable methods. Be very cautious of
 [SQL injection][sql-injection] when using raw queries.
 
 
-[azul-managers]: /guides/managers.html
-[azul-models#objects]: /guides/models.html#-objects-
-[azul-relations]: /guides/relations.html
+[azul-managers]: /guides/managers/
+[azul-models#objects]: /guides/models/#-objects-
+[azul-relations]: /guides/relations/
 [sql-injection]: http://en.wikipedia.org/wiki/SQL_injection

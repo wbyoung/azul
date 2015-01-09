@@ -16,6 +16,19 @@ var program = new commander.Command()
 
 program.parse(process.argv);
 
+var indexify = function() {
+  return function indexify(files, metalsmith, done) {
+    _.forEach(files, function(data, file) {
+      var match = file.match(/(.*)\.html?$/i);
+      if (match && !file.match(/index\.html?/i)) {
+        files[match[1] + '/index.html'] = data;
+        delete files[file];
+      }
+    });
+    done();
+  };
+};
+
 var toc = function() {
   return function toc(files, metalsmith, done) {
     _.forEach(files, function(data, file) {
@@ -69,7 +82,8 @@ var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .use(metallic())
   .use(markdown())
   .use(toc())
-  .use(templates('swig'));
+  .use(templates('swig'))
+  .use(indexify());
 
 if (program.serve) {
   metalsmith = metalsmith

@@ -131,4 +131,4 @@ currently support distinguishing this type in any way.
 
 #### `decimal`
 
-[azul-queries#data-queries]: /guides/queries.html#data-queries
+[azul-queries#data-queries]: /guides/queries/#data-queries

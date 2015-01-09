@@ -342,10 +342,10 @@ Article.reopenClass({
 
 - readonly
 
-[azul-getting-started]: /getting-started.html
-[azul-migrations]: /guides/migrations.html
-[azul-queries]: /guides/queries.html
-[azul-queries#fetch]: /guides/queries.html#-fetch-
-[azul-queries#find]: /guides/queries.html#-find-
-[azul-managers#overriding-the-default-manager]: /guides/managers.html#overriding-the-default-manager
+[azul-getting-started]: /getting-started/
+[azul-migrations]: /guides/migrations/
+[azul-queries]: /guides/queries/
+[azul-queries#fetch]: /guides/queries/#-fetch-
+[azul-queries#find]: /guides/queries/#-find-
+[azul-managers#overriding-the-default-manager]: /guides/managers/#overriding-the-default-manager
 [mass-assignment]: http://en.wikipedia.org/wiki/Mass_assignment_vulnerability

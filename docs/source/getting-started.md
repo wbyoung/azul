@@ -76,5 +76,5 @@ Once your application is configured, you can proceed by setting up
 [node-mysql]: https://github.com/felixge/node-mysql/
 [node-sqlite3]: https://github.com/mapbox/node-sqlite3
 
-[azul-migrations]: /guides/migrations.html
-[azul-models]: /guides/models.html
+[azul-migrations]: /guides/migrations/
+[azul-models]: /guides/models/

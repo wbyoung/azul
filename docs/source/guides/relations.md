@@ -575,6 +575,6 @@ Clear all related objects.
 blog.clearArticles();
 ```
 
-[azul-models#save]: /guides/models.html#-save-
-[azul-queries]: /guides/queries.html
-[azul-queries#with]: /guides/queries.html#-with-
+[azul-models#save]: /guides/models/#-save-
+[azul-queries]: /guides/queries/
+[azul-queries#with]: /guides/queries/#-with-

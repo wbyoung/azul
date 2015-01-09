@@ -61,4 +61,4 @@ Article.objects.where({ 'comments.spam': true }).fetch().then('...');
 // !> [true]
 ```
 
-[azul-getting-started]: /getting-started.html
+[azul-getting-started]: /getting-started/
