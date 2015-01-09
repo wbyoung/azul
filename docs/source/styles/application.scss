@@ -59,7 +59,7 @@ body #overview {
 
 body.generic > .jumbotron {
   background-color: $color-5;
-  border-bottom: 4px solid darken($color-5, 5);
+  border-bottom: 4px solid darken($color-5, 5%);
   padding: 3.2em 0px 0.6em 0px;
   color: #fff;
 
@@ -75,7 +75,7 @@ body.generic > .jumbotron + .container h1 {
 
 body.home > .jumbotron {
   background-color: $color-2;
-  border-bottom: 4px solid darken($color-2, 5);
+  border-bottom: 4px solid darken($color-2, 5%);
   color: #fff;
 
   h1 {
