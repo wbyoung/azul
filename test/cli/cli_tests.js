@@ -52,7 +52,7 @@ describe('CLI', function() {
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
-      expect(proc.stdout).to.match(/\d+\.\d+\.\d+\n/i);
+      expect(proc.stdout).to.match(/\d+\.\d+\.\d+(-(alpha|beta)\.\d+)?\n/i);
     })
     .done(done, done);
   });
