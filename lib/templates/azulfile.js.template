@@ -1,0 +1,77 @@
+'use strict';
+<% if (database === 'pg') { %>
+module.exports = {
+  production: {
+    adapter: 'pg',
+    connection: {
+      database: 'database',
+      user: 'root',
+      password: ''
+    }
+  },
+  development: {
+    adapter: 'pg',
+    connection: {
+      database: 'database_dev',
+      user: 'root',
+      password: ''
+    }
+  },
+  test: {
+    adapter: 'pg',
+    connection: {
+      database: 'database_test',
+      user: 'root',
+      password: ''
+    }
+  }
+};
+<% } else if (database === 'mysql') { %>
+module.exports = {
+  production: {
+    adapter: 'mysql',
+    connection: {
+      database: 'database',
+      user: 'root',
+      password: ''
+    }
+  },
+  development: {
+    adapter: 'mysql',
+    connection: {
+      database: 'database_dev',
+      user: 'root',
+      password: ''
+    }
+  },
+  test: {
+    adapter: 'mysql',
+    connection: {
+      database: 'database_test',
+      user: 'root',
+      password: ''
+    }
+  }
+};
+<% } else if (database === 'sqlite3') { %>
+module.exports = {
+  production: {
+    adapter: 'sqlite3',
+    connection: {
+      filename: './.production.sqlite3'
+    }
+  },
+  development: {
+    adapter: 'sqlite3',
+    connection: {
+      filename: './.development.sqlite3'
+    }
+  },
+  test: {
+    adapter: 'sqlite3',
+    connection: {
+      filename: './.test.sqlite3'
+    }
+  }
+};
+<% } %>

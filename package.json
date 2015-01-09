@@ -65,7 +65,7 @@
   "dependencies": {
     "bluebird": "^2.3.5",
     "chalk": "^0.5.1",
-    "commander": "^2.5.0",
+    "commander": "^2.6.0",
     "generic-pool": "^2.1.1",
     "interpret": "^0.3.7",
     "liftoff": "^1.0.0",

@@ -52,7 +52,7 @@ describe('CLI', function() {
 
     it('fails when given a bad database', function(done) {
       cmd({}, function() {
-        return actions.init({ database: 'invalid' });
+        return actions.init({}, 'invalid');
       })
       .then(function(proc) {
         expect(proc.exitStatus).to.eql(1);
