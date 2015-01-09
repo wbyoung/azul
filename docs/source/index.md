@@ -9,9 +9,9 @@ template: home.html
 Azul is easy to [install and start using][azul-getting-started].
 
 ```bash
-npm install azul -g
-npm install azul
-azul init
+$ npm install azul -g
+$ npm install azul
+$ azul init
 ```
 
 Give it a try today!
