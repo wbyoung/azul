@@ -5,10 +5,13 @@
 Azul has been built from the ground up to be the most expressive ORM for
 Node.js.
 
-At this point, this is a functional **alpha**. We're focusing on
-creating an expressive, well documented public API and reaching feature parity
-with other ORM tools. If you're interested in helping, please reach out.
+The current release of Azul.js is a functional **alpha**. We're looking for
+feedback at this point, so please [look at the docs][azul-docs] and give it a
+try.
 
+We're focusing on creating an expressive, well [documented public
+API][azul-docs] and reaching feature parity with other ORM tools. If you're
+interested in helping, please reach out.
 
 ## Contributing
 
@@ -49,6 +52,8 @@ $ open out/index.html
 ## License
 
 This project is distributed under the MIT license.
+
+[azul-docs]: http://www.azuljs.com/
 
 [travis-image]: http://img.shields.io/travis/wbyoung/azul.svg?style=flat
 [travis-url]: http://travis-ci.org/wbyoung/azul
