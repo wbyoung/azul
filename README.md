@@ -5,6 +5,14 @@
 Azul has been built from the ground up to be the most expressive ORM for
 Node.js.
 
+## Get Started
+
+```bash
+$ npm install azul -g
+$ npm install azul
+$ azul init
+```
+
 The current release of Azul.js is a functional **alpha**. We're looking for
 feedback at this point, so please [look at the docs][azul-docs] and give it a
 try.
