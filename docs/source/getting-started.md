@@ -24,7 +24,7 @@ An `azulfile` allows your application and the `azul` command line tool to share
 connection settings. To create the `azulfile`, simply run:
 
 ```bash
-$ azul init postgresql # or mysql, sqlite 
+$ azul init postgresql # or mysql, sqlite
 ```
 
 This configuration file allows the `azul` command line application to connect
