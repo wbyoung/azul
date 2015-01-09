@@ -45,7 +45,7 @@ describe('CLI', function() {
         expect(proc.exitCalled).to.eql(false);
         expect(proc.stdout).to.match(/initialization complete/i);
         expect(fs.writeFileSync).to.have.been.calledOnce;
-        expect(fs.writeFileSync).to.have.been.calledWith('./azulfile.js');
+        expect(fs.writeFileSync).to.have.been.calledWith('azulfile.js');
       })
       .done(done, done);
     });
@@ -66,7 +66,7 @@ describe('CLI', function() {
     describe('when azulfile.js exists', function() {
       beforeEach(function() {
         sinon.stub(fs, 'existsSync');
-        fs.existsSync.withArgs('./azulfile.js').returns(true);
+        fs.existsSync.withArgs('azulfile.js').returns(true);
       });
 
       afterEach(function() {
@@ -90,7 +90,7 @@ describe('CLI', function() {
     describe('when azulfile.json exists', function() {
       beforeEach(function() {
         sinon.stub(fs, 'existsSync');
-        fs.existsSync.withArgs('./azulfile.json').returns(true);
+        fs.existsSync.withArgs('azulfile.json').returns(true);
       });
 
       afterEach(function() {
