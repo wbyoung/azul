@@ -4,6 +4,8 @@ active: home
 template: home.html
 ---
 
+<h1 id="overview"></h1>
+
 # Start Quickly
 
 Azul is easy to [install and start using][azul-getting-started].
