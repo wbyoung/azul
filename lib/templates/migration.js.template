@@ -1,0 +1,9 @@
+'use strict';
+
+exports.up = function(schema) {
+  
+};
+
+exports.down = function(schema) {
+  
+};

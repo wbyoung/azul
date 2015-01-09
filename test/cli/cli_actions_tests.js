@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
@@ -106,6 +107,99 @@ describe('CLI', function() {
           expect(proc.exitCalled).to.eql(false);
           expect(proc.stdout).to.match(/already initialized/i);
           expect(fs.writeFileSync).to.not.have.been.called;
+        })
+        .done(done, done);
+      });
+    });
+  });
+
+  describe('generate migration action', function() {
+    beforeEach(function() {
+      sinon.stub(fs, 'mkdirSync');
+      sinon.stub(fs, 'writeFileSync');
+    });
+
+    afterEach(function() {
+      fs.mkdirSync.restore();
+      fs.writeFileSync.restore();
+    });
+
+    it('creates a the migration directory', function(done) {
+      cmd({}, function() {
+        return actions['make-migration'](azulfile, {}, 'initial');
+      })
+      .then(function(proc) {
+        expect(proc.exitStatus).to.eql(0);
+        expect(proc.exitCalled).to.eql(false);
+        expect(fs.mkdirSync).to.have.been.calledOnce;
+        expect(fs.mkdirSync).to.have.been.calledWith('migrations');
+      })
+      .done(done, done);
+    });
+
+    it('creates the migration file', function(done) {
+      cmd({}, function() {
+        return actions['make-migration'](azulfile, {}, 'initialMigration');
+      })
+      .then(function(proc) {
+        expect(proc.exitStatus).to.eql(0);
+        expect(proc.exitCalled).to.eql(false);
+        expect(proc.stdout).to.match(/\d{14}_initial_migration.js/i);
+        expect(fs.writeFileSync).to.have.been.calledOnce;
+        expect(fs.writeFileSync.getCall(0).args[0])
+          .to.match(/migrations\/\d{14}_initial_migration\.js/);
+      })
+      .done(done, done);
+    });
+
+    describe('when the migrations directory already exists', function() {
+      beforeEach(function() {
+        fs.mkdirSync.restore();
+
+        var error = new Error('EEXIST, file already exists \'migrations\'');
+        sinon.stub(fs, 'mkdirSync').throws(_.extend(error, {
+          errno: 47,
+          code: 'EEXIST',
+          path: 'migrations',
+          syscall: 'mkdir'
+        }));
+      });
+
+      it('creates the migration file', function(done) {
+        cmd({}, function() {
+          return actions['make-migration'](azulfile, {}, 'anotherOne');
+        })
+        .then(function(proc) {
+          expect(proc.exitStatus).to.eql(0);
+          expect(proc.exitCalled).to.eql(false);
+          expect(proc.stdout).to.match(/\d{14}_another_one.js/i);
+          expect(fs.writeFileSync).to.have.been.calledOnce;
+          expect(fs.writeFileSync.getCall(0).args[0])
+            .to.match(/migrations\/\d{14}_another_one\.js/);
+        })
+        .done(done, done);
+      });
+    });
+
+    describe('when the directory is not writable', function() {
+      beforeEach(function() {
+        fs.mkdirSync.restore();
+        var error = new Error('EACCES, permission denied \'migrations\'');
+        sinon.stub(fs, 'mkdirSync').throws(_.extend(error, {
+          errno: 47,
+          code: 'EACCES',
+          path: 'migrations',
+          syscall: 'mkdir'
+        }));
+      });
+
+      it('fails', function(done) {
+        cmd({}, function() {
+          return actions['make-migration'](azulfile, {}, 'anotherOne');
+        })
+        .throw(new Error('Expected call to fail.'))
+        .catch(function(e) {
+          expect(e.message).to.match(/EACCES/);
         })
         .done(done, done);
       });
