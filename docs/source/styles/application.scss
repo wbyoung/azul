@@ -44,9 +44,7 @@ body #overview {
 
 .navbar-default .navbar-brand,
 .navbar-default .navbar-nav > li > a {
-  color: #fff;
-
-  &:hover {
+  &, &:hover, &:focus {
     color: #fff;
   }
 }
