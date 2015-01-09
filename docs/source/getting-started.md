@@ -9,60 +9,46 @@ template: page.html
 
 Getting started with Azul.js is quick and easy. First, you'll need to install
 the library and a database adapter via `nmp`. We'll use
-[PostgreSQL][node-postgres] in this example, but Azul.js also supports
-[MySQL][node-mysql] and [SQLite3][node-sqlite3]. You'll also want to install
-Azul.js globally to have easy access to the `azul` command line tool.
+[PostgreSQL][node-postgres] in the examples on this page, but Azul.js also
+supports [MySQL][node-mysql] and [SQLite3][node-sqlite3]. You'll also want to
+install Azul.js globally to have easy access to the `azul` command line tool.
 
 ```bash
-$ npm install --save azul pg
-$ npm install --global azul
+$ npm install azul pg --save
+$ npm install azul --global
 ```
 
 ## Configuration
 
-Both your application and the `azul` command line application will need a way
-to connect to your database in order to update the database. The `azul` command
-line tool will connect to the database when running
-[migrations][azul-migrations] to alter your database schema.
-And your application will obviously connect to the database to manipulate the
-underlying data. A shared configuration file, the `azulfile` is used for both.
-We recommend having separate configurations for _production_, _development_,
-and _test_. The `NODE_ENV` environment variable can then be used to control the
-environment.
+An `azulfile` allows your application and the `azul` command line tool to share
+connection settings. To create the `azulfile`, simply run:
 
-
-```js
-module.exports = {
-  production: {
-    adapter: 'pg',
-    connection: {
-      database: 'database',
-      user: 'root',
-      password: ''
-    }
-  },
-  development: {
-    adapter: 'pg',
-    connection: {
-      database: 'database_dev',
-      user: 'root',
-      password: ''
-    }
-  },
-  test: {
-    adapter: 'pg',
-    connection: {
-      database: 'database_test',
-      user: 'root',
-      password: ''
-    }
-  }
-};
+```bash
+$ azul init postgresql # or mysql, sqlite 
 ```
+
+This configuration file allows the `azul` command line application to connect
+to your database when performing housekeeping operations on your behalf.
+
+Your application also connects to the database, and will use this file as well
+when you [configure your application](#application).
+
+Azul won't create databases for you automatically, so don't forget to do that:
+
+```bash
+$ createuser -s root
+$ psql -U root -d postgres
+> CREATE DATABASE my_database;
+> \q
+```
+
+Your configuration file contains connection settings for _production_,
+_development_, and _test_. The `NODE_ENV` environment variable can then be used
+to control the environment & connection settings when running `azul` on the
+command line.
 
 The `azulfile` can be either a _JSON_ or _JavaScript_ file that exports the
 configuration.
-
 
 ## Application
 
