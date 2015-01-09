@@ -8,7 +8,7 @@ template: page.html
 # Getting Started
 
 Getting started with Azul.js is quick and easy. First, you'll need to install
-the library and a database adapter via `nmp`. We'll use
+the library and a database adapter via `npm`. We'll use
 [PostgreSQL][node-postgres] in the examples on this page, but Azul.js also
 supports [MySQL][node-mysql] and [SQLite3][node-sqlite3]. You'll also want to
 install Azul.js globally to have easy access to the `azul` command line tool.
