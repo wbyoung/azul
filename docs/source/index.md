@@ -1,6 +1,6 @@
 ---
 title: Azul.js
-category: home
+active: home
 template: home.html
 ---
 
