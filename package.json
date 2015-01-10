@@ -1,6 +1,6 @@
 {
   "name": "azul",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.2",
   "description": "Elegant ORM for Node.js",
   "homepage": "https://github.com/wbyoung/azul",
   "bugs": {
@@ -51,9 +51,12 @@
     "metalsmith-templates": "^0.6.0",
     "metalsmith-watch": "^0.2.0",
     "mocha": "^2.0.0",
+    "mysql": "^2.5.2",
     "ordered-read-streams": "^0.1.0",
+    "pg": "^3.4.1",
     "sinon": "^1.10.3",
     "sinon-chai": "^2.5.0",
+    "sqlite3": "^3.0.2",
     "swig": "^1.4.2",
     "through2": "^0.6.2"
   },
