@@ -277,7 +277,107 @@ We'll be adding one-to-one relationships via <code>belongsTo</code> and
 
 ## Through
 
-Content coming soon&hellip;
+Through associations allow you to access and build more complex relationships
+easily. One way that they can be used is to build [many-to-many](#many-to-many)
+relationships.
+
+Another way that they can be used is to build shortcut relationships. Take, for
+example, a blog with articles and comments. You could build the following
+relationships:
+
+```js
+var Blog = db.model('blog', {
+  title: db.attr(),
+  articles: db.hasMany(),
+});
+
+var Article = db.model('article', {
+  title: db.attr(),
+  blog: db.belongsTo(),
+  comments: db.hasMany(),
+});
+
+var Comment = db.model('comment', {
+  body: db.attr(),
+  article: db.belongsTo(),
+});
+```
+
+You may find yourself needing to access all of the comments for a blog. To do
+so, you can add a through relationship shortcut:
+
+```js
+Blog.reopen({
+  comments: hasMany({ through: 'articles' })
+});
+```
+
+### Nesting
+
+Through relationships can be nested to create deep shortcuts.
+
+This example omits any attributes for brevity, but the `Site` object is able
+to access `commenters` through `authors` then `posts` then `comments` until it
+finally gets to the `commenters`:
+
+```js
+var Site = db.model('site', {
+  authors: db.hasMany(),
+  commenters: db.hasMany({ through: 'authors' }),
+});
+var Author = db.model('author', {
+  site: db.belongsTo()
+  posts: db.hasMany(),
+  commenters: db.hasMany({ through: 'posts' }),
+});
+var Post = db.model('post', {
+  author: db.belongsTo(),
+  comments: db.hasMany(),
+  commenters: db.hasMany({ through: 'comments' })
+});
+var Comment = db.model('comment', {
+  post: db.belongsTo(),
+  commenter: db.belongsTo()
+});
+var Commenter = db.model('commenter', {
+  comments: db.hasMany()
+});
+```
+
+The same basic configuration could also be achieved by putting most of the
+through relations on the `Site`:
+
+```js
+var Site = db.model('site', {
+  authors: db.hasMany(),
+  posts: db.hasMany({ through: 'authors' }),
+  comments: db.hasMany({ through: 'posts' }),
+  commenters: db.hasMany({ through: 'comments' }),
+});
+var Author = db.model('author', {
+  site: db.belongsTo()
+  posts: db.hasMany(),
+});
+var Post = db.model('post', {
+  author: db.belongsTo(),
+  comments: db.hasMany(),
+});
+var Comment = db.model('comment', {
+  post: db.belongsTo(),
+  commenter: db.belongsTo(),
+});
+var Commenter = db.model('commenter', {
+  comments: db.hasMany()
+});
+```
+
+
+### Limitations
+
+Through relationships only support create, add, remove, and clear methods when
+they are used for [many-to-many](#many-to-many) relationships. For shortcuts
+like the example shown above, those methods will not be available.
+
 
 ## Methods
 
