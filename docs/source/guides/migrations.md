@@ -59,6 +59,10 @@ exports.down = function(schema) {
 };
 ```
 
+For examples of running multiple actions in a single migration, see the example
+migrations discussed in the [relations
+documentation][azul-relations#one-to-many].
+
 Migrations are run inside of a transaction, so if any of the migrations in a
 sequence of migrations fails, the entire group will be rolled back. This is
 only true if your database supports transactions.
@@ -71,33 +75,100 @@ execute raw SQL or perform schema changes that are not supported by Azul.js.
 
 #### `#createTable`
 
-Content coming soon&hellip;
+Create new tables. Pass the name of the table you want to create and a callback
+that will receive a table object with which you will be able to create columns
+of different [field types](#field-types).
+
+```js
+schema.createTable('articles', function(table) {
+  table.serial('id').primaryKey();
+  table.string('title');
+  table.text('body');
+});
+```
+
+Returns a _thenable_ [basic query][azul-queries#data-queries] with the
+following chainable methods:
+
+- `unlessExists` Will not create the table if it already exists.
+
+```js
+schema.createTable('articles', function(table) {
+   /* ... */
+}).unlessExists();
+```
+
+<div class="panel panel-info">
+<div class="panel-heading">
+  <span class="panel-title"><code>id</code> Column</span>
+</div>
+<div class="panel-body">
+Currently every table you create will need to specify an <code>id</code>
+column. We'll be adding a feature soon to make it part of the table by
+default and a chainable method <code>withoutId</code> to stop the automatic
+behavior. Please open <a href="https://github.com/wbyoung/azul/issues">an
+issue</a> or pull request to see this happen sooner.
+</div>
+</div>
+
 
 #### `#dropTable`
 
-Content coming soon&hellip;
+Drop existing tables.
+
+```js
+schema.dropTable('articles');
+```
+
+Returns a _thenable_ [basic query][azul-queries#data-queries] with the
+following chainable methods:
+
+- `ifExists` Will only drop the table if it exists.
+
 
 ### Field Types
 
-#### `auto`
-
-#### `increments`
-
 #### `serial`
+
+Automatically incrementing integer type usually used for `id` primary key
+columns.
+
+You can also use one of the following aliases:
+
+- `auto`
+- `increments`
 
 #### `integer`
 
+Standard sized integer.
+
 #### `integer64`
+
+64 bit integer.
 
 #### `string`
 
+A string. Accepts a `length` option which defaults to `255`.
+
+```js
+table.string('title', { length: 80 });
+```
+
 #### `text`
+
+Arbitrary length (long) text.
 
 #### `binary`
 
+Binary data.
+
 #### `bool`
 
+Boolean.
+
 #### `date`
+
+A date type that does not include a time.
 
 <div class="panel panel-info">
 <div class="panel-heading"><span class="panel-title">SQLite3</span></div>
@@ -109,6 +180,8 @@ currently support distinguishing this type in any way.
 
 #### `time`
 
+A time type that does not include a date.
+
 <div class="panel panel-info">
 <div class="panel-heading"><span class="panel-title">SQLite3</span></div>
 <div class="panel-body">
@@ -118,6 +191,10 @@ currently support distinguishing this type in any way.
 </div>
 
 #### `dateTime`
+
+A date and type type. Sometimes also known as a _timestamp_, this may or may
+not use a _timestamp_ type depending on the database back-end, but will contain
+both the date and time components of a date.
 
 <div class="panel panel-info">
 <div class="panel-heading"><span class="panel-title">SQLite3</span></div>
@@ -129,6 +206,20 @@ currently support distinguishing this type in any way.
 
 #### `float`
 
+A floating point number.
+
 #### `decimal`
 
+A decimal type that accepts the options `precision` and `scale`.
+
+```js
+table.decimal('amount', { precision: 20, scale: 10 });
+```
+
+If using options, you must specify at least the precision. Different adapters
+will handle options slightly differently. It is recommended to either omit both
+the `precision` and the `scale` or provide both for most consistent results.
+
+
+[azul-relations#one-to-many]: /guides/relations/#one-to-many
 [azul-queries#data-queries]: /guides/queries/#data-queries
