@@ -66,11 +66,11 @@
     "commander": "^2.6.0",
     "generic-pool": "^2.1.1",
     "interpret": "^0.4.0",
-    "liftoff": "^1.0.0",
+    "liftoff": "^2.0.0",
     "lodash": "^2.4.1",
     "minimist": "^1.1.0",
     "tildify": "^1.0.0",
     "underscore.string": "^3.0.0",
-    "v8flags": "^1.0.1"
+    "v8flags": "^2.0.2"
   }
 }

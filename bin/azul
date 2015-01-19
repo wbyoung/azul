@@ -23,7 +23,7 @@ var invoke = function(env) {
 
 new Liftoff({
   name: 'azul',
-  nodeFlags: _.without(v8flags.fetch(), '--help'),
+  v8flags: v8flags,
   extensions: interpret.jsVariants
 })
 
