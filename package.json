@@ -70,7 +70,7 @@
     "lodash": "^2.4.1",
     "minimist": "^1.1.0",
     "tildify": "^1.0.0",
-    "underscore.string": "^2.3.3",
+    "underscore.string": "^3.0.0",
     "v8flags": "^1.0.1"
   }
 }
