@@ -39,7 +39,7 @@ describe('CreateTableQuery', function() {
 
   it('generates primary key columns via `primarykey`', function() {
     var query = db.schema.createTable('users', function(table) {
-      table.integer('id').pk();
+      table.integer('id').primaryKey();
     });
     expect(query.sql()).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer PRIMARY KEY)', []

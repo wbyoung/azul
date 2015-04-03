@@ -111,6 +111,27 @@ issue</a> or pull request to see this happen sooner.
 </div>
 </div>
 
+#### `#alterTable`
+
+Alter existing tables. Pass the name of the table you want to alter and a callback
+that will receive a table object with which you will be able to create columns
+of different [field types](#field-types) as well as drop existing columns.
+
+```js
+schema.alterTable('articles', function(table) {
+  table.string('title'); // add a title column
+  table.drop('body'); // drop the body column
+});
+```
+
+- `drop` Drops a table column (**not yet supported in SQLite3**)
+
+```js
+schema.alterTable('articles', function(table) {
+  table.drop('title'); // drop the title column
+});
+```
+
 
 #### `#dropTable`
 
