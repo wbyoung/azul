@@ -47,6 +47,8 @@ describe('CLI', function() {
         expect(proc.stdout).to.match(/initialization complete/i);
         expect(fs.writeFileSync).to.have.been.calledOnce;
         expect(fs.writeFileSync).to.have.been.calledWith('azulfile.js');
+        expect(fs.writeFileSync.getCall(0).args[1])
+          .to.match(/production:[^]*development:[^]*test:/);
       })
       .done(done, done);
     });
@@ -148,6 +150,8 @@ describe('CLI', function() {
         expect(fs.writeFileSync).to.have.been.calledOnce;
         expect(fs.writeFileSync.getCall(0).args[0])
           .to.match(/migrations\/\d{14}_initial_migration\.js/);
+        expect(fs.writeFileSync.getCall(0).args[1])
+          .to.match(/exports.up[^]*exports.down[^]/);
       })
       .done(done, done);
     });
