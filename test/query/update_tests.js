@@ -26,27 +26,27 @@ describe('UpdateQuery', function() {
   });
 
   it('updates data', function() {
-    expect(db.update('users', { name: 'Whitney' }).sql()).to.eql(Statement.create(
+    expect(db.update('users', { name: 'Whitney' }).statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = ?', ['Whitney']
     ));
   });
 
   it('can be filtered', function() {
     var query = db.update('users', { name: 'Whitney' }).where({ id: 1 });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = ? WHERE "id" = ?', ['Whitney', 1]
     ));
   });
 
   it('updates multiple values', function() {
     var query = db.update('users', { first: 'Whitney', last: 'Young' });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "first" = ?, "last" = ?', ['Whitney', 'Young']
     ));
   });
 
   it('updates data via #set', function() {
-    expect(db.update('users').set({ name: 'Whitney' }).sql()).to.eql(Statement.create(
+    expect(db.update('users').set({ name: 'Whitney' }).statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = ?', ['Whitney']
     ));
   });
@@ -55,21 +55,21 @@ describe('UpdateQuery', function() {
     var query = db.update('users')
       .set({ first: 'Whitney', last: 'Young' })
       .set({ first: 'Whit' });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "first" = ?, "last" = ?', ['Whit', 'Young']
     ));
   });
 
   it('works with literal based statements', function() {
     var query = db.update('users', { name: l('"first" + "last"') });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = "first" + "last"', []
     ));
   });
 
   it('works with field based statements', function() {
     var query = db.update('users', { name: f('first') });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = "first"', []
     ));
   });
@@ -77,7 +77,7 @@ describe('UpdateQuery', function() {
   it('cannot be used without values to set', function() {
     var query = db.update('users');
     expect(function() {
-      query.sql();
+      query.statement;
     }).to.throw(/must specify values to set/i);
   });
 

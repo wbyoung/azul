@@ -22,13 +22,13 @@ describe('DeleteQuery', function() {
   });
 
   it('deletes data', function() {
-    expect(db.delete('users').sql()).to.eql(Statement.create(
+    expect(db.delete('users').statement).to.eql(Statement.create(
       'DELETE FROM "users"', []
     ));
   });
 
   it('can be filtered', function() {
-    expect(db.delete('users').where({ id: 1 }).sql()).to.eql(Statement.create(
+    expect(db.delete('users').where({ id: 1 }).statement).to.eql(Statement.create(
       'DELETE FROM "users" WHERE "id" = ?', [1]
     ));
   });

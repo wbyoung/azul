@@ -14,7 +14,7 @@ describe('Schema', function() {
 
   it('cannot generate sql', function() {
     expect(function() {
-      schema.sql();
+      schema.statement;
     }).to.throw(/must first call/i);
   });
 
@@ -24,7 +24,7 @@ describe('Schema', function() {
       var query = schema.createTable('users', function(table) {
         table.string('name');
       });
-      expect(query.sql()).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'CREATE TABLE "users" ("name" varchar(255))', []
       ));
     });
@@ -34,7 +34,7 @@ describe('Schema', function() {
         table.serial('id');
         table.string('name');
       });
-      expect(query.sql()).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'CREATE TABLE "users" ("id" serial, "name" varchar(255))', []
       ));
     });
@@ -43,7 +43,7 @@ describe('Schema', function() {
       var query = schema.createTable('users', function(table) {
         table.serial('id');
       }).unlessExists();
-      expect(query.sql()).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'CREATE TABLE IF NOT EXISTS "users" ("id" serial)', []
       ));
     });
@@ -53,7 +53,7 @@ describe('Schema', function() {
         var query = schema.createTable('users', function(table) {
           table.serial('id');
         });
-        expect(query.sql()).to.eql(Statement.create(
+        expect(query.statement).to.eql(Statement.create(
           'CREATE TABLE "users" ("id" serial)', []
         ));
       });
@@ -72,14 +72,14 @@ describe('Schema', function() {
 
     it('generates the proper sql', function() {
       var query = schema.dropTable('users');
-      expect(query.sql()).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'DROP TABLE "users"', []
       ));
     });
 
     it('supports #ifExists()', function() {
       var query = schema.dropTable('users').ifExists();
-      expect(query.sql()).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'DROP TABLE IF EXISTS "users"', []
       ));
     });

@@ -718,7 +718,7 @@ describe('Model.hasMany :through', function() {
         .where({ subject: 'Azul Course/Azul Blog' });
 
       expect(function() {
-        query.sql();
+        query.statement;
       }).to.throw(/ambiguous.*"subject".*"(courses|homeworks)".*"(courses|homeworks)"/i);
     });
 

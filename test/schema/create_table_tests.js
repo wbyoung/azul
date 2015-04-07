@@ -32,7 +32,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').pk();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer PRIMARY KEY)', []
     ));
   });
@@ -41,7 +41,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').primaryKey();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer PRIMARY KEY)', []
     ));
   });
@@ -59,7 +59,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').notNull();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer NOT NULL)', []
     ));
   });
@@ -72,7 +72,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').unique();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer UNIQUE)', []
     ));
   });
@@ -81,7 +81,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').default(0);
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("id" integer DEFAULT 0)', []
     ));
   });
@@ -90,7 +90,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('profile_id').references('profiles.id');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("profile_id" integer REFERENCES "profiles" ("id"))', []
     ));
   });
@@ -99,7 +99,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('boss_id').references('id');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("boss_id" integer REFERENCES "id")', []
     ));
   });
@@ -109,7 +109,7 @@ describe('CreateTableQuery', function() {
       db.schema.createTable('users', function(table) {
         table.integer('foreign_id').references('bad.foreign.key');
       })
-      .sql();
+      .statement;
     }).to.throw(/invalid.*"bad\.foreign\.key"/i);
   });
 
@@ -119,7 +119,7 @@ describe('CreateTableQuery', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('profile_id').references('profiles.id').notNull().unique();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("profile_id" integer NOT NULL UNIQUE ' +
         'REFERENCES "profiles" ("id"))', []
     ));

@@ -70,11 +70,11 @@ describe('Transaction Mixin', function() {
       var duplicate = transaction.transaction(transaction);
       expect(duplicate.transaction()).to.equal(transaction);
       expect(duplicate).to.not.eql(transaction);
-      expect(duplicate.sql().value).to.eql('BEGIN');
+      expect(duplicate.statement.value).to.eql('BEGIN');
     });
 
     it('includes sql', function() {
-      expect(this.transaction.sql()).to.eql(Statement.create(
+      expect(this.transaction.statement).to.eql(Statement.create(
         'BEGIN', []
       ));
     });
@@ -82,7 +82,7 @@ describe('Transaction Mixin', function() {
     it('can be committed', function(done) {
       this.transaction.execute().bind(this).then(function() {
         var commit = this.transaction.commit();
-        expect(commit.sql()).to.eql(Statement.create('COMMIT', []));
+        expect(commit.statement).to.eql(Statement.create('COMMIT', []));
       })
       .done(done, done);
     });
@@ -90,7 +90,7 @@ describe('Transaction Mixin', function() {
     it('can be rolled back', function(done) {
       this.transaction.execute().bind(this).then(function() {
         var rollback = this.transaction.rollback();
-        expect(rollback.sql()).to.eql(Statement.create('ROLLBACK', []));
+        expect(rollback.statement).to.eql(Statement.create('ROLLBACK', []));
       })
       .done(done, done);
     });
@@ -197,7 +197,7 @@ describe('Transaction Mixin', function() {
     var shouldWorkWithCurrentSelectQuery = function(){
 
       it('generates standard sql', function() {
-        expect(this.selectQuery.sql()).to.eql(Statement.create(
+        expect(this.selectQuery.statement).to.eql(Statement.create(
           'SELECT * FROM "users"', []
         ));
       });

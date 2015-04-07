@@ -14,7 +14,7 @@ describe('BaseQuery', function() {
   });
 
   it('cannot generate sql', function() {
-    expect(function() { query.sql(); })
+    expect(function() { query.statement; })
       .throw(/BaseQuery.*cannot be used/i);
   });
 

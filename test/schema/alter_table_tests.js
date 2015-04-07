@@ -32,7 +32,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('id').pk();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer PRIMARY KEY', []
     ));
   });
@@ -42,7 +42,7 @@ describe('AlterTableQuery', function() {
       table.integer('id').pk();
       table.integer('age');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer PRIMARY KEY, ' +
       'ADD COLUMN "age" integer', []
     ));
@@ -52,7 +52,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('id').primaryKey();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer PRIMARY KEY', []
     ));
   });
@@ -70,7 +70,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('id').notNull();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer NOT NULL', []
     ));
   });
@@ -79,7 +79,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('id').unique();
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer UNIQUE', []
     ));
   });
@@ -88,7 +88,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('id').default(0);
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "id" integer DEFAULT 0', []
     ));
   });
@@ -97,7 +97,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('profile_id').references('profiles.id');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "profile_id" integer REFERENCES "profiles" ("id")', []
     ));
   });
@@ -106,7 +106,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.integer('boss_id').references('id');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ADD COLUMN "boss_id" integer REFERENCES "id"', []
     ));
   });
@@ -116,7 +116,7 @@ describe('AlterTableQuery', function() {
       db.schema.alterTable('users', function(table) {
         table.integer('foreign_id').references('bad.foreign.key');
       })
-      .sql();
+      .statement;
     }).to.throw(/invalid.*"bad\.foreign\.key"/i);
   });
 
@@ -124,7 +124,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.drop('name');
     });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" DROP COLUMN "name"', []
     ));
   });
@@ -133,7 +133,7 @@ describe('AlterTableQuery', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.drop('id');
     }).clone();
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" DROP COLUMN "id"', []
     ));
   });
@@ -144,7 +144,7 @@ describe('AlterTableQuery', function() {
       table.drop('age');
     });
 
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'ALTER TABLE "users" ' +
         'DROP COLUMN "age", ' +
         'ADD COLUMN "profile_id" integer NOT NULL UNIQUE ' +

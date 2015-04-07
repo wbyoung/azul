@@ -26,7 +26,7 @@ describe('RawQuery', function() {
 
   it('can be created with a statement', function() {
     var statement = Statement.create('SELECT * FROM "jobs"', []);
-    expect(db.query.raw(statement).sql()).to.eql(statement);
+    expect(db.query.raw(statement).statement).to.eql(statement);
   });
 
   it('cannot be created with a statement and args', function() {
@@ -36,14 +36,14 @@ describe('RawQuery', function() {
   });
 
   it('can be created without args', function() {
-    expect(db.query.raw('SELECT * FROM "jobs"').sql()).to.eql(Statement.create(
+    expect(db.query.raw('SELECT * FROM "jobs"').statement).to.eql(Statement.create(
       'SELECT * FROM "jobs"', []
     ));
   });
 
   it('can be created args', function() {
     var query = db.query.raw('SELECT * FROM "jobs" where "id" = ?', [1]);
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "jobs" where "id" = ?', [1]
     ));
   });

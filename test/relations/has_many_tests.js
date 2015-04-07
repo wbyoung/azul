@@ -573,7 +573,7 @@ describe('Model.hasMany', function() {
         .where({ title: 'Azul Article/Azul Blog' });
 
       expect(function() {
-        query.sql();
+        query.statement;
       }).to.throw(/ambiguous.*"title".*"(articles|blogs)".*"(articles|blogs)"/i);
     });
 

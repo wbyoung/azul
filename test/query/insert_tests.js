@@ -22,13 +22,15 @@ describe('InsertQuery', function() {
   });
 
   it('inserts data', function() {
-    expect(db.insert('users', { name: 'Whitney' }).sql()).to.eql(Statement.create(
+    var query = db.insert('users', { name: 'Whitney' });
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
     ));
   });
 
   it('inserts data via #values', function() {
-    expect(db.insert('users').values({ name: 'Whitney' }).sql()).to.eql(Statement.create(
+    var query = db.insert('users').values({ name: 'Whitney' });
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
     ));
   });
@@ -37,7 +39,7 @@ describe('InsertQuery', function() {
     var query = db.insert('users')
       .values({ name: 'Whitney' }, { name: 'Brittany' })
       .values({ name: 'Milo' });
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?), (?), (?)',
       ['Whitney', 'Brittany', 'Milo']
     ));
@@ -45,7 +47,7 @@ describe('InsertQuery', function() {
 
   it('inserts multiple sets of data', function() {
     var query = db.insert('users', [{ name: 'Whitney' }, { name: 'Brittany'}]);
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?), (?)', ['Whitney', 'Brittany']
     ));
   });
@@ -55,7 +57,7 @@ describe('InsertQuery', function() {
       { name: 'Whitney',  address: 'Portland' },
       { name: 'Brittany'}
     ]);
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name", "address") VALUES (?, ?), (?, ?)',
       ['Whitney', 'Portland', 'Brittany', undefined]
     ));
@@ -63,7 +65,7 @@ describe('InsertQuery', function() {
 
   it('allows specifying the return value', function() {
     var query = db.insert('users', [{ name: 'Whitney' }]).returning('id');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?) RETURNING "id"', ['Whitney']
     ));
   });

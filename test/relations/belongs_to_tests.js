@@ -263,7 +263,7 @@ describe('Model.belongsTo', function() {
         .where({ name: 'John/Azul Blog' });
 
       expect(function() {
-        query.sql();
+        query.statement;
       }).to.throw(/ambiguous.*"name".*"(author|blog)".*"(author|blog)"/i);
     });
 

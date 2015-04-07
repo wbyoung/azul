@@ -27,19 +27,19 @@ describe('SelectQuery', function() {
   });
 
   it('accesses a table', function() {
-    expect(db.select('users').sql()).to.eql(Statement.create(
+    expect(db.select('users').statement).to.eql(Statement.create(
       'SELECT * FROM "users"', []
     ));
   });
 
   it('can use table name in a select all', function() {
-    expect(db.select('users', ['users.*']).sql()).to.eql(Statement.create(
+    expect(db.select('users', ['users.*']).statement).to.eql(Statement.create(
       'SELECT "users".* FROM "users"', []
     ));
   });
 
   it('can be filtered', function() {
-    expect(db.select('users').where({ id: 1 }).sql()).to.eql(Statement.create(
+    expect(db.select('users').where({ id: 1 }).statement).to.eql(Statement.create(
       'SELECT * FROM "users" WHERE "id" = ?', [1]
     ));
   });
@@ -47,7 +47,7 @@ describe('SelectQuery', function() {
   it('can be filtered 2 times', function() {
     var result = db.select('users')
       .where({ id: 1 })
-      .where({ name: 'Whitney' }).sql();
+      .where({ name: 'Whitney' }).statement;
     expect(result).to.eql(Statement.create(
       'SELECT * FROM "users" WHERE ("id" = ?) AND "name" = ?', [1, 'Whitney']
     ));
@@ -57,42 +57,42 @@ describe('SelectQuery', function() {
     var result = db.select('users')
       .where({ id: 1 })
       .where({ name: 'Whitney' })
-      .where({ city: 'Portland' }).sql();
+      .where({ city: 'Portland' }).statement;
     expect(result).to.eql(Statement.create(
       'SELECT * FROM "users" WHERE (("id" = ?) AND "name" = ?) AND "city" = ?', [1, 'Whitney', 'Portland']
     ));
   });
 
   it('can be filtered when columns are specified', function() {
-    expect(db.select('users', ['id']).where({ id: 1 }).sql()).to.eql(Statement.create(
+    expect(db.select('users', ['id']).where({ id: 1 }).statement).to.eql(Statement.create(
       'SELECT "id" FROM "users" WHERE "id" = ?', [1]
     ));
   });
 
   it('can be ordered', function() {
     var query = db.select('users').order('signup');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users" ORDER BY "signup" ASC', []
     ));
   });
 
   it('can be ordered via orderBy', function() {
     var query = db.select('users').orderBy('signup');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users" ORDER BY "signup" ASC', []
     ));
   });
 
   it('can be ordered descending', function() {
     var query = db.select('users').order('-signup');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users" ORDER BY "signup" DESC', []
     ));
   });
 
   it('can be ordered over multiple fields', function() {
     var query = db.select('users').order('-signup', 'username');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users" ORDER BY "signup" DESC, "username" ASC', []
     ));
   });
@@ -101,33 +101,33 @@ describe('SelectQuery', function() {
     var query = db.select('users')
       .where({ id: 1 })
       .order('-signup', 'username');
-    expect(query.sql()).to.eql(Statement.create(
+    expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users" WHERE "id" = ? ' +
       'ORDER BY "signup" DESC, "username" ASC', [1]
     ));
   });
 
   it('can be limited', function() {
-    expect(db.select('users').limit(5).sql()).to.eql(Statement.create(
+    expect(db.select('users').limit(5).statement).to.eql(Statement.create(
       'SELECT * FROM "users" LIMIT 5', []
     ));
   });
 
   it('handles predicates', function() {
-    expect(db.select('articles').where({ 'words[gt]': 200 }).sql()).to.eql(Statement.create(
+    expect(db.select('articles').where({ 'words[gt]': 200 }).statement).to.eql(Statement.create(
       'SELECT * FROM "articles" WHERE "words" > ?', [200]
     ));
   });
 
   describe('column specification', function() {
     it('accepts simple names', function() {
-      expect(db.select('articles', ['title', 'body']).sql()).to.eql(Statement.create(
+      expect(db.select('articles', ['title', 'body']).statement).to.eql(Statement.create(
         'SELECT "title", "body" FROM "articles"', []
       ));
     });
 
     it('accepts simple table qualified names', function() {
-      expect(db.select('articles', ['articles.title', 'body']).sql()).to.eql(Statement.create(
+      expect(db.select('articles', ['articles.title', 'body']).statement).to.eql(Statement.create(
         'SELECT "articles"."title", "body" FROM "articles"', []
       ));
     });
@@ -135,30 +135,30 @@ describe('SelectQuery', function() {
 
   describe('joins', function() {
     it('defaults to an inner join', function() {
-      expect(db.select('articles').join('authors').sql()).to.eql(Statement.create(
+      expect(db.select('articles').join('authors').statement).to.eql(Statement.create(
         'SELECT * FROM "articles" INNER JOIN "authors" ON TRUE', []
       ));
     });
 
     it('accepts type', function() {
-      expect(db.select('articles').join('authors', 'inner').sql()).to.eql(Statement.create(
+      expect(db.select('articles').join('authors', 'inner').statement).to.eql(Statement.create(
         'SELECT * FROM "articles" INNER JOIN "authors" ON TRUE', []
       ));
     });
 
     it('accepts conditions', function() {
-      var result = db.select('articles').join('authors', { 'articles.author_id': f('authors.id') }).sql();
+      var result = db.select('articles').join('authors', { 'articles.author_id': f('authors.id') }).statement;
       expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
     });
 
     it('accepts alternate name', function() {
-      expect(db.select('articles').join({ authors: 'authors_alias' }).sql()).to.eql(Statement.create(
+      expect(db.select('articles').join({ authors: 'authors_alias' }).statement).to.eql(Statement.create(
         'SELECT * FROM "articles" INNER JOIN "authors" "authors_alias" ON TRUE', []
       ));
     });
 
     it('accepts conditions as a simple string', function() {
-      var result = db.select('articles').join('authors', 'articles.author_id=authors.id').sql();
+      var result = db.select('articles').join('authors', 'articles.author_id=authors.id').statement;
       expect(result.sql).to.match(/JOIN "authors" ON "articles"."author_id" = "authors"."id"$/);
     });
 
@@ -166,7 +166,7 @@ describe('SelectQuery', function() {
       var result = db.select('articles')
         .join('authors')
         .where({ name: 'Whitney' })
-        .sql();
+        .statement;
       expect(result.sql).to.match(/JOIN "authors" ON TRUE WHERE "name" = \?$/);
     });
 
@@ -174,7 +174,7 @@ describe('SelectQuery', function() {
       var result = db.select('articles')
         .join('authors')
         .groupBy('id')
-        .sql();
+        .statement;
       expect(result.sql).to.match(/JOIN "authors".*GROUP BY "id"$/);
     });
   });
@@ -187,7 +187,7 @@ describe('SelectQuery', function() {
   it('is immutable', function() {
     var original = db.select('users');
     var filtered = original.where({ id: 2 });
-    expect(original.sql()).to.not.eql(filtered.sql());
+    expect(original.statement).to.not.eql(filtered.statement);
   });
 
   it('has a fetch method', function(done) {

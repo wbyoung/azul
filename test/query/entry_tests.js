@@ -20,15 +20,15 @@ describe('EntryQuery', function() {
   });
 
   it('cannot generate sql', function() {
-    expect(function() { db.query.sql(); })
+    expect(function() { db.query.statement; })
       .throw(/must first call.*`select`.*on query/i);
-    expect(function() { db.query.sql(); })
+    expect(function() { db.query.statement; })
       .throw(/must first call.*`update`.*on query/i);
-    expect(function() { db.query.sql(); })
+    expect(function() { db.query.statement; })
       .throw(/must first call.*`insert`.*on query/i);
-    expect(function() { db.query.sql(); })
+    expect(function() { db.query.statement; })
       .throw(/must first call.*`delete`.*on query/i);
-    expect(function() { db.query.sql(); })
+    expect(function() { db.query.statement; })
       .throw(/must first call.*`raw`.*on query/i);
   });
 });
