@@ -178,7 +178,7 @@ describe('Model.hasMany :through', function() {
     it('throws an error when it cannot find a through relation', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments', autoJoin: false })
+        courses: db.hasMany({ through: 'enrollments', join: false })
       });
       student = Student.fresh({ id: 6 });
       expect(function() {
@@ -236,12 +236,54 @@ describe('Model.hasMany :through', function() {
       expect(Student.create().enrollmentsRelation).to.exist;
     });
 
+    it('adds join table relation immediately (via joins option)', function() {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        courses: db.hasMany({ join: 'enrollments' })
+      });
+      expect(Student.create().enrollmentsRelation).to.exist;
+    });
+
     it('adds pluralized join table relation immediately', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollment' })
       });
       expect(Student.create().enrollmentsRelation).to.exist;
+    });
+
+    it('adds pluralized join table relation immediately (via joins option)', function() {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        courses: db.hasMany({ join: 'enrollment' })
+      });
+      expect(Student.create().enrollmentsRelation).to.exist;
+    });
+
+    it('properly constructs a join model and allows use', function(done) {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student', {
+        courses: db.hasMany({ join: 'courses_students' })
+      });
+      Course = db.model('course', {
+        students: db.hasMany({ join: 'courses_students' }),
+      });
+      var CourseStudent = db.model('course_student');
+
+      expect(Student.__class__.prototype.coursesStudentsRelation).to.exist;
+      expect(Course.__class__.prototype.coursesStudentsRelation).to.exist;
+      expect(CourseStudent.__class__.prototype.courseRelation).to.exist;
+      expect(CourseStudent.__class__.prototype.studentRelation).to.exist;
+
+      var course = Course.create();
+      var student = Student.create();
+      course.addStudents(student).then(function() {
+        expect(_.last(adapter.executedSQL())).to.eql([
+          'INSERT INTO "courses_students" ("course_id", "students_id") ' +
+          'VALUES (?, ?)', [ 82, 92 ]
+        ]);
+      })
+      .then(done, done);
     });
 
     it('is aware of existing relations defined later in the same group', function() {

@@ -232,24 +232,26 @@ exports.down = function(schema) {
 };
 ```
 
-It is not necessary to actually define the model through which the many-to-many
-relationship is built. For instance, if you built a relationship between
-_assemblies_ and _parts_, you could just do:
+In some cases, it may not be not necessary to define the model through which
+the many-to-many relationship is built. In this case, you can use the `join`
+option which will set up the required join model for you. For instance, if you
+built a relationship between _assemblies_ and _parts_, you could just do:
 
 ```js
 var Assembly = db.model('assembly', {
   name: db.attr(),
-  assmeblies: db.hasMany({ through: 'assmeblies_parts' })
+  assmeblies: db.hasMany({ join: 'assmeblies_parts' })
 });
 
 var Part = db.model('part', {
   partNumber: db.attr(),
-  parts: db.hasMany({ through: 'assmeblies_parts' })
+  parts: db.hasMany({ join: 'assmeblies_parts' })
 });
 ```
 
 Note, though, that the `assmeblies_parts` join table must be created in a
-migration.
+migration. Also, Azul will actually create an `AssemblyPart` model for you and
+add the necessary `belongsTo` attributes.
 
 <div class="panel panel-info">
 <div class="panel-heading">

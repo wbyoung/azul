@@ -217,7 +217,7 @@ describe('Model.hasMany :through-shortcut', function() {
     it('throws an error when it cannot find a through relation', function() {
       db = Database.create({ adapter: adapter });
       Site = db.model('site').reopen({
-        posts: db.hasMany({ through: 'authors', autoJoin: false }),
+        posts: db.hasMany({ through: 'authors', join: false }),
         comments: db.hasMany({ through: 'posts' }),
       });
       var site = Site.fresh({ id: 6 });
