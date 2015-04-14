@@ -76,6 +76,10 @@ describe('Model.hasMany :through', function() {
       fields: ['id'],
       rows: [{ id: 82 }]
     });
+    adapter.intercept(/insert into "students"/i, {
+      fields: ['id'],
+      rows: [{ id: 92 }]
+    });
     adapter.intercept(/insert into "enrollments"/i, {
       fields: ['id'],
       rows: [{ id: 27 }]
@@ -401,6 +405,25 @@ describe('Model.hasMany :through', function() {
            'RETURNING "id"', ['CS 101']],
           ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
            'VALUES (?, ?)', [1, 82]]
+        ]);
+        expect(course).to.have.property('dirty', false);
+      })
+      .done(done, done);
+    });
+
+    it('allows add on created objects', function(done) {
+      var student = Student.create({ name: 'Whitney' });
+      var course = Course.create({ subject: 'CS 101' });
+      student.addCourse(course).then(function() {
+        // note that this expectation depends on ordering of object properties
+        // which is not guaranteed to be a stable ordering.
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "students" ("name") VALUES (?) ' +
+           'RETURNING "id"', ['Whitney']],
+          ['INSERT INTO "courses" ("subject") VALUES (?) ' +
+           'RETURNING "id"', ['CS 101']],
+          ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
+           'VALUES (?, ?)', [92, 82]]
         ]);
         expect(course).to.have.property('dirty', false);
       })
