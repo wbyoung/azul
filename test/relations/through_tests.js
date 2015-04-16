@@ -279,7 +279,7 @@ describe('Model.hasMany :through', function() {
       var student = Student.create();
       course.addStudents(student).then(function() {
         expect(_.last(adapter.executedSQL())).to.eql([
-          'INSERT INTO "courses_students" ("course_id", "students_id") ' +
+          'INSERT INTO "courses_students" ("course_id", "student_id") ' +
           'VALUES (?, ?)', [ 82, 92 ]
         ]);
       })
@@ -910,6 +910,29 @@ describe('Model.hasMany :through', function() {
         ]);
       })
       .done(done, done);
+    });
+
+    it('joins properly when using `join` option', function(done) {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student', {
+        courses: db.hasMany({ join: 'courses_students' })
+      });
+      Course = db.model('course', {
+        students: db.hasMany({ join: 'courses_students' }),
+      });
+
+      Course.objects.where({ 'students.id': 5 }).then(function() {
+        expect(_.last(adapter.executedSQL())).to.eql([
+          'SELECT "courses".* FROM "courses" ' +
+          'INNER JOIN "courses_students" ' +
+          'ON "courses_students"."course_id" = "courses"."id" ' +
+          'INNER JOIN "students" ' +
+          'ON "courses_students"."student_id" = "students"."id" ' +
+          'WHERE "students"."id" = ? ' +
+          'GROUP BY "courses"."id"', [ 5 ]
+        ]);
+      })
+      .then(done, done);
     });
 
     it('joins & orders across multiple relationships', function(done) {
