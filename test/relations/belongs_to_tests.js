@@ -59,6 +59,10 @@ describe('Model.belongsTo', function() {
       fields: ['id'],
       rows: [{ id: 838 }]
     });
+    adapter.intercept(/insert into "articles"/i, {
+      fields: ['id'],
+      rows: [{ id: 78 }]
+    });
   });
 
   describe('definition', function() {
@@ -192,6 +196,20 @@ describe('Model.belongsTo', function() {
            'RETURNING "id"', ['jack']],
           ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
            'WHERE "id" = ?', ['Azul News', 838, 932]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows store via constructor', function(done) {
+      var user = User.create({ username: 'jack' });
+      article = Article.create({ title: 'Azul News', author: user });
+      article.save().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "users" ("username") VALUES (?) ' +
+           'RETURNING "id"', ['jack']],
+          ['INSERT INTO "articles" ("title", "author_id") VALUES (?, ?) ' +
+           'RETURNING "id"', ['Azul News', 838]]
         ]);
       })
       .done(done, done);
