@@ -478,10 +478,11 @@ describe('Model', function() {
   });
 
   it('can get with a custom query', function(done) {
-    Article.objects.where({ id: 5, 'user.id': 7 }).fetch().then(function(articles) {
+    Article.reopen({ headline: db.attr() });
+    Article.objects.where({ id: 5, 'headline': 7 }).fetch().then(function(articles) {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT * FROM "articles" WHERE "id" = ? ' +
-         'AND "user"."id" = ?', [5, 7]]
+         'AND "headline" = ?', [5, 7]]
       ]);
       expect(articles).to.eql([
         Article.load({ id: 1, title: 'Existing Article' })

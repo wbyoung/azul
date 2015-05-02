@@ -373,15 +373,28 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    // TODO: make this work
-    it.skip('handles relation objects during automatic joining', function() {
+    it('handles relation objects during automatic joining', function(done) {
+      var user = User.fresh({ id: 623, username: 'alex' });
+      Article.objects.where({ 'author': user, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "articles".* FROM "articles" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."id" = ? ' +
+           'GROUP BY "articles"."id"', [623]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('gives a useful error when bad relation is used in `where`', function() {
       var query = Article.objects.where({ 'author.norelation.id': 5, });
       expect(function() {
         query.sql;
-      }).to.throw(/asdf/);
+      }).to.throw(/invalid relation.*"author.norelation".*article query.*could not find.*"norelation"/i);
     });
 
-    it('handles relation objects during automatic joining', function() {
+    it('gives a useful error when bad attr is used in `where`', function() {
       var query = Article.objects.where({ 'author.invalidAttr': 5, });
       expect(function() {
         query.sql;
@@ -435,6 +448,21 @@ describe('Model.belongsTo', function() {
            'GROUP BY "comments"."id" ' +
            'ORDER BY "articles"."title" ASC, "users"."username" ASC ' +
            'LIMIT 10 OFFSET 20', ['%w%']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('joins across multiple relationships (using object)', function(done) {
+      var user = User.fresh({ id: 623, username: 'alex' });
+      Comment.objects.where({ 'article.author': user, })
+      .fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "comments".* FROM "comments" ' +
+           'INNER JOIN "articles" ON "comments"."article_id" = "articles"."id" ' +
+           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
+           'WHERE "users"."id" = ? ' +
+           'GROUP BY "comments"."id"', [623]]
         ]);
       })
       .done(done, done);

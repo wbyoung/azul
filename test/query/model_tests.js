@@ -6,6 +6,7 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var ModelQuery = require('../../lib/query/model');
 var FakeAdapter = require('../fakes/adapter');
+var property = require('../../lib/util/property').fn;
 
 var db,
   adapter;
@@ -39,4 +40,16 @@ describe('ModelQuery', function() {
       db.query.bindModel(db.model('user')).join('streets');
     }).to.throw(/no relation.*"streets".*join.*user query/i);
   });
+
+  it('re-throws when auto-join is used and error is not expected', function() {
+    var Model = db.model('article', {
+      authorRelation: property(function() {
+        throw new Error('test error');
+      }),
+    });
+    expect(function() {
+      db.query.bindModel(Model).where({ 'author.id': 7 }).statement.sql;
+    }).to.throw(/test error/i);
+  });
+
 });

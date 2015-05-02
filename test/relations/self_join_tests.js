@@ -70,6 +70,50 @@ describe('Model self-joins', function() {
       })
       .done(done, done);
     });
+
+    it('allows use of relation objects in complex query', function(done) {
+      // anyone who reports to a 'jane' and where their manager is also just
+      // under the ceo (but not those named 'jane' who don't report to the ceo)
+      var ceo = Employee.fresh({ id: 1 });
+      Employee.reopen({ name: db.attr() });
+      Employee.objects
+      .where({ 'manager.name': 'jane' })
+      .where({ 'manager.manager': ceo })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "employees".* FROM "employees" ' +
+           'INNER JOIN "employees" "manager" ' +
+           'ON "employees"."manager_id" = "manager"."id" ' +
+           'INNER JOIN "employees" "manager_j1" ' +
+           'ON "manager"."manager_id" = "manager_j1"."id" ' +
+           'WHERE ("manager"."name" = ?) ' +
+           'AND "manager_j1"."id" = ? ' +
+           'GROUP BY "employees"."id"', ['jane', 1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('allows use of relation objects in complex query (reverse setup)', function(done) {
+      var ceo = Employee.fresh({ id: 1 });
+      Employee.reopen({ name: db.attr() });
+      Employee.objects
+      .where({ 'manager.manager': ceo })
+      .where({ 'manager.name': 'jane' })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "employees".* FROM "employees" ' +
+           'INNER JOIN "employees" "manager" ' +
+           'ON "employees"."manager_id" = "manager"."id" ' +
+           'INNER JOIN "employees" "manager_j1" ' +
+           'ON "manager"."manager_id" = "manager_j1"."id" ' +
+           'WHERE ("manager_j1"."id" = ?) ' +
+           'AND "manager"."name" = ? ' +
+           'GROUP BY "employees"."id"', [1, 'jane']]
+        ]);
+      })
+      .done(done, done);
+    });
   });
 
   describe('hasMany', function() {
