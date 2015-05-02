@@ -170,6 +170,12 @@ describe('Model.belongsTo', function() {
       }).to.throw(/cannot set.*authorId/i);
     });
 
+    it('does not allow use of foreign key setter via constructor', function() {
+      expect(function() {
+        Article.create({ authorId: 25 });
+      }).to.throw(/cannot set.*authorId/i);
+    });
+
     it('allows create', function() {
       var user = article.createAuthor({ username: 'jill' });
       expect(article.author).to.equal(user);
