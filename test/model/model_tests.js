@@ -88,6 +88,74 @@ describe('Model', function() {
     .then(done, done);
   });
 
+  it('can find/create an object when one does not exist', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: []
+    });
+
+    Article.objects.findOrCreate({ title: 'News' }).then(function(article) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "title" = ? LIMIT 1', ['News']],
+        ['INSERT INTO "articles" ("title") VALUES (?) ' +
+         'RETURNING "id"', ['News']],
+      ]);
+      expect(article)
+        .to.eql(Article.load({ id: 34, title: 'News' }));
+    })
+    .done(done, done);
+  });
+
+  it('can find/create an object and assign defaults', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: []
+    });
+
+    Article.reopen({ author: db.attr() });
+    Article.objects.findOrCreate({ title: 'News' }, { author: 'Me' })
+    .then(function(article) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "title" = ? LIMIT 1', ['News']],
+        ['INSERT INTO "articles" ("title", "author") VALUES (?, ?) ' +
+         'RETURNING "id"', ['News', 'Me']],
+      ]);
+      expect(article)
+        .to.eql(Article.load({ id: 34, title: 'News', author: 'Me' }));
+    })
+    .done(done, done);
+  });
+
+  it('find/create does not swallow errors', function(done) {
+    adapter.intercept(/select.*from "articles"/i, {
+      fields: ['id', 'title'],
+      rows: [{ id: 1, title: 'Article 1' }, { id: 2, title: 'Article 2' }]
+    });
+
+    Article.objects.findOrCreate({ title: 'News' }, { author: 'Me' })
+    .throw(new Error('Expected query to fail.'))
+    .catch(function(e) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "title" = ? LIMIT 1', ['News']]
+      ]);
+      expect(e.code).to.eql('MULTIPLE_RESULTS_FOUND');
+    })
+    .done(done, done);
+  });
+
+  it('can find/create an object when one does not exist', function(done) {
+    Article.objects.findOrCreate({ title: 'Existing Article' })
+    .then(function(article) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "title" = ? ' +
+         'LIMIT 1', ['Existing Article']],
+      ]);
+      expect(article)
+        .to.eql(Article.load({ id: 1, title: 'Existing Article' }));
+    })
+    .done(done, done);
+  });
+
   it('has a `pk` property', function() {
     var article = Article.fresh({ id: 5, title: 'Azul News' });
     expect(article.pk).to.eql(5);

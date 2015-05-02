@@ -474,6 +474,36 @@ query.find(3);
 query.where({ pk: 3 }).limit(1).fetchOne(); // the same
 ```
 
+### `#findOrCreate`
+
+Find or create is a shortcut method to use with models to find a single result
+or create one if it does not exist:
+
+```js
+Article.objects.findOrCreate({ title: 'Azul.js 1.0' });
+```
+
+This is roughly the same as recovering from a failure if the object was not
+found:
+
+```js
+Article.objects.where({ title: 'Azul.js 1.0' }).limit(1).fetchOne()
+.catch(function(e) {
+  if (e.code === 'NO_RESULTS_FOUND') {
+    return Article.create({ title: 'Azul.js 1.0' });
+  }
+  else { throw e; }
+});
+```
+
+You may also pass a second argument to this method, _defaults_ that will be
+used if the object is created. For instance:
+
+```js
+Article.objects.findOrCreate({ title: 'Azul.js 1.0' }, { author: 'Whitney' });
+```
+
+
 ### `#then`
 
 Query objects are _thenable_ objects, meaning that you can return them inside
