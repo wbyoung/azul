@@ -6,6 +6,7 @@ var expect = chai.expect;
 
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
+var InverseRelation = require('../../lib/relations/inverse');
 
 require('../helpers/model');
 
@@ -30,7 +31,7 @@ describe('Model.hasMany', function() {
     });
     User = db.model('user').reopen({
       username: attr(),
-      articles: hasMany(Article, { foreignKey: 'author_num' })
+      articles: hasMany(Article, { foreignKey: 'authorKey' })
     });
   });
 
@@ -66,7 +67,8 @@ describe('Model.hasMany', function() {
       User.reopen({
         books: db.Model.hasMany({ inverse: 'writer' })
       });
-      expect(user.booksRelation.foreignKey).to.eql('writer_id');
+      expect(user.booksRelation.foreignKey).to.eql('writerId');
+      expect(user.booksRelation.foreignKeyAttr).to.eql('writer_id');
     });
 
     it('uses the primary key as the join key', function() {
@@ -75,6 +77,16 @@ describe('Model.hasMany', function() {
 
     it('uses the foreign key as the inverse key', function() {
       expect(user.articlesRelation.inverseKey).to.eql(user.articlesRelation.foreignKey);
+    });
+
+    it('can generate an inverse relation', function() {
+      var articlesRelation = User.__class__.prototype.articlesRelation;
+      var inverse = articlesRelation.inverseRelation();
+      expect(inverse).to.be.instanceof(InverseRelation.__class__);
+      expect(inverse.joinKey).to.eql('authorKey');
+      expect(inverse.joinKeyAttr).to.eql('author_num');
+      expect(inverse.inverseKey).to.eql('pk');
+      expect(inverse.inverseKeyAttr).to.eql('id');
     });
   });
 
@@ -584,18 +596,6 @@ describe('Model.hasMany', function() {
           ['SELECT "users".* FROM "users" ' +
            'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
            'WHERE "articles"."id" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
-    });
-
-    it('resolves the relation name when the attribute is not defined', function(done) {
-      User.objects.join('articles').where({ 'articles.dbonly_field': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."dbonly_field" = ?', [5]]
         ]);
       })
       .done(done, done);

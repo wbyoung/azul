@@ -22,6 +22,12 @@ describe('ModelQuery', function() {
     }).to.throw(/ModelQuery must be spawned/i);
   });
 
+  it('gives a useful error when bad attr is used in `where`', function() {
+    expect(function() {
+      db.query.bindModel(db.model('user')).where({ invalidAttr: 'value' }).all();
+    }).to.throw(/invalid field.*"invalidAttr".*user query.*user class/i);
+  });
+
   it('gives a useful error when bad relation is used for `with`', function() {
     expect(function() {
       db.query.bindModel(db.model('user')).with('streets');

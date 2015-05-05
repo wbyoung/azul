@@ -43,11 +43,12 @@ describe('Model.hasMany :through-shortcut', function() {
     Blog = db.model('blog').reopen({
       title: attr(),
       articles: hasMany(),
-      comments: hasMany({ through: 'articles' })
+      comments: hasMany({ through: 'articles' }),
     });
     Article = db.model('article').reopen({
       title: attr(),
-      comments: hasMany()
+      comments: hasMany(),
+      blog: db.belongsTo()
     });
     Comment = db.model('comment').reopen({
       body: attr(),
@@ -159,6 +160,8 @@ describe('Model.hasMany :through-shortcut', function() {
     });
 
     it('fetches through two relationships', function(done) {
+      Blog.reopen({ owner: db.belongsTo('user') });
+
       user.commentObjects.fetch().then(function(comments) {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT "comments".* FROM "comments" ' +
@@ -186,6 +189,7 @@ describe('Model.hasMany :through-shortcut', function() {
       });
       db.model('author').reopen({
         posts: db.hasMany(),
+        site: db.belongsTo(),
         comments: db.hasMany({ through: 'posts' }),
         commenters: db.hasMany({ through: 'comments' }),
       });
@@ -233,17 +237,22 @@ describe('Model.hasMany :through-shortcut', function() {
         commenters: db.hasMany({ through: 'authors' }),
       });
       db.model('author').reopen({
+        site: db.belongsTo(),
         posts: db.hasMany(),
         commenters: db.hasMany({ through: 'posts' }),
       });
       db.model('post').reopen({
+        author: db.belongsTo(),
         comments: db.hasMany(),
         commenters: db.hasMany({ through: 'comments' })
       });
       db.model('comment').reopen({
+        post: db.belongsTo(),
         commenter: db.belongsTo()
       });
-      db.model('commenter');
+      db.model('commenter').reopen({
+        comments: db.hasMany(),
+      });
       var site = Site.fresh({ id: 1 });
 
       site.commenterObjects.fetch().then(function() {
@@ -265,6 +274,10 @@ describe('Model.hasMany :through-shortcut', function() {
 
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
+      User.reopen({ site: db.belongsTo() });
+      Blog.reopen({ owner: db.belongsTo('user') });
+      Comment.reopen({ article: db.belongsTo() });
+
       Site.objects.with('comments').find(41).then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "sites" WHERE "id" = ? LIMIT 1', [41]],
@@ -278,6 +291,10 @@ describe('Model.hasMany :through-shortcut', function() {
     });
 
     it('does not cache related objects that it went through', function(done) {
+      User.reopen({ site: db.belongsTo() });
+      Blog.reopen({ owner: db.belongsTo('user') });
+      Comment.reopen({ article: db.belongsTo() });
+
       Site.objects.with('comments').find(41).then(function(fetchedSite) {
         expect(function() { fetchedSite.users; })
           .to.throw(/users.*not yet.*loaded/i);
@@ -290,6 +307,10 @@ describe('Model.hasMany :through-shortcut', function() {
     });
 
     it('caches related objects', function(done) {
+      User.reopen({ site: db.belongsTo() });
+      Blog.reopen({ owner: db.belongsTo('user') });
+      Comment.reopen({ article: db.belongsTo() });
+
       Site.objects.with('comments').find(41).then(function(fetchedSite) {
         expect(fetchedSite.id).to.eql(41);
         expect(fetchedSite.name).to.eql('azuljs.com');
@@ -308,17 +329,22 @@ describe('Model.hasMany :through-shortcut', function() {
         commenters: db.hasMany({ through: 'authors' }),
       });
       db.model('author').reopen({
+        site: db.belongsTo(),
         posts: db.hasMany(),
         commenters: db.hasMany({ through: 'posts' }),
       });
       db.model('post').reopen({
+        author: db.belongsTo(),
         comments: db.hasMany(),
         commenters: db.hasMany({ through: 'comments' })
       });
       db.model('comment').reopen({
+        post: db.belongsTo(),
         commenter: db.belongsTo()
       });
-      db.model('commenter');
+      db.model('commenter').reopen({
+        comments: db.hasMany(),
+      });
 
       adapter.intercept(/select.*from "sites"/i, {
         fields: ['id', 'name'],

@@ -54,6 +54,253 @@ describe('Model one-to-many', function() {
     });
   });
 
+  describe('definition', function() {
+    var keys = function(modelClass, relationName) {
+      var prototype = modelClass.__class__.prototype;
+      var relation = prototype[relationName + 'Relation'];
+      return [
+        relation.primaryKey, relation.primaryKeyAttr,
+        relation.foreignKey, relation.foreignKeyAttr
+      ];
+    };
+
+    it('defaults to logical primary & foreign keys', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany()
+      });
+      Article = db.model('article', {
+        user: db.belongsTo()
+      });
+      expect(keys(User, 'articles')).to.eql(['pk', 'id', 'userId', 'user_id']);
+      expect(keys(Article, 'user')).to.eql(['pk', 'id', 'userId', 'user_id']);
+    });
+
+    it('changes the foreign key based on the belongsTo relation name', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ inverse: 'author' })
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user')
+      });
+      expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorId', 'author_id']);
+      expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_id']);
+    });
+
+    it('allows custom foreign key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ inverse: 'author' })
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user'),
+        authorId: db.attr('author_fk')
+      });
+      expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
+      expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
+    });
+
+    it('allows custom foreign key on belongsTo without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      Article = db.model('article', {
+        author: db.belongsTo('user'),
+        authorId: db.attr('author_fk')
+      });
+      expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
+    });
+
+    it('allows specific foreign key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ inverse: 'author' })
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user', { foreignKey: 'authorFk' })
+      });
+      expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
+      expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
+    });
+
+    it('allows specific foreign key on belongsTo without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      Article = db.model('article', {
+        author: db.belongsTo('user', { foreignKey: 'authorFk' }),
+        authorFk: db.attr('author_key')
+      });
+      expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorFk', 'author_key']);
+    });
+
+    it('allows specific foreign key on hasMany without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ foreignKey: 'authorFk' })
+      });
+      expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
+    });
+
+    it('allows custom primary key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        pk: db.attr('social'),
+        posts: db.hasMany('articles')
+      });
+      Article = db.model('article', {
+        user: db.belongsTo({ inverse: 'posts' }),
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['pk', 'social', 'userId', 'user_id']);
+      expect(keys(Article, 'user'))
+        .to.eql(['pk', 'social', 'userId', 'user_id']);
+    });
+
+    it('allows custom primary key on hasMany without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        pk: db.attr('social'),
+        posts: db.hasMany('articles')
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['pk', 'social', 'userId', 'user_id']);
+    });
+
+    it('allows specific primary key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        ssn: db.attr('social'),
+        posts: db.hasMany('articles', { primaryKey: 'ssn' })
+      });
+      Article = db.model('article', {
+        user: db.belongsTo({ inverse: 'posts' }),
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['ssn', 'social', 'userId', 'user_id']);
+      expect(keys(Article, 'user'))
+        .to.eql(['ssn', 'social', 'userId', 'user_id']);
+    });
+
+    it('allows specific primary key on hasMany without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        ssn: db.attr('social'),
+        posts: db.hasMany('articles', { primaryKey: 'ssn' })
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['ssn', 'social', 'userId', 'user_id']);
+    });
+
+    it('allows specific primary key on belongsTo without inverse', function() {
+      db = Database.create({ adapter: adapter });
+      Article = db.model('article', {
+        user: db.belongsTo({ primaryKey: 'ssn' }),
+      });
+      expect(keys(Article, 'user'))
+        .to.eql(['ssn', 'ssn', 'userId', 'user_id']);
+    });
+
+    it('allows custom primary key & foreign key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        pk: db.attr('identifier'),
+        posts: db.hasMany('articles', { inverse: 'author' }),
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user', { inverse: 'posts' }),
+        authorId: db.attr('author_fk')
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['pk', 'identifier', 'authorId', 'author_fk']);
+      expect(keys(Article, 'author'))
+        .to.eql(['pk', 'identifier', 'authorId', 'author_fk']);
+    });
+
+    it('allows specific primary key & custom foreign key', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        ssn: db.attr('social'),
+        posts: db.hasMany('articles', { inverse: 'author', primaryKey: 'ssn' }),
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user', { inverse: 'posts', foreignKey: 'authorSSN' }),
+        authorSSN: db.attr('author_ssn')
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
+      expect(keys(Article, 'author'))
+        .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
+    });
+
+    it('allows custom primary key & foreign key attributes', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        ssn: db.attr('social'),
+        posts: db.hasMany('articles', { inverse: 'author', primaryKey: 'ssn' }),
+      });
+      Article = db.model('article', {
+        author: db.belongsTo('user', { inverse: 'posts', foreignKey: 'authorSSN' }),
+        authorSSN: db.attr('author_ssn')
+      });
+      expect(keys(User, 'posts'))
+        .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
+      expect(keys(Article, 'author'))
+        .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
+    });
+
+    it('ensures primary key on belongsTo matches hasMany', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        ssn: db.attr('social'),
+        articles: db.hasMany({ primaryKey: 'ssn' }),
+      });
+      Article = db.model('article', {
+        user: db.belongsTo({ primaryKey: 'wrong' }),
+      });
+      expect(function() {
+        Article.__class__.prototype.userRelation.primaryKey;
+      }).to.throw(/Article.user.*primary key.*"ssn".*User.articles/i);
+    });
+
+    it('ensures primary key on belongsTo matches value generated by hasMany', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany(),
+      });
+      Article = db.model('article', {
+        user: db.belongsTo({ primaryKey: 'wrong' }),
+      });
+      expect(function() {
+        Article.__class__.prototype.userRelation.primaryKey;
+      }).to.throw(/Article.user.*primary key.*"pk".*User.articles/i);
+    });
+
+    it('ensures foreign key on hasMany matches belongsTo', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ foreignKey: 'wrong' }),
+      });
+      Article = db.model('article', {
+        user: db.belongsTo({ foreignKey: 'userSSN' }),
+      });
+      expect(function() {
+        User.__class__.prototype.articlesRelation.foreignKey;
+      }).to.throw(/User.articles.*foreign key.*"userSSN".*Article.user/i);
+    });
+
+    it('ensures foreign key on hasMany matches value generated by belongsTo', function() {
+      db = Database.create({ adapter: adapter });
+      User = db.model('user', {
+        articles: db.hasMany({ foreignKey: 'wrong' }),
+      });
+      Article = db.model('article', {
+        user: db.belongsTo(),
+      });
+      expect(function() {
+        User.__class__.prototype.articlesRelation.foreignKey;
+      }).to.throw(/User.articles.*foreign key.*"userId".*Article.user/i);
+    });
+
+  });
+
   describe('belongsTo with hasMany associations disabled', function() {
     beforeEach(function() {
       sinon.spy(this.article, 'setAttribute');

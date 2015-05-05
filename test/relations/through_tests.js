@@ -802,21 +802,6 @@ describe('Model.hasMany :through', function() {
       .done(done, done);
     });
 
-    it('resolves the relation name when the attribute is not defined', function(done) {
-      Student.objects.join('courses').where({ 'courses.dbonly_field': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "students".* FROM "students" ' +
-           'INNER JOIN "enrollments" ' +
-           'ON "enrollments"."student_id" = "students"."id" ' +
-           'INNER JOIN "courses" ' +
-           'ON "enrollments"."course_id" = "courses"."id" ' +
-           'WHERE "courses"."dbonly_field" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
-    });
-
     it('resolves fields specified by relation name & attr name', function(done) {
       Student.objects.join('courses').where({ 'courses.pk': 5, })
       .fetch().then(function() {

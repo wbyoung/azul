@@ -6,6 +6,7 @@ var expect = chai.expect;
 
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
+var InverseRelation = require('../../lib/relations/inverse');
 
 require('../helpers/model');
 
@@ -79,6 +80,24 @@ describe('Model.belongsTo', function() {
 
     it('uses the primary key as the inverse key', function() {
       expect(article.authorRelation.inverseKey).to.eql(article.authorRelation.primaryKey);
+    });
+
+    it('allows customization of the database attribute', function() {
+      Article.reopen({
+        user: db.Model.belongsTo(),
+        userId: db.attr('user_foreign_key'),
+      });
+      expect(article.userRelation.foreignKeyAttr).to.eql('user_foreign_key');
+    });
+
+    it('can generate an inverse relation', function() {
+      var authorRelation = Article.__class__.prototype.authorRelation;
+      var inverse = authorRelation.inverseRelation();
+      expect(inverse).to.be.instanceof(InverseRelation.__class__);
+      expect(inverse.joinKey).to.eql('pk');
+      expect(inverse.joinKeyAttr).to.eql('id');
+      expect(inverse.inverseKey).to.eql('authorId');
+      expect(inverse.inverseKeyAttr).to.eql('author_id');
     });
   });
 
@@ -303,18 +322,6 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it('resolves the relation name when the attribute is not defined', function(done) {
-      Article.objects.join('author').where({ 'author.dbonly_field': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "articles".* FROM "articles" ' +
-           'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
-           'WHERE "users"."dbonly_field" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
-    });
-
     it('resolves fields specified by relation name & attr name', function(done) {
       Article.objects.join('author').where({ 'author.pk': 5, })
       .fetch().then(function() {
@@ -366,20 +373,39 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
-    it('does not automatically join based on attributes', function(done) {
-      Article.objects.where({ 'username': 'wbyoung', })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
-           'WHERE "username" = ?', ['wbyoung']]
-        ]);
-      })
-      .done(done, done);
+    // TODO: make this work
+    it.skip('handles relation objects during automatic joining', function() {
+      var query = Article.objects.where({ 'author.norelation.id': 5, });
+      expect(function() {
+        query.sql;
+      }).to.throw(/asdf/);
+    });
+
+    it('handles relation objects during automatic joining', function() {
+      var query = Article.objects.where({ 'author.invalidAttr': 5, });
+      expect(function() {
+        query.sql;
+      }).to.throw(/invalid field.*"author.invalidAttr".*article query.*user class/i);
+    });
+
+    it('handles fields when joining tables (not relations)', function() {
+      var query = Article.objects.where({ 'dbTable.id': 5, }).join('dbTable', 'inner');
+      expect(query.sql).to.eql('SELECT "articles".* FROM "articles" ' +
+       'INNER JOIN "dbTable" ON TRUE ' +
+       'WHERE "dbTable"."id" = ?');
+      expect(query.args).to.eql([5]);
+    });
+
+    it('does not automatically join based on attributes', function() {
+      var query = Article.objects.where({ 'username': 'wbyoung' });
+      expect(function() {
+        query.sql;
+      }).to.throw(/invalid field.*"username".*article query.*article class/i);
     });
 
     it('works with a complex query', function(done) {
       Article.objects.where({ 'author.username[contains]': 'w', })
-      .orderBy('title', '-author.name')
+      .orderBy('title', '-author.username')
       .limit(10)
       .offset(20)
       .fetch().then(function() {
@@ -388,7 +414,7 @@ describe('Model.belongsTo', function() {
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
            'GROUP BY "articles"."id" ' +
-           'ORDER BY "articles"."title" ASC, "users"."name" DESC ' +
+           'ORDER BY "articles"."title" ASC, "users"."username" DESC ' +
            'LIMIT 10 OFFSET 20', ['%w%']]
         ]);
       })
@@ -397,7 +423,7 @@ describe('Model.belongsTo', function() {
 
     it('joins & orders across multiple relationships', function(done) {
       Comment.objects.where({ 'article.author.username[contains]': 'w', })
-      .orderBy('title', 'article.author.name')
+      .orderBy('title', 'article.author.username')
       .limit(10)
       .offset(20)
       .fetch().then(function() {
@@ -407,7 +433,7 @@ describe('Model.belongsTo', function() {
            'INNER JOIN "users" ON "articles"."author_id" = "users"."id" ' +
            'WHERE "users"."username" LIKE ? ' +
            'GROUP BY "comments"."id" ' +
-           'ORDER BY "articles"."title" ASC, "users"."name" ASC ' +
+           'ORDER BY "articles"."title" ASC, "users"."username" ASC ' +
            'LIMIT 10 OFFSET 20', ['%w%']]
         ]);
       })

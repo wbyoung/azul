@@ -460,7 +460,7 @@ This will actually be generated from the `foreignKey` option given to the
 
 ```js
 Article.reopen({
-  author: db.belongsTo({ foreignKey: 'writer_id' })
+  author: db.belongsTo({ foreignKey: 'writerId' })
 });
 
 Article.objects.with('author').find(1).then(function(article) {
@@ -468,6 +468,16 @@ Article.objects.with('author').find(1).then(function(article) {
   article.writerId; // => 7
 });
 // assuming article 1 is written by person 7
+```
+
+To change the name of the foreign key field that's used in the database, simply
+specify this attribute yourself when you setup the relationship:
+
+```js
+var Article = db.model('article', {
+  author: db.belongsTo(),
+  authorId: db.attr('author_dbid'),
+});
 ```
 
 #### `#createAssociation`
