@@ -246,7 +246,8 @@ describe('Model self-joins', function() {
 
     it('generates a query for self-referencing many to many relationship', function(done) {
       // round up everyone who's friends with someone who considers the grinch
-      // an enemy.
+      // an enemy (they may or may not consider the grinch an enemy
+      // themselves).
       Person.objects.where({ 'friends.enemies.name': 'Grinch' })
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
@@ -271,7 +272,8 @@ describe('Model self-joins', function() {
       });
 
       // round up everyone who's friends with someone who considers the grinch
-      // an enemy.
+      // an enemy (they may or may not consider the grinch an enemy
+      // themselves).
       Person.objects.where({ 'friends.enemies.name': 'Grinch' })
       .then(function() {
         expect(adapter.executedSQL()).to.eql([
