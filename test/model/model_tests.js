@@ -201,12 +201,12 @@ describe('Model', function() {
       fields: ['id'],
       rows: [{ id: 1 }]
     });
-    Article.objects.select(['pk']).then(function(articles) {
+    Article.objects.select(['pk']).then(function(result) {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT "id" FROM "articles"', []],
       ]);
-      expect(articles).to.eql([
-        Article.load({ id: 1, title: undefined })
+      expect(result).to.eql([
+        { id: 1 }
       ]);
     })
     .done(done, done);
@@ -242,9 +242,19 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('only transforms fields given at or before select', function(done) {
+  it('transforms fields given after select', function(done) {
     Article.reopen({ author: db.attr('writer') });
     Article.objects.select(['pk']).where({ author: 5 }).then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT "id" FROM "articles" WHERE "writer" = ?', [5]],
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('only transforms fields given before unbind with select', function(done) {
+    Article.reopen({ author: db.attr('writer') });
+    Article.objects.select(['pk']).unbind().where({ author: 5 }).then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT "id" FROM "articles" WHERE "author" = ?', [5]],
       ]);
@@ -252,9 +262,22 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('only transforms fields given at or before update', function(done) {
+  it('transforms fields given after update', function(done) {
     Article.reopen({ author: db.attr('writer') });
     Article.objects.update({ pk: 3 }).set({ author: 2 }).where({ author: 5 })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "id" = ?, "writer" = ? ' +
+         'WHERE "writer" = ?', [3, 2, 5]],
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('only transforms fields given before unbind with update', function(done) {
+    Article.reopen({ author: db.attr('writer') });
+    Article.objects.update({ pk: 3 }).unbind()
+    .set({ author: 2 }).where({ author: 5 })
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['UPDATE "articles" SET "id" = ?, "author" = ? ' +
@@ -264,9 +287,21 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('only transforms fields given at or before insert', function(done) {
+  it('transforms fields given after insert', function(done) {
     Article.reopen({ author: db.attr('writer') });
     Article.objects.insert({ pk: 3 }).values({ id: 1, author: 2 })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("id", "writer") ' +
+         'VALUES (?, ?), (?, ?)', [3, undefined, 1, 2]],
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('only transforms fields given before unbind with insert', function(done) {
+    Article.reopen({ author: db.attr('writer') });
+    Article.objects.insert({ pk: 3 }).unbind().values({ id: 1, author: 2 })
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['INSERT INTO "articles" ("id", "author") ' +
@@ -276,12 +311,23 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('only transforms fields given at or before delete', function(done) {
+  it('transforms fields given after delete', function(done) {
     Article.reopen({ author: db.attr('writer') });
     Article.objects.where({ pk: 2 }).delete().where({ author: 5 })
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
-        ['DELETE FROM "articles" WHERE ("id" = ?) AND "author" = ?', [2, 5]],
+        ['DELETE FROM "articles" WHERE ("id" = ?) AND ("writer" = ?)', [2, 5]],
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('only transforms fields given before unbind with delete', function(done) {
+    Article.reopen({ author: db.attr('writer') });
+    Article.objects.where({ pk: 2 }).unbind().delete().where({ author: 5 })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE ("id" = ?) AND ("author" = ?)', [2, 5]],
       ]);
     })
     .done(done, done);
@@ -493,7 +539,7 @@ describe('Model', function() {
 
   it('can get with a custom query using falsey values', function(done) {
     Article.reopen({ headline: db.attr() });
-    Article.objects.where({ 'headline': 0 }).fetch().then(function(articles) {
+    Article.objects.where({ 'headline': 0 }).fetch().then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['SELECT * FROM "articles" WHERE "headline" = ?', [0]]
       ]);
@@ -574,9 +620,23 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('does not convert fields specified after update on query', function(done) {
+  it('converts fields specified after update on query', function(done) {
     Article.reopen({ headline: attr('title') });
     Article.objects.update().where({ headline: 'News' }).set({ headline: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['UPDATE "articles" SET "title" = ? ' +
+         'WHERE "title" = ?', ['Breaking News', 'News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields specified after unbind on update query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.update().unbind()
+    .where({ headline: 'News' })
+    .set({ headline: 'Breaking News' })
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['UPDATE "articles" SET "headline" = ? ' +
@@ -607,9 +667,20 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('does not convert fields specified after initial insert', function(done) {
+  it('converts fields specified after initial insert', function(done) {
     Article.reopen({ headline: attr('title') });
     Article.objects.insert([]).values({ headline: 'Breaking News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("title") VALUES (?)', ['Breaking News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields specified after unbind on insert query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.unbind().insert({ headline: 'Breaking News' })
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['INSERT INTO "articles" ("headline") VALUES (?)', ['Breaking News']]
@@ -700,9 +771,20 @@ describe('Model', function() {
     .done(done, done);
   });
 
-  it('does not convert fields specified after delete on query', function(done) {
+  it('converts fields specified after delete on query', function(done) {
     Article.reopen({ headline: attr('title') });
     Article.objects.delete().where({ headline: 'News' })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['DELETE FROM "articles" WHERE "title" = ?', ['News']]
+      ]);
+    })
+    .done(done, done);
+  });
+
+  it('does not convert fields specified after unbind on delete query', function(done) {
+    Article.reopen({ headline: attr('title') });
+    Article.objects.unbind().where({ headline: 'News' }).delete()
     .then(function() {
       expect(adapter.executedSQL()).to.eql([
         ['DELETE FROM "articles" WHERE "headline" = ?', ['News']]

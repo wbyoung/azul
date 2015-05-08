@@ -182,7 +182,7 @@ describe('Model.hasMany', function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles" ' +
            'WHERE ("author_num" = ?) AND ' +
-           '"title" = ?', [1, 'Azul']]
+           '("title" = ?)', [1, 'Azul']]
         ]);
       })
       .done(done, done);
@@ -579,13 +579,11 @@ describe('Model.hasMany', function() {
       Blog.reopen({ title: db.attr() });
       User.reopen({ blogs: db.hasMany('blog') });
 
-      var query = User.objects
-        .join('articles')
-        .join('blogs')
-        .where({ title: 'Azul Article/Azul Blog' });
-
       expect(function() {
-        query.statement;
+        User.objects
+          .join('articles')
+          .join('blogs')
+          .where({ title: 'Azul Article/Azul Blog' });
       }).to.throw(/ambiguous.*"title".*"(articles|blogs)".*"(articles|blogs)"/i);
     });
 
@@ -713,6 +711,16 @@ describe('Model.hasMany', function() {
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       User.objects.with('articles').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "users"', []],
+          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works with all', function(done) {
+      User.objects.with('articles').all().fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users"', []],
           ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]

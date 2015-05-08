@@ -55,7 +55,7 @@ describe('SelectQuery', function() {
       .where({ id: 1 })
       .where({ name: 'Whitney' }).statement;
     expect(result).to.eql(Statement.create(
-      'SELECT * FROM "users" WHERE ("id" = ?) AND "name" = ?', [1, 'Whitney']
+      'SELECT * FROM "users" WHERE ("id" = ?) AND ("name" = ?)', [1, 'Whitney']
     ));
   });
 
@@ -65,7 +65,7 @@ describe('SelectQuery', function() {
       .where({ name: 'Whitney' })
       .where({ city: 'Portland' }).statement;
     expect(result).to.eql(Statement.create(
-      'SELECT * FROM "users" WHERE (("id" = ?) AND "name" = ?) AND "city" = ?', [1, 'Whitney', 'Portland']
+      'SELECT * FROM "users" WHERE (("id" = ?) AND ("name" = ?)) AND ("city" = ?)', [1, 'Whitney', 'Portland']
     ));
   });
 
@@ -387,5 +387,24 @@ describe('SelectQuery', function() {
       expect(dup).to.have.been.calledOnce;
       expect(dup).to.have.been.calledWith(duped);
     });
+  });
+
+  it('has default for _toField', function() {
+    // find the to field function that's implemented on the select query class
+    // (and not one of the mixins that overrides it).
+    var toField = SelectQuery.__class__.prototype._toField;
+    while (toField && toField.wrappedFunction.name != '_toField_SelectQuery') {
+      toField = toField.superFunction;
+    }
+
+    // call the function w/ a mock _super function that returns nothing so we
+    // can check that the function returns something when the super function
+    // does not. this test is needed to be set up this way because the select
+    // query always has the group by mixed in, so it really always would have
+    // the super function return something.
+    var _super = sinon.spy(function() {});
+    var result = toField.call({ _super: _super }, 'aField');
+    expect(result).to.eql('aField');
+    expect(_super).to.have.been.calledOnce;
   });
 });

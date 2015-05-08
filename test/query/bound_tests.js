@@ -24,42 +24,42 @@ describe('BoundQuery', function() {
   });
 
   it('defaults to selecting data', function() {
-    var query = db.query.bind('users');
+    var query = db.query.bindTable('users');
     expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users"', []
     ));
   });
 
   it('selects data', function() {
-    var query = db.query.bind('users').all();
+    var query = db.query.bindTable('users').select();
     expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users"', []
     ));
   });
 
   it('inserts data', function() {
-    var query = db.query.bind('users').insert({ name: 'Whitney' });
+    var query = db.query.bindTable('users').insert({ name: 'Whitney' });
     expect(query.statement).to.eql(Statement.create(
       'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
     ));
   });
 
   it('updates data', function() {
-    var query = db.query.bind('users').update({ name: 'Whitney' });
+    var query = db.query.bindTable('users').update({ name: 'Whitney' });
     expect(query.statement).to.eql(Statement.create(
       'UPDATE "users" SET "name" = ?', ['Whitney']
     ));
   });
 
   it('deletes data', function() {
-    var query = db.query.bind('users').delete();
+    var query = db.query.bindTable('users').delete();
     expect(query.statement).to.eql(Statement.create(
       'DELETE FROM "users"', []
     ));
   });
 
   it('executes raw queries', function() {
-    var query = db.query.bind('users').raw('SELECT * FROM "users"');
+    var query = db.query.bindTable('users').raw('SELECT * FROM "users"');
     expect(query.statement).to.eql(Statement.create(
       'SELECT * FROM "users"', []
     ));
@@ -68,11 +68,11 @@ describe('BoundQuery', function() {
   describe('pre-specified condition', function() {
     var query;
     before(function() {
-      query = db.query.bind('users').where({ name: 'Whitney' });
+      query = db.query.bindTable('users').where({ name: 'Whitney' });
     });
 
     it('allows select', function() {
-      expect(query.all().statement).to.eql(Statement.create(
+      expect(query.select().statement).to.eql(Statement.create(
         'SELECT * FROM "users" WHERE "name" = ?', ['Whitney']
       ));
     });
@@ -105,7 +105,7 @@ describe('BoundQuery', function() {
   describe('pre-specified order', function() {
     var query;
     before(function() {
-      query = db.query.bind('users').orderBy('name');
+      query = db.query.bindTable('users').orderBy('name');
     });
 
     it('does not allow insert', function() {
@@ -136,11 +136,11 @@ describe('BoundQuery', function() {
   describe('pre-specified limit', function() {
     var query;
     before(function() {
-      query = db.query.bind('users').limit(3);
+      query = db.query.bindTable('users').limit(3);
     });
 
     it('allows select', function() {
-      expect(query.all().statement).to.eql(Statement.create(
+      expect(query.select().statement).to.eql(Statement.create(
         'SELECT * FROM "users" LIMIT 3', []
       ));
     });
@@ -173,12 +173,12 @@ describe('BoundQuery', function() {
   describe('pre-specified join', function() {
     var query;
     before(function() {
-      query = db.query.bind('users')
+      query = db.query.bindTable('users')
         .join('profiles', 'left', 'users.profile_id=profiles.id');
     });
 
     it('allows select', function() {
-      expect(query.all().statement).to.eql(Statement.create(
+      expect(query.select().statement).to.eql(Statement.create(
         'SELECT * FROM "users" LEFT JOIN "profiles" ' +
         'ON "users"."profile_id" = "profiles"."id"', []
       ));
@@ -214,7 +214,7 @@ describe('BoundQuery', function() {
       fields: ['id', 'title'],
       rows: [{ id: 1, title: '1' }]
     });
-    db.query.bind('users').fetch().then(function(rows) {
+    db.query.bindTable('users').fetch().then(function(rows) {
       expect(rows).to.eql([{ id: 1, title: '1' }]);
     })
     .then(done, done);

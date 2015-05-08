@@ -87,6 +87,7 @@ describe('Model.hasMany :through-shortcut', function() {
   });
 
   it('has related methods', function() {
+    Blog.reopen({ owner: db.belongsTo('user') });
     expect(User.__class__.prototype).to.have.ownProperty('comments');
     expect(user).to.have.property('commentObjects');
     expect(user).to.respondTo('createComment');

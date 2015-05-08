@@ -777,13 +777,11 @@ describe('Model.hasMany :through', function() {
       Homework.reopen({ subject: db.attr() });
       Student.reopen({ homeworks: db.hasMany('homework') });
 
-      var query = Student.objects
-        .join('courses')
-        .join('homeworks')
-        .where({ subject: 'Azul Course/Azul Blog' });
-
       expect(function() {
-        query.statement;
+        Student.objects
+          .join('courses')
+          .join('homeworks')
+          .where({ subject: 'Azul Course/Azul Blog' });
       }).to.throw(/ambiguous.*"subject".*"(courses|homeworks)".*"(courses|homeworks)"/i);
     });
 

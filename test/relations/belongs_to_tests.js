@@ -300,13 +300,11 @@ describe('Model.belongsTo', function() {
       User.reopen({ name: attr() });
       Article.reopen({ blog: belongsTo('blog') });
 
-      var query = Article.objects
-        .join('author')
-        .join('blog')
-        .where({ name: 'John/Azul Blog' });
-
       expect(function() {
-        query.statement;
+        Article.objects
+          .join('author')
+          .join('blog')
+          .where({ name: 'John/Azul Blog' });
       }).to.throw(/ambiguous.*"name".*"(author|blog)".*"(author|blog)"/i);
     });
 
@@ -388,16 +386,14 @@ describe('Model.belongsTo', function() {
     });
 
     it('gives a useful error when bad relation is used in `where`', function() {
-      var query = Article.objects.where({ 'author.norelation.id': 5, });
       expect(function() {
-        query.sql;
+        Article.objects.where({ 'author.norelation.id': 5, });
       }).to.throw(/invalid relation.*"author.norelation".*article query.*could not find.*"norelation"/i);
     });
 
     it('gives a useful error when bad attr is used in `where`', function() {
-      var query = Article.objects.where({ 'author.invalidAttr': 5, });
       expect(function() {
-        query.sql;
+        Article.objects.where({ 'author.invalidAttr': 5, });
       }).to.throw(/invalid field.*"author.invalidAttr".*article query.*user class/i);
     });
 
@@ -410,9 +406,8 @@ describe('Model.belongsTo', function() {
     });
 
     it('does not automatically join based on attributes', function() {
-      var query = Article.objects.where({ 'username': 'wbyoung' });
       expect(function() {
-        query.sql;
+        Article.objects.where({ 'username': 'wbyoung' });
       }).to.throw(/invalid field.*"username".*article query.*article class/i);
     });
 
@@ -478,6 +473,16 @@ describe('Model.belongsTo', function() {
   describe('pre-fetch', function() {
     it('executes multiple queries', function(done) {
       Article.objects.with('author').fetch().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT * FROM "articles"', []],
+          ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('works with all', function(done) {
+      Article.objects.with('author').all().fetch().then(function() {
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "articles"', []],
           ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]

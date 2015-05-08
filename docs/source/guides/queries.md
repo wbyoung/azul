@@ -181,6 +181,82 @@ Create a new query that has the exact same conditions as this query. This
 method can be used to ensure that executing a query will not use a
 [cached result](#caching).
 
+## Generic Queries
+
+[Data queries](#data-queries) can actually be used via models very easily as
+well. This allows for more specific queries to be built conveniently using the
+models that you've already defined.
+
+There are a few main differences between these and
+[standard data queries](#data-queries):
+
+1. These queries are aware of the model class & will provide model query features like [automatic joining](#automatic-joining).
+1. You are not required to provide a table name.
+1. The resulting data will always be an array.
+1. The resulting data will be model objects for `all` and `raw` queries.
+
+
+### `#all`
+
+Create a [select](#select) query bound to this model that will transform the
+resulting data into model objects. The resulting query is synonymous with the
+original, but can be used for style and clarity:
+
+```js
+Article.objects.fetch().then(function(models) { /**/ });
+Article.objects.all().fetch().then(function(models) { /**/ });
+```
+
+### `#select`
+
+Create a [select](#select) query bound to this model that _does not_ convert
+the resulting data into model objects (unlike [`all`](#-all-)).
+
+```js
+Article.objects.all().fetch().then(function(rows) {
+  console.log(rows);
+});
+// ~> [ { id: 4, title: 'Breaking News' } ]
+```
+
+### `#insert`
+
+Create an [insert](#insert) query bound to this model.
+
+```js
+Article.objects.insert({ title: 'News' }).then(function(rows) {
+  console.log(rows);
+});
+// -> insert into "articles" ("title") values (?) returning "id"
+// !> ['News']
+// ~> [ { id: 9 } ]
+```
+
+### `#update`
+
+Create an [update](#update) query bound to this model.
+
+For instance, you could update a single attribute of a specific object in the
+database:
+
+```js
+Article.objects.where({ pk: article.pk }).update({ title: 'Breaking News' });
+// -> update "articles" set "title" = ? where "id" = ?
+// !> ['Breaking News', 1]
+```
+
+### `#delete`
+
+Create an [delete](#delete) query bound to this model.
+
+To delete multiple records in the database via one query:
+
+```js
+Comment.objects.where({ spam: true }).delete();
+// -> delete from "comments" where "spam" = ?
+// !> [true]
+```
+
 ## Complex Conditions
 
 Complex conditions can be created using `azul.w`. For instance, you would use

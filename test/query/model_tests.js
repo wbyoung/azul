@@ -25,19 +25,39 @@ describe('ModelQuery', function() {
 
   it('gives a useful error when bad attr is used in `where`', function() {
     expect(function() {
-      db.query.bindModel(db.model('user')).where({ invalidAttr: 'value' }).all();
+      db.query.bind(db.model('user')).where({ invalidAttr: 'value' }).all();
     }).to.throw(/invalid field.*"invalidAttr".*user query.*user class/i);
   });
 
   it('gives a useful error when bad relation is used for `with`', function() {
     expect(function() {
-      db.query.bindModel(db.model('user')).with('streets');
+      db.query.bind(db.model('user')).with('streets');
     }).to.throw(/no relation.*"streets".*with.*user query/i);
+  });
+
+  it('does not allow `with` on non-select queries', function() {
+    expect(function() {
+      var Model = db.model('author', { author: db.belongsTo() });
+      db.query.bind(Model).with('author').update();
+    }).to.throw(/cannot perform.*update.*after.*with/i);
+  });
+
+  it('does not allow `with` on unbound queries', function() {
+    expect(function() {
+      db.select('users').with('author');
+    }).to.throw(/cannot perform.*with.*unbound/i);
+  });
+
+  it('does not allow `with` on bound then unbound queries', function() {
+    expect(function() {
+      var Model = db.model('author', { author: db.belongsTo() });
+      db.query.bind(Model).unbind().with('author');
+    }).to.throw(/cannot perform.*with.*unbound/i);
   });
 
   it('gives a useful error when bad relation is used for `join`', function() {
     expect(function() {
-      db.query.bindModel(db.model('user')).join('streets');
+      db.query.bind(db.model('user')).join('streets');
     }).to.throw(/no relation.*"streets".*join.*user query/i);
   });
 
@@ -48,7 +68,7 @@ describe('ModelQuery', function() {
       }),
     });
     expect(function() {
-      db.query.bindModel(Model).where({ 'author.id': 7 }).statement.sql;
+      db.query.bind(Model).where({ 'author.id': 7 }).statement.sql;
     }).to.throw(/test error/i);
   });
 

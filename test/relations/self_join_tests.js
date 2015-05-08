@@ -87,7 +87,7 @@ describe('Model self-joins', function() {
            'INNER JOIN "employees" "manager_j1" ' +
            'ON "manager"."manager_id" = "manager_j1"."id" ' +
            'WHERE ("manager"."name" = ?) ' +
-           'AND "manager_j1"."id" = ? ' +
+           'AND ("manager_j1"."id" = ?) ' +
            'GROUP BY "employees"."id"', ['jane', 1]]
         ]);
       })
@@ -108,7 +108,7 @@ describe('Model self-joins', function() {
            'INNER JOIN "employees" "manager_j1" ' +
            'ON "manager"."manager_id" = "manager_j1"."id" ' +
            'WHERE ("manager_j1"."id" = ?) ' +
-           'AND "manager"."name" = ? ' +
+           'AND ("manager"."name" = ?) ' +
            'GROUP BY "employees"."id"', [1, 'jane']]
         ]);
       })
