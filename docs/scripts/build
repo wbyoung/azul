@@ -87,7 +87,7 @@ var metalsmith = Metalsmith(path.join(__dirname, '..'))
 
 if (program.serve) {
   metalsmith = metalsmith
-    .use(watch())
+    .use(watch({}))
     .use(serve());
 }
 

@@ -49,7 +49,7 @@
     "metalsmith-sass": "^0.7.0",
     "metalsmith-serve": "0.0.3",
     "metalsmith-templates": "^0.7.0",
-    "metalsmith-watch": "^0.2.0",
+    "metalsmith-watch": "^1.0.0",
     "mocha": "^2.0.0",
     "mysql": "^2.5.2",
     "ordered-read-streams": "^0.2.0",
