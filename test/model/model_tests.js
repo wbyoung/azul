@@ -491,6 +491,16 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can get with a custom query using falsey values', function(done) {
+    Article.reopen({ headline: db.attr() });
+    Article.objects.where({ 'headline': 0 }).fetch().then(function(articles) {
+      expect(adapter.executedSQL()).to.eql([
+        ['SELECT * FROM "articles" WHERE "headline" = ?', [0]]
+      ]);
+    })
+    .done(done, done);
+  });
+
   it('can get via pk', function(done) {
     Article.objects.where({ pk: 5 }).fetch().then(function() {
       expect(adapter.executedSQL()).to.eql([

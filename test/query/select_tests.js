@@ -44,6 +44,12 @@ describe('SelectQuery', function() {
     ));
   });
 
+  it('can be filtered with falsey values', function() {
+    expect(db.select('users').where({ id: 0 }).statement).to.eql(Statement.create(
+      'SELECT * FROM "users" WHERE "id" = ?', [0]
+    ));
+  });
+
   it('can be filtered 2 times', function() {
     var result = db.select('users')
       .where({ id: 1 })
