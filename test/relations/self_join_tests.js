@@ -220,4 +220,72 @@ describe('Model self-joins', function() {
       .done(done, done);
     });
   });
+
+  describe('friends & enemies', function() {
+    var Person;
+    var Friendship;
+    var Enmity;
+
+    beforeEach(function() {
+      Person = db.model('person', {
+        name: db.attr(),
+        friends: db.hasMany('person', { through: 'friendships' }),
+        enemies: db.hasMany('person', { through: 'enmities' }),
+      });
+
+      Friendship = db.model('friendship', {
+        person: db.belongsTo('person'),
+        friend: db.belongsTo('person'),
+      });
+
+      Enmity = db.model('enmity', {
+        person: db.belongsTo('person'),
+        enemy: db.belongsTo('person'),
+      });
+    });
+
+    it('generates a query for self-referencing many to many relationship', function(done) {
+      // round up everyone who's friends with someone who considers the grinch
+      // an enemy.
+      Person.objects.where({ 'friends.enemies.name': 'Grinch' })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "people".* FROM "people" ' +
+           'INNER JOIN "friendships" ON "friendships"."person_id" = "people"."id" ' +
+           'INNER JOIN "people" "friend" ON "friendships"."friend_id" = "friend"."id" ' +
+           'INNER JOIN "enmities" ON "enmities"."person_id" = "friend"."id" ' +
+           'INNER JOIN "people" "enemy" ON "enmities"."enemy_id" = "enemy"."id" ' +
+           'WHERE "enemy"."name" = ? ' +
+           'GROUP BY "people"."id"', ['Grinch']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+    it('generates a query for self-referencing many to many relationship (simple definition)', function(done) {
+      db = Database.create({ adapter: adapter });
+      Person = db.model('person', {
+        name: db.attr(),
+        friends: db.hasMany('person', { join: 'friendships' }),
+        enemies: db.hasMany('person', { join: 'enmities' }),
+      });
+
+      // round up everyone who's friends with someone who considers the grinch
+      // an enemy.
+      Person.objects.where({ 'friends.enemies.name': 'Grinch' })
+      .then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['SELECT "people".* FROM "people" ' +
+           'INNER JOIN "friendships" ON "friendships"."person_id" = "people"."id" ' +
+           'INNER JOIN "people" "friend" ON "friendships"."friend_id" = "friend"."id" ' +
+           'INNER JOIN "enmities" ON "enmities"."person_id" = "friend"."id" ' +
+           'INNER JOIN "people" "enemy" ON "enmities"."enemy_id" = "enemy"."id" ' +
+           'WHERE "enemy"."name" = ? ' +
+           'GROUP BY "people"."id"', ['Grinch']]
+        ]);
+      })
+      .done(done, done);
+    });
+
+  });
 });
