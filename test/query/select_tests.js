@@ -287,4 +287,105 @@ describe('SelectQuery', function() {
       .then(done, done);
     });
   });
+
+  describe('events', function() {
+    it('emits events in the proper sequence', function(done) {
+      var data = {
+        fields: ['id', 'title'],
+        rows: [{ id: 1, title: '1' }, { id: 2, title: '2' }]
+      };
+
+      var execute = sinon.spy(function execute() {});
+      var rawResult = sinon.spy(function rawResult() {});
+      var result = sinon.spy(function result() {});
+      var spawn = sinon.spy(function spawn() {});
+      var dup = sinon.spy(function dup() {});
+      var error = sinon.spy(function error() {});
+      var query = db.select('articles');
+      query.on('spawn', spawn);
+      query.on('dup', dup);
+      query.on('execute', execute);
+      query.on('rawResult', rawResult);
+      query.on('result', result);
+      query.on('error', error);
+      expect(execute).to.not.have.been.called;
+      adapter.intercept(/select.*from "articles"/i, data);
+
+      var promise = query.execute();
+      expect(execute).to.have.been.calledOnce;
+      promise.then(function() {
+        expect(rawResult).to.have.been.calledAfter(execute);
+        expect(rawResult).to.have.been.calledOnce;
+        expect(rawResult).to.have.been.calledWith(data);
+        expect(result).to.have.been.calledOnce;
+        expect(result).to.have.been.calledAfter(rawResult);
+        expect(result).to.have.been.calledWith(data);
+        expect(error).to.not.have.been.called;
+        expect(spawn).to.not.have.been.called;
+        expect(dup).to.not.have.been.called;
+      })
+      .then(done, done);
+    });
+
+    it('emits results for transformed queries', function(done) {
+      var data = {
+        fields: ['id', 'title'],
+        rows: [{ id: 1, title: '1' }, { id: 2, title: '2' }]
+      };
+      var rawResult = sinon.spy(function rawResult() {});
+      var result = sinon.spy(function result() {});
+      var query = db.select('articles').transform(function(info) {
+        return info.rows;
+      });
+      query.on('rawResult', rawResult);
+      query.on('result', result);
+      adapter.intercept(/select.*from "articles"/i, data);
+      query.execute().then(function() {
+        expect(rawResult).to.have.been.calledWith(data);
+        expect(result).to.have.been.calledWith(data.rows);
+      })
+      .then(done, done);
+    });
+
+    it('emits errors', function(done) {
+      var fakeError = new Error('fake db error');
+      var rawResult = sinon.spy(function rawResult() {});
+      var result = sinon.spy(function result() {});
+      var error = sinon.spy(function error() {});
+      var query = db.select('articles').transform(function(info) {
+        return info.rows;
+      });
+      query.on('rawResult', rawResult);
+      query.on('result', result);
+      query.on('error', error);
+      adapter.intercept(/select.*from "articles"/i, function() {
+        throw fakeError;
+      });
+      query.execute()
+      .throw(new Error('always fail'))
+      .catch(function() {
+        expect(rawResult).to.not.have.been.called;
+        expect(result).to.not.have.been.called;
+        expect(error).to.have.been.calledWith(fakeError);
+      })
+      .then(done, done);
+    });
+
+    it('emits spawn events', function() {
+      var spawn = sinon.spy(function spawn() {});
+      db.query.on('spawn', spawn);
+      var spawned = db.select('articles');
+      expect(spawn).to.have.been.calledOnce;
+      expect(spawn).to.have.been.calledWith(spawned);
+    });
+
+    it('emits dup events', function() {
+      var dup = sinon.spy(function dup() {});
+      var query = db.select('articles');
+      query.on('dup', dup);
+      var duped = query.clone();
+      expect(dup).to.have.been.calledOnce;
+      expect(dup).to.have.been.calledWith(duped);
+    });
+  });
 });
