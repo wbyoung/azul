@@ -236,7 +236,7 @@ describe('Class', function() {
     expect(initSpy).to.not.have.been.called;
   });
 
-  it('allows static methods to be accessed via sublcasses', function() {
+  it('allows static methods to be accessed via subclasses', function() {
     var Animal = Class.extend();
     var staticMember = {};
     Animal.reopenClass({
@@ -245,7 +245,7 @@ describe('Class', function() {
     expect(Animal.staticMember).to.eql(staticMember);
   });
 
-  it('allows static methods to be accessed via sublcasses', function() {
+  it('allows static methods to be accessed via subclasses', function() {
     var Animal = Class.extend();
     var Dog = Animal.extend();
     var staticMember = {};
