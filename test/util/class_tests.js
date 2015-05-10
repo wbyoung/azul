@@ -85,6 +85,44 @@ describe('Class', function() {
     });
   });
 
+  it('allows apply on super', function() {
+    var Animal = Class.extend({
+      speak: function() { return 'speaking'; }
+    });
+    var Dog = Animal.extend({
+      speak: function() { return this._super.apply(this); }
+    });
+    var milo = Dog.create();
+    expect(milo.speak()).to.eql('speaking');
+  });
+
+  it('throws when _super.apply changes `this`', function() {
+    var Animal = Class.extend({
+      speak: function() { return 'speaking'; }
+    });
+    var Dog = Animal.extend({
+      speak: function() { return this._super.apply({}); }
+    });
+    var milo = Dog.create();
+    expect(function() {
+      milo.speak();
+    }).to.throw(/cannot change.*this.*_super.unbound/i);
+  });
+
+  it('allows apply on unbound super', function() {
+    var Animal = Class.extend({
+      word: 'nothing',
+      speak: function() { return this.word; }
+    });
+    var Dog = Animal.extend({
+      speak: function() {
+        return this._super.unbound.apply({ word: 'woof' });
+      }
+    });
+    var milo = Dog.create();
+    expect(milo.speak()).to.eql('woof');
+  });
+
   it('can call super in class methods', function() {
     var species = sinon.stub().returns('animal');
     var sup = function() { return this._super(); };
@@ -224,6 +262,13 @@ describe('Class', function() {
     var init = Dog.__class__.prototype.init;
     expect(init.wrappedFunction).to.exist;
     expect(init.wrappedFunction.wrappedFunction).to.not.exist;
+  });
+
+  it('stores the super function on the wrapper', function() {
+    var Animal = Class.extend({ init: function() {}});
+    var Dog = Animal.extend({ init: function() {}});
+    expect(Dog.__class__.prototype.init.superFunction)
+      .to.equal(Animal.__class__.prototype.init);
   });
 
   it('can be created uninitialized', function() {
