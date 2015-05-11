@@ -69,4 +69,17 @@ describe('InsertQuery', function() {
       'INSERT INTO "users" ("name") VALUES (?) RETURNING "id"', ['Whitney']
     ));
   });
+
+  it('throws when no attrs are given', function() {
+    expect(function() {
+      db.insert('users', {}).sql;
+    }).to.throw(/insert.*missing values/i);
+  });
+
+  it('allows some value specification to be null', function() {
+    var query = db.insert('users').values({ name: 'Whitney' }).values({});
+    expect(query.statement).to.eql(Statement.create(
+      'INSERT INTO "users" ("name") VALUES (?), (?)', ['Whitney', undefined]
+    ));
+  });
 });
