@@ -176,6 +176,25 @@ describe('Model.belongsTo', function() {
       })
       .done(done, done);
     });
+
+    it('sets foreign key when item saved after assigned', function(done) {
+      var user = User.create({ username: 'cocoabythefire' });
+      var article = Article.create({ title: 'Issue 12', author: user });
+      user.save().then(function() {
+        return article.save();
+      })
+      .then(function() {
+        expect(user.id).to.eql(838);
+        expect(article.id).to.eql(78);
+        expect(adapter.executedSQL()).to.eql([
+          ['INSERT INTO "users" ("username") VALUES (?) ' +
+           'RETURNING "id"', ['cocoabythefire']],
+          ['INSERT INTO "articles" ("title", "author_id") VALUES (?, ?) ' +
+           'RETURNING "id"', ['Issue 12', 838]]
+        ]);
+      })
+      .then(done, done);
+    });
   });
 
   describe('helpers', function() {
