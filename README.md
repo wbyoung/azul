@@ -21,6 +21,14 @@ We're focusing on creating an expressive, well [documented public
 API][azul-docs] and reaching feature parity with other ORM tools. If you're
 interested in helping, please reach out.
 
+### Addons
+
+A few additional components that you can use with Azul.js are:
+
+- [Azul.js Logger][azul-logger] Logs queries being executed
+- [Azul.js Tracker][azul-tracker] Reports queries that were created, but never
+  executed
+
 ### Testing
 
 Simply run `gulp test` to run the full test suite.
@@ -57,6 +65,8 @@ $ open out/index.html
 This project is distributed under the MIT license.
 
 [azul-docs]: http://www.azuljs.com/
+[azul-logger]: https://github.com/wbyoung/azul-logger
+[azul-tracker]: https://github.com/wbyoung/azul-tracker
 
 [travis-image]: http://img.shields.io/travis/wbyoung/azul.svg?style=flat
 [travis-url]: http://travis-ci.org/wbyoung/azul
