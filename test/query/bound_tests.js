@@ -233,6 +233,48 @@ describe('BoundQuery', function() {
       });
     });
 
+    it('allows relationship join', function() {
+      var query = this.query.join('organization');
+      expect(query.statement).to.eql(Statement.create(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "organizations" ' +
+        'ON "users"."organization_id" = "organizations"."id"', []
+      ));
+    });
+
+    it('allows relationship join after `select`', function() {
+      var query = this.query.select(['pk']).join('organization');
+      expect(query.statement).to.eql(Statement.create(
+        'SELECT "users"."id" FROM "users" ' +
+        'INNER JOIN "organizations" ' +
+        'ON "users"."organization_id" = "organizations"."id"', []
+      ));
+    });
+
+    it('allows relationship join after `all`', function() {
+      var query = this.query.all().join('organization');
+      expect(query.statement).to.eql(Statement.create(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "organizations" ' +
+        'ON "users"."organization_id" = "organizations"."id"', []
+      ));
+    });
+
+    it('allows relationship in where after `all`', function() {
+      var Organization = db.model('organization');
+      var organization = Organization.create({ id: 5 });
+      var query = this.query.all().where({
+        organization: organization
+      });
+      expect(query.statement).to.eql(Statement.create(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "organizations" ' +
+        'ON "users"."organization_id" = "organizations"."id" ' +
+        'WHERE "organizations"."id" = ? ' +
+        'GROUP BY "users"."id"', [5]
+      ));
+    });
+
     it('has a fetch method', function(done) {
       adapter.intercept(/select.*from "users"/i, {
         fields: ['id', 'title'],
@@ -277,6 +319,18 @@ describe('BoundQuery', function() {
       expect(function() {
         this.query.unbind().with('organization');
       }.bind(this)).to.throw(/cannot perform.*with.*unbound/i);
+    });
+
+    it('does not allow `unique` on non-select queries', function() {
+      expect(function() {
+        this.query.unique().update();
+      }.bind(this)).to.throw(/cannot perform.*update.*after.*groupBy/i);
+    });
+
+    it('does not allow `unique` when unbound', function() {
+      expect(function() {
+        this.query.unbind().unique();
+      }.bind(this)).to.throw(/cannot perform.*unique.*unbound/i);
     });
 
     it('gives a useful error when bad relation is used for `join`', function() {
