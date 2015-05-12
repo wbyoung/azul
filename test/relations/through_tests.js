@@ -263,9 +263,11 @@ describe('Model.hasMany :through', function() {
     it('properly constructs a join model and allows use', function(done) {
       db = Database.create({ adapter: adapter });
       Student = db.model('student', {
+        name: db.attr(),
         courses: db.hasMany({ join: 'courses_students' })
       });
       Course = db.model('course', {
+        name: db.attr(),
         students: db.hasMany({ join: 'courses_students' }),
       });
       var CourseStudent = db.model('course_student');
