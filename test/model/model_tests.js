@@ -502,6 +502,16 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('requires attributes in order to be saved', function(done) {
+    var Model = db.model('invalidModel', {});
+    var model = Model.create({ value: 'hello' });
+    model.save()
+    .throw(new Error('Expected model save to fail'))
+    .catch(function(e) {
+      expect(e).to.match(/invalidModel has no attributes.*model.*defined/i);
+    })
+    .then(done, done);
+  });
 
   it('specifies all attributes when creating objects', function(done) {
     var article = Article.create();
