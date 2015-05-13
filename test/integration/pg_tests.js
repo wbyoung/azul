@@ -86,6 +86,42 @@ describe('PostgresQL', function() {
     .done(done, done);
   });
 
+  describe('with simple table', function() {
+    before(function(done) {
+      db._adapter
+        .execute('CREATE TABLE azul_test (id serial, name varchar(255))', [])
+        .then(_.ary(done, 0), done);
+    });
+
+    after(function(done) {
+      db._adapter
+        .execute('DROP TABLE azul_test', [])
+        .then(_.ary(done, 0), done);
+    });
+
+    it('allows use of returning on non primary key', function(done) {
+      db.insert('azul_test', { name: 'Azul' })
+      .returning('name')
+      .then(function(data) {
+        expect(data).to.eql({ rows: [{ name: 'Azul' }], fields: ['name'] });
+      })
+      .then(done, done);
+    });
+
+    it('allows use of returning for full row', function(done) {
+      resetSequence('azul_test').then(function() {
+        return db.insert('azul_test', { name: 'Azul' }).returning('*');
+      })
+      .then(function(data) {
+        expect(data).to.eql({
+          rows: [{ id: 1, name: 'Azul' }],
+          fields: ['id', 'name']
+        });
+      })
+      .then(done, done);
+    });
+  });
+
   // run all shared examples
   _.each(shared(), function(fn, name) {
     if (fn.length !== 0) {

@@ -88,6 +88,29 @@ describe('SQLite3', function() {
     .done(done, done);
   });
 
+  describe('with simple table', function() {
+    before(function(done) {
+      db._adapter
+        .execute('CREATE TABLE azul_test (id serial, name varchar(255))', [])
+        .then(_.ary(done, 0), done);
+    });
+
+    after(function(done) {
+      db._adapter
+        .execute('DROP TABLE azul_test', [])
+        .then(_.ary(done, 0), done);
+    });
+
+    it('returning does not work on non primary key', function(done) {
+      db.insert('azul_test', { name: 'Azul' })
+      .returning('name')
+      .then(function(data) {
+        expect(data.rows[0].name).to.not.eql('Azul');
+      })
+      .then(done, done);
+    });
+  });
+
   // run all shared examples
   var skip = /`i?regex|year|month|day|weekday|hour|minute|second`/i;
   _.each(shared({ skip: skip }), function(fn, name) {
