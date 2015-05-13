@@ -2,7 +2,7 @@
 
 exports.up = function(schema) {
   return schema.createTable('comments', function(table) {
-    table.serial('id').primaryKey();
+    table.serial('identifier').primaryKey();
     table.string('email');
     table.text('body');
     table.integer('article_id').references('articles.id');

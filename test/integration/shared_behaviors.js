@@ -78,6 +78,8 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       });
 
       var Comment = db.model('comment').reopen({
+        pk: db.attr('identifier'),
+        identifier: db.attr('identifier'),
         email: db.attr(),
         body: db.attr(),
         article: db.belongsTo()
@@ -155,11 +157,11 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function() {
         return Comment.objects.where({ 'article.title': 'News' });
       })
-      .then(function(articles) {
-        expect(_.map(articles, 'attrs')).to.eql([
-          { id: 1, 'article_id': 1,
+      .then(function(comments) {
+        expect(_.map(comments, 'attrs')).to.eql([
+          { identifier: 1, 'article_id': 1,
             email: 'info@azuljs.com', body: 'Sweet initial release.' },
-          { id: 2, 'article_id': 1,
+          { identifier: 2, 'article_id': 1,
             email: 'person@azuljs.com', body: 'Great initial release!' }
         ]);
       })
