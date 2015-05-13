@@ -42,6 +42,11 @@ describe('Model', function() {
       fields: ['id'],
       rows: [{ id: 34 }]
     });
+
+    adapter.intercept(/insert into "articles".*returning "identifier"/i, {
+      fields: ['identifier'],
+      rows: [{ identifier: 48 }]
+    });
   });
 
   it('knows its table', function() {
@@ -434,6 +439,15 @@ describe('Model', function() {
       expect(user.attrs.id).to.equal(undefined);
     });
 
+    it('allows override of attribute initializers', function() {
+      User.reopen({
+        usernameInit: function() { this.username = 'anonymous'; }
+      })
+      var user = User.create();
+      expect(user.attrs.username).to.equal('anonymous');
+      expect(user.dirty).to.be.false;
+    });
+
     it('works with custom column via setters', function() {
       var user = User.create();
       user.email = 'wbyoung@azuljs.com';
@@ -529,6 +543,22 @@ describe('Model', function() {
     var article = Article.create({ title: 'Azul News' });
     article.save().then(function(result) {
       expect(result).to.equal(article);
+    })
+    .done(done, done);
+  });
+
+  it('can create objects with a custom pk', function(done) {
+    Article.reopen({ pk: attr('identifier') });
+    Article.reopen({ identifier: attr('identifier') });
+
+    var article = Article.create({ title: 'Azul News' });
+    article.save().then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['INSERT INTO "articles" ("title") VALUES (?) '+
+         'RETURNING "identifier"', ['Azul News']]
+      ]);
+      expect(article.pk).to.eql(48);
+      expect(article.identifier).to.eql(48);
     })
     .done(done, done);
   });
