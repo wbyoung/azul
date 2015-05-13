@@ -460,15 +460,28 @@ shared.shouldSupportStandardConditions = function(it) {
       .then(done, done);
     });
 
-    it('supports `contains`', function(done) {
+    it('supports `contains` with uppercase value', function(done) {
       db.select('people').where(w({
-        'name[contains]': 'im'
+        'name[contains]': 'T'
       }))
       .order('name')
       .execute()
       .get('rows')
       .then(function(result) {
-        expect(_.map(result, 'name')).to.eql(['Jim', 'Tim']);
+        expect(_.map(result, 'name')).to.eql(['Tim']);
+      })
+      .then(done, done);
+    });
+
+    it('supports `contains` with lowercase value', function(done) {
+      db.select('people').where(w({
+        'name[contains]': 't'
+      }))
+      .order('name')
+      .execute()
+      .get('rows')
+      .then(function(result) {
+        expect(_.map(result, 'name')).to.eql(['Kristen']);
       })
       .then(done, done);
     });
