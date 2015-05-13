@@ -10,15 +10,32 @@ template: guide-page.html
 
 All features are known to work with PostgreSQL.
 
+### `Query#returning`
+
+An additional query method, `returning` can be used to return a specific value
+from [insert queries][azul-queries#insert]. This method is only fully supported
+in PostgreSQL.
+
 ## MySQL
 
 All features are known to work with MySQL.
+
+### `Query#returning`
+
+Using MySQL, the only value that can be returned is the auto-incremented
+primary key. Requesting any other value will result in undefined behavior.
 
 ## SQLite3
 
 There are a few features that are currently not supported in SQLite3. If you'd
 like to see these improved, please open [an issue][azul-issues] or send over a
 [pull request][azul-pulls] with support.
+
+### `Query#returning`
+
+Using SQLite3, the only value that can be returned is the primary key if it is
+aliased to the [`ROWID`][sqlite-autoinc]. Requesting any other value will
+result in undefined behavior.
 
 ### `Schema#alterTable`
 
@@ -57,7 +74,10 @@ distinguishing this type in any way. Data will always be read from the database
 as numbers even if a date was used to store the value. See the example in the
 [section above](#sqlite3--time-).
 
+
 [azul-issues]: https://github.com/wbyoung/azul/issues
 [azul-pulls]: https://github.com/wbyoung/azul/pulls
 [azul-sqlite-alter-table-issue]: https://github.com/wbyoung/azul/issues/15
 [azul-core#properties]: /guides/core/#objects-extending-classes-properties
+[azul-queries#insert]: /guides/queries/#data-queries-insert
+[sqlite-autoinc]: https://www.sqlite.org/autoinc.html
