@@ -563,6 +563,33 @@ describe('Model', function() {
     .done(done, done);
   });
 
+  it('can create objects in a transaction', function(done) {
+    var begin = db.query.begin();
+    var transaction = begin.transaction();
+    var article = Article.create({ title: 'Azul News' });
+    var clientId = FakeAdapter.currentClientId;
+
+    adapter.intercept(/.*/, function(client) {
+      expect(client.id).to.eql(clientId);
+    });
+
+    begin.execute()
+    .then(function() {
+      return article.save({ transaction: transaction });
+    })
+    .then(function() { return transaction.commit(); })
+    .then(function() {
+      expect(adapter.executedSQL()).to.eql([
+        ['BEGIN', []],
+        ['INSERT INTO "articles" ("title") VALUES (?) '+
+         'RETURNING "id"', ['Azul News']],
+        ['COMMIT', []],
+      ]);
+      expect(article.id).to.eql(34);
+    })
+    .done(done, done);
+  });
+
   it('can get with a custom query', function(done) {
     Article.reopen({ headline: db.attr() });
     Article.objects.where({ id: 5, 'headline': 7 }).fetch().then(function(articles) {

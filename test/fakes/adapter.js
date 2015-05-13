@@ -2,6 +2,7 @@
 
 var BluebirdPromise = require('bluebird');
 var Adapter = require('../../lib/adapters/base');
+var property = require('../../lib/util/property').fn;
 
 var sequence = 0;
 function FakeAdapterClient() { this.id = sequence++; }
@@ -50,19 +51,19 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
    * @see {@link Adapter#_execute}
    */
   _execute: BluebirdPromise.method(function(client, sql, args) {
-    var result = { rows: [], fields: [] };
+    var result;
     this._executed.push([sql, args]);
     this._interceptors.some(function(interceptor) {
       var match = sql.match(interceptor.regex);
       if (match) {
         result = interceptor.result;
         if (typeof result === 'function') {
-          result = result();
+          result = result(client, sql, args);
         }
       }
-      return match;
+      return result;
     });
-    return result;
+    return result || { rows: [], fields: [] };
   }),
 
   /**
@@ -103,6 +104,19 @@ var FakeAdapter = Adapter.extend(/** @lends FakeAdapter# */ {
       })
     });
   }
+
+});
+
+FakeAdapter.reopenClass({
+
+  /**
+   * Get the current client id.
+   *
+   * @public
+   * @readonly
+   * @type {Number}
+   */
+  currentClientId: property(function() { return sequence; })
 
 });
 
