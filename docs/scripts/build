@@ -57,6 +57,12 @@ var toc = function() {
 
         var parent = nodes[headerLevel];
         var header = $(this);
+
+        // change ids so that they are all more unique (based on parent ids)
+        if (level > 1 && parent && parent.id) {
+          header.attr('id', [parent.id, header.attr('id')].join('-'));
+        }
+
         var title = header.text();
         var name = header.attr('id');
         var node = {
@@ -69,6 +75,7 @@ var toc = function() {
       });
 
       data.toc = result;
+      data.contents = new Buffer($.html());
     });
 
     done();

@@ -77,7 +77,7 @@ execute raw SQL or perform schema changes that are not supported by Azul.js.
 
 Create new tables. Pass the name of the table you want to create and a callback
 that will receive a table object with which you will be able to create columns
-of different [field types](#field-types).
+of different [field types](#migration-basics-field-types).
 
 ```js
 schema.createTable('articles', function(table) {
@@ -113,9 +113,10 @@ issue</a> or pull request to see this happen sooner.
 
 #### `#alterTable`
 
-Alter existing tables. Pass the name of the table you want to alter and a callback
-that will receive a table object with which you will be able to create columns
-of different [field types](#field-types) as well as drop existing columns.
+Alter existing tables. Pass the name of the table you want to alter and a
+callback that will receive a table object with which you will be able to
+create columns of different [field types](#migration-basics-field-types) as
+well as drop existing columns.
 
 ```js
 schema.alterTable('articles', function(table) {
@@ -124,13 +125,15 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
-- `drop` Drops a table column (**not yet supported in SQLite3**)
+- `drop` Drops a table column
 
 ```js
 schema.alterTable('articles', function(table) {
   table.drop('title'); // drop the title column
 });
 ```
+
+_Not supported in [SQLite3][]._
 
 
 #### `#dropTable`
@@ -203,13 +206,7 @@ currently support distinguishing this type in any way.
 
 A time type that does not include a date.
 
-<div class="panel panel-info">
-<div class="panel-heading"><span class="panel-title">SQLite3</span></div>
-<div class="panel-body">
-SQLite3 stores <code>time</code> as a number &amp; Azul.js does not
-currently support distinguishing this type in any way.
-</div>
-</div>
+_Quirks in [SQLite3][azul-backends#sqlitee-time]._
 
 #### `dateTime`
 
@@ -217,13 +214,7 @@ A date and type type. Sometimes also known as a _timestamp_, this may or may
 not use a _timestamp_ type depending on the database back-end, but will contain
 both the date and time components of a date.
 
-<div class="panel panel-info">
-<div class="panel-heading"><span class="panel-title">SQLite3</span></div>
-<div class="panel-body">
-SQLite3 stores <code>dateTime</code> as a number &amp; Azul.js does not
-currently support distinguishing this type in any way.
-</div>
-</div>
+_Quirks in [SQLite3][azul-backends#sqlitee-datetime]._
 
 #### `float`
 
@@ -242,5 +233,8 @@ will handle options slightly differently. It is recommended to either omit both
 the `precision` and the `scale` or provide both for most consistent results.
 
 
-[azul-relations#one-to-many]: /guides/relations/#one-to-many
+[azul-backends#sqlitee-altertable]: /guides/backends/#sqlite3--schema-altertable-
+[azul-backends#sqlitee-time]: /guides/backends/#sqlite3--time-
+[azul-backends#sqlitee-datetime]: /guides/backends/#sqlite3--datetime-
+[azul-relations#one-to-many]: /guides/relations/#types-of-relationships-one-to-many
 [azul-queries#data-queries]: /guides/queries/#data-queries

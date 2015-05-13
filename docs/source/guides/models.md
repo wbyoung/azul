@@ -189,8 +189,8 @@ article.save().then(function() {
 });
 ```
 
-As seen before when [creating and saving](#create) an object, `save` returns a
-promise.
+As seen before when [creating and saving](#manipulating-data-create) an object,
+`save` returns a promise.
 
 ### Delete
 
@@ -266,7 +266,7 @@ Marks the model for deletion.
 When a model has been marked for deletion & saved, it will still exist in
 memory. Re-saving an object in this state will have no effect.
 
-See examples in the [deleting section](#delete).
+See examples in the [deleting section](#manipulating-data-delete).
 
 ### `#attrs`
 
@@ -295,7 +295,7 @@ person.attrs; // => { first_name: 'Whitney', last_name: 'Young' }
 Determine if this is a new record. Model that do not have a _primary key_ are
 considered new. New records will be inserted when a model is saved. To better
 understand this behavior, read about [how the save method is
-determined](#create-update-or-delete-).
+determined](#manipulating-data-create-update-or-delete-).
 
 - readonly
 
@@ -345,7 +345,7 @@ Article.reopenClass({
 [azul-getting-started]: /getting-started/
 [azul-migrations]: /guides/migrations/
 [azul-queries]: /guides/queries/
-[azul-queries#fetch]: /guides/queries/#-fetch-
-[azul-queries#find]: /guides/queries/#-find-
+[azul-queries#fetch]: /guides/queries/#executing--fetch-
+[azul-queries#find]: /guides/queries/#executing--find-
 [azul-managers#overriding-the-default-manager]: /guides/managers/#overriding-the-default-manager
 [mass-assignment]: http://en.wikipedia.org/wiki/Mass_assignment_vulnerability

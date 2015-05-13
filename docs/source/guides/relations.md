@@ -8,9 +8,9 @@ template: guide-page.html
 # Relations
 
 Relationships between different models in Azul.js are supported via
-[`belongsTo`](#-belongsto-) and [`hasMany`](#-hasmany-) attributes. These types
-of attributes build relationships between your models that allow you to easily
-access and manipulate related data in you database.
+[`belongsTo`](#methods--belongsto-) and [`hasMany`](#methods--hasmany-)
+attributes. These types of attributes build relationships between your models
+that allow you to easily access and manipulate related data in you database.
 
 ## Types of Relationships
 
@@ -40,21 +40,21 @@ var Article = db.model('article', {
 Each instance of the `Blog` class will now be able to use the following
 methods and properties:
 
-- [`Blog#articles`](#-associations-)
-- [`Blog#articleObjects`](#-associationobjects-)
-- [`Blog#createArticle()`](#-createassociation-)
-- [`Blog#addArticle()`](#-addassociation-)
-- [`Blog#addArticles()`](#-addassociations-)
-- [`Blog#removeArticle()`](#-removeassociation-)
-- [`Blog#removeArticles()`](#-removeassociations-)
-- [`Blog#clearArticles()`](#-clearassociations-)
+- [`Blog#articles`](#methods--hasmany---associations-)
+- [`Blog#articleObjects`](#methods--hasmany---associationobjects-)
+- [`Blog#createArticle()`](#methods--hasmany---createassociation-)
+- [`Blog#addArticle()`](#methods--hasmany---addassociation-)
+- [`Blog#addArticles()`](#methods--hasmany---addassociations-)
+- [`Blog#removeArticle()`](#methods--hasmany---removeassociation-)
+- [`Blog#removeArticles()`](#methods--hasmany---removeassociations-)
+- [`Blog#clearArticles()`](#methods--hasmany---clearassociations-)
 
 And each instance of the `Article` class will now have:
 
-- [`Article#blog`](#-association-)
-- [`Article#blogId`](#-associationid-)
-- [`Article#createBlog()`](#-createassociation-)
-- [`Article#fetchBlog()`](#-fetchassociation-)
+- [`Article#blog`](#methods--belongsto---association-)
+- [`Article#blogId`](#methods--belongsto---associationid-)
+- [`Article#createBlog()`](#methods--belongsto---createassociation-)
+- [`Article#fetchBlog()`](#methods--belongsto---fetchassociation-)
 
 A migration for this would look involve creating the foreign key when creating
 the `articles` table:
@@ -90,7 +90,7 @@ exports.down = function(schema) {
 ### Many-to-Many
 
 Many to many relationships are supported via the use of a [_through_](#through)
-option on a [`hasMany`](#-hasmany-).
+option on a [`hasMany`](#methods--hasmany-).
 
 
 This example will build a relationship between _doctors_ and _patients_ through
@@ -118,24 +118,24 @@ var Appointment = db.model('appointment', {
 The following methods and properties will be added on the `Doctor` and
 `Patient`:
 
-- [`Doctor#patients`](#-associations-)
-- [`Doctor#patientObjects`](#-associationobjects-)
-- [`Doctor#createPatient()`](#-createassociation-)
-- [`Doctor#addPatient()`](#-addassociation-)
-- [`Doctor#addPatients()`](#-addassociations-)
-- [`Doctor#removePatient()`](#-removeassociation-)
-- [`Doctor#removePatients()`](#-removeassociations-)
-- [`Doctor#clearPatients()`](#-clearassociations-)
+- [`Doctor#patients`](#methods--hasmany---associations-)
+- [`Doctor#patientObjects`](#methods--hasmany---associationobjects-)
+- [`Doctor#createPatient()`](#methods--hasmany---createassociation-)
+- [`Doctor#addPatient()`](#methods--hasmany---addassociation-)
+- [`Doctor#addPatients()`](#methods--hasmany---addassociations-)
+- [`Doctor#removePatient()`](#methods--hasmany---removeassociation-)
+- [`Doctor#removePatients()`](#methods--hasmany---removeassociations-)
+- [`Doctor#clearPatients()`](#methods--hasmany---clearassociations-)
 
 
-- [`Patient#doctors`](#-associations-)
-- [`Patient#doctorObjects`](#-associationobjects-)
-- [`Patient#createDoctor()`](#-createassociation-)
-- [`Patient#addDoctor()`](#-addassociation-)
-- [`Patient#addDoctors()`](#-addassociations-)
-- [`Patient#removeDoctor()`](#-removeassociation-)
-- [`Patient#removeDoctors()`](#-removeassociations-)
-- [`Patient#clearDoctors()`](#-clearassociations-)
+- [`Patient#doctors`](#methods--hasmany---associations-)
+- [`Patient#doctorObjects`](#methods--hasmany---associationobjects-)
+- [`Patient#createDoctor()`](#methods--hasmany---createassociation-)
+- [`Patient#addDoctor()`](#methods--hasmany---addassociation-)
+- [`Patient#addDoctors()`](#methods--hasmany---addassociations-)
+- [`Patient#removeDoctor()`](#methods--hasmany---removeassociation-)
+- [`Patient#removeDoctors()`](#methods--hasmany---removeassociations-)
+- [`Patient#clearDoctors()`](#methods--hasmany---clearassociations-)
 
 When manipulating the many-to-many relationship through these methods, the join
 model, `Appointment` will not be used, so the date of the appointment,
@@ -160,16 +160,16 @@ _join model_, `Appointment` directly instead (see the next code example).
 
 The `Appointment` class will have the following methods added:
 
-- [`Appointment#doctor`](#-association-)
-- [`Appointment#doctorId`](#-associationid-)
-- [`Appointment#createDoctor()`](#-createassociation-)
-- [`Appointment#fetchDoctor()`](#-fetchassociation-)
+- [`Appointment#doctor`](#methods--belongsto---association-)
+- [`Appointment#doctorId`](#methods--belongsto---associationid-)
+- [`Appointment#createDoctor()`](#methods--belongsto---createassociation-)
+- [`Appointment#fetchDoctor()`](#methods--belongsto---fetchassociation-)
 
 
-- [`Appointment#patient`](#-association-)
-- [`Appointment#patientId`](#-associationid-)
-- [`Appointment#createPatient()`](#-createassociation-)
-- [`Appointment#fetchPatient()`](#-fetchassociation-)
+- [`Appointment#patient`](#methods--belongsto---association-)
+- [`Appointment#patientId`](#methods--belongsto---associationid-)
+- [`Appointment#createPatient()`](#methods--belongsto---createassociation-)
+- [`Appointment#fetchPatient()`](#methods--belongsto---fetchassociation-)
 
 And the same association of doctor and patient from above can be achieved via:
 
@@ -280,8 +280,8 @@ We'll be adding one-to-one relationships via <code>belongsTo</code> and
 ## Through
 
 Through associations allow you to access and build more complex relationships
-easily. One way that they can be used is to build [many-to-many](#many-to-many)
-relationships.
+easily. One way that they can be used is to build
+[many-to-many](#types-of-relationships-many-to-many) relationships.
 
 Another way that they can be used is to build shortcut relationships. Take, for
 example, a blog with articles and comments. You could build the following
@@ -377,8 +377,9 @@ var Commenter = db.model('commenter', {
 ### Limitations
 
 Through relationships only support create, add, remove, and clear methods when
-they are used for [many-to-many](#many-to-many) relationships. For shortcuts
-like the example shown above, those methods will not be available.
+they are used for [many-to-many](#types-of-relationships-many-to-many)
+relationships. For shortcuts like the example shown above, those methods will
+not be available.
 
 
 ## Methods
@@ -392,10 +393,10 @@ defined. If the name of the relation was `author`, i.e.
 `Model.reopen({ author: db.belongsTo() })`, then `fetchAuthor` would be one of
 the methods added to `Model`.
 
-- [`association`](#-association-)
-- [`associationId`](#-associationid-)
-- [`createAssociation()`](#-createassociation-)
-- [`fetchAssociation()`](#-fetchassociation-)
+- [`association`](#methods--belongsto---association-)
+- [`associationId`](#methods--belongsto---associationid-)
+- [`createAssociation()`](#methods--belongsto---createassociation-)
+- [`fetchAssociation()`](#methods--belongsto---fetchassociation-)
 
 #### Options
 
@@ -419,7 +420,8 @@ Article.reopen({
 
 Access the relation. This will throw an error if the relation has not yet been
 loaded. Load the association before accessing it using
-[`with`][azul-queries#with] or via [`fetchAssociation`](#-fetchassociation-).
+[`with`][azul-queries#with] or via
+[`fetchAssociation`](#methods--belongsto---fetchassociation-).
 
 ```js
 Article.objects.with('blog').find(1).then(function(article) {
@@ -502,7 +504,7 @@ Article.objects.find(1).then(function(article) {
 ```
 
 Once fetched, the value will also be accessible via the
-[`association`](#-association-) property.
+[`association`](#methods--belongsto---association-) property.
 
 ```js
 Article.objects.find(1).tap(function(article) {
@@ -523,14 +525,14 @@ defined. If the name of the relation was `articles`, i.e.
 `Model.reopen({ articles: db.hasMany() })`, then `clearArticles` would be one
 of the methods added to `Model`.
 
-- [`associations`](#-associations-)
-- [`associationObjects`](#-associationobjects-)
-- [`createAssociation()`](#-createassociation-)
-- [`addAssociation()`](#-addassociation-)
-- [`addAssociations()`](#-addassociations-)
-- [`removeAssociation()`](#-removeassociation-)
-- [`removeAssociations()`](#-removeassociations-)
-- [`clearAssociations()`](#-clearassociations-)
+- [`associations`](#methods--hasmany---associations-)
+- [`associationObjects`](#methods--hasmany---associationobjects-)
+- [`createAssociation()`](#methods--hasmany---createassociation-)
+- [`addAssociation()`](#methods--hasmany---addassociation-)
+- [`addAssociations()`](#methods--hasmany---addassociations-)
+- [`removeAssociation()`](#methods--hasmany---removeassociation-)
+- [`removeAssociations()`](#methods--hasmany---removeassociations-)
+- [`clearAssociations()`](#methods--hasmany---clearassociations-)
 
 #### Options
 
@@ -560,7 +562,7 @@ relationship.
 Access the related items. This will throw an error if the relation has not yet
 been loaded. Load the association before accessing it using
 [`with`][azul-queries#with] or via
-[`associationObjects.fetch`](#-associationObjects-).
+[`associationObjects.fetch`](#methods--hasmany---associationobjects-).
 
 ```js
 Blog.objects.with('articles').find(1).then(function(blog) {
@@ -583,7 +585,7 @@ Blog.objects.find(1).then(function(blog) {
 ```
 
 Once fetched, the related objects will also be accessible via the
-[`associations`](#-associations-) property.
+[`associations`](#methods--hasmany---associations-) property.
 
 ```js
 Blog.objects.find(1).tap(function(blog) {
@@ -598,7 +600,7 @@ Blog.objects.find(1).tap(function(blog) {
 You can also use this [query][azul-queries] to find a subset of the related
 objects. Note, though, that since a subset is being fetched, that this will not
 make the related objects available through the
-[`associations`](#-associations-) property.
+[`associations`](#methods--hasmany---associations-) property.
 
 ```js
 Blog.objects.find(1).then(function(blog) {
@@ -645,8 +647,8 @@ Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
 
 #### `#addAssociations`
 
-Allows [adding](#-addassociations-) of multiple associations. Pass an array or
-multiple arguments.
+Allows [adding](#methods--hasmany---addassociations-) of multiple associations.
+Pass an array or multiple arguments.
 
 ```js
 blog.addArticles([article1, article2]);
@@ -666,13 +668,13 @@ Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
 });
 ```
 
-Like [`addAssociation()`](#-addassociation-), this method returns a _thenable_
-object that simply saves the object.
+Like [`addAssociation()`](#methods--hasmany---addassociation-), this method
+returns a _thenable_ object that simply saves the object.
 
 #### `#removeAssociations`
 
-Allows [removing](#-removeassociations-) of multiple associations. Pass an
-array or multiple arguments.
+Allows [removing](#methods--hasmany---removeassociation-) of multiple
+associations. Pass an array or multiple arguments.
 
 ```js
 blog.removeArticles([article1, article2]);
@@ -687,6 +689,6 @@ Clear all related objects.
 blog.clearArticles();
 ```
 
-[azul-models#save]: /guides/models/#-save-
+[azul-models#save]: /guides/models/#methods-properties--save-
 [azul-queries]: /guides/queries/
-[azul-queries#with]: /guides/queries/#-with-
+[azul-queries#with]: /guides/queries/#relationships--with-

@@ -62,7 +62,7 @@ person.walk();
 ```
 
 Instance methods can also be added via the first argument to `Class.extend` as
-shown above in [Creating Instances](#creating-instances).
+shown above in [Creating Instances](#objects-creating-instances).
 
 #### Class Methods
 
