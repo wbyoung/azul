@@ -11,25 +11,14 @@ var Migration = require('../lib/migration');
 var EntryQuery = require('../lib/query/entry');
 var Schema = require('../lib/schema');
 var FakeAdapter = require('./fakes/adapter');
-var migration, schema, adapter, query;
+var migration, adapter, query;
 
 describe('Migration', function() {
   beforeEach(function() {
     adapter = FakeAdapter.create({});
     query = EntryQuery.create(adapter);
-    schema = Schema.create(adapter);
-    migration = Migration.create(query, schema,
+    migration = Migration.create(query,
       path.join(__dirname, 'fixtures/migrations/blog'));
-  });
-
-  beforeEach(function() {
-    sinon.spy(schema, 'begin');
-    sinon.spy(adapter, '_execute');
-  });
-
-  afterEach(function() {
-    schema.begin.restore();
-    adapter._execute.restore();
   });
 
   describe('#_readMigrations', function() {
@@ -199,11 +188,18 @@ describe('Migration', function() {
 
       it('calls the up methods with the correct args', function(done) {
         migration.migrate().bind(this).then(function() {
-          var schemaTransaction = schema.begin.returnValues[0];
-          expect(this.mod1.up).to.have.been
-            .calledWithExactly(schemaTransaction, migration._query);
-          expect(this.mod2.up).to.have.been
-            .calledWithExactly(schemaTransaction, migration._query);
+          expect(this.mod1.up).to.have.been.calledOnce;
+          expect(this.mod1.up.getCall(0).args.length).to.eql(2);
+          expect(this.mod1.up.getCall(0).args[0])
+            .to.be.instanceof(Schema.__class__);
+          expect(this.mod1.up.getCall(0).args[1])
+            .to.be.instanceof(EntryQuery.__class__);
+          expect(this.mod2.up).to.have.been.calledOnce;
+          expect(this.mod2.up.getCall(0).args.length).to.eql(2);
+          expect(this.mod2.up.getCall(0).args[0])
+            .to.be.instanceof(Schema.__class__);
+          expect(this.mod2.up.getCall(0).args[1])
+            .to.be.instanceof(EntryQuery.__class__);
         })
         .done(done, done);
       });
@@ -363,11 +359,18 @@ describe('Migration', function() {
 
       it('calls the down methods with the correct args', function(done) {
         migration.rollback().bind(this).then(function() {
-          var schemaTransaction = schema.begin.returnValues[0];
-          expect(this.mod1.down).to.have.been
-            .calledWithExactly(schemaTransaction, migration._query);
-          expect(this.mod2.down).to.have.been
-            .calledWithExactly(schemaTransaction, migration._query);
+          expect(this.mod1.down).to.have.been.calledOnce;
+          expect(this.mod1.down.getCall(0).args.length).to.eql(2);
+          expect(this.mod1.down.getCall(0).args[0])
+            .to.be.instanceof(Schema.__class__);
+          expect(this.mod1.down.getCall(0).args[1])
+            .to.be.instanceof(EntryQuery.__class__);
+          expect(this.mod2.down).to.have.been.calledOnce;
+          expect(this.mod2.down.getCall(0).args.length).to.eql(2);
+          expect(this.mod2.down.getCall(0).args[0])
+            .to.be.instanceof(Schema.__class__);
+          expect(this.mod2.down.getCall(0).args[1])
+            .to.be.instanceof(EntryQuery.__class__);
         })
         .done(done, done);
       });
@@ -447,6 +450,140 @@ describe('Migration', function() {
         })
         .done(done, done);
       });
+    });
+  });
+
+  describe('with pending migrations creating tables', function() {
+    beforeEach(function() {
+      var cols = function(table) { table.integer('id'); };
+      var mod1 = this.mod1 = {
+        up: sinon.spy(function(schema, query) {
+          query.update('example0', { id: 0 });
+          schema.createTable('example1', cols);
+          schema.createTable('example2', cols);
+        }),
+        down: sinon.spy(function(/*schema*/) {}),
+        name: 'migration_file_1', batch: 1
+      };
+      var mod2 = this.mod2 = {
+        up: sinon.spy(function(schema) {
+          schema.createTable('wont_happen1', cols);
+          schema.createTable('wont_happen2', cols);
+          // promise return value means async is the responsibility
+          // of the author here (above queries should not be executed).
+          return schema.createTable('example3', cols);
+        }),
+        down: sinon.spy(function(/*schema*/) {}),
+        name: 'migration_file_2', batch: 1
+      };
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod1, mod2]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    it('runs all expected queries', function(done) {
+        migration.migrate().then(function(/*migrations*/) {
+          expect(adapter.executedSQL()).to.eql([
+            ['BEGIN', []],
+            ['UPDATE "example0" SET "id" = ?', [0]],
+            ['CREATE TABLE "example1" ("id" integer)', []],
+            ['CREATE TABLE "example2" ("id" integer)', []],
+            ['CREATE TABLE "example3" ("id" integer)', []],
+            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
+             'VALUES (?, ?), (?, ?)', [
+               'migration_file_1', 1, 'migration_file_2', 1]],
+            ['COMMIT', []],
+          ]);
+        })
+        .done(done, done);
+    });
+  });
+
+  describe('with pending migrations executing queries in simple query', function() {
+    beforeEach(function() {
+      var mod = this.mod = {
+        up: sinon.spy(function(schema, query) {
+          query.update('users', { id: 5 }).execute();
+        }),
+        down: sinon.spy(function(/*schema*/) {}),
+        name: 'migration_file_1', batch: 1
+      };
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    it('informs the user this is invalid', function(done) {
+        migration.migrate()
+        .throw(new Error('Expected migration to fail.'))
+        .catch(function(e) {
+          expect(e).to.match(/serial migration.*must not execute/i);
+        })
+        .done(done, done);
+    });
+  });
+
+  describe('with pending migrations using invalid simple query', function() {
+    beforeEach(function() {
+      var mod = this.mod = {
+        up: sinon.spy(function(schema, query) {
+          var q = query.update('users');
+          q.set({ id: 5 }); // two queries derived from q not allowed
+          q.set({ id: 6 });
+        }),
+        down: sinon.spy(function(/*schema*/) {}),
+        name: 'migration_file_1', batch: 1
+      };
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    it('informs the user this is invalid', function(done) {
+        migration.migrate()
+        .throw(new Error('Expected migration to fail.'))
+        .catch(function(e) {
+          expect(e).to.match(/serial migration.*must not re-use/i);
+        })
+        .done(done, done);
+    });
+  });
+
+  describe('with pending migrations spawning queries', function() {
+    beforeEach(function() {
+      var mod = this.mod = {
+        up: sinon.spy(function(schema, query) {
+          var q = query.update('users');
+          q.set({ id: 5 });
+          q.set({ id: 6 });
+          return BluebirdPromise.resolve();
+        }),
+        down: sinon.spy(function(/*schema*/) {}),
+        name: 'migration_file_1', batch: 1
+      };
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    it('does not run queries', function(done) {
+        migration.migrate().then(function(/*migrations*/) {
+          expect(adapter.executedSQL()).to.eql([
+            ['BEGIN', []],
+            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
+             'VALUES (?, ?)', ['migration_file_1', 1]],
+            ['COMMIT', []],
+          ]);
+        })
+        .done(done, done);
     });
   });
 

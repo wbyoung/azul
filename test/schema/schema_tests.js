@@ -2,20 +2,34 @@
 
 var expect = require('chai').expect;
 
+var Database = require('../../lib/database');
 var Schema = require('../../lib/schema');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/grammar/statement');
-var schema;
+
+var db, adapter, schema;
 
 describe('Schema', function() {
   before(function() {
-    schema = Schema.create(FakeAdapter.create({}));
+    adapter = FakeAdapter.create({});
+    db = Database.create({ adapter: adapter });
+    schema = db.schema;
+  });
+
+  it('cannot be created directly', function() {
+    expect(function() {
+      Schema.create();
+    }).to.throw(/Schema must be spawned/i);
   });
 
   it('cannot generate sql', function() {
     expect(function() {
       schema.statement;
     }).to.throw(/must first call/i);
+  });
+
+  it('can be used to start a transaction', function() {
+    expect(schema.begin().sql).to.eql('BEGIN');
   });
 
   describe('#createTable', function() {
