@@ -232,6 +232,49 @@ If using options, you must specify at least the precision. Different adapters
 will handle options slightly differently. It is recommended to either omit both
 the `precision` and the `scale` or provide both for most consistent results.
 
+### Field Options
+
+Options are enabled by chaining any of the following methods onto the end of
+the field definition as shown in
+[the create table example](#migration-basics-methods--createtable-).
+
+#### `primaryKey`
+
+Mark this column as being a primary key column.
+
+#### `pk`
+
+Alias of [`primaryKey`](#migration-basics-field-options--primarykey-).
+
+#### `notNull`
+
+Mark this column as not accepting null values.
+
+#### `unique`
+
+Mark this column as containing unique values.
+
+
+#### `default`
+
+Set the default value for this column.
+
+```js
+table.string('name').default('Anonymous')
+```
+
+_Security Note:_ This method accepts only number and strings. Azul.js will
+escape the value that's sent to it to prevent security vulnerabilities, but we
+still recommend against sending user-input to this method.
+
+
+#### `references`
+
+Set the column that this column references.
+
+```js
+table.integer('article_id').references('articles.id')
+```
 
 [azul-backends#sqlite-altertable]: /guides/backends/#sqlite3--schema-altertable-
 [azul-backends#sqlite-time]: /guides/backends/#sqlite3--time-

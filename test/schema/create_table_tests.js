@@ -86,6 +86,15 @@ describe('CreateTableQuery', function() {
     ));
   });
 
+  it('generates columns with default of string', function() {
+    var query = db.schema.createTable('users', function(table) {
+      table.integer('name').default('Anonymous');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("name" integer DEFAULT \'Anonymous\')', []
+    ));
+  });
+
   it('generates columns using foreign keys', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('profile_id').references('profiles.id');
