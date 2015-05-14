@@ -206,7 +206,7 @@ currently support distinguishing this type in any way.
 
 A time type that does not include a date.
 
-_Quirks in [SQLite3][azul-backends#sqlitee-time]._
+_Quirks in [SQLite3][azul-backends#sqlite-time]._
 
 #### `dateTime`
 
@@ -214,7 +214,7 @@ A date and type type. Sometimes also known as a _timestamp_, this may or may
 not use a _timestamp_ type depending on the database back-end, but will contain
 both the date and time components of a date.
 
-_Quirks in [SQLite3][azul-backends#sqlitee-datetime]._
+_Quirks in [SQLite3][azul-backends#sqlite-datetime]._
 
 #### `float`
 
@@ -233,8 +233,8 @@ will handle options slightly differently. It is recommended to either omit both
 the `precision` and the `scale` or provide both for most consistent results.
 
 
-[azul-backends#sqlitee-altertable]: /guides/backends/#sqlite3--schema-altertable-
-[azul-backends#sqlitee-time]: /guides/backends/#sqlite3--time-
-[azul-backends#sqlitee-datetime]: /guides/backends/#sqlite3--datetime-
+[azul-backends#sqlite-altertable]: /guides/backends/#sqlite3--schema-altertable-
+[azul-backends#sqlite-time]: /guides/backends/#sqlite3--time-
+[azul-backends#sqlite-datetime]: /guides/backends/#sqlite3--datetime-
 [azul-relations#one-to-many]: /guides/relations/#types-of-relationships-one-to-many
 [azul-queries#data-queries]: /guides/queries/#data-queries
