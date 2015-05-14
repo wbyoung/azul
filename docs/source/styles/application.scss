@@ -14,8 +14,12 @@ body > .container {
 
   h1, h2, h3, h4 {
     color: $color-4;
-    padding-top: 2.5em;
-    margin-top: -1.7em;
+    &:before {
+      display: block;
+      content: "";
+      padding-top: 70px;
+      margin-top: -70px;
+    }
   }
 
   h1, h2, h3, h4, .btn {
