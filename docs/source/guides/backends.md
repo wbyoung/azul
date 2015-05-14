@@ -43,6 +43,21 @@ SQLite3 does not have native support for altering tables. We should be able to
 work around this [and make it work][azul-sqlite-alter-table-issue]. Please feel
 free to [contribute][azul-pulls].
 
+### Lookups
+
+The following lookups are unsupported without
+[an extension][node-sqlite-extension] that adds a
+[SQL function][sqlite-functions]:
+
+- `regex` and `iregex` require a `REGEXP(pattern, value)` function
+- `year`requires a `YEAR(date)` function
+- `month`requires a `MONTH(date)` function
+- `day`requires a `DAY(date)` function
+- `weekday`requires a `WEEKDAY(date)` function
+- `hour`requires a `HOUR(date)` function
+- `minute`requires a `MINUTE(date)` function
+- `second`requires a `SECOND(date)` function
+
 ### `time`
 
 SQLite3 stores `time` as a number &amp; Azul.js does not currently support
@@ -74,20 +89,6 @@ distinguishing this type in any way. Data will always be read from the database
 as numbers even if a date was used to store the value. See the example in the
 [section above](#sqlite3--time-).
 
-### Lookups
-
-The following lookups are unsupported without
-[an extension][node-sqlite-extension] that adds a
-[SQL function][sqlite-functions]:
-
-- `regex` and `iregex` require a `REGEXP(pattern, value)` function
-- `year`requires a `YEAR(date)` function
-- `month`requires a `MONTH(date)` function
-- `day`requires a `DAY(date)` function
-- `weekday`requires a `WEEKDAY(date)` function
-- `hour`requires a `HOUR(date)` function
-- `minute`requires a `MINUTE(date)` function
-- `second`requires a `SECOND(date)` function
 
 [azul-issues]: https://github.com/wbyoung/azul/issues
 [azul-pulls]: https://github.com/wbyoung/azul/pulls
