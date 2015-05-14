@@ -293,6 +293,8 @@ case sensitive:
 Article.objects.where({ 'title[regex]': /[Aa]zul\.?js/i });
 ```
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
+
 ### `iRegex`
 
 A case-insensitive regular expression test.
@@ -304,6 +306,7 @@ Article.objects.where({ 'title[iRegex]': /azul\.?js/i });
 While regular expression flags are currently ignored, it is recommended that
 you use a case insensitive flag on your regex for clarity.
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 
 ### `between`
 
@@ -372,6 +375,8 @@ Test for a specific year.
 Article.objects.where({ 'createdAt[year]': 2014 });
 ```
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
+
 ### `month`
 
 Test for a specific month. (1 - 12)
@@ -380,6 +385,8 @@ Test for a specific month. (1 - 12)
 Article.objects.where({ 'createdAt[month]': 10 });
 ```
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
+
 ### `day`
 
 Test for a specific day.
@@ -387,6 +394,8 @@ Test for a specific day.
 ```js
 Article.objects.where({ 'createdAt[day]': 7 });
 ```
+
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 
 ### `weekday`
 
@@ -398,6 +407,8 @@ Article.objects.where({ 'createdAt[weekday]': 'mon' });
 Article.objects.where({ 'createdAt[weekday]': 'monday' });
 ```
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
+
 ### `hour`
 
 Test for a specific hour.
@@ -405,6 +416,8 @@ Test for a specific hour.
 ```js
 Article.objects.where({ 'createdAt[hour]': 22 });
 ```
+
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 
 ### `minute`
 
@@ -414,6 +427,8 @@ Test for a specific minute.
 Article.objects.where({ 'createdAt[minute]': 10 });
 ```
 
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
+
 ### `second`
 
 Test for a specific second.
@@ -421,6 +436,8 @@ Test for a specific second.
 ```js
 Article.objects.where({ 'createdAt[second]': 54 });
 ```
+
+_Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 
 ## Executing
 
@@ -931,4 +948,5 @@ Raw queries have no chainable methods. Be very cautious of
 [azul-managers]: /guides/managers/
 [azul-models#objects]: /guides/models/#methods-properties--objects-
 [azul-relations]: /guides/relations/
+[azul-backends#sqlite-lookups]: /guides/backends/#sqlite3-lookups
 [sql-injection]: http://en.wikipedia.org/wiki/SQL_injection
