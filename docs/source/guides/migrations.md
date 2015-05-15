@@ -133,7 +133,7 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
-_Not supported in [SQLite3][]._
+_Not supported in [SQLite3][azul-backends#sqlite-alter]._
 
 
 #### `#dropTable`
@@ -194,13 +194,7 @@ Boolean.
 
 A date type that does not include a time.
 
-<div class="panel panel-info">
-<div class="panel-heading"><span class="panel-title">SQLite3</span></div>
-<div class="panel-body">
-SQLite3 stores <code>date</code> as a number &amp; Azul.js does not
-currently support distinguishing this type in any way.
-</div>
-</div>
+_Quirks in [SQLite3][azul-backends#sqlite-date]._
 
 #### `time`
 
@@ -277,7 +271,9 @@ table.integer('article_id').references('articles.id')
 ```
 
 [azul-backends#sqlite-altertable]: /guides/backends/#sqlite3--schema-altertable-
+[azul-backends#sqlite-date]: /guides/backends/#sqlite3--date-
 [azul-backends#sqlite-time]: /guides/backends/#sqlite3--time-
 [azul-backends#sqlite-datetime]: /guides/backends/#sqlite3--datetime-
+[azul-backends#sqlite-alter]: /guides/backends/#sqlite3--schema-altertable-
 [azul-relations#one-to-many]: /guides/relations/#types-of-relationships-one-to-many
 [azul-queries#data-queries]: /guides/queries/#data-queries

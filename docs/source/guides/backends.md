@@ -58,9 +58,9 @@ The following lookups are unsupported without
 - `minute`requires a `MINUTE(date)` function
 - `second`requires a `SECOND(date)` function
 
-### `time`
+### `date`
 
-SQLite3 stores `time` as a number &amp; Azul.js does not currently support
+SQLite3 stores `date` as a number &amp; Azul.js does not currently support
 distinguishing this type in any way. Data will always be read from the database
 as numbers even if a date was used to store the value.
 
@@ -82,12 +82,19 @@ var Article = db.model('article', {
 var article = Article.create({ published: new Date() });
 ```
 
+### `time`
+
+SQLite3 stores `time` as a number &amp; Azul.js does not currently support
+distinguishing this type in any way. Data will always be read from the database
+as numbers even if a date was used to store the value. See the example in the
+[section above](#sqlite3--date-).
+
 ### `dateTime`
 
 SQLite3 stores `dateTime` as a number &amp; Azul.js does not currently support
 distinguishing this type in any way. Data will always be read from the database
 as numbers even if a date was used to store the value. See the example in the
-[section above](#sqlite3--time-).
+[section above](#sqlite3--date-).
 
 
 [azul-issues]: https://github.com/wbyoung/azul/issues
