@@ -442,7 +442,7 @@ describe('Model', function() {
     it('allows override of attribute initializers', function() {
       User.reopen({
         usernameInit: function() { this.username = 'anonymous'; }
-      })
+      });
       var user = User.create();
       expect(user.attrs.username).to.equal('anonymous');
       expect(user.dirty).to.be.false;

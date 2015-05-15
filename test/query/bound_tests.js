@@ -40,7 +40,7 @@ describe('BoundQuery', function() {
 
     it('selects data', function() {
       var query = this.query.select();
-      expect(this.query.statement).to.eql(Statement.create(
+      expect(query.statement).to.eql(Statement.create(
         'SELECT * FROM "users"', []
       ));
     });

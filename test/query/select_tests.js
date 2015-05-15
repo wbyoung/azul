@@ -393,7 +393,7 @@ describe('SelectQuery', function() {
     // find the to field function that's implemented on the select query class
     // (and not one of the mixins that overrides it).
     var toField = SelectQuery.__class__.prototype._toField;
-    while (toField && toField.wrappedFunction.name != '_toField_SelectQuery') {
+    while (toField && toField.wrappedFunction.name !== '_toFieldSelectQuery') {
       toField = toField.superFunction;
     }
 
