@@ -564,8 +564,8 @@ describe('Model', function() {
   });
 
   it('can create objects in a transaction', function(done) {
-    var begin = db.query.begin();
-    var transaction = begin.transaction();
+    var transaction = db.query.transaction();
+    var begin = transaction.begin();
     var article = Article.create({ title: 'Azul News' });
     var clientId = FakeAdapter.currentClientId;
 

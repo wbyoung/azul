@@ -5,9 +5,11 @@ var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
 var Database = require('../../lib/database');
+var TransactionQuery = require('../../lib/query/transaction');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/grammar/statement');
 var BaseQuery = require('../../lib/query/base');
+var BluebirdPromise = require('bluebird');
 
 var db;
 
@@ -34,53 +36,54 @@ describe('Transaction Mixin', function() {
     db._adapter.pool.release.restore();
   });
 
-  it('cannot use commit without transaction', function(done) {
-    db.query.commit().execute().bind(this)
-    .throw(new Error('Expected query execution to fail.'))
-    .catch(function(e) {
-      expect(e).to.match(/must associate.*commit.*with.*transaction/i);
-    })
-    .done(done, done);
+  it('cannot be created directly', function() {
+    expect(function() {
+      TransactionQuery.create();
+    }).to.throw(/TransactionQuery must be spawned/i);
   });
 
-  it('cannot use rollback without transaction', function(done) {
-    db.query.rollback().execute().bind(this)
-    .throw(new Error('Expected query execution to fail.'))
-    .catch(function(e) {
-      expect(e).to.match(/must associate.*rollback.*with.*transaction/i);
-    })
-    .done(done, done);
+  it('contains begin query that cannot be created directly', function() {
+    expect(function() {
+      TransactionQuery.BeginQuery.create();
+    }).to.throw(/BeginQuery must be spawned/i);
+  });
+
+  it('contains commit query that cannot be created directly', function() {
+    expect(function() {
+      TransactionQuery.CommitQuery.create();
+    }).to.throw(/CommitQuery must be spawned/i);
+  });
+
+  it('contains rollback query that cannot be created directly', function() {
+    expect(function() {
+      TransactionQuery.RollbackQuery.create();
+    }).to.throw(/RollbackQuery must be spawned/i);
   });
 
   describe('when begun', function() {
-    beforeEach(function() { this.transaction = db.query.begin(); });
+    beforeEach(function() {
+      this.transaction = db.transaction();
+      this.begin = this.transaction.begin();
+    });
 
     it('is a query', function() {
       expect(this.transaction).to.be.an.instanceOf(BaseQuery.__class__);
+      expect(this.begin).to.be.an.instanceOf(BaseQuery.__class__);
     });
 
-    it('can access the transaction', function() {
-      expect(this.transaction.transaction()).to.equal(this.transaction);
-    });
-
-    it('can set transaction to existing transaction', function() {
-      // this wouldn't really be something a user would want, but based on the
-      // architecture, it should work.
-      var transaction = this.transaction;
-      var duplicate = transaction.transaction(transaction);
-      expect(duplicate.transaction()).to.equal(transaction);
-      expect(duplicate).to.not.eql(transaction);
-      expect(duplicate.statement.value).to.eql('BEGIN');
+    it('does not allow transaction calls after begin', function() {
+      expect(this.begin.transaction).to.not.exist;
+      expect(this.begin.begin).to.not.exist;
     });
 
     it('includes sql', function() {
-      expect(this.transaction.statement).to.eql(Statement.create(
+      expect(this.begin.statement).to.eql(Statement.create(
         'BEGIN', []
       ));
     });
 
     it('can be committed', function(done) {
-      this.transaction.execute().bind(this).then(function() {
+      this.begin.execute().bind(this).then(function() {
         var commit = this.transaction.commit();
         expect(commit.statement).to.eql(Statement.create('COMMIT', []));
       })
@@ -88,7 +91,7 @@ describe('Transaction Mixin', function() {
     });
 
     it('can be rolled back', function(done) {
-      this.transaction.execute().bind(this).then(function() {
+      this.begin.execute().bind(this).then(function() {
         var rollback = this.transaction.rollback();
         expect(rollback.statement).to.eql(Statement.create('ROLLBACK', []));
       })
@@ -96,11 +99,11 @@ describe('Transaction Mixin', function() {
     });
 
     it('preforms commit with same client', function(done) {
-      var self = this;
-      this.transaction.execute().bind(this)
-      .tap(function() { this.client = self.transaction.client(); })
+      this.begin.execute().bind(this)
+      .then(function() { return this.transaction.acquireClient(); })
+      .then(function(client) { this.client = client; })
       .then(function() {
-        return self.transaction.commit();
+        return this.transaction.commit();
       })
       .then(function() {
         expect(db._adapter._execute).to.have.been
@@ -110,11 +113,11 @@ describe('Transaction Mixin', function() {
     });
 
     it('preforms rollback with same client', function(done) {
-      var self = this;
-      this.transaction.execute().bind({})
-      .tap(function() { this.client = self.transaction.client(); })
+      this.begin.execute().bind(this)
+      .then(function() { return this.transaction.acquireClient(); })
+      .then(function(client) { this.client = client; })
       .then(function() {
-        return self.transaction.rollback();
+        return this.transaction.rollback();
       })
       .then(function() {
         expect(db._adapter._execute).to.have.been
@@ -123,12 +126,12 @@ describe('Transaction Mixin', function() {
       .done(done, done);
     });
 
-    it('can be committed with transaction specified later', function(done) {
-      var self = this;
-      this.transaction.execute().bind({})
-      .tap(function() { this.client = self.transaction.client(); })
+    it('performs duplicated commits with the same client', function(done) {
+      this.begin.execute().bind(this)
+      .then(function() { return this.transaction.acquireClient(); })
+      .then(function(client) { this.client = client; })
       .then(function() {
-        return db.query.commit().transaction(self.transaction);
+        return this.transaction.commit().clone();
       })
       .then(function() {
         expect(db._adapter._execute).to.have.been
@@ -137,26 +140,11 @@ describe('Transaction Mixin', function() {
       .done(done, done);
     });
 
-    it('can be rolled back with transaction specified later', function(done) {
-      var self = this;
-      this.transaction.execute().bind({})
-      .tap(function() { this.client = self.transaction.client(); })
-      .then(function() {
-        return db.query.rollback().transaction(self.transaction);
-      })
-      .then(function() {
-        expect(db._adapter._execute).to.have.been
-          .calledWithExactly(this.client, 'ROLLBACK', []);
-      })
-      .done(done, done);
-    });
-
     it('releases client back to pool on commit', function(done) {
-      var self = this;
-      this.transaction.execute().bind({})
-      .tap(function() { this.client = self.transaction.client(); })
+      this.begin.execute().bind(this)
+      .then(function() { return this.transaction.acquireClient(); })
       .then(function() {
-        return self.transaction.commit();
+        return this.transaction.commit();
       })
       .then(function() {
         expect(db._adapter.pool.acquire).to.have.been.calledOnce;
@@ -171,7 +159,7 @@ describe('Transaction Mixin', function() {
       this.transaction.commit().execute().bind(this)
       .throw(new Error('Expected query execution to fail.'))
       .catch(function(e) {
-        expect(e).to.match(/must execute.*begin/i);
+        expect(e).to.match(/execute.*transaction.*not open/i);
       })
       .done(done, done);
     });
@@ -180,21 +168,35 @@ describe('Transaction Mixin', function() {
       this.transaction.rollback().execute().bind(this)
       .throw(new Error('Expected query execution to fail.'))
       .catch(function(e) {
-        expect(e).to.match(/must execute.*begin/i);
+        expect(e).to.match(/execute.*transaction.*not open/i);
       })
       .done(done, done);
     });
 
-    it('must be executed before executing queries based off of it', function(done) {
-      this.transaction.select('users').execute()
+    it('cannot execute query before begin', function(done) {
+      db.select('users').transaction(this.transaction).execute().bind(this)
       .throw(new Error('Expected query execution to fail.'))
       .catch(function(e) {
-        expect(e).to.match(/must execute.*begin/i);
+        expect(e).to.match(/execute.*transaction.*not open/i);
       })
       .done(done, done);
     });
 
-    var shouldWorkWithCurrentSelectQuery = function(){
+    it('cannot over-commit', function(done) {
+      this.begin.execute().bind(this)
+      .then(function() { return this.transaction.commit(); })
+      .then(function() { return this.transaction.commit(); })
+      .throw(new Error('Expected query execution to fail.'))
+      .catch(function(e) {
+        expect(e).to.match(/execute.*transaction.*not open/i);
+      })
+      .done(done, done);
+    });
+
+    describe('a select that uses the transaction', function() {
+      beforeEach(function() {
+        this.selectQuery = db.select('users').transaction(this.transaction);
+      });
 
       it('generates standard sql', function() {
         expect(this.selectQuery.statement).to.eql(Statement.create(
@@ -207,7 +209,7 @@ describe('Transaction Mixin', function() {
       });
 
       it('cannot run if initial transaction was committed', function(done) {
-        this.transaction.execute().bind(this).then(function() {
+        this.begin.execute().bind(this).then(function() {
           return this.transaction.commit();
         })
         .then(function() {
@@ -215,14 +217,21 @@ describe('Transaction Mixin', function() {
         })
         .throw(new Error('Expected query execution to fail.'))
         .catch(function(e) {
-          expect(e).to.match(/cannot execute query.*committed.*transaction/i);
+          expect(e).to.match(/execute.*transaction.*not open/i);
         })
         .done(done, done);
       });
 
       describe('when executed', function() {
+        beforeEach(function() {
+          sinon.spy(this.transaction, 'acquireClient');
+        });
+        afterEach(function() {
+          this.transaction.acquireClient.restore();
+        });
+
         beforeEach(function(done) {
-          this.transaction.execute().then(function() { done(); }, done);
+          this.begin.execute().then(function() { done(); }, done);
         });
 
         beforeEach(function(done) {
@@ -230,45 +239,36 @@ describe('Transaction Mixin', function() {
         });
 
         it('first acquires a client', function() {
-          var client = this.transaction.client();
-          expect(client).to.exist;
-          expect(this.transaction._transactionClientPromise.isFulfilled())
-            .to.be.true;
+          var acquireClient = this.transaction.acquireClient;
+          var promise = acquireClient.getCall(0).returnValue;
+          expect(acquireClient).to.have.been.called;
+          expect(promise.isFulfilled()).to.be.true;
         });
 
         it('passes transaction client to adapter', function() {
-          var client = this.transaction.client();
+          var acquireClient = this.transaction.acquireClient;
+          var promise = acquireClient.getCall(0).returnValue;
+          var client = promise.value();
           expect(db._adapter._execute).to.have.been
             .calledWithExactly(client, 'SELECT * FROM "users"', []);
         });
       });
-    };
-
-    describe('a select that uses the transaction', function() {
-      beforeEach(function() {
-        this.selectQuery = db.select('users').transaction(this.transaction);
-      });
-
-      shouldWorkWithCurrentSelectQuery();
-    });
-
-    describe('a select created from the transaction', function() {
-      beforeEach(function() {
-        this.selectQuery = this.transaction.select('users');
-      });
-
-      shouldWorkWithCurrentSelectQuery();
     });
 
     it('can be nested', function(done) {
+      // note that we're intentionally not executing this.begin in this test &
+      // expect that everything will still work as expected.
       var txn = this.transaction;
+      var query = db.query.transaction(txn);
       var client;
-      txn.execute()
-      .then(function() { client = txn.client(); })
-      .then(function() { return txn.select('users'); })
+      BluebirdPromise.resolve()
       .then(function() { return txn.begin(); })
-      .then(function() { return txn.select('articles'); })
-      .then(function() { return txn.select('comments'); })
+      .then(function() { return txn.acquireClient(); })
+      .then(function(_client) { client = _client; })
+      .then(function() { return query.select('users'); })
+      .then(function() { return txn.begin(); })
+      .then(function() { return query.select('articles'); })
+      .then(function() { return query.select('comments'); })
       .then(function() { return txn.commit(); })
       .then(function() { return txn.commit(); })
       .then(function() {
@@ -286,25 +286,8 @@ describe('Transaction Mixin', function() {
             .calledWithExactly(client, 'COMMIT', []);
           expect(db._adapter._execute.getCall(6)).to.have.been
             .calledWithExactly(client, 'COMMIT', []);
-          expect(txn.client()).to.not.exist;
       })
       .done(done, done);
-    });
-
-    it('can call #_prepareForTransactionClientAcquire without transaction', function() {
-      var txn = this.transaction;
-      txn._transaction = undefined;
-      expect(function() {
-        txn._prepareForTransactionClientAcquire();
-      }).to.not.throw();
-    });
-
-    it('can call #_prepareForTransactionClientRelease without transaction', function() {
-      var txn = this.transaction;
-      txn._transaction = undefined;
-      expect(function() {
-        txn._prepareForTransactionClientRelease();
-      }).to.not.throw();
     });
   });
 });

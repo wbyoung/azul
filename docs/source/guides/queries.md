@@ -779,6 +779,22 @@ query.fetch().then(function(articles) {
 });
 ```
 
+## Transactions
+
+Transaction objects can be created via `db.transaction()` or
+`db.query.transaction()`.
+
+For more details [see the transactions guide][azul-transactions].
+
+### `#transaction`
+
+When called with no arguments, this gets the transaction associated with the
+current query.
+
+When called with an argument, it creates a new query that uses the given
+transaction (or that query's transaction).
+
+
 ## Data Queries
 
 At times, it may be useful to execute more basic queries. Azul.js provides
@@ -930,7 +946,6 @@ Chainable methods include:
 - `where` Will not convert property names or join relationships. See
 [`#where`](#methods--where-).
 
-
 ### Raw
 
 Update queries can be executed via `db.query.raw`.
@@ -948,5 +963,6 @@ Raw queries have no chainable methods. Be very cautious of
 [azul-managers]: /guides/managers/
 [azul-models#objects]: /guides/models/#methods-properties--objects-
 [azul-relations]: /guides/relations/
+[azul-transactions]: /guides/transactions/
 [azul-backends#sqlite-lookups]: /guides/backends/#sqlite3-lookups
 [sql-injection]: http://en.wikipedia.org/wiki/SQL_injection

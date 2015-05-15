@@ -28,10 +28,6 @@ describe('Schema', function() {
     }).to.throw(/must first call/i);
   });
 
-  it('can be used to start a transaction', function() {
-    expect(schema.begin().sql).to.eql('BEGIN');
-  });
-
   describe('#createTable', function() {
 
     it('generates the proper sql', function() {

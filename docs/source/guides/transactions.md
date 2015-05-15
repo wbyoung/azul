@@ -9,18 +9,15 @@ template: guide-page.html
 ## Basics
 
 Transactions are straightforward to use in Azul.js. You simply create a new
-transaction query with [`begin`](#methods--begin-), and execute that. Any
-additional queries you want to be run in the same transaction simply require
-a call to [`transaction`](#methods--transaction-). When you are finished with
-the transaction, you must either [`commit`](#methods--commit-) or
-[`rollback`](#methods--rollback-). Here's a quick example:
-
+transaction object via [`db.transaction()`][azul-queries#transactions]. That
+object can then be used to create [`begin`](#methods--begin-),
+[`commit`](#methods--commit-), and [`rollback`](#methods--rollback-) queries.
+Here's a quick example:
 
 ```js
-var begin = db.query.begin();
-var transaction = begin;
+var transaction = db.transaction();
 
-begin.execute()
+transaction.begin().execute()
 .then(function() {
   return User.objects
     .transaction(transaction) // associate with transaction
@@ -33,30 +30,45 @@ begin.execute()
 .catch(function() { return transaction.rollback(); });
 ```
 
+Read on to see how to associate transactions with [queries](#with-queries) and
+[models](#with-models)
+
 ## Methods
 
 ### `begin`
 
-Create a new transaction object & begin query. Make sure you execute this query
-before any queries within the transaction.
+Create a new begin query. Make sure you execute this query before any queries
+within the transaction.
 
 ### `commit`
 
-Create a new commit query. This must be done on a query associated with a
-transaction.
+Create a new commit query.
 
 ### `rollback`
 
-Create a new rollback query. This must be done on a query associated with a
-transaction.
+Create a new rollback query.
 
-### `transaction`
+## With Queries
 
-When called with no arguments, this gets the transaction associated with the
-current query.
+As shown in the initial example, you can call
+[`transaction`][azul-queries#transaction-method] on any query to generate a
+query that will run in that transaction. When you plan to execute many queries
+in a transaction, it may be useful to reuse that query.
 
-When called with an argument, it creates a new query that uses the given
-transaction (or that query's transaction).
+```js
+var transaction = db.transaction();
+var articles = Article.objects.transaction(transaction);
+
+transaction.begin().execute()
+.then(function() {
+  return articles.update({ title: 'Azul.js' }).where({ title: 'Azul' });
+})
+.then(function() {
+  return articles.insert({ title: 'Azul.js Launch' });
+})
+.then(function() { return transaction.commit(); })
+.catch(function() { return transaction.rollback(); });
+```
 
 ## With Models
 
@@ -68,13 +80,9 @@ you [`save`][azul-model#save] a model.
 Azul.js supports nested transactions as well. Simply execute additional begins:
 
 ```js
-var begin = db.query.begin();
-var transaction = begin.transaction();
+var transaction = db.transaction();
 
-var begin = db.query.begin();
-var transaction = begin;
-
-begin.execute()
+transaction.begin().execute()
 .then(function() { /* something else */ })
 .then(function() { return transaction.begin(); })
 .then(function() { /* something else */ })
@@ -85,3 +93,5 @@ begin.execute()
 ```
 
 [azul-model#save]: /guides/models/#methods-properties--save-
+[azul-queries#transactions]: /guides/queries/#transactions
+[azul-queries#transaction-method]: /guides/queries/#transactions--transaction-
