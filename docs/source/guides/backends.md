@@ -50,13 +50,13 @@ The following lookups are unsupported without
 [SQL function][sqlite-functions]:
 
 - `regex` and `iregex` require a `REGEXP(pattern, value)` function
-- `year`requires a `YEAR(date)` function
-- `month`requires a `MONTH(date)` function
-- `day`requires a `DAY(date)` function
-- `weekday`requires a `WEEKDAY(date)` function
-- `hour`requires a `HOUR(date)` function
-- `minute`requires a `MINUTE(date)` function
-- `second`requires a `SECOND(date)` function
+- `year` requires a `YEAR(date)` function
+- `month` requires a `MONTH(date)` function
+- `day` requires a `DAY(date)` function
+- `weekday` requires a `WEEKDAY(date)` function
+- `hour` requires a `HOUR(date)` function
+- `minute` requires a `MINUTE(date)` function
+- `second` requires a `SECOND(date)` function
 
 ### `date`
 
