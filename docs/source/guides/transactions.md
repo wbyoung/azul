@@ -35,16 +35,16 @@ Read on to see how to associate transactions with [queries](#with-queries) and
 
 ## Methods
 
-### `begin`
+### `#begin`
 
 Create a new begin query. Make sure you execute this query before any queries
 within the transaction.
 
-### `commit`
+### `#commit`
 
 Create a new commit query.
 
-### `rollback`
+### `#rollback`
 
 Create a new rollback query.
 
