@@ -47,7 +47,7 @@ An example migration looks like this:
 
 ```js
 exports.up = function(schema) {
-  return schema.createTable('articles', function(table) {
+  schema.createTable('articles', function(table) {
     table.serial('id').primaryKey();
     table.string('title');
     table.text('body');
@@ -55,7 +55,7 @@ exports.up = function(schema) {
 };
 
 exports.down = function(schema) {
-  return schema.dropTable('articles');
+  schema.dropTable('articles');
 };
 ```
 
@@ -70,6 +70,14 @@ only true if your database supports transactions.
 The `up` and `down` functions are provided with a second argument. A
 [basic query][azul-queries#data-queries] object that you can use if you need to
 execute raw SQL or perform schema changes that are not supported by Azul.js.
+
+Migrations support two modes of execution, _sequential_ and _manual_. The
+examples given above are sequential. Each schema change will be executed
+in the order they are written. In this mode, you cannot write asynchronous code
+(no callbacks or promises). You therefore cannot obtain the results of any
+queries. If you need full control, _manual_ mode can be enabled by simply
+returning a promise or _thenable_ from the from the `up` or `down` function. In
+manual mode, you are responsible for executing all queries in your migration.
 
 ### Methods
 
