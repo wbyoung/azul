@@ -304,6 +304,58 @@ shared.shouldSupportStandardTypes = function(it) {
   });
 };
 
+shared.shouldSupportTransactions = function(it) {
+  var db; before(function() { db = this.db; });
+
+  describe('transactions', function() {
+    beforeEach(function(done) {
+      db.schema.createTable('people', function(table) {
+        table.string('name');
+      })
+      .execute()
+      .return()
+      .then(done, done);
+    });
+
+    afterEach(function(done) {
+      db.schema.dropTable('people').ifExists()
+        .execute()
+        .return()
+        .then(done, done);
+    });
+
+    it('works when nested', function(done) {
+      var transaction = db.transaction();
+      var q = db.query.transaction(transaction);
+      BluebirdPromise.resolve()
+      transaction.begin()
+      .then(function() {
+        return q.insert('people').values({ name: 'Susan' });
+      })
+      .then(function() { return transaction.begin(); })
+      .then(function() {
+        return q.insert('people').values({ name: 'Jake' });
+      })
+      .then(function() { return transaction.commit(); })
+      .then(function() { return transaction.begin(); })
+      .then(function() {
+        return q.insert('people').values({ name: 'Brad' });
+      })
+      .then(function() { return transaction.rollback(); })
+      .then(function() {
+        return q.select('people').fetch();
+      })
+      .then(function(people) {
+        expect(people).to.eql([{ name: 'Susan' }, { name: 'Jake' }])
+      })
+      .then(function() { return transaction.commit(); })
+      .catch(function(e) { return transaction.rollback().execute().throw(e); })
+      .return()
+      .then(done, done);
+    });
+  });
+};
+
 shared.shouldSupportStandardConditions = function(it) {
   var db; before(function() { db = this.db; });
 
