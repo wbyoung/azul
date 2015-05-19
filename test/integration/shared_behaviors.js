@@ -327,7 +327,6 @@ shared.shouldSupportTransactions = function(it) {
     it('works when nested', function(done) {
       var transaction = db.transaction();
       var q = db.query.transaction(transaction);
-      BluebirdPromise.resolve()
       transaction.begin()
       .then(function() {
         return q.insert('people').values({ name: 'Susan' });
@@ -346,7 +345,7 @@ shared.shouldSupportTransactions = function(it) {
         return q.select('people').fetch();
       })
       .then(function(people) {
-        expect(people).to.eql([{ name: 'Susan' }, { name: 'Jake' }])
+        expect(people).to.eql([{ name: 'Susan' }, { name: 'Jake' }]);
       })
       .then(function() { return transaction.commit(); })
       .catch(function(e) { return transaction.rollback().execute().throw(e); })
