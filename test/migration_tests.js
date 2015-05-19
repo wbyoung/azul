@@ -27,7 +27,7 @@ describe('Migration', function() {
       migration._readMigrations().then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202234_create_articles' },
-          { name: '20141022202634_create_comments' }
+          { name: '20141022202634_create_comments' },
         ]);
       })
       .done(done, done);
@@ -56,6 +56,12 @@ describe('Migration', function() {
   });
 
   describe('#_readPendingMigrations', function() {
+    beforeEach(function(done) {
+      migration._transaction.begin().then(function() { done(); }, done);
+    });
+    afterEach(function(done) {
+      migration._transaction.commit().then(function() { done(); }, done);
+    });
 
     it('reads migrations in order', function(done) {
       migration._readPendingMigrations().bind(this)
@@ -85,6 +91,12 @@ describe('Migration', function() {
   });
 
   describe('#_loadPendingMigrations', function() {
+    beforeEach(function(done) {
+      migration._transaction.begin().then(function() { done(); }, done);
+    });
+    afterEach(function(done) {
+      migration._transaction.commit().then(function() { done(); }, done);
+    });
 
     it('loads pending migrations', function(done) {
       adapter.interceptSelectMigrations([
@@ -107,6 +119,12 @@ describe('Migration', function() {
   });
 
   describe('#_readExecutedMigrations', function() {
+    beforeEach(function(done) {
+      migration._transaction.begin().then(function() { done(); }, done);
+    });
+    afterEach(function(done) {
+      migration._transaction.commit().then(function() { done(); }, done);
+    });
 
     it('reads migrations in order', function(done) {
       adapter.interceptSelectMigrations([
@@ -129,6 +147,12 @@ describe('Migration', function() {
   });
 
   describe('#_loadExecutedMigrations', function() {
+    beforeEach(function(done) {
+      migration._transaction.begin().then(function() { done(); }, done);
+    });
+    afterEach(function(done) {
+      migration._transaction.commit().then(function() { done(); }, done);
+    });
 
     it('loads migrations in order', function(done) {
       adapter.interceptSelectMigrations([
