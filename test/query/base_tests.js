@@ -21,7 +21,6 @@ describe('BaseQuery', function() {
   it('can be cloned', function() {
     var clone = query.clone();
     expect(clone).to.not.equal(query);
-    expect(clone._promise).to.not.equal(query._promise);
   });
 
   it('cannot be executed', function(done) {
