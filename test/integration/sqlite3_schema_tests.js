@@ -83,8 +83,7 @@ describe('SQLite3 schema', function() {
         var c = executedSQL()[0][0];
         expect(executedSQL()).to.eql([
           [c, 'SAVEPOINT AZULJS_1', []],
-          [c, 'PRAGMA foreign_keys', []],
-          [c, 'PRAGMA foreign_keys=0', []],
+          [c, 'PRAGMA defer_foreign_keys=1', []],
           [c, 'PRAGMA table_info("people")', []],
           [c, 'PRAGMA foreign_key_list("people")', []],
           [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
@@ -95,7 +94,6 @@ describe('SQLite3 schema', function() {
           [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
             'SELECT "id", "best_friend_id" FROM "people_old"', []],
           [c, 'DROP TABLE "people_old"', []],
-          [c, 'PRAGMA foreign_keys=1', []],
           [c, 'RELEASE AZULJS_1', []],
         ]);
       })
@@ -115,8 +113,7 @@ describe('SQLite3 schema', function() {
         var c = executedSQL()[0][0];
         expect(executedSQL()).to.eql([
           [c, 'SAVEPOINT AZULJS_1', []],
-          [c, 'PRAGMA foreign_keys', []],
-          [c, 'PRAGMA foreign_keys=0', []],
+          [c, 'PRAGMA defer_foreign_keys=1', []],
           [c, 'PRAGMA table_info("people")', []],
           [c, 'PRAGMA foreign_key_list("people")', []],
           [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
@@ -128,7 +125,6 @@ describe('SQLite3 schema', function() {
           [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
             'SELECT "id", "best_friend_id" FROM "people_old"', []],
           [c, 'DROP TABLE "people_old"', []],
-          [c, 'PRAGMA foreign_keys=1', []],
           [c, 'RELEASE AZULJS_1', []],
         ]);
       })
