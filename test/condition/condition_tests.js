@@ -10,8 +10,8 @@ var Condition = require('../../lib/condition'),
   f = Condition.f,
   l = Condition.l;
 
-var Grammar = require('../../lib/grammar');
-var Translator = require('../../lib/grammar/translator');
+var Grammar = require('../../lib/dialect/grammar');
+var Translator = require('../../lib/dialect/translator');
 
 describe('Condition', function() {
   beforeEach(function() {

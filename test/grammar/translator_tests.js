@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-var Translator = require('../../lib/grammar/translator');
+var Translator = require('../../lib/dialect/translator');
 
 describe('Translator', function() {
 

@@ -8,7 +8,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Database = require('../../lib/database');
 var RawQuery = require('../../lib/query/raw');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
+var Statement = require('../../lib/types/statement');
 var BluebirdPromise = require('bluebird');
 
 var db;

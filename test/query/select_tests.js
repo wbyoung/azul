@@ -7,7 +7,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Database = require('../../lib/database');
 var SelectQuery = require('../../lib/query/select');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
+var Statement = require('../../lib/types/statement');
 var Condition = require('../../lib/condition'),
   f = Condition.f;
 

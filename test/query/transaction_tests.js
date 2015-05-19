@@ -7,7 +7,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Database = require('../../lib/database');
 var TransactionQuery = require('../../lib/query/transaction');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
+var Statement = require('../../lib/types/statement');
 var BaseQuery = require('../../lib/query/base');
 var BluebirdPromise = require('bluebird');
 

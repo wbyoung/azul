@@ -2,9 +2,9 @@
 
 var expect = require('chai').expect;
 
-var Grammar = require('../../lib/grammar/grammar');
-var Statement = require('../../lib/grammar/statement');
-var Fragment = require('../../lib/grammar/fragment');
+var Grammar = require('../../lib/dialect/grammar');
+var Statement = require('../../lib/types/statement');
+var Fragment = require('../../lib/types/fragment');
 
 describe('Fragment', function() {
   it('can be created with value and arguments', function() {

@@ -6,10 +6,10 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var UpdateQuery = require('../../lib/query/update');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
-var LiteralString = require('../../lib/grammar/literal'),
+var Statement = require('../../lib/types/statement');
+var LiteralString = require('../../lib/types/literal'),
   l = LiteralString.l;
-var FieldString = require('../../lib/grammar/field'),
+var FieldString = require('../../lib/types/field'),
   f = FieldString.f;
 
 var db;

@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var Database = require('../../lib/database');
 var Schema = require('../../lib/schema');
 var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/grammar/statement');
+var Statement = require('../../lib/types/statement');
 
 var db, adapter, schema;
 
