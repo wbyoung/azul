@@ -218,9 +218,12 @@ shared.shouldSupportStandardTypes = function(it) {
 
   describe('types', function() {
 
-    it('supports `auto`', via('auto', 1));
-    it('supports `increments`', via('increments', 1));
-    it('supports `serial`', via('serial', 1));
+    it('supports `auto.pk`',
+      viaOptions('auto', 1, 1, { primaryKey: true }));
+    it('supports `increments.pk`',
+      viaOptions('increments', 1, 1, { primaryKey: true }));
+    it('supports `serial.pk`',
+      viaOptions('serial', 1, 1, { primaryKey: true }));
     it('supports `integer`', via('integer', 1));
     it('supports `integer64`', via('integer64', 1));
     it('supports `string`', via('string', 'hello world'));
