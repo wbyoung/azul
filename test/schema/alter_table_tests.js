@@ -107,7 +107,7 @@ describe('AlterTableQuery', function() {
       table.integer('boss_id').references('id');
     });
     expect(query.statement).to.eql(Statement.create(
-      'ALTER TABLE "users" ADD COLUMN "boss_id" integer REFERENCES "id"', []
+      'ALTER TABLE "users" ADD COLUMN "boss_id" integer REFERENCES "users" ("id")', []
     ));
   });
 
