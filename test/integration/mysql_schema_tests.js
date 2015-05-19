@@ -61,7 +61,7 @@ describe('SQLite3 schema', function() {
       var c = executedSQL()[0][0];
       expect(executedSQL()).to.eql([
         [c, 'CREATE TABLE `people` (`id` integer AUTO_INCREMENT PRIMARY KEY NOT NULL, ' +
-          '`first_name` varchar(255), `best_friend_id` integer , ' + // TODO: remove extra space before comma
+          '`first_name` varchar(255), `best_friend_id` integer, ' +
           'FOREIGN KEY (`best_friend_id`) REFERENCES `people` (`id`))', []],
       ]);
     });
@@ -79,7 +79,7 @@ describe('SQLite3 schema', function() {
         .then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
-            [c, 'ALTER TABLE `people` ADD COLUMN `worst_enemy_id` integer , ' +  // TODO: remove extra space before comma
+            [c, 'ALTER TABLE `people` ADD COLUMN `worst_enemy_id` integer, ' +
               'ADD FOREIGN KEY (`worst_enemy_id`) REFERENCES `people` (`id`)', []],
           ]);
         })
