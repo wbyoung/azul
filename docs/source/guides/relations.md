@@ -61,29 +61,22 @@ the `articles` table:
 
 ```js
 exports.up = function(schema) {
-  var createBlogs = function() {
-    return schema.createTable('blogs', function(table) {
-      table.serial('id').primaryKey();
-      table.string('title');
-    });
-  };
+  schema.createTable('blogs', function(table) {
+    table.serial('id').primaryKey();
+    table.string('title');
+  });
 
-  var createArticles = function() {
-    return schema.createTable('articles', function(table) {
-      table.serial('id').primaryKey();
-      table.string('title');
-      table.text('body');
-      table.integer('blog_id').references('blogs.id');
-    });
-  };
-
-  return createBlogs().then(createArticles);
+  schema.createTable('articles', function(table) {
+    table.serial('id').primaryKey();
+    table.string('title');
+    table.text('body');
+    table.integer('blog_id').references('blogs.id');
+  });
 };
 
 exports.down = function(schema) {
-  var dropBlogs = function() { return schema.dropTable('blogs'); };
-  var dropArticles = function() { return schema.dropTable('articles'); };
-  return dropArticles().then(dropBlogs);
+  schema.dropTable('articles');
+  schema.dropTable('blogs');
 };
 ```
 
@@ -198,37 +191,28 @@ relationship:
 
 ```js
 exports.up = function(schema) {
-  var createDoctors = function() {
-    return schema.createTable('doctors', function(table) {
-      table.serial('id').primaryKey();
-      table.string('name');
-    });
-  };
+  schema.createTable('doctors', function(table) {
+    table.serial('id').primaryKey();
+    table.string('name');
+  });
 
-  var createPatients = function() {
-    return schema.createTable('patients', function(table) {
-      table.serial('id').primaryKey();
-      table.string('name');
-    });
-  };
+  schema.createTable('patients', function(table) {
+    table.serial('id').primaryKey();
+    table.string('name');
+  });
 
-  var createAppointments = function() {
-    return schema.createTable('appointments', function(table) {
-      table.serial('id').primaryKey();
-      table.dateTime('occursAt');
-      table.integer('doctor_id').references('doctors.id');
-      table.integer('patient_id').references('patients.id');
-    });
-  };
-
-  return createDoctors().then(createPatients).then(dropAppointments);
+  schema.createTable('appointments', function(table) {
+    table.serial('id').primaryKey();
+    table.dateTime('occursAt');
+    table.integer('doctor_id').references('doctors.id');
+    table.integer('patient_id').references('patients.id');
+  });
 };
 
 exports.down = function(schema) {
-  var dropDoctors = function() { return schema.dropTable('doctors'); };
-  var dropPatients = function() { return schema.dropTable('patients'); };
-  var dropAppointments = function() { return schema.dropTable('appointments'); };
-  return dropAppointments().then(dropPatients).then(dropDoctors);
+  schema.dropTable('appointments');
+  schema.dropTable('patients');
+  schema.dropTable('doctors');
 };
 ```
 
