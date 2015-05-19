@@ -141,6 +141,18 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
+- `rename` Renames a table column
+
+While not intuitive, a third argument, `type`, is required for a rename. This
+is because certain backends need this value in order to perform a rename. The
+value of the type _must match_ the type used to create the column.
+
+```js
+schema.alterTable('articles', function(table) {
+  table.rename('title', 'headline', 'string'); // rename the title column
+});
+```
+
 
 #### `#dropTable`
 

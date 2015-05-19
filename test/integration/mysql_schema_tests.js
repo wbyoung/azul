@@ -40,7 +40,7 @@ describe('MySQL schema', function() {
 
   describe('creating a table', function() {
     beforeEach(function(done) {
-      return db.schema.createTable('people', function(table) {
+      db.schema.createTable('people', function(table) {
         table.serial('id').pk().notNull();
         table.string('first_name');
         table.integer('best_friend_id').references('id');
@@ -51,7 +51,7 @@ describe('MySQL schema', function() {
     });
 
     afterEach(function(done) {
-      return db.schema.dropTable('people')
+      db.schema.dropTable('people')
         .execute()
         .return()
         .then(done, done);
@@ -70,6 +70,19 @@ describe('MySQL schema', function() {
       beforeEach(function() {
         db._adapter._execute.restore();
         sinon.spy(db._adapter, '_execute');
+      });
+
+      it('can rename columns', function(done) {
+        db.schema.alterTable('people', function(table) {
+          table.rename('first_name', 'first', 'string');
+        })
+        .then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'ALTER TABLE `people` CHANGE `first_name` `first` varchar(255)', []]
+          ]);
+        })
+        .then(done, done);
       });
 
       it('can add columns with foreign keys', function(done) {

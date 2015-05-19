@@ -39,7 +39,7 @@ describe('SQLite3 schema', function() {
 
   describe('with a table', function() {
     beforeEach(function(done) {
-      return db.schema.createTable('people', function(table) {
+      db.schema.createTable('people', function(table) {
         table.serial('id').pk().notNull();
         table.string('first_name');
         table.integer('best_friend_id').references('id').default(1);
@@ -53,7 +53,7 @@ describe('SQLite3 schema', function() {
     });
 
     afterEach(function(done) {
-      return db.schema.dropTable('people')
+      db.schema.dropTable('people')
         .execute()
         .return()
         .then(done, done);
@@ -70,6 +70,38 @@ describe('SQLite3 schema', function() {
         var c = executedSQL()[0][0];
         expect(executedSQL()).to.eql([
           [c, 'ALTER TABLE "people" ADD COLUMN "last_name" varchar(255)', []]
+        ]);
+      })
+      .then(done, done);
+    });
+
+    it('can rename columns', function(done) {
+      var alter = db.schema.alterTable('people', function(table) {
+        table.rename('first_name', 'first', 'string');
+      });
+
+      expect(alter.sql).to.eql('-- procedure for ' +
+        'ALTER TABLE "people" RENAME "first_name" TO "first"');
+
+      alter
+      .then(function() {
+        var c = executedSQL()[0][0];
+        expect(executedSQL()).to.eql([
+          [c, 'SAVEPOINT AZULJS_1', []],
+          [c, 'PRAGMA defer_foreign_keys=1', []],
+          [c, 'PRAGMA table_info("people")', []],
+          [c, 'PRAGMA foreign_key_list("people")', []],
+          [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
+          [c, 'CREATE TABLE "people" (' +
+            '"id" integer PRIMARY KEY NOT NULL, ' +
+            '"first" varchar(255), ' +
+            '"best_friend_id" integer DEFAULT 1, ' +
+            'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
+            'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
+          [c, 'INSERT INTO "people" ("id", "first", "best_friend_id") ' +
+            'SELECT "id", "first_name", "best_friend_id" FROM "people_old"', []],
+          [c, 'DROP TABLE "people_old"', []],
+          [c, 'RELEASE AZULJS_1', []],
         ]);
       })
       .then(done, done);
@@ -106,7 +138,6 @@ describe('SQLite3 schema', function() {
       })
       .then(done, done);
     });
-
 
     describe('with raw table rename queries causing problems', function() {
       beforeEach(function() {
