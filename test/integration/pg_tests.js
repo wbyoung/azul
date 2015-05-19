@@ -34,7 +34,7 @@ var castDatabaseValue = function(type, value) {
   return value;
 };
 
-describe('PostgresQL', function() {
+describe('PostgreSQL', function() {
   before(function() { db = this.db = Database.create(connection); });
   before(function() { this.resetSequence = resetSequence; });
   before(function() { this.castDatabaseValue = castDatabaseValue; });
