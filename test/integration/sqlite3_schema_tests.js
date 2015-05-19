@@ -41,7 +41,7 @@ describe('SQLite3 schema', function() {
       return db.schema.createTable('people', function(table) {
         table.serial('id').pk().notNull();
         table.string('first_name');
-        table.integer('best_friend_id').references('id');
+        table.integer('best_friend_id').references('id').default(1);
       })
       .then(function() {
         db._adapter._execute.restore();
@@ -88,7 +88,8 @@ describe('SQLite3 schema', function() {
           [c, 'PRAGMA foreign_key_list("people")', []],
           [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
           [c, 'CREATE TABLE "people" (' +
-            '"id" integer PRIMARY KEY NOT NULL, "best_friend_id" integer, ' +
+            '"id" integer PRIMARY KEY NOT NULL, ' +
+            '"best_friend_id" integer DEFAULT 1, ' +
             'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
             'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
           [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
@@ -118,7 +119,8 @@ describe('SQLite3 schema', function() {
           [c, 'PRAGMA foreign_key_list("people")', []],
           [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
           [c, 'CREATE TABLE "people" (' +
-            '"id" integer PRIMARY KEY NOT NULL, "best_friend_id" integer, ' +
+            '"id" integer PRIMARY KEY NOT NULL, ' +
+            '"best_friend_id" integer DEFAULT 1, ' +
             '"name" varchar(255), ' +
             'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
             'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
