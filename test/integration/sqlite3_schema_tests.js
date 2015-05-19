@@ -6,6 +6,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Database = require('../../lib/database');
+var EntryQuery = require('../../lib/query/entry');
 
 var db, executedSQL, connection = {
   adapter: 'sqlite3',
@@ -99,6 +100,51 @@ describe('SQLite3 schema', function() {
         ]);
       })
       .then(done, done);
+    });
+
+
+    describe('with raw table rename queries causing problems', function() {
+      beforeEach(function() {
+        var raw = EntryQuery.__class__.prototype.raw;
+        sinon.stub(EntryQuery.__class__.prototype, 'raw', function(query) {
+          if (query.match(/RENAME TO/)) {
+            arguments[0] = query.replace(/"$/, '_wrongname"');
+          }
+          return raw.apply(this, arguments);
+        })
+      });
+
+      afterEach(function() {
+        EntryQuery.__class__.prototype.raw.restore();
+      });
+
+      it('rolls back alter table', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.drop('first_name');
+        })
+        .execute()
+        .throw(new Error('Expected alter to fail'))
+        .catch(function(e) {
+          expect(e).to.match(/no.*table.*people_old/i);
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'SAVEPOINT AZULJS_1', []],
+            [c, 'PRAGMA defer_foreign_keys=1', []],
+            [c, 'PRAGMA table_info("people")', []],
+            [c, 'PRAGMA foreign_key_list("people")', []],
+            [c, 'ALTER TABLE "people" RENAME TO "people_old_wrongname"', []],
+            [c, 'CREATE TABLE "people" (' +
+              '"id" integer PRIMARY KEY NOT NULL, ' +
+              '"best_friend_id" integer DEFAULT 1, ' +
+              'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
+              'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
+            [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
+              'SELECT "id", "best_friend_id" FROM "people_old"', []],
+            [c, 'ROLLBACK TO AZULJS_1', []],
+          ]);
+        })
+        .then(done, done);
+      });
     });
 
     it('can add and drop columns', function(done) {
