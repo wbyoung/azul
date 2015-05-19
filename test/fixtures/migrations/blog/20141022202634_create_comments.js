@@ -1,11 +1,13 @@
 'use strict';
 
 exports.up = function(schema) {
-  return schema.createTable('comments', function(table) {
+  schema.createTable('comments', function(table) {
     table.serial('identifier').primaryKey();
-    table.string('email');
     table.text('body');
     table.integer('article_id').references('articles.id');
+  });
+  schema.alterTable('comments', function(table) {
+    table.string('email');
   });
 };
 

@@ -37,12 +37,6 @@ Using SQLite3, the only value that can be returned is the primary key if it is
 aliased to the [`ROWID`][sqlite-autoinc]. Requesting any other value will
 result in undefined behavior.
 
-### `Schema#alterTable`
-
-SQLite3 does not have native support for altering tables. We should be able to
-work around this [and make it work][azul-sqlite-alter-table-issue]. Please feel
-free to [contribute][azul-pulls].
-
 ### Lookups
 
 The following lookups are unsupported without
@@ -99,7 +93,6 @@ as numbers even if a date was used to store the value. See the example in the
 
 [azul-issues]: https://github.com/wbyoung/azul/issues
 [azul-pulls]: https://github.com/wbyoung/azul/pulls
-[azul-sqlite-alter-table-issue]: https://github.com/wbyoung/azul/issues/15
 [azul-core#properties]: /guides/core/#objects-extending-classes-properties
 [azul-queries#insert]: /guides/queries/#data-queries-insert
 [sqlite-autoinc]: https://www.sqlite.org/autoinc.html
