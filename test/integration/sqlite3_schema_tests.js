@@ -60,10 +60,13 @@ describe('SQLite3 schema', function() {
     });
 
     it('can add columns', function(done) {
-      db.schema.alterTable('people', function(table) {
+      var alter = db.schema.alterTable('people', function(table) {
         table.string('last_name');
-      })
-      .then(function() {
+      });
+
+      expect(alter.sql).to.not.match(/^--/);
+
+      alter.then(function() {
         var c = executedSQL()[0][0];
         expect(executedSQL()).to.eql([
           [c, 'ALTER TABLE "people" ADD COLUMN "last_name" varchar(255)', []]
@@ -72,7 +75,7 @@ describe('SQLite3 schema', function() {
       .then(done, done);
     });
 
-    it('can drop columns', function(done) {
+    it('drops a column once when procedure is repeated', function(done) {
       var alter = db.schema.alterTable('people', function(table) {
         table.drop('first_name');
       });
@@ -80,7 +83,9 @@ describe('SQLite3 schema', function() {
       expect(alter.sql).to
         .eql('-- procedure for ALTER TABLE "people" DROP COLUMN "first_name"');
 
-      alter.then(function() {
+      alter
+      .then(function() { return alter; })
+      .then(function() {
         var c = executedSQL()[0][0];
         expect(executedSQL()).to.eql([
           [c, 'SAVEPOINT AZULJS_1', []],
@@ -111,7 +116,7 @@ describe('SQLite3 schema', function() {
             arguments[0] = query.replace(/"$/, '_wrongname"');
           }
           return raw.apply(this, arguments);
-        })
+        });
       });
 
       afterEach(function() {
@@ -119,7 +124,7 @@ describe('SQLite3 schema', function() {
       });
 
       it('rolls back alter table', function(done) {
-        var alter = db.schema.alterTable('people', function(table) {
+        db.schema.alterTable('people', function(table) {
           table.drop('first_name');
         })
         .execute()
