@@ -16,7 +16,7 @@ var db, executedSQL, connection = {
   }
 };
 
-describe('SQLite3 schema', function() {
+describe('MySQL schema', function() {
   before(function(done) {
     db = Database.create(connection);
     db.query.raw('select 1').execute().return().then(done, done);
