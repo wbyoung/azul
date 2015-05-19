@@ -169,6 +169,15 @@ shared.shouldRunMigrationsAndQueries = function(it) {
 
     });
 
+    it('cannot violate foreign key constraint', function(done) {
+      db.insert('comments', { 'article_id': 923 }).execute()
+      .throw(new Error(''))
+      .catch(function(e) {
+        expect(e.message).to.match(/constraint/i);
+      })
+      .then(done, done);
+    });
+
   });
 };
 
