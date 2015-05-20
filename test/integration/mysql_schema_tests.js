@@ -73,10 +73,14 @@ describe('MySQL schema', function() {
       });
 
       it('can rename columns', function(done) {
-        db.schema.alterTable('people', function(table) {
+        var alter = db.schema.alterTable('people', function(table) {
           table.rename('first_name', 'first', 'string');
-        })
-        .then(function() {
+        });
+
+        expect(alter.sql).to.eql('ALTER TABLE `people` ' +
+          'CHANGE `first_name` `first` varchar(255)');
+
+        alter.then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'ALTER TABLE `people` CHANGE `first_name` `first` varchar(255)', []]
