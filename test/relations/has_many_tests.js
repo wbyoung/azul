@@ -548,7 +548,7 @@ describe('Model.hasMany', function() {
     it('generates join queries that use where accessing fields in both types', function(done) {
       User.objects.join('articles').where({
         username: 'wbyoung',
-        'title[contains]': 'News'
+        title$contains: 'News'
       }).fetch().then(function() {
         // note that this expectation depends on ordering of object
         // properties which is not guaranteed to be a stable ordering.
@@ -662,7 +662,7 @@ describe('Model.hasMany', function() {
     });
 
     it('works with a complex query', function(done) {
-      User.objects.where({ 'articles.title[contains]': 'news', })
+      User.objects.where({ 'articles.title$contains': 'news', })
       .orderBy('username', '-articles.title')
       .limit(10)
       .offset(20)
@@ -683,7 +683,7 @@ describe('Model.hasMany', function() {
       var Comment = db.model('comment');
       Comment.reopen({ body: db.attr() });
       Article.reopen({ comments: db.hasMany() });
-      User.objects.where({ 'articles.comments.body[contains]': 'rolex', })
+      User.objects.where({ 'articles.comments.body$contains': 'rolex', })
       .orderBy('username', 'articles.comments.body')
       .limit(10)
       .offset(20)

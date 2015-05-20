@@ -588,7 +588,7 @@ make the related objects available through the
 
 ```js
 Blog.objects.find(1).then(function(blog) {
-  return blog.articleObjects.where({ 'title[contains]': 'Azul' });
+  return blog.articleObjects.where({ title$contains: 'Azul' });
 })
 .then(function(articles) {
   console.log(articles);

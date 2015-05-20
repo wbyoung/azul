@@ -19,7 +19,7 @@ To discuss each of these concepts, let's first take a look at a simple query:
 
 ```js
 var query = Article.objects
-  .where({ 'title[contains]': 'Azul' })
+  .where({ title$contains: 'Azul' })
   .order('-title')
   .limit(5);
 
@@ -238,7 +238,7 @@ using an _exact_ comparison on `id` would mean using a property name of
 An exact comparison. This is assumed if no lookup is specified.
 
 ```js
-Article.objects.where({ 'title[exact]': 'Azul.js' });
+Article.objects.where({ title$exact: 'Azul.js' });
 ```
 
 ### `iExact`
@@ -246,7 +246,7 @@ Article.objects.where({ 'title[exact]': 'Azul.js' });
 A case insensitive exact comparison.
 
 ```js
-Article.objects.where({ 'title[iExact]': 'azul.js' });
+Article.objects.where({ title$iExact: 'azul.js' });
 ```
 
 ### `contains`
@@ -254,7 +254,7 @@ Article.objects.where({ 'title[iExact]': 'azul.js' });
 A case-sensitive containment test.
 
 ```js
-Article.objects.where({ 'title[contains]': 'Azul.js' });
+Article.objects.where({ title$contains: 'Azul.js' });
 ```
 
 ### `iContains`
@@ -282,7 +282,7 @@ A case-insensitive ends-with.
 A case-sensitive regular expression test.
 
 ```js
-Article.objects.where({ 'title[regex]': /[Aa]zul\.?js/ });
+Article.objects.where({ title$regex: /[Aa]zul\.?js/ });
 ```
 
 Regular expression flags are currently ignored, so the following will still be
@@ -290,7 +290,7 @@ case sensitive:
 
 ```js
 // currently interpreted as case sensitive, but may change in the future
-Article.objects.where({ 'title[regex]': /[Aa]zul\.?js/i });
+Article.objects.where({ title$regex: /[Aa]zul\.?js/i });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -300,7 +300,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 A case-insensitive regular expression test.
 
 ```js
-Article.objects.where({ 'title[iRegex]': /azul\.?js/i });
+Article.objects.where({ title$iRegex: /azul\.?js/i });
 ```
 
 While regular expression flags are currently ignored, it is recommended that
@@ -313,7 +313,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 A test for a value being between two values (inclusive).
 
 ```js
-Article.objects.where({ 'id[between]': [2, 8] });
+Article.objects.where({ id$between: [2, 8] });
 ```
 
 This works for all types where `BETWEEN` works in your database.
@@ -323,7 +323,7 @@ This works for all types where `BETWEEN` works in your database.
 A test for a value being in an array of values.
 
 ```js
-Article.objects.where({ 'title[in]': ['Azul.js', 'Azul'] });
+Article.objects.where({ title$in: ['Azul.js', 'Azul'] });
 ```
 
 ### `gt`
@@ -331,7 +331,7 @@ Article.objects.where({ 'title[in]': ['Azul.js', 'Azul'] });
 Greater than.
 
 ```js
-Article.objects.where({ 'id[gt]': 5 });
+Article.objects.where({ id$gt: 5 });
 ```
 
 ### `gte`
@@ -339,7 +339,7 @@ Article.objects.where({ 'id[gt]': 5 });
 Greater than or equal to.
 
 ```js
-Article.objects.where({ 'id[gte]': 5 });
+Article.objects.where({ id$gte: 5 });
 ```
 
 ### `lt`
@@ -347,7 +347,7 @@ Article.objects.where({ 'id[gte]': 5 });
 Less than.
 
 ```js
-Article.objects.where({ 'id[lt]': 5 });
+Article.objects.where({ id$lt: 5 });
 ```
 
 ### `lte`
@@ -355,7 +355,7 @@ Article.objects.where({ 'id[lt]': 5 });
 Less than or equal to.
 
 ```js
-Article.objects.where({ 'id[lte]': 5 });
+Article.objects.where({ id$lte: 5 });
 ```
 
 ### `isNull`
@@ -363,8 +363,8 @@ Article.objects.where({ 'id[lte]': 5 });
 Test for `NULL` or `NOT NULL`.
 
 ```js
-Article.objects.where({ 'id[isNull]': true });
-Article.objects.where({ 'id[isNull]': false });
+Article.objects.where({ id$isNull: true });
+Article.objects.where({ id$isNull: false });
 ```
 
 ### `year`
@@ -372,7 +372,7 @@ Article.objects.where({ 'id[isNull]': false });
 Test for a specific year.
 
 ```js
-Article.objects.where({ 'createdAt[year]': 2014 });
+Article.objects.where({ createdAt$year: 2014 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -382,7 +382,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific month. (1 - 12)
 
 ```js
-Article.objects.where({ 'createdAt[month]': 10 });
+Article.objects.where({ createdAt$month: 10 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -392,7 +392,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific day.
 
 ```js
-Article.objects.where({ 'createdAt[day]': 7 });
+Article.objects.where({ createdAt$day: 7 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -402,9 +402,9 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific weekday.
 
 ```js
-Article.objects.where({ 'createdAt[weekday]': 1 });
-Article.objects.where({ 'createdAt[weekday]': 'mon' });
-Article.objects.where({ 'createdAt[weekday]': 'monday' });
+Article.objects.where({ createdAt$weekday: 1 });
+Article.objects.where({ createdAt$weekday: 'mon' });
+Article.objects.where({ createdAt$weekday: 'monday' });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -414,7 +414,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific hour.
 
 ```js
-Article.objects.where({ 'createdAt[hour]': 22 });
+Article.objects.where({ createdAt$hour: 22 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -424,7 +424,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific minute.
 
 ```js
-Article.objects.where({ 'createdAt[minute]': 10 });
+Article.objects.where({ createdAt$minute: 10 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -434,7 +434,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 Test for a specific second.
 
 ```js
-Article.objects.where({ 'createdAt[second]': 54 });
+Article.objects.where({ createdAt$second: 54 });
 ```
 
 _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
@@ -528,7 +528,7 @@ of a promise & they will be executed before the next promise handler.
 
 ```js
 Article.objects.find(1).then(function(article) {
-  return Comment.objects.where({ 'body[contains]': article.title });
+  return Comment.objects.where({ body$contains: article.title });
 })
 .then(function(comments) {
   // all comments will have been found
@@ -543,7 +543,7 @@ acceptable:
 
 ```js
 Article.objects.find(1).then(function(article) {
-  return Comment.objects.where({ 'body[contains]': article.title }).fetch();
+  return Comment.objects.where({ body$contains: article.title }).fetch();
 })
 .then(function(comments) {
   // all comments will have been found
@@ -868,7 +868,7 @@ db.select('cities', ['cities.name', 'countries.name'])
 
 db.select('cities')
   .join('countries', 'left', { 'cities.country_id': f('countries.id') })
-  .where({ 'cities.name[icontains]': 'city' })
+  .where({ 'cities.name$icontains': 'city' })
 // -> select * from cities
 // -> left join countries on cities.country_id = countries.id
 // -> where cities.name ilike ?

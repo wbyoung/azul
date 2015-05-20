@@ -126,7 +126,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         ]);
       })
       .then(function() {
-        return Article.objects.where({ 'comments.body[icontains]': 'rolex' });
+        return Article.objects.where({ 'comments.body$icontains': 'rolex' });
       })
       .then(function(articles) {
         expect(_.map(articles, 'attrs')).to.eql([
@@ -135,7 +135,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       })
       .then(function() {
         return Article.objects
-          .where({ 'comments.body[icontains]': 'initial' });
+          .where({ 'comments.body$icontains': 'initial' });
       })
       .then(function(articles) {
         expect(_.map(articles, 'attrs')).to.eql([
@@ -146,7 +146,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         // with join first, automatic joining will not occur, so duplicate
         // results will be returned
         return Article.objects.join('comments')
-          .where({ 'comments.body[icontains]': 'initial' });
+          .where({ 'comments.body$icontains': 'initial' });
       })
       .then(function(articles) {
         expect(_.map(articles, 'attrs')).to.eql([
@@ -395,9 +395,9 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `exact`', function(done) {
       db.select('people').where(w({
-        'name[exact]': 'Jim',
-        'height[exact]': 69,
-        'dob[exact]': new Date(1968, 2-1, 14)
+        name$exact: 'Jim',
+        height$exact: 69,
+        dob$exact: new Date(1968, 2-1, 14)
       }))
       .execute()
       .get('rows')
@@ -409,7 +409,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `iexact`', function(done) {
       db.select('people').where(w({
-        'name[iexact]': 'kristen'
+        name$iexact: 'kristen'
       }))
       .execute()
       .get('rows')
@@ -421,7 +421,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `in`', function(done) {
       db.select('people').where(w({
-        'name[in]': ['Sarah', 'Tim']
+        name$in: ['Sarah', 'Tim']
       }))
       .order('name')
       .execute()
@@ -434,8 +434,8 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `gt`', function(done) {
       db.select('people').where(w({
-        'height[gt]': 64,
-        'dob[gt]': new Date(1968, 2-1, 14)
+        height$gt: 64,
+        dob$gt: new Date(1968, 2-1, 14)
       }))
       .execute()
       .get('rows')
@@ -447,8 +447,8 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `gte`', function(done) {
       db.select('people').where(w({
-        'height[gte]': 69,
-        'dob[gte]': new Date(1958, 4-1, 14)
+        height$gte: 69,
+        dob$gte: new Date(1958, 4-1, 14)
       }))
       .order('name')
       .execute()
@@ -461,8 +461,8 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `lt`', function(done) {
       db.select('people').where(w({
-        'height[lt]': 69,
-        'dob[lt]': new Date(1991, 9-1, 1)
+        height$lt: 69,
+        dob$lt: new Date(1991, 9-1, 1)
       }))
       .execute()
       .get('rows')
@@ -474,8 +474,8 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `lte`', function(done) {
       db.select('people').where(w({
-        'height[lte]': 69,
-        'dob[lte]': new Date(1991, 9-1, 1)
+        height$lte: 69,
+        dob$lte: new Date(1991, 9-1, 1)
       }))
       .order('name')
       .execute()
@@ -488,7 +488,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `between` with numbers', function(done) {
       db.select('people').where(w({
-        'height[between]': [65, 69]
+        height$between: [65, 69]
       }))
       .order('name')
       .execute()
@@ -501,7 +501,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `between` with dates', function(done) {
       db.select('people').where(w({
-        'dob[between]': [new Date(1968, 2-1, 14), new Date(1982, 12-1, 20, 20, 31, 43)]
+        dob$between: [new Date(1968, 2-1, 14), new Date(1982, 12-1, 20, 20, 31, 43)]
       }))
       .order('name')
       .execute()
@@ -514,8 +514,8 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `isull`', function(done) {
       db.select('people').where(w({
-        'height[isnull]': true,
-        'dob[isnull]': true
+        height$isnull: true,
+        dob$isnull: true
       }))
       .execute()
       .get('rows')
@@ -527,7 +527,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `contains` with uppercase value', function(done) {
       db.select('people').where(w({
-        'name[contains]': 'T'
+        name$contains: 'T'
       }))
       .order('name')
       .execute()
@@ -540,7 +540,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `contains` with lowercase value', function(done) {
       db.select('people').where(w({
-        'name[contains]': 't'
+        name$contains: 't'
       }))
       .order('name')
       .execute()
@@ -553,7 +553,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `icontains`', function(done) {
       db.select('people').where(w({
-        'name[icontains]': 'RA'
+        name$icontains: 'RA'
       }))
       .order('name')
       .execute()
@@ -566,7 +566,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `startsWith`', function(done) {
       db.select('people').where(w({
-        'name[startsWith]': 'T'
+        name$startsWith: 'T'
       }))
       .order('name')
       .execute()
@@ -579,7 +579,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `istartsWith`', function(done) {
       db.select('people').where(w({
-        'name[istartsWith]': 'k'
+        name$istartsWith: 'k'
       }))
       .order('name')
       .execute()
@@ -592,7 +592,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `endsWith`', function(done) {
       db.select('people').where(w({
-        'name[endsWith]': 'm'
+        name$endsWith: 'm'
       }))
       .order('name')
       .execute()
@@ -605,7 +605,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `iendsWith`', function(done) {
       db.select('people').where(w({
-        'name[iendsWith]': 'N'
+        name$iendsWith: 'N'
       }))
       .order('name')
       .execute()
@@ -618,7 +618,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `regex`', function(done) {
       db.select('people').where(w({
-        'name[regex]': /Jim|Kristen/
+        name$regex: /Jim|Kristen/
       }))
       .order('name')
       .execute()
@@ -631,7 +631,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `iregex`', function(done) {
       db.select('people').where(w({
-        'name[iregex]': /jim|kristen/i
+        name$iregex: /jim|kristen/i
       }))
       .order('name')
       .execute()
@@ -644,7 +644,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `year`', function(done) {
       db.select('people').where(w({
-        'dob[year]': 1958
+        dob$year: 1958
       }))
       .execute()
       .get('rows')
@@ -656,7 +656,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `month`', function(done) {
       db.select('people').where(w({
-        'dob[month]': 12
+        dob$month: 12
       }))
       .execute()
       .get('rows')
@@ -668,7 +668,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `day`', function(done) {
       db.select('people').where(w({
-        'dob[day]': 1
+        dob$day: 1
       }))
       .execute()
       .get('rows')
@@ -680,7 +680,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `weekday`', function(done) {
       db.select('people').where(w({
-        'dob[weekday]': 'wed'
+        dob$weekday: 'wed'
       }))
       .execute()
       .get('rows')
@@ -692,7 +692,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `hour`', function(done) {
       db.select('people').where(w({
-        'dob[hour]': 20
+        dob$hour: 20
       }))
       .execute()
       .get('rows')
@@ -704,7 +704,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `minute`', function(done) {
       db.select('people').where(w({
-        'dob[minute]': 31
+        dob$minute: 31
       }))
       .execute()
       .get('rows')
@@ -716,7 +716,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
     it('supports `second`', function(done) {
       db.select('people').where(w({
-        'dob[second]': 43
+        dob$second: 43
       }))
       .execute()
       .get('rows')

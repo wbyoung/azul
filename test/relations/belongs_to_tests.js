@@ -285,7 +285,7 @@ describe('Model.belongsTo', function() {
     it('generates join queries that use where accessing fields in both types', function(done) {
       Article.objects.join('author').where({
         username: 'wbyoung',
-        'title[contains]': 'News'
+        title$contains: 'News'
       }).fetch().then(function() {
         // note that this expectation depends on ordering of object
         // properties which is not guaranteed to be a stable ordering.
@@ -431,7 +431,7 @@ describe('Model.belongsTo', function() {
     });
 
     it('works with a complex query', function(done) {
-      Article.objects.where({ 'author.username[contains]': 'w', })
+      Article.objects.where({ 'author.username$contains': 'w', })
       .orderBy('title', '-author.username')
       .limit(10)
       .offset(20)
@@ -449,7 +449,7 @@ describe('Model.belongsTo', function() {
     });
 
     it('joins & orders across multiple relationships', function(done) {
-      Comment.objects.where({ 'article.author.username[contains]': 'w', })
+      Comment.objects.where({ 'article.author.username$contains': 'w', })
       .orderBy('title', 'article.author.username')
       .limit(10)
       .offset(20)

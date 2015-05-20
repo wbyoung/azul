@@ -742,7 +742,7 @@ describe('Model.hasMany :through', function() {
     it('generates join queries that use where accessing fields in both types', function(done) {
       Student.objects.join('courses').where({
         name: 'wbyoung',
-        'subject[contains]': 'News'
+        subject$contains: 'News'
       }).fetch().then(function() {
         // note that this expectation depends on ordering of object
         // properties which is not guaranteed to be a stable ordering.
@@ -877,7 +877,7 @@ describe('Model.hasMany :through', function() {
     });
 
     it('works with a complex query', function(done) {
-      Student.objects.where({ 'courses.subject[contains]': 'news', })
+      Student.objects.where({ 'courses.subject$contains': 'news', })
       .orderBy('name', '-courses.subject')
       .limit(10)
       .offset(20)
@@ -924,7 +924,7 @@ describe('Model.hasMany :through', function() {
       var Comment = db.model('comment');
       Comment.reopen({ body: db.attr() });
       Course.reopen({ comments: db.hasMany() });
-      Student.objects.where({ 'courses.comments.body[contains]': 'rolex', })
+      Student.objects.where({ 'courses.comments.body$contains': 'rolex', })
       .orderBy('name', 'courses.comments.body')
       .limit(10)
       .offset(20)

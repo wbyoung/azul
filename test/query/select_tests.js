@@ -120,7 +120,7 @@ describe('SelectQuery', function() {
   });
 
   it('handles predicates', function() {
-    expect(db.select('articles').where({ 'words[gt]': 200 }).statement).to.eql(Statement.create(
+    expect(db.select('articles').where({ words$gt: 200 }).statement).to.eql(Statement.create(
       'SELECT * FROM "articles" WHERE "words" > ?', [200]
     ));
   });

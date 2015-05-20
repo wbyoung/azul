@@ -36,11 +36,11 @@ var Person = db.model('person').reopenClass({
   men: MaleManager.create()
 });
 
-Person.men.where({ 'age[lt]': 12 }).fetch().then(function(people) {
+Person.men.where({ age$lt: 12 }).fetch().then(function(people) {
   // people is all men under the age of 12
 });
 
-Person.women.where({ 'age[gt]': 25 }).fetch().then(function(people) {
+Person.women.where({ age$gt: 25 }).fetch().then(function(people) {
   // people is all women over the age of 25
 });
 ```

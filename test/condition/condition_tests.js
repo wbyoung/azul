@@ -106,13 +106,19 @@ describe('Condition', function() {
 
   describe('predicates', function() {
     it('extracts predicates', function() {
+      var details = Condition._extractPredicate('id$gt');
+      expect(details.key).to.eql('id');
+      expect(details.predicate).to.equal('gt');
+    });
+
+    it('extracts predicates in alternative format', function() {
       var details = Condition._extractPredicate('id[gt]');
       expect(details.key).to.eql('id');
       expect(details.predicate).to.equal('gt');
     });
 
     it('extracts predicates with table names', function() {
-      var details = Condition._extractPredicate('users.id[gt]');
+      var details = Condition._extractPredicate('users.id$gt');
       expect(details.key).to.eql('users.id');
       expect(details.predicate).to.equal('gt');
     });
@@ -124,22 +130,22 @@ describe('Condition', function() {
     });
 
     it('supports exact', function() {
-      var result = this.stringify(w({ 'name[exact]': 'Whitney' }));
+      var result = this.stringify(w({ name$exact: 'Whitney' }));
       expect(result).to.eql('name = "Whitney"');
     });
 
     it('supports iexact', function() {
-      var result = this.stringify(w({ 'name[iexact]': 'Whitney' }));
+      var result = this.stringify(w({ name$iexact: 'Whitney' }));
       expect(result).to.eql('UPPER(name) = UPPER("Whitney")');
     });
 
     it('supports contains', function() {
-      var result = this.stringify(w({ 'name[contains]': 'Whit' }));
+      var result = this.stringify(w({ name$contains: 'Whit' }));
       expect(result).to.eql('name LIKE "%Whit%"');
     });
 
     it('supports icontains', function() {
-      var result = this.stringify(w({ 'name[icontains]': 'Whit' }));
+      var result = this.stringify(w({ name$icontains: 'Whit' }));
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit%")');
     });
 
@@ -152,7 +158,7 @@ describe('Condition', function() {
         // it becomes 4 backslashes, a percent sign, 4 backslashes, an
         // underscore, then 8 backslashes
         var query = {};
-        query['name[' + pred + ']'] = '%_\\';
+        query['name$' + pred] = '%_\\';
         var result = this.stringify(w(query));
         expect(result).to
           .match(/name.*LIKE.*\\\\%\\\\_\\\\\\\\/);
@@ -163,57 +169,57 @@ describe('Condition', function() {
      'endswith', 'iendswith' ].forEach(shouldBehaveLikeALikeQuery);
 
     it('supports in', function() {
-      var result = this.stringify(w({ 'name[in]': ['Whit', 'Whitney'] }));
+      var result = this.stringify(w({ name$in: ['Whit', 'Whitney'] }));
       expect(result).to.eql('name IN ("Whit", "Whitney")');
     });
 
     it('supports gt', function() {
-      var result = this.stringify(w({ 'age[gt]': 23 }));
+      var result = this.stringify(w({ age$gt: 23 }));
       expect(result).to.eql('age > 23');
     });
 
     it('supports gte', function() {
-      var result = this.stringify(w({ 'age[gte]': 23 }));
+      var result = this.stringify(w({ age$gte: 23 }));
       expect(result).to.eql('age >= 23');
     });
 
     it('supports lt', function() {
-      var result = this.stringify(w({ 'age[lt]': 23 }));
+      var result = this.stringify(w({ age$lt: 23 }));
       expect(result).to.eql('age < 23');
     });
 
     it('supports lte', function() {
-      var result = this.stringify(w({ 'age[lte]': 23 }));
+      var result = this.stringify(w({ age$lte: 23 }));
       expect(result).to.eql('age <= 23');
     });
 
     it('supports startswith', function() {
-      var result = this.stringify(w({ 'name[startswith]': 'Whit' }));
+      var result = this.stringify(w({ name$startswith: 'Whit' }));
       expect(result).to.eql('name LIKE "Whit%"');
     });
 
     it('supports istartswith', function() {
-      var result = this.stringify(w({ 'name[istartswith]': 'Whit' }));
+      var result = this.stringify(w({ name$istartswith: 'Whit' }));
       expect(result).to.eql('UPPER(name) LIKE UPPER("Whit%")');
     });
 
     it('supports endswith', function() {
-      var result = this.stringify(w({ 'name[endswith]': 'Whit' }));
+      var result = this.stringify(w({ name$endswith: 'Whit' }));
       expect(result).to.eql('name LIKE "%Whit"');
     });
 
     it('supports iendswith', function() {
-      var result = this.stringify(w({ 'name[iendswith]': 'Whit' }));
+      var result = this.stringify(w({ name$iendswith: 'Whit' }));
       expect(result).to.eql('UPPER(name) LIKE UPPER("%Whit")');
     });
 
     it('supports between', function() {
-      var result = this.stringify(w({ 'age[between]': [10, 20] }));
+      var result = this.stringify(w({ age$between: [10, 20] }));
       expect(result).to.eql('age BETWEEN 10 AND 20');
     });
 
     it('supports between with objects', function() {
-      var result = this.stringify(w({ 'age[between]': ['start', 'end'] }));
+      var result = this.stringify(w({ age$between: ['start', 'end'] }));
       expect(result).to.eql('age BETWEEN "start" AND "end"');
     });
 
@@ -222,80 +228,80 @@ describe('Condition', function() {
         new Date(Date.UTC(2014, 10-1, 23)),
         new Date(Date.UTC(2014, 10-1, 24))
       ];
-      var result = this.stringify(w({ 'created[between]': range }));
+      var result = this.stringify(w({ created$between: range }));
       var expected = 'created BETWEEN "2014-10-23T00:00:00.000Z" AND ' +
         '"2014-10-24T00:00:00.000Z"';
       expect(result).to.eql(expected);
     });
 
     it('supports year', function() {
-      var result = this.stringify(w({ 'created[year]': 2014 }));
+      var result = this.stringify(w({ created$year: 2014 }));
       expect(result).to.eql('YEAR(created) = 2014');
     });
 
     it('supports month', function() {
-      var result = this.stringify(w({ 'created[month]': 10 }));
+      var result = this.stringify(w({ created$month: 10 }));
       expect(result).to.eql('MONTH(created) = 10');
     });
 
     it('supports day', function() {
-      var result = this.stringify(w({ 'created[day]': 23 }));
+      var result = this.stringify(w({ created$day: 23 }));
       expect(result).to.eql('DAY(created) = 23');
     });
 
     it('supports hour', function() {
-      var result = this.stringify(w({ 'created[hour]': 10 }));
+      var result = this.stringify(w({ created$hour: 10 }));
       expect(result).to.eql('HOUR(created) = 10');
     });
 
     it('supports minute', function() {
-      var result = this.stringify(w({ 'created[minute]': 23 }));
+      var result = this.stringify(w({ created$minute: 23 }));
       expect(result).to.eql('MINUTE(created) = 23');
     });
 
     it('supports second', function() {
-      var result = this.stringify(w({ 'created[second]': 49 }));
+      var result = this.stringify(w({ created$second: 49 }));
       expect(result).to.eql('SECOND(created) = 49');
     });
 
     it('supports weekday with sunday', function() {
-      var result = this.stringify(w({ 'created[weekday]': 'sunday' }));
+      var result = this.stringify(w({ created$weekday: 'sunday' }));
       expect(result).to.eql('WEEKDAY(created) = 0');
     });
 
     it('supports isnull', function() {
-      var result = this.stringify(w({ 'name[isnull]': true }));
+      var result = this.stringify(w({ name$isnull: true }));
       expect(result).to.eql('name IS NULL');
     });
 
     it('supports negated isnull', function() {
-      var result = this.stringify(w({ 'name[isnull]': false }));
+      var result = this.stringify(w({ name$isnull: false }));
       expect(result).to.eql('name IS NOT NULL');
     });
 
     it('supports regex', function() {
-      var result = this.stringify(w({ 'name[regex]': /hello.*world/ }));
+      var result = this.stringify(w({ name$regex: /hello.*world/ }));
       expect(result).to.eql('name ~ "hello.*world"');
     });
 
     it('supports iregex', function() {
-      var result = this.stringify(w({ 'name[iregex]': /hello.*world/ }));
+      var result = this.stringify(w({ name$iregex: /hello.*world/ }));
       expect(result).to.eql('name ~* "hello.*world"');
     });
 
     it('supports regex as string', function() {
-      var result = this.stringify(w({ 'name[regex]': '/hello.*world' }));
+      var result = this.stringify(w({ name$regex: '/hello.*world' }));
       expect(result).to.eql('name ~ "/hello.*world"');
     });
 
     it('supports iregex as string', function() {
-      var result = this.stringify(w({ 'name[iregex]': '/hello.*world' }));
+      var result = this.stringify(w({ name$iregex: '/hello.*world' }));
       expect(result).to.eql('name ~* "/hello.*world"');
     });
 
     it('raises for unsupported predicates', function() {
       expect(function() {
-        this.stringify(w({ 'name[badPredicate]': 'world' }));
+        this.stringify(w({ name$badPredicate: 'world' }));
       }.bind(this)).to.throw(/unsupported predicate.*badPredicate/i);
     });
   });
