@@ -48,7 +48,6 @@ An example migration looks like this:
 ```js
 exports.up = function(schema) {
   schema.createTable('articles', function(table) {
-    table.serial('id').primaryKey();
     table.string('title');
     table.text('body');
   });
@@ -89,7 +88,6 @@ of different [field types](#migration-basics-field-types).
 
 ```js
 schema.createTable('articles', function(table) {
-  table.serial('id').primaryKey();
   table.string('title');
   table.text('body');
 });
@@ -98,26 +96,26 @@ schema.createTable('articles', function(table) {
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
+- `primaryKey` Defines the primary key of the table. The default is `id`. Pass
+`null` to create a table without a primary key. You can configure the primary
+key's type or options within your table definition callback. See below for an
+example.
+
+- `pk` Alias of `primaryKey`.
+
 - `unlessExists` Will not create the table if it already exists.
 
-```js
-schema.createTable('articles', function(table) {
-   /* ... */
-}).unlessExists();
-```
+- `with` Allows delayed definition of the table columns & indexes.
 
-<div class="panel panel-info">
-<div class="panel-heading">
-  <span class="panel-title"><code>id</code> Column</span>
-</div>
-<div class="panel-body">
-Currently every table you create will need to specify an <code>id</code>
-column. We'll be adding a feature soon to make it part of the table by
-default and a chainable method <code>withoutId</code> to stop the automatic
-behavior. Please open <a href="https://github.com/wbyoung/azul/issues">an
-issue</a> or pull request to see this happen sooner.
-</div>
-</div>
+```js
+schema.createTable('articles')
+.pk('identifier')
+.unlessExists()
+.with(function(table) {
+   table.serial('identifier').notNull(); // pk
+   table.string('title');
+});
+```
 
 #### `#alterTable`
 

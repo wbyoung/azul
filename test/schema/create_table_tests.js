@@ -24,16 +24,16 @@ describe('CreateTableQuery', function() {
 
   it('must provide a callback', function() {
     expect(function() {
-      db.schema.createTable('users');
+      db.schema.createTable('users').sql;
     }).to.throw(/missing callback/i);
   });
 
   it('generates primary key columns via `pk`', function() {
     var query = db.schema.createTable('users', function(table) {
-      table.integer('id').pk();
+      table.integer('identifier').pk();
     });
     expect(query.statement).to.eql(Statement.create(
-      'CREATE TABLE "users" ("id" integer PRIMARY KEY)', []
+      'CREATE TABLE "users" ("identifier" integer PRIMARY KEY)', []
     ));
   });
 
@@ -51,16 +51,56 @@ describe('CreateTableQuery', function() {
       db.schema.createTable('users', function(table) {
         table.integer('id').pk();
         table.integer('id2').pk();
-      });
+      }).sql;
+    }).to.throw(/only.*one primary key/);
+  });
+
+  it('does not allow more than one primary key w/ explicit table `pk`', function() {
+    expect(function() {
+      db.schema.createTable('users').pk('id').with(function(table) {
+        table.integer('id2').pk();
+      }).sql;
     }).to.throw(/only.*one primary key/);
   });
 
   it('generates not null columns', function() {
     var query = db.schema.createTable('users', function(table) {
-      table.integer('id').notNull();
+      table.integer('id').notNull(); // pk will be automatically added
+      table.string('username').notNull();
     });
     expect(query.statement).to.eql(Statement.create(
-      'CREATE TABLE "users" ("id" integer NOT NULL)', []
+      'CREATE TABLE "users" ("id" integer PRIMARY KEY NOT NULL, ' +
+      '"username" varchar(255) NOT NULL)', []
+    ));
+  });
+
+  it('automatically adds a primary key', function() {
+    var query = db.schema.createTable('users', function(table) {
+      table.string('username');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("id" serial PRIMARY KEY, ' +
+        '"username" varchar(255))', []
+    ));
+  });
+
+  it('can add a named primary key', function() {
+    var query = db.schema.createTable('users').pk('uid').with(function(table) {
+      table.string('username');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("uid" serial PRIMARY KEY, ' +
+        '"username" varchar(255))', []
+    ));
+  });
+
+  it('can skip adding a primary key', function() {
+    var query = db.schema.createTable('users')
+    .primaryKey(null).with(function(table) {
+      table.string('username');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("username" varchar(255))', []
     ));
   });
 
@@ -71,23 +111,27 @@ describe('CreateTableQuery', function() {
   it('generates unique columns', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').unique();
+      table.integer('age').unique();
     });
     expect(query.statement).to.eql(Statement.create(
-      'CREATE TABLE "users" ("id" integer UNIQUE)', []
+      'CREATE TABLE "users" ("id" integer PRIMARY KEY UNIQUE, ' +
+      '"age" integer UNIQUE)', []
     ));
   });
 
   it('generates columns with defaults', function() {
     var query = db.schema.createTable('users', function(table) {
       table.integer('id').default(0);
+      table.string('name').default('anonymous');
     });
     expect(query.statement).to.eql(Statement.create(
-      'CREATE TABLE "users" ("id" integer DEFAULT 0)', []
+      'CREATE TABLE "users" ("id" integer PRIMARY KEY DEFAULT 0, ' +
+      '"name" varchar(255) DEFAULT \'anonymous\')', []
     ));
   });
 
   it('generates columns with default of string', function() {
-    var query = db.schema.createTable('users', function(table) {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
       table.integer('name').default('Anonymous');
     });
     expect(query.statement).to.eql(Statement.create(
@@ -96,7 +140,7 @@ describe('CreateTableQuery', function() {
   });
 
   it('generates columns using foreign keys', function() {
-    var query = db.schema.createTable('users', function(table) {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
       table.integer('profile_id').references('profiles.id');
     });
     expect(query.statement).to.eql(Statement.create(
@@ -105,7 +149,7 @@ describe('CreateTableQuery', function() {
   });
 
   it('generates columns using foreign key on self', function() {
-    var query = db.schema.createTable('users', function(table) {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
       table.integer('boss_id').references('id');
     });
     expect(query.statement).to.eql(Statement.create(
@@ -125,7 +169,7 @@ describe('CreateTableQuery', function() {
   it('generates columns using foreign keys that specify delete actions');
 
   it('can combine options', function() {
-    var query = db.schema.createTable('users', function(table) {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
       table.integer('profile_id').references('profiles.id').notNull().unique();
     });
     expect(query.statement).to.eql(Statement.create(

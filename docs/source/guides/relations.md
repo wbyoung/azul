@@ -62,12 +62,10 @@ the `articles` table:
 ```js
 exports.up = function(schema) {
   schema.createTable('blogs', function(table) {
-    table.serial('id').primaryKey();
     table.string('title');
   });
 
   schema.createTable('articles', function(table) {
-    table.serial('id').primaryKey();
     table.string('title');
     table.text('body');
     table.integer('blog_id').references('blogs.id');
@@ -192,17 +190,14 @@ relationship:
 ```js
 exports.up = function(schema) {
   schema.createTable('doctors', function(table) {
-    table.serial('id').primaryKey();
     table.string('name');
   });
 
   schema.createTable('patients', function(table) {
-    table.serial('id').primaryKey();
     table.string('name');
   });
 
   schema.createTable('appointments', function(table) {
-    table.serial('id').primaryKey();
     table.dateTime('occursAt');
     table.integer('doctor_id').references('doctors.id');
     table.integer('patient_id').references('patients.id');

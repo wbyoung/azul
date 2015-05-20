@@ -35,7 +35,8 @@ describe('Schema', function() {
         table.string('name');
       });
       expect(query.statement).to.eql(Statement.create(
-        'CREATE TABLE "users" ("name" varchar(255))', []
+        'CREATE TABLE "users" '+
+        '("id" serial PRIMARY KEY, "name" varchar(255))', []
       ));
     });
 
@@ -45,7 +46,8 @@ describe('Schema', function() {
         table.string('name');
       });
       expect(query.statement).to.eql(Statement.create(
-        'CREATE TABLE "users" ("id" serial, "name" varchar(255))', []
+        'CREATE TABLE "users" ("id" serial PRIMARY KEY, ' +
+        '"name" varchar(255))', []
       ));
     });
 
@@ -54,7 +56,7 @@ describe('Schema', function() {
         table.serial('id');
       }).unlessExists();
       expect(query.statement).to.eql(Statement.create(
-        'CREATE TABLE IF NOT EXISTS "users" ("id" serial)', []
+        'CREATE TABLE IF NOT EXISTS "users" ("id" serial PRIMARY KEY)', []
       ));
     });
 
@@ -64,7 +66,7 @@ describe('Schema', function() {
           table.serial('id');
         });
         expect(query.statement).to.eql(Statement.create(
-          'CREATE TABLE "users" ("id" serial)', []
+          'CREATE TABLE "users" ("id" serial PRIMARY KEY)', []
         ));
       });
     });

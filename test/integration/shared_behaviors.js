@@ -195,7 +195,7 @@ shared.shouldSupportStandardTypes = function(it) {
     return function(done) {
       BluebirdPromise.bind(this)
       .then(function() {
-        return db.schema.createTable(table, function(table) {
+        return db.schema.createTable(table).pk(null).with(function(table) {
           fn(table[type]('column', options));
         });
       })
@@ -262,7 +262,7 @@ shared.shouldSupportStandardTypes = function(it) {
       var value = 'azul\'s default\\\n\t\b\r\x1a"';
       BluebirdPromise.bind(this)
       .then(function() {
-        return db.schema.createTable(table, function(table) {
+        return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('required');
           table.string('string').default(value);
           table.integer('integer').default(3);
@@ -283,7 +283,7 @@ shared.shouldSupportStandardTypes = function(it) {
       var table = 'azul_not_null';
       BluebirdPromise.bind(this)
       .then(function() {
-        return db.schema.createTable(table, function(table) {
+        return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('column').notNull();
         });
       })
@@ -300,7 +300,7 @@ shared.shouldSupportStandardTypes = function(it) {
       var table = 'azul_unique';
       BluebirdPromise.bind(this)
       .then(function() {
-        return db.schema.createTable(table, function(table) {
+        return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('column').unique();
         });
       })
@@ -321,7 +321,7 @@ shared.shouldSupportTransactions = function(it) {
 
   describe('transactions', function() {
     beforeEach(function(done) {
-      db.schema.createTable('people', function(table) {
+      db.schema.createTable('people').pk(null).with(function(table) {
         table.string('name');
       })
       .execute()
@@ -372,7 +372,7 @@ shared.shouldSupportStandardConditions = function(it) {
 
   describe('conditions', function() {
     beforeEach(function(done) {
-      db.schema.createTable('people', function(table) {
+      db.schema.createTable('people').pk(null).with(function(table) {
         table.string('name');
         table.integer('height');
         table.dateTime('dob');

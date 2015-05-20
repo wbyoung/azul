@@ -512,9 +512,9 @@ describe('Migration', function() {
           expect(adapter.executedSQL()).to.eql([
             ['BEGIN', []],
             ['UPDATE "example0" SET "id" = ?', [0]],
-            ['CREATE TABLE "example1" ("id" integer)', []],
-            ['CREATE TABLE "example2" ("id" integer)', []],
-            ['CREATE TABLE "example3" ("id" integer)', []],
+            ['CREATE TABLE "example1" ("id" integer PRIMARY KEY)', []],
+            ['CREATE TABLE "example2" ("id" integer PRIMARY KEY)', []],
+            ['CREATE TABLE "example3" ("id" integer PRIMARY KEY)', []],
             ['INSERT INTO "azul_migrations" ("name", "batch") ' +
              'VALUES (?, ?), (?, ?)', [
                'migration_file_1', 1, 'migration_file_2', 1]],
