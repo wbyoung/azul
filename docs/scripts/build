@@ -57,16 +57,23 @@ var toc = function() {
 
         var parent = nodes[headerLevel];
         var header = $(this);
+        var title = header.text();
+        var id = header.attr('id');
+
+        // check if this is a method name & if so, fix up the links
+        var codeTitle = header.find('code').text();
+        if (codeTitle) {
+          title = codeTitle.replace(/^(\w*[#.]?\w+).*/i, '$1');
+          id = title.toLowerCase().replace(/[^a-z]/, '-').replace(/^-/, '');
+        }
 
         // change ids so that they are all more unique (based on parent ids)
         if (level > 1 && parent && parent.id) {
-          header.attr('id', [parent.id, header.attr('id')].join('-'));
+          header.attr('id', [parent.id, id].join('-'));
         }
 
-        var title = header.text();
-        var name = header.attr('id');
         var node = {
-          id: name,
+          id: header.attr('id'),
           title: title
         };
 

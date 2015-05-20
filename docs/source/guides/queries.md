@@ -32,9 +32,9 @@ query.fetch().then(function(articles) {
 
 Each method that is called on a query object will return a query object
 allowing you to chain together the components of your query. In the example
-above, `Article.objects` is a query object. Calling [`where`](#methods--where-)
+above, `Article.objects` is a query object. Calling [`where`](#methods-where)
 returns a query object as well, allowing you to then call
-[`order`](#methods--order-). Each subsequent call builds on the previous query.
+[`order`](#methods-order). Each subsequent call builds on the previous query.
 
 ### Immutability
 
@@ -51,7 +51,7 @@ query.where({ id: 5 });
 query.where({ title: 'Azul' });
 ```
 
-Each [`where`](#methods--where-) builds off of the original query object. The
+Each [`where`](#methods-where) builds off of the original query object. The
 first call only specifies to fetch articles where the `id` is `5`. The second
 only specifies to fetch where the `title` is `Azul`. Neither call mutated the
 `query` object. They created new objects.
@@ -69,8 +69,8 @@ query = query.where({ title: 'Azul' });
 ### Laziness
 
 Queries are not executed until execution is requested. To execute a query, you
-must call [`execute`](#executing--execute-), [`fetch`](#executing--fetch-),
-[`find`](#executing--find-), or [`then`](#executing--then-) on the object.
+must call [`execute`](#executing-execute), [`fetch`](#executing-fetch),
+[`find`](#executing-find), or [`then`](#executing-then) on the object.
 
 Lazy evaluation allows queries to be passed around to different parts of your
 application without actually being executed until some condition is met.
@@ -83,7 +83,7 @@ execution is requested again. This usually results in a desired performance
 gain as your application will not need to re-request data from the database
 when the result is already known. In some cases, however, you may need to force
 a query to be re-executed. In that case, you can simply [clone the
-query](#methods--clone-).
+query](#methods-clone).
 
 ## Methods
 
@@ -171,8 +171,8 @@ useful.
 
 ### `#unique`
 
-Performs a [`groupBy`](#methods--groupby-) with the primary key of the model. This
-is useful when [joining relations](#relationships--join-).
+Performs a [`groupBy`](#methods-groupby) with the primary key of the model. This
+is useful when [joining relations](#relationships-join).
 
 
 ### `#clone`
@@ -454,7 +454,7 @@ query.execute(function(results) {
 
 ### `#fetch`
 
-Essentially an alias for [`execute`](#executing--execute-), this method is
+Essentially an alias for [`execute`](#executing-execute), this method is
 preferred in most cases for readability when reading data from the database.
 
 ```js
@@ -536,7 +536,7 @@ Article.objects.find(1).then(function(article) {
 ```
 
 The fact that queries are _thenable_ could be abused by omitting calls to
-[`fetch`](#executing--fetch-) or [`execute`](#executing--execute-) in
+[`fetch`](#executing-fetch) or [`execute`](#executing-execute) in
 non-promise handlers. For readability, this is strongly discouraged. And
 returning explicitly executed queries inside of promise handlers is considered
 acceptable:
@@ -625,7 +625,7 @@ Article.objects.join('comments').where({ spam: true });
 ```
 
 To remove the duplicates from the results, either add
-[`unique`](#methods--unique-) or use
+[`unique`](#methods-unique) or use
 [automatic joining](#relationships-automatic-joining).
 
 ```js
@@ -642,7 +642,7 @@ and `commens.body` if they refer to the joined association.
 
 In many simple cases, [automatic joining](#relationships-automatic-joining)
 will be simpler and will also ensure the results are
-[`unique`](#methods--unique-).
+[`unique`](#methods-unique).
 
 In the above example, the `where` call could have automatically joined the
 `comments` relation by specifying `comments.spam` rather than just `spam` in
@@ -663,10 +663,10 @@ Article.objects.where({ 'comments.spam': true }).join('comments');
 
 ### Automatic Joining
 
-Most situations that require a [`join`](#relationships--join-) to occur between
+Most situations that require a [`join`](#relationships-join) to occur between
 relationships will be handled automatically. Automatic joining also ensures
 uniqueness of results by automatically ensuring that
-[`unique`](#methods--unique-) has been added to the query.
+[`unique`](#methods-unique) has been added to the query.
 
 Methods that support automatic joining will use the attribute string to
 determine if a relationship exists that can be joined.
@@ -680,9 +680,9 @@ Comment.objects.order('article.title');
 
 The following methods support automatic joining:
 
-- [`where`](#methods--where-)
-- [`order`](#methods--order-)
-- [`groupBy`](#methods--groupby-)
+- [`where`](#methods-where)
+- [`order`](#methods-order)
+- [`groupBy`](#methods-groupby)
 
 ## Generic Queries
 
@@ -803,7 +803,7 @@ _data queries_ that return simple data rather than model objects.
 Most of the methods available on these queries work the same way they do when
 used through a model class.
 
-All queries require a call to [`execute`](#executing--execute-) and are
+All queries require a call to [`execute`](#executing-execute) and are
 _thenable_ objects. When executed, the resulting promise will resolve with an
 object that will contain at the very least a `rows` key. The value of this key
 will be an array of objects that have been read from the database. Additional
@@ -843,19 +843,19 @@ db.select('people', ['firstName', 'lastName'])
 Chainable methods include:
 
 - `where` Will not convert property names or join relationships. See
-[`#where`](#methods--where-).
+[`#where`](#methods-where).
 - `order` Will not convert property names or join relationships. See
-[`#order`](#methods--order-).
-- `limit` No differences. See [`#limit`](#methods--limit-).
-- `offset` No differences. See [`#offset`](#methods--offset-).
+[`#order`](#methods-order).
+- `limit` No differences. See [`#limit`](#methods-limit).
+- `offset` No differences. See [`#offset`](#methods-offset).
 - `join`  Joins are quite different as they require more information than
 simply a relationship name. Joins default to an `INNER` join. See more examples
 below.
 - `groupBy` Will not convert property names or join relationships. See
-[`#groupBy`](#methods--groupby-).
+[`#groupBy`](#methods-groupby).
 - `fetch` Executes the query and returns a promise that resolves with the
-`rows` from the result. See [`#fetch`](#executing--fetch-).
-- `fetchOne` No differences. See [`#fetchOne`](#executing--fetchone-).
+`rows` from the result. See [`#fetch`](#executing-fetch).
+- `fetchOne` No differences. See [`#fetchOne`](#executing-fetchone).
 
 
 **Joins**
@@ -929,7 +929,7 @@ Chainable methods include:
 
 - `set` Add values to set. See examples above.
 - `where` Will not convert property names or join relationships. See
-[`#where`](#methods--where-).
+[`#where`](#methods-where).
 
 ### Delete
 
@@ -944,7 +944,7 @@ db.delete('users').where({ name: 'Whitney' })
 Chainable methods include:
 
 - `where` Will not convert property names or join relationships. See
-[`#where`](#methods--where-).
+[`#where`](#methods-where).
 
 ### Raw
 
@@ -961,7 +961,7 @@ Raw queries have no chainable methods. Be very cautious of
 
 
 [azul-managers]: /guides/managers/
-[azul-models#objects]: /guides/models/#methods-properties--objects-
+[azul-models#objects]: /guides/models/#methods-properties-objects
 [azul-relations]: /guides/relations/
 [azul-transactions]: /guides/transactions/
 [azul-backends#sqlite-lookups]: /guides/backends/#sqlite3-lookups

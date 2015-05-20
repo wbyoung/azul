@@ -10,8 +10,8 @@ template: guide-page.html
 
 Transactions are straightforward to use in Azul.js. You simply create a new
 transaction object via [`db.transaction()`][azul-queries#transactions]. That
-object can then be used to create [`begin`](#methods--begin-),
-[`commit`](#methods--commit-), and [`rollback`](#methods--rollback-) queries.
+object can then be used to create [`begin`](#methods-begin),
+[`commit`](#methods-commit), and [`rollback`](#methods-rollback) queries.
 Here's a quick example:
 
 ```js
@@ -92,6 +92,6 @@ transaction.begin().execute()
 .catch(function() { return transaction.rollback(); });
 ```
 
-[azul-model#save]: /guides/models/#methods-properties--save-
+[azul-model#save]: /guides/models/#methods-properties-save
 [azul-queries#transactions]: /guides/queries/#transactions
-[azul-queries#transaction-method]: /guides/queries/#transactions--transaction-
+[azul-queries#transaction-method]: /guides/queries/#transactions-transaction

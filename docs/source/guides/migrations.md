@@ -84,7 +84,7 @@ manual mode, you are responsible for executing all queries in your migration.
 
 Create new tables. Pass the name of the table you want to create and a callback
 that will receive a table object with which you will be able to create columns
-of different [field types](#migration-basics-field-types).
+of different [field types](#methods-field-types).
 
 ```js
 schema.createTable('articles', function(table) {
@@ -96,16 +96,12 @@ schema.createTable('articles', function(table) {
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
-#### `#primaryKey`
+#### `#primaryKey` or `#pk`
 
 Defines the primary key of the table. The default is `id`. Pass
 `null` to create a table without a primary key. You can configure the primary
 key's type or options within your table definition callback. See below for an
 example.
-
-#### `#pk`
-
-Alias of `primaryKey`.
 
 #### `#unlessExists`
 
@@ -134,7 +130,7 @@ Add an index to the table.
 
 Alter existing tables. Pass the name of the table you want to alter and a
 callback that will receive a table object with which you will be able to
-create columns of different [field types](#migration-basics-field-types) as
+create columns of different [field types](#methods-field-types) as
 well as drop existing columns.
 
 ```js
@@ -268,15 +264,11 @@ the `precision` and the `scale` or provide both for most consistent results.
 
 Options are enabled by chaining any of the following methods onto the end of
 the field definition as shown in
-[the create table example](#migration-basics-methods--createtable-).
+[the create table example](#methods-createtable).
 
-#### `primaryKey`
+#### `primaryKey` or `pk`
 
 Mark this column as being a primary key column.
-
-#### `pk`
-
-Alias of [`primaryKey`](#migration-basics-field-options--primarykey-).
 
 #### `notNull`
 
@@ -308,8 +300,8 @@ Set the column that this column references.
 table.integer('article_id').references('articles.id')
 ```
 
-[azul-backends#sqlite-date]: /guides/backends/#sqlite3--date-
-[azul-backends#sqlite-time]: /guides/backends/#sqlite3--time-
-[azul-backends#sqlite-datetime]: /guides/backends/#sqlite3--datetime-
+[azul-backends#sqlite-date]: /guides/backends/#sqlite3-date
+[azul-backends#sqlite-time]: /guides/backends/#sqlite3-time
+[azul-backends#sqlite-datetime]: /guides/backends/#sqlite3-datetime
 [azul-relations#one-to-many]: /guides/relations/#types-of-relationships-one-to-many
 [azul-queries#data-queries]: /guides/queries/#data-queries

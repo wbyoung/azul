@@ -345,7 +345,7 @@ Article.reopenClass({
 [azul-getting-started]: /getting-started/
 [azul-migrations]: /guides/migrations/
 [azul-queries]: /guides/queries/
-[azul-queries#fetch]: /guides/queries/#executing--fetch-
-[azul-queries#find]: /guides/queries/#executing--find-
+[azul-queries#fetch]: /guides/queries/#executing-fetch
+[azul-queries#find]: /guides/queries/#executing-find
 [azul-managers#overriding-the-default-manager]: /guides/managers/#overriding-the-default-manager
 [mass-assignment]: http://en.wikipedia.org/wiki/Mass_assignment_vulnerability
