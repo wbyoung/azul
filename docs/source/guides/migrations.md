@@ -78,9 +78,9 @@ queries. If you need full control, _manual_ mode can be enabled by simply
 returning a promise or _thenable_ from the from the `up` or `down` function. In
 manual mode, you are responsible for executing all queries in your migration.
 
-### Methods
+## Methods
 
-#### `#createTable`
+### `#createTable`
 
 Create new tables. Pass the name of the table you want to create and a callback
 that will receive a table object with which you will be able to create columns
@@ -96,16 +96,24 @@ schema.createTable('articles', function(table) {
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
-- `primaryKey` Defines the primary key of the table. The default is `id`. Pass
+#### `#primaryKey`
+
+Defines the primary key of the table. The default is `id`. Pass
 `null` to create a table without a primary key. You can configure the primary
 key's type or options within your table definition callback. See below for an
 example.
 
-- `pk` Alias of `primaryKey`.
+#### `#pk`
 
-- `unlessExists` Will not create the table if it already exists.
+Alias of `primaryKey`.
 
-- `with` Allows delayed definition of the table columns & indexes.
+#### `#unlessExists`
+
+Will not create the table if it already exists.
+
+#### `#with`
+
+Allows delayed definition of the table columns & indexes.
 
 ```js
 schema.createTable('articles')
@@ -117,7 +125,12 @@ schema.createTable('articles')
 });
 ```
 
-#### `#alterTable`
+#### `table#index`
+
+Add an index to the table.
+
+
+### `#alterTable`
 
 Alter existing tables. Pass the name of the table you want to alter and a
 callback that will receive a table object with which you will be able to
@@ -131,15 +144,13 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
-- `drop` Drops a table column
+#### `table#index`
 
-```js
-schema.alterTable('articles', function(table) {
-  table.drop('title'); // drop the title column
-});
-```
+Add an index to the table.
 
-- `rename` Renames a table column
+#### `table#rename`
+
+Renames a table column.
 
 While not intuitive, a third argument, `type`, is required for a rename. This
 is because certain backends need this value in order to perform a rename. The
@@ -151,8 +162,17 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
+#### `table#drop`
 
-#### `#dropTable`
+Drops a table column.
+
+```js
+schema.alterTable('articles', function(table) {
+  table.drop('title'); // drop the title column
+});
+```
+
+### `#dropTable`
 
 Drop existing tables.
 
@@ -163,7 +183,9 @@ schema.dropTable('articles');
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
-- `ifExists` Will only drop the table if it exists.
+#### `#ifExists`
+
+Will only drop the table if it exists.
 
 
 ### Field Types
