@@ -37,19 +37,15 @@ describe('SQLite3 schema', function() {
     db._adapter._execute.restore();
   });
 
-  describe('with a table', function() {
+  describe('creating a table', function() {
     beforeEach(function(done) {
-      db.schema.createTable('people', function(table) {
+      this.create = db.schema.createTable('people', function(table) {
         table.serial('id').pk().notNull();
         table.string('first_name');
         table.integer('best_friend_id').references('id').default(1);
-      })
-      .then(function() {
-        db._adapter._execute.restore();
-        sinon.spy(db._adapter, '_execute');
-      })
-      .return()
-      .then(done, done);
+        table.index('best_friend_id');
+      });
+      this.create.execute().return().then(done, done);
     });
 
     afterEach(function(done) {
@@ -59,116 +55,126 @@ describe('SQLite3 schema', function() {
         .then(done, done);
     });
 
-    it('can add columns', function(done) {
-      var alter = db.schema.alterTable('people', function(table) {
-        table.string('last_name');
-      });
+    it('was created with the right sql', function() {
+      expect(this.create.sql).to.eql('-- procedure for ' +
+        'CREATE TABLE "people" (' +
+          '"id" integer PRIMARY KEY NOT NULL, ' +
+          '"first_name" varchar(255), ' +
+          '"best_friend_id" integer DEFAULT 1 REFERENCES "people" ("id"), ' +
+          'INDEX "best_friend_id_idx" ("best_friend_id"))');
 
-      expect(alter.sql).to.not.match(/^--/);
-
-      alter.then(function() {
-        var c = executedSQL()[0][0];
-        expect(executedSQL()).to.eql([
-          [c, 'ALTER TABLE "people" ADD COLUMN "last_name" varchar(255)', []]
-        ]);
-      })
-      .then(done, done);
+      var c = executedSQL()[0][0];
+      expect(executedSQL()).to.eql([
+        [c, 'SAVEPOINT AZULJS_1', []],
+        [c, 'CREATE TABLE "people" (' +
+          '"id" integer PRIMARY KEY NOT NULL, ' +
+          '"first_name" varchar(255), ' +
+          '"best_friend_id" integer DEFAULT 1 ' +
+          'REFERENCES "people" ("id"))', []],
+        [c, 'CREATE INDEX "best_friend_id_idx" ' +
+          'ON "people" ("best_friend_id")', []],
+        [c, 'RELEASE AZULJS_1', []],
+      ]);
     });
 
-    it('can rename columns', function(done) {
-      var alter = db.schema.alterTable('people', function(table) {
-        table.rename('first_name', 'first', 'string');
-      });
-
-      expect(alter.sql).to.eql('-- procedure for ' +
-        'ALTER TABLE "people" RENAME "first_name" TO "first"');
-
-      alter
-      .then(function() {
-        var c = executedSQL()[0][0];
-        expect(executedSQL()).to.eql([
-          [c, 'SAVEPOINT AZULJS_1', []],
-          [c, 'PRAGMA defer_foreign_keys=1', []],
-          [c, 'PRAGMA table_info("people")', []],
-          [c, 'PRAGMA foreign_key_list("people")', []],
-          [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
-          [c, 'CREATE TABLE "people" (' +
-            '"id" integer PRIMARY KEY NOT NULL, ' +
-            '"first" varchar(255), ' +
-            '"best_friend_id" integer DEFAULT 1, ' +
-            'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
-            'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
-          [c, 'INSERT INTO "people" ("id", "first", "best_friend_id") ' +
-            'SELECT "id", "first_name", "best_friend_id" FROM "people_old"', []],
-          [c, 'DROP TABLE "people_old"', []],
-          [c, 'RELEASE AZULJS_1', []],
-        ]);
-      })
-      .then(done, done);
-    });
-
-    it('drops a column once when procedure is repeated', function(done) {
-      var alter = db.schema.alterTable('people', function(table) {
-        table.drop('first_name');
-      });
-
-      expect(alter.sql).to
-        .eql('-- procedure for ALTER TABLE "people" DROP COLUMN "first_name"');
-
-      alter
-      .then(function() { return alter; })
-      .then(function() {
-        var c = executedSQL()[0][0];
-        expect(executedSQL()).to.eql([
-          [c, 'SAVEPOINT AZULJS_1', []],
-          [c, 'PRAGMA defer_foreign_keys=1', []],
-          [c, 'PRAGMA table_info("people")', []],
-          [c, 'PRAGMA foreign_key_list("people")', []],
-          [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
-          [c, 'CREATE TABLE "people" (' +
-            '"id" integer PRIMARY KEY NOT NULL, ' +
-            '"best_friend_id" integer DEFAULT 1, ' +
-            'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
-            'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
-          [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
-            'SELECT "id", "best_friend_id" FROM "people_old"', []],
-          [c, 'DROP TABLE "people_old"', []],
-          [c, 'RELEASE AZULJS_1', []],
-        ]);
-      })
-      .then(done, done);
-    });
-
-    describe('with raw table rename queries causing problems', function() {
+    describe('after creation', function() {
       beforeEach(function() {
-        var raw = EntryQuery.__class__.prototype.raw;
-        sinon.stub(EntryQuery.__class__.prototype, 'raw', function(query) {
-          if (query.match(/RENAME TO/)) {
-            arguments[0] = query.replace(/"$/, '_wrongname"');
-          }
-          return raw.apply(this, arguments);
+        db._adapter._execute.restore();
+        sinon.spy(db._adapter, '_execute');
+      });
+
+      it('can add columns', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.string('last_name');
         });
-      });
 
-      afterEach(function() {
-        EntryQuery.__class__.prototype.raw.restore();
-      });
+        expect(alter.sql).to.not.match(/^--/);
 
-      it('rolls back alter table', function(done) {
-        db.schema.alterTable('people', function(table) {
-          table.drop('first_name');
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'ALTER TABLE "people" ADD COLUMN "last_name" varchar(255)', []]
+          ]);
         })
-        .execute()
-        .throw(new Error('Expected alter to fail'))
-        .catch(function(e) {
-          expect(e).to.match(/no.*table.*people_old/i);
+        .then(done, done);
+      });
+
+      it('can add an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.index(['first_name', 'best_friend_id']);
+        });
+
+        expect(alter.sql).to.eql('CREATE INDEX ' +
+          '"first_name_best_friend_id_idx" ON "people" ' +
+          '("first_name", "best_friend_id")');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'CREATE INDEX ' +
+            '"first_name_best_friend_id_idx" ON "people" ' +
+            '("first_name", "best_friend_id")', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can rename columns', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.rename('first_name', 'first', 'string');
+        });
+
+        expect(alter.sql).to.eql('-- procedure for ' +
+          'ALTER TABLE "people" RENAME "first_name" TO "first"');
+
+        alter
+        .then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'SAVEPOINT AZULJS_1', []],
             [c, 'PRAGMA defer_foreign_keys=1', []],
             [c, 'PRAGMA table_info("people")', []],
+            [c, 'PRAGMA index_list("people")', []],
+            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
             [c, 'PRAGMA foreign_key_list("people")', []],
-            [c, 'ALTER TABLE "people" RENAME TO "people_old_wrongname"', []],
+            [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
+            [c, 'CREATE TABLE "people" (' +
+              '"id" integer PRIMARY KEY NOT NULL, ' +
+              '"first" varchar(255), ' +
+              '"best_friend_id" integer DEFAULT 1, ' +
+              'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
+              'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
+            [c, 'INSERT INTO "people" ("id", "first", "best_friend_id") ' +
+              'SELECT "id", "first_name", "best_friend_id" FROM "people_old"', []],
+            [c, 'DROP TABLE "people_old"', []],
+            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+              'ON "people" ("best_friend_id")', []],
+            [c, 'RELEASE AZULJS_1', []],
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('drops a column once when procedure is repeated', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.drop('first_name');
+        });
+
+        expect(alter.sql).to
+          .eql('-- procedure for ALTER TABLE "people" DROP COLUMN "first_name"');
+
+        alter
+        .then(function() { return alter; })
+        .then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'SAVEPOINT AZULJS_1', []],
+            [c, 'PRAGMA defer_foreign_keys=1', []],
+            [c, 'PRAGMA table_info("people")', []],
+            [c, 'PRAGMA index_list("people")', []],
+            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+            [c, 'PRAGMA foreign_key_list("people")', []],
+            [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
             [c, 'CREATE TABLE "people" (' +
               '"id" integer PRIMARY KEY NOT NULL, ' +
               '"best_friend_id" integer DEFAULT 1, ' +
@@ -176,44 +182,99 @@ describe('SQLite3 schema', function() {
               'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
             [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
               'SELECT "id", "best_friend_id" FROM "people_old"', []],
-            [c, 'ROLLBACK TO AZULJS_1', []],
+            [c, 'DROP TABLE "people_old"', []],
+            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+              'ON "people" ("best_friend_id")', []],
+            [c, 'RELEASE AZULJS_1', []],
+          ]);
+        })
+        .then(done, done);
+      });
+
+      describe('with raw table rename queries causing problems', function() {
+        beforeEach(function() {
+          var raw = EntryQuery.__class__.prototype.raw;
+          sinon.stub(EntryQuery.__class__.prototype, 'raw', function(query) {
+            if (query.match(/RENAME TO/)) {
+              arguments[0] = query.replace(/"$/, '_wrongname"');
+            }
+            return raw.apply(this, arguments);
+          });
+        });
+
+        afterEach(function() {
+          EntryQuery.__class__.prototype.raw.restore();
+        });
+
+        it('rolls back alter table', function(done) {
+          db.schema.alterTable('people', function(table) {
+            table.drop('first_name');
+          })
+          .execute()
+          .throw(new Error('Expected alter to fail'))
+          .catch(function(e) {
+            expect(e).to.match(/no.*table.*people_old/i);
+            var c = executedSQL()[0][0];
+            expect(executedSQL()).to.eql([
+              [c, 'SAVEPOINT AZULJS_1', []],
+              [c, 'PRAGMA defer_foreign_keys=1', []],
+              [c, 'PRAGMA table_info("people")', []],
+              [c, 'PRAGMA index_list("people")', []],
+              [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+              [c, 'PRAGMA foreign_key_list("people")', []],
+              [c, 'ALTER TABLE "people" RENAME TO "people_old_wrongname"', []],
+              [c, 'CREATE TABLE "people" (' +
+                '"id" integer PRIMARY KEY NOT NULL, ' +
+                '"best_friend_id" integer DEFAULT 1, ' +
+                'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
+                'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
+              [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
+                'SELECT "id", "best_friend_id" FROM "people_old"', []],
+              [c, 'ROLLBACK TO AZULJS_1', []],
+            ]);
+          })
+          .then(done, done);
+        });
+      });
+
+      it('can add, drop, and index simultaneously', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.drop('first_name');
+          table.string('name');
+          table.index('name');
+        });
+
+        expect(alter.sql).to.eql('-- procedure for ALTER TABLE "people" ' +
+          'DROP COLUMN "first_name", ADD COLUMN "name" varchar(255), ' +
+          'ADD INDEX "name_idx" ("name")');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'SAVEPOINT AZULJS_1', []],
+            [c, 'PRAGMA defer_foreign_keys=1', []],
+            [c, 'PRAGMA table_info("people")', []],
+            [c, 'PRAGMA index_list("people")', []],
+            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+            [c, 'PRAGMA foreign_key_list("people")', []],
+            [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
+            [c, 'CREATE TABLE "people" (' +
+              '"id" integer PRIMARY KEY NOT NULL, ' +
+              '"best_friend_id" integer DEFAULT 1, ' +
+              '"name" varchar(255), ' +
+              'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
+              'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
+            [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
+              'SELECT "id", "best_friend_id" FROM "people_old"', []],
+            [c, 'DROP TABLE "people_old"', []],
+            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+              'ON "people" ("best_friend_id")', []],
+            [c, 'CREATE INDEX "name_idx" ON "people" ("name")', []],
+            [c, 'RELEASE AZULJS_1', []],
           ]);
         })
         .then(done, done);
       });
     });
-
-    it('can add and drop columns', function(done) {
-      var alter = db.schema.alterTable('people', function(table) {
-        table.drop('first_name');
-        table.string('name');
-      });
-
-      expect(alter.sql).to.eql('-- procedure for ALTER TABLE "people" ' +
-        'DROP COLUMN "first_name", ADD COLUMN "name" varchar(255)');
-
-      alter.then(function() {
-        var c = executedSQL()[0][0];
-        expect(executedSQL()).to.eql([
-          [c, 'SAVEPOINT AZULJS_1', []],
-          [c, 'PRAGMA defer_foreign_keys=1', []],
-          [c, 'PRAGMA table_info("people")', []],
-          [c, 'PRAGMA foreign_key_list("people")', []],
-          [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
-          [c, 'CREATE TABLE "people" (' +
-            '"id" integer PRIMARY KEY NOT NULL, ' +
-            '"best_friend_id" integer DEFAULT 1, ' +
-            '"name" varchar(255), ' +
-            'FOREIGN KEY ("best_friend_id") REFERENCES "people" ("id") ' +
-            'ON DELETE NO ACTION ON UPDATE NO ACTION MATCH NONE)', []],
-          [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
-            'SELECT "id", "best_friend_id" FROM "people_old"', []],
-          [c, 'DROP TABLE "people_old"', []],
-          [c, 'RELEASE AZULJS_1', []],
-        ]);
-      })
-      .then(done, done);
-    });
   });
-
 });

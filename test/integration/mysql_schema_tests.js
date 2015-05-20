@@ -38,6 +38,34 @@ describe('MySQL schema', function() {
     db._adapter._execute.restore();
   });
 
+  describe('creating a table with an index', function() {
+    beforeEach(function(done) {
+      db.schema.createTable('people', function(table) {
+        table.integer('age');
+        table.index('age');
+      })
+      .execute()
+      .return()
+      .then(done, done);
+    });
+
+    afterEach(function(done) {
+      db.schema.dropTable('people')
+        .execute()
+        .return()
+        .then(done, done);
+    });
+
+    it('was created with the right sql', function() {
+      var c = executedSQL()[0][0];
+      expect(executedSQL()).to.eql([
+        [c, 'CREATE TABLE `people` (`id` integer AUTO_INCREMENT PRIMARY KEY, ' +
+          '`age` integer, ' +
+          'INDEX `age_idx` (`age`))', []],
+      ]);
+    });
+  });
+
   describe('creating a table', function() {
     beforeEach(function(done) {
       db.schema.createTable('people', function(table) {
@@ -84,6 +112,46 @@ describe('MySQL schema', function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'ALTER TABLE `people` CHANGE `first_name` `first` varchar(255)', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can add an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.index(['first_name', 'best_friend_id']);
+        });
+
+        expect(alter.sql).to.eql('CREATE INDEX ' +
+          '`first_name_best_friend_id_idx` ON `people` ' +
+          '(`first_name`, `best_friend_id`)');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'CREATE INDEX ' +
+                '`first_name_best_friend_id_idx` ON `people` ' +
+                '(`first_name`, `best_friend_id`)', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can add a column and named index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.string('last_name');
+          table.index('last_name', { name: 'surname_index' });
+        });
+        var expectedSQL = 'ALTER TABLE `people` ' +
+          'ADD COLUMN `last_name` varchar(255), ' +
+          'ADD INDEX `surname_index` (`last_name`)';
+
+        expect(alter.sql).to.eql(expectedSQL);
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, expectedSQL, []]
           ]);
         })
         .then(done, done);

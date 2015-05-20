@@ -4,13 +4,13 @@ var chai = require('chai');
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
-var CreateTableQuery = require('../../lib/schema/table/create');
+var CreateTable = require('../../lib/schema/table/create');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/types/statement');
 
 var db, adapter;
 
-describe('CreateTableQuery', function() {
+describe('CreateTable', function() {
   before(function() {
     adapter = FakeAdapter.create({});
     db = Database.create({ adapter: adapter });
@@ -18,8 +18,8 @@ describe('CreateTableQuery', function() {
 
   it('cannot be created directly', function() {
     expect(function() {
-      CreateTableQuery.create();
-    }).to.throw(/CreateTableQuery must be spawned/i);
+      CreateTable.create();
+    }).to.throw(/CreateTable must be spawned/i);
   });
 
   it('must provide a callback', function() {
