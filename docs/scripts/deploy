@@ -5,7 +5,7 @@
 
 set -e
 
-NAME=`git describe --exact-match 2> /dev/null`
+NAME=`git describe --exact-match 2> /dev/null || true`
 
 if [ -z "${NAME}" ]; then
   NAME="master"
