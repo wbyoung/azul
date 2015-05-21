@@ -38,7 +38,7 @@ var User = db.model('user', {
   articles: db.hasMany('article', { inverse: 'author' })
 });
 
-Article.objects.with('author').fetch().then('...');
+Article.objects.with('author').fetch().then(/* ... */);
 
 // -> select * from "articles";
 // -> select * from "users" where "id" in (?, ?, ?) limit 3;
@@ -52,7 +52,7 @@ good code that others can easily understand. Want to find all articles that
 include a comment that is spam? Simple.
 
 ```js
-Article.objects.where({ 'comments.spam': true }).fetch().then('...');
+Article.objects.where({ 'comments.spam': true }).fetch().then(/* ... */);
 
 // -> select "articles".* from "articles"
 // -> inner join "comments" on "comments"."article_id" = "articles"."id"
