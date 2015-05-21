@@ -5,10 +5,9 @@
 {% if toc[0] %}
 <div class="jumbotron">
   <div class="container">
-    <h1>{{ toc[0].title }}</h1>
+    <h1>{{ toc[0].title }} <a href="/releases/" class="release">{% if azulTag %}{{ azulTag }}{% else %}dev{% endif %}</a></h1>
   </div>
 </div>
-{% endif %}
 
 <div class="container">
 <div class="row">
@@ -46,5 +45,18 @@
 </div>
 </div>
 </div>
+
+{% else %}
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>{{ title }}  <a href="/releases/" class="release">{% if azulTag %}{{ azulTag }}{% else %}dev{% endif %}</a></h1>
+  </div>
+</div>
+
+<div class="container">
+  {{ contents|safe }}
+</div>
+{% endif %}
 
 {% endblock %}

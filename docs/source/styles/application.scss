@@ -113,6 +113,12 @@ body.generic > .jumbotron {
   h1 {
     font-size: 300%;
     font-weight: 300;
+
+    a.release {
+      color: #fff;
+      font-size: 40%;
+      &:hover { text-decoration: none; }
+    }
   }
 }
 

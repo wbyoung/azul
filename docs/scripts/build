@@ -9,6 +9,8 @@ var metallic = require('metalsmith-metallic');
 var serve = require('metalsmith-serve');
 var watch = require('metalsmith-watch');
 var path = require('path');
+var cp = require('child_process');
+var semver = require('semver');
 var cheerio = require('cheerio');
 var commander = require('commander');
 var program = new commander.Command()
@@ -16,6 +18,93 @@ var program = new commander.Command()
 
 program.parse(process.argv);
 
+
+/**
+ * Set all known tags as `azulTags`.
+ *
+ * @return {MetalsmithPlugin}
+ */
+var addKnownTags = function() {
+  var args = ['tag', '-l'];
+  var extract = function(v) { return v; };
+  var filter = function(v) { return v; };
+  if (process.env.TRAVIS) {
+    args = ['ls-remote', '--tags', 'origin']
+    extract = function(v) {
+      var match = v.match(/refs\/tags\/([^^]*)$/);
+      return match && match[1];
+    };
+  }
+
+  var tags = cp.spawnSync('git', args, { encoding: 'utf8' })
+    .stdout.trim().split('\n')
+    .map(extract).filter(filter)
+    .sort(semver.compare)
+    .reverse();
+
+  return function addKnownTags(files, metalsmith, done) {
+    _.forEach(files, function(data, file) {
+      data.azulTags = tags;
+    });
+    done();
+  };
+};
+
+/**
+ * Set current tag as `azulTag`.
+ *
+ * @return {MetalsmithPlugin}
+ */
+var addCurrentTag = function() {
+  var tag = cp.spawnSync('git', ['describe', '--exact-match'],
+    { encoding: 'utf8' }).stdout.trim();
+
+  return function addCurrentTag(files, metalsmith, done) {
+    _.forEach(files, function(data, file) {
+      data.azulTag = tag;
+    });
+    done();
+  };
+};
+
+/**
+ * Creates version specific documentation `azulTag` has been set.
+ *
+ * This moves all documentation pages into a sub-directory for the specific
+ * tag/version. It prevents the generation of any other pages. It also updates
+ * all href links so the user remains on the current version documentation. The
+ * changes made are:
+ *
+ *   /guides/* -> /version/guides/*
+ *   /docs/* -> /version/docs/*
+ *
+ * @return {MetalsmithPlugin}
+ */
+var version = function() {
+  return function version(files, metalsmith, done) {
+    _.forEach(files, function(data, file) {
+      if (!data.azulTag) { return; }
+      if (file.match(/^(guides|docs)/)) {
+        files[path.join(data.azulTag, file)] = data;
+
+        var $ = cheerio.load(data.contents);
+        $('a[href^="/guides"], a[href^="/docs"]').each(function() {
+          $(this).attr('href', '/' + data.azulTag + $(this).attr('href'));
+        });
+        data.contents = new Buffer($.html());
+      }
+      delete files[file];
+    });
+    done();
+  };
+};
+
+/**
+ * Moves simple HTML pages into a subdirectory by the same name for pretty links.
+ * For instance, `page.html` would become `page/index.html`.
+ *
+ * @return {MetalsmithPlugin}
+ */
 var indexify = function() {
   return function indexify(files, metalsmith, done) {
     _.forEach(files, function(data, file) {
@@ -29,6 +118,12 @@ var indexify = function() {
   };
 };
 
+/**
+ * Generate a table of contents from the page content & make it available to
+ * templates.
+ *
+ * @return {MetalsmithPlugin}
+ */
 var toc = function() {
   return function toc(files, metalsmith, done) {
     _.forEach(files, function(data, file) {
@@ -92,12 +187,15 @@ var toc = function() {
 var metalsmith = Metalsmith(path.join(__dirname, '..'))
   .source('./source')
   .destination('./build')
+  .use(addKnownTags())
+  .use(addCurrentTag())
   .use(sass())
   .use(metallic())
   .use(markdown())
   .use(toc())
   .use(templates('swig'))
-  .use(indexify());
+  .use(indexify())
+  .use(version());
 
 if (program.serve) {
   metalsmith = metalsmith

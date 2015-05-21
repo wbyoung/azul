@@ -1,0 +1,16 @@
+{% extends "page.html" %}
+
+{% block contained-content %}
+{{ contents|safe }}
+
+<ul class="releases">
+  <li>
+    <a href="/guides/">dev (master)</a>
+  </li>
+  {% for tag in azulTags %}
+    <li>
+      <a href="/{{ tag }}/guides/">{{ tag }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

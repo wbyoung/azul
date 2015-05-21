@@ -11,7 +11,9 @@
 {% endif %}
 
 <div class="container">
+  {% block contained-content %}
   {{ contents|safe }}
+  {% endblock %}
 </div>
 
 {% endblock %}
