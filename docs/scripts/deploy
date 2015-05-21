@@ -25,13 +25,15 @@ git config user.name $GITHUB_NAME
 git config user.email $GITHUB_EMAIL
 
 # remove all old content before copying over new docs
-find "${DIR}" \
-  -type f \
-  -not -name CNAME \
-  -not -name README.md \
-  -not -path './.*' \
-  -not -path './v*/guides/**' \
-  -exec rm {} \;
+if [ -d "${DIR}" ]; then
+  find "${DIR}" \
+    -type f \
+    -not -name CNAME \
+    -not -name README.md \
+    -not -path './.*' \
+    -not -path './v*/guides/**' \
+    -exec rm {} \;
+fi
 
 cp -r ../docs/build/* .
 
