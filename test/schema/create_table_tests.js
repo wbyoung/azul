@@ -174,7 +174,54 @@ describe('CreateTable', function() {
     }).to.throw(/invalid.*"bad\.foreign\.key"/i);
   });
 
-  it('generates columns using foreign keys that specify delete actions');
+  it('generates columns using foreign keys that specify delete actions', function() {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
+      table.integer('profile_id').references('profiles.id').onDelete('cascade');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("profile_id" integer ' +
+      'REFERENCES "profiles" ("id") ON DELETE CASCADE)', []
+    ));
+  });
+
+  it('generates columns using foreign keys that specify update actions', function() {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
+      table.integer('profile_id').references('profiles.id').onUpdate('nullify');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("profile_id" integer ' +
+      'REFERENCES "profiles" ("id") ON UPDATE SET NULL)', []
+    ));
+  });
+
+  it('generates columns using foreign keys that specify both actions', function() {
+    var query = db.schema.createTable('users').pk(null).with(function(table) {
+      table.integer('profile_id')
+        .references('profiles.id')
+        .onDelete('restrict')
+        .onUpdate('cascade');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("profile_id" integer ' +
+      'REFERENCES "profiles" ("id") ON DELETE RESTRICT ON UPDATE CASCADE)', []
+    ));
+  });
+
+  it('give an error for unsupported foreign key delete actions', function() {
+    expect(function() {
+      db.schema.createTable('users').pk(null).with(function(table) {
+        table.integer('profile_id').references('profiles.id').onDelete('bogus')
+      }).sql;
+    }).throw(/unknown.*foreign key.*action.*bogus/i);
+  });
+
+  it('give an error for unsupported foreign key update actions', function() {
+    expect(function() {
+      db.schema.createTable('users').pk(null).with(function(table) {
+        table.integer('profile_id').references('profiles.id').onUpdate('bogus')
+      }).sql;
+    }).throw(/unknown.*foreign key.*action.*bogus/i);
+  });
 
   it('can combine options', function() {
     var query = db.schema.createTable('users').pk(null).with(function(table) {

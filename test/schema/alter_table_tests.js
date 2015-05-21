@@ -140,7 +140,11 @@ describe('AlterTable', function() {
 
   it('can combine options', function() {
     var query = db.schema.alterTable('users', function(table) {
-      table.integer('profile_id').references('profiles.id').notNull().unique();
+      table.integer('profile_id')
+        .references('profiles.id')
+        .onDelete('cascade')
+        .notNull()
+        .unique();
       table.drop('age');
     });
 
@@ -148,7 +152,7 @@ describe('AlterTable', function() {
       'ALTER TABLE "users" ' +
         'DROP COLUMN "age", ' +
         'ADD COLUMN "profile_id" integer NOT NULL UNIQUE ' +
-        'REFERENCES "profiles" ("id")', []
+        'REFERENCES "profiles" ("id") ON DELETE CASCADE', []
     ));
   });
 });
