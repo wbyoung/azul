@@ -25,6 +25,7 @@ git config user.email $GITHUB_EMAIL
 # remove all old content before copying over new docs
 find . \
   -type f \
+  -not -name CNAME \
   -not -name README.md \
   -not -path './.*' \
   -not -path './v*/guides/**' \
