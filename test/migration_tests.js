@@ -128,15 +128,15 @@ describe('Migration', function() {
 
     it('reads migrations in order', function(done) {
       adapter.interceptSelectMigrations([
+        '20141022202634_create_comments',
         '20141022202234_create_articles',
-        '20141022202634_create_comments'
       ]);
 
       migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
+          { name: '20141022202634_create_comments', batch: 1 },
           { name: '20141022202234_create_articles', batch: 1 },
-          { name: '20141022202634_create_comments', batch: 1 }
         ]);
         expect(_.last(adapter.executedSQL())[0])
           .to.match(/select.*from "azul_migrations".*order by "name" desc/i);
@@ -345,7 +345,7 @@ describe('Migration', function() {
         up: sinon.spy(), down: sinon.spy(),
         name: 'migration_file_2', batch: 1
       };
-      var mods = this.mods = [mod1, mod2];
+      var mods = this.mods = [mod2, mod1];
       sinon.stub(migration, '_loadExecutedMigrations')
         .returns(BluebirdPromise.resolve(mods));
     });
@@ -367,7 +367,7 @@ describe('Migration', function() {
         migration.rollback().then(function(migrations) {
           expect(_.map(migrations, 'batch')).to.eql([1, 1]);
           expect(_.map(migrations, 'name'))
-            .to.eql(['migration_file_1', 'migration_file_2']);
+            .to.eql(['migration_file_2', 'migration_file_1']);
         })
         .done(done, done);
       });
@@ -413,25 +413,25 @@ describe('Migration', function() {
         var down2Sequence;
 
         this.mod1.down = function() {
-          return BluebirdPromise.delay(5).then(function() {
+          return BluebirdPromise.delay(0).then(function() {
             down1Sequence = sequence++;
           });
         };
         this.mod2.down = function() {
-          return BluebirdPromise.delay(0).then(function() {
+          return BluebirdPromise.delay(5).then(function() {
             down2Sequence = sequence++;
           });
         };
 
         migration.rollback().then(function() {
-          expect(down1Sequence).to.eql(0);
-          expect(down2Sequence).to.eql(1);
+          expect(down1Sequence).to.eql(1);
+          expect(down2Sequence).to.eql(0); // executed 1st
         })
         .done(done, done);
       });
 
       it('rolls back transaction for failed migration', function(done) {
-        this.mod2.down = function() {
+        this.mod1.down = function() {
           throw new Error('Intentional Error');
         };
         migration.rollback().throw('Migration should have been rolled back.')
@@ -449,7 +449,7 @@ describe('Migration', function() {
         adapter.intercept(/rollback/i, function() {
           throw new Error('Cannot rollback.');
         });
-        this.mod2.down = function() {
+        this.mod1.down = function() {
           throw new Error('Intentional Error');
         };
         migration.rollback().throw('Rollback should have been rolled back.')
