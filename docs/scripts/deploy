@@ -22,7 +22,14 @@ git clone -q --depth 1 --branch gh-pages --single-branch $GITHUB_REPO .
 git config user.name $GITHUB_NAME
 git config user.email $GITHUB_EMAIL
 
-find . -type f -not -name README.md -not -path './.*' -exec rm {} \;
+# remove all old content before copying over new docs
+find . \
+  -type f \
+  -not -name README.md \
+  -not -path './.*' \
+  -not -path './v*/guides/**' \
+  -exec rm {} \;
+
 cp -r ../docs/build/* .
 
 git add -A .
