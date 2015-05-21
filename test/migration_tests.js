@@ -477,6 +477,113 @@ describe('Migration', function() {
     });
   });
 
+  describe('with pending reversible migrations stubbed', function() {
+    beforeEach(function() {
+      var cols = function(table) { table.string('name'); };
+      var mod1 = this.mod1 = {
+        change: sinon.spy(function(schema, query) {
+          schema.createTable('example1', cols);
+          schema.createTable('example2', cols);
+        }),
+        name: 'migration_file_1', batch: 1
+      };
+      var mod2 = this.mod2 = {
+        change: sinon.spy(function(schema) {
+          schema.createTable('example3', cols);
+        }),
+        name: 'migration_file_2', batch: 1
+      };
+      sinon.stub(migration, '_loadPendingMigrations')
+        .returns(BluebirdPromise.resolve([mod1, mod2]));
+    });
+    afterEach(function() {
+      migration._loadPendingMigrations.restore();
+    });
+
+    it('runs all expected queries on migrate', function(done) {
+        migration.migrate().then(function(/*migrations*/) {
+          expect(adapter.executedSQL()).to.eql([
+            ['BEGIN', []],
+            ['CREATE TABLE "example1" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))', []],
+            ['CREATE TABLE "example2" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))', []],
+            ['CREATE TABLE "example3" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))', []],
+            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
+             'VALUES (?, ?), (?, ?)', [
+               'migration_file_1', 1, 'migration_file_2', 1]],
+            ['COMMIT', []],
+          ]);
+        })
+        .done(done, done);
+    });
+
+    it('fails if not serial', function(done) {
+      this.mod1.change = function() {
+        return BluebirdPromise.resolve();
+      };
+      migration.migrate()
+      .throw(new Error('Expected migration to fail'))
+      .catch(function(e) {
+        expect(e).to.match(/reversible.*must.*serial/i);
+      })
+      .done(done, done);
+    });
+
+    it('does not provide a query argument', function(done) {
+      migration.migrate().then(function(/*migrations*/) {
+        expect(this.mod1.change.getCall(0).args[1]).to.not.exist;
+      }.bind(this))
+      .done(done, done);
+    });
+  });
+
+  describe('with executed reversible migrations stubbed', function() {
+    beforeEach(function() {
+      var cols = function(table) { table.string('name'); };
+      var mod1 = this.mod1 = {
+        change: sinon.spy(function(schema, query) {
+          schema.createTable('example1', cols);
+          schema.createTable('example2', cols);
+        }),
+        name: 'migration_file_1', batch: 1
+      };
+      var mod2 = this.mod2 = {
+        change: sinon.spy(function(schema) {
+          schema.createTable('example3', cols);
+        }),
+        name: 'migration_file_2', batch: 1
+      };
+      sinon.stub(migration, '_loadExecutedMigrations')
+        .returns(BluebirdPromise.resolve([mod2, mod1]));
+    });
+    afterEach(function() {
+      migration._loadExecutedMigrations.restore();
+    });
+
+    it('runs all expected queries on rollback', function(done) {
+        migration.rollback().then(function(/*migrations*/) {
+          expect(adapter.executedSQL()).to.eql([
+            ['BEGIN', []],
+            ['DROP TABLE "example3"', []],
+            ['DROP TABLE "example2"', []],
+            ['DROP TABLE "example1"', []],
+            ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
+            ['COMMIT', []],
+          ]);
+        })
+        .done(done, done);
+    });
+
+    it('does not provide a query argument', function(done) {
+      migration.rollback().then(function(/*migrations*/) {
+        expect(this.mod1.change.getCall(0).args[1]).to.not.exist;
+      }.bind(this))
+      .done(done, done);
+    });
+  });
+
   describe('with pending migrations creating tables', function() {
     beforeEach(function() {
       var cols = function(table) { table.integer('id'); };
@@ -609,24 +716,5 @@ describe('Migration', function() {
         })
         .done(done, done);
     });
-  });
-
-  describe('#_determineReverseAction', function() {
-    // to make this happen, we'll probably want to pass a fake object off to
-    // the migration's `change` method and record any calls that are made on
-    // it. from there, the reverse actions can be built.
-
-    // a possibly simpler way to do this would be to create a ReverseSchema
-    // class that basically just has a bunch of functions that map to the
-    // opposite of what they are. so `createTable` would map to a
-    // `DropTableQuery` and (as long as the arguments match), that would be
-    // all that was required. imposing a rule that reversible actions have
-    // arguments that directly overlap with their reverse action's arguments
-    // (drop table needs only the table name, but no more of create table's
-    // arguments) may be easy. it'd also be easy to say it's _only_ the first
-    // argument of the call through `createTable` that should be passed off to
-    // the creation of a `DropTableQuery`. argument mapping may be more
-    // complicated, but still could be decently easy.
-    it('knows the reverse of creating a table');
   });
 });
