@@ -6,9 +6,11 @@
 set -e
 
 NAME=`git describe --exact-match 2> /dev/null || true`
+DIR="${NAME}"
 
 if [ -z "${NAME}" ]; then
   NAME="master"
+  DIR="."
 fi
 
 if [ "`git rev-parse HEAD`" != "`git rev-parse ${NAME}~0 2> /dev/null`" ]; then
@@ -23,7 +25,7 @@ git config user.name $GITHUB_NAME
 git config user.email $GITHUB_EMAIL
 
 # remove all old content before copying over new docs
-find . \
+find "${DIR}" \
   -type f \
   -not -name CNAME \
   -not -name README.md \
