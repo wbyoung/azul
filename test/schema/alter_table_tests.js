@@ -24,7 +24,7 @@ describe('AlterTable', function() {
 
   it('must provide a callback', function() {
     expect(function() {
-      db.schema.alterTable('users');
+      db.schema.alterTable('users').sql;
     }).to.throw(/missing callback/i);
   });
 
@@ -62,7 +62,7 @@ describe('AlterTable', function() {
       db.schema.alterTable('users', function(table) {
         table.integer('id').pk();
         table.integer('id2').pk();
-      });
+      }).sql;
     }).to.throw(/only.*one primary key/);
   });
 
