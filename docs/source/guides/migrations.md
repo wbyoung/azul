@@ -121,9 +121,14 @@ schema.createTable('articles')
 });
 ```
 
-#### `table#index`
+#### `table#index(columns, [options])`
 
 Add an index to the table.
+
+```js
+table.index('boss_id'); // name automatically set to boss_id_idx
+table.index(['first_name', 'last_name'], { name: 'full_name_index' });
+```
 
 
 ### `#alterTable`
@@ -140,9 +145,10 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
-#### `table#index`
+#### `table#index(columns, [options])`
 
-Add an index to the table.
+Add an index to the table. See
+[create table examples](#methods-createtable-table-index).
 
 #### `table#rename`
 
