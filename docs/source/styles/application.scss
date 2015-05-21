@@ -26,6 +26,15 @@ body > .container {
     font-weight: 300;
   }
 
+  h2 { margin-top: 1.6em; }
+  h1 + h2 { margin-top: 0.6em; }
+
+  h3 { margin-top: 2em; }
+  h2 + h3 { margin-top: 1em; }
+
+  h4 { margin-top: 2em; }
+  h3 + h4 { margin-top: 1em; }
+
 }
 
 body > .container {
