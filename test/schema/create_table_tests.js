@@ -104,9 +104,17 @@ describe('CreateTable', function() {
     ));
   });
 
-  // this will likely need to be done via a separate query and not when setting
-  // up the table.
-  it.skip('generates indexed columns');
+  it('generates indexed columns', function() {
+    var query = db.schema.createTable('users')
+    .primaryKey(null).with(function(table) {
+      table.string('username');
+      table.index('username')
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE TABLE "users" ("username" varchar(255), ' +
+      'INDEX "username_idx" ("username"))', []
+    ));
+  });
 
   it('generates unique columns', function() {
     var query = db.schema.createTable('users', function(table) {
