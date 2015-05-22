@@ -145,7 +145,7 @@ describe('MySQL schema', function() {
               'KEY_NAME = ?', ['people_first_name_idx']],
             [c, 'DROP INDEX `people_first_name_idx` ON `people`', []],
             [c, 'CREATE INDEX `bff_idx` ' +
-              'ON `people` (`first_name`) USING BTREE', []],
+              'USING BTREE ON `people` (`first_name`)', []],
             [c, 'COMMIT', []],
           ]);
         })
@@ -200,7 +200,7 @@ describe('MySQL schema', function() {
               'KEY_NAME = ?', ['people_first_last_idx']],
             [c, 'DROP INDEX `people_first_last_idx` ON `people`', []],
             [c, 'CREATE INDEX `name_idx` ' +
-              'ON `people` (`first`, `last`) USING BTREE', []],
+              'USING BTREE ON `people` (`first`, `last`)', []],
 
             [c, 'COMMIT', []],
           ]);
@@ -223,6 +223,50 @@ describe('MySQL schema', function() {
       });
     });
 
+  });
+
+  describe('with a custom table', function() {
+    beforeEach(function(done) {
+      var sql = 'CREATE TABLE `people` (`id` integer ' +
+        'PRIMARY KEY, `name` varchar(255), UNIQUE INDEX (`name`(2)))';
+      db.query.raw(sql)
+      .then(function() {
+        db._adapter._execute.restore();
+        sinon.spy(db._adapter, '_execute');
+      })
+      .then(done, done);
+    });
+
+    afterEach(function(done) {
+      db.schema.dropTable('people')
+        .execute()
+        .return()
+        .then(done, done);
+    });
+
+    it('can rename an index', function(done) {
+      var alter = db.schema.alterTable('people', function(table) {
+        table.renameIndex('name', 'name_idx');
+      });
+
+      expect(alter.sql).to
+        .eql('-- procedure for ALTER INDEX `name` ' +
+          'RENAME TO `name_idx`');
+
+      alter.then(function() {
+        var c = executedSQL()[0][0];
+        expect(executedSQL()).to.eql([
+          [c, 'BEGIN', []],
+          [c, 'SHOW INDEX FROM `people` WHERE ' +
+            'KEY_NAME = ?', ['name']],
+          [c, 'DROP INDEX `name` ON `people`', []],
+          [c, 'CREATE UNIQUE INDEX `name_idx` ' +
+            'USING BTREE ON `people` (`name`(2))', []],
+          [c, 'COMMIT', []],
+        ]);
+      })
+      .then(done, done);
+    });
   });
 
 });
