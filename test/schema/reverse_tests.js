@@ -109,6 +109,17 @@ describe('ReverseSchema', function() {
 
   });
 
+  describe('#renameTable', function() {
+
+    it('reverses', function() {
+      var query = schema.renameTable('users', 'accounts');
+      expect(query.statement).to.eql(Statement.create(
+        'ALTER TABLE "accounts" RENAME TO "users"', []
+      ));
+    });
+
+  });
+
   it('overrides all schema methods', function() {
     var mixins = function(cls) {
       return _(cls.__identity__.__mixins__)

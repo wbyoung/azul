@@ -73,6 +73,17 @@ describe('ReversibleSchema', function() {
 
   });
 
+  describe('#renameTable', function() {
+
+    it('is reversible', function() {
+      var query = schema.renameTable('users', 'accounts');
+      expect(query.statement).to.eql(Statement.create(
+        'ALTER TABLE "users" RENAME TO "accounts"', []
+      ));
+    });
+
+  });
+
   describe('#dropTable', function() {
 
     it('is not reversible', function() {

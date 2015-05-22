@@ -96,4 +96,15 @@ describe('Schema', function() {
       ));
     });
   });
+
+  describe('#renameTable', function() {
+
+    it('generates the proper sql', function() {
+      var query = schema.renameTable('users', 'accounts');
+      expect(query.statement).to.eql(Statement.create(
+        'ALTER TABLE "users" RENAME TO "accounts"', []
+      ));
+    });
+
+  });
 });
