@@ -240,12 +240,14 @@ describe('PostgreSQL schema', function() {
       describe('with raw column rename queries causing problems', function() {
         beforeEach(function() {
           var raw = EntryQuery.__class__.prototype.raw;
-          sinon.stub(EntryQuery.__class__.prototype, 'raw', function(query) {
+          sinon.stub(EntryQuery.__class__.prototype, 'raw', function() {
+            var result = raw.apply(this, arguments);
             var regex = /(RENAME "[^"]+)(" TO)/i;
-            if (query.match(regex)) {
-              arguments[0] = query.replace(regex, '$1_invalid$2');
+            if (result.sql.match(regex)) {
+              result = raw.apply(this,
+                [result.sql.replace(regex, '$1_invalid$2'), result.args]);
             }
-            return raw.apply(this, arguments);
+            return result;
           });
         });
 
