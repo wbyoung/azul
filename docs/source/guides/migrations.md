@@ -165,6 +165,17 @@ table.index(['first_name', 'last_name'], { name: 'full_name_index' });
 ```
 
 
+### `#renameTable(from, to)`
+
+Rename a table.
+
+```js
+schema.renameTable('articles', 'posts');
+```
+
+This method is always [_reversible_](#reversible-migrations).
+
+
 ### `#alterTable`
 
 Alter existing tables. Pass the name of the table you want to alter and a
@@ -180,18 +191,14 @@ schema.alterTable('articles', function(table) {
 ```
 
 This method is [_reversible_](#reversible-migrations) unless you
-[`drop`](#methods-altertable-table-drop) a column.
+use [`drop`](#methods-altertable-table-drop) to drop a column or
+[`dropIndex`](#methods-altertable-table-dropindex) to drop an index.
 
 #### `table#field(column, [options])`
 
 Create a column of the type given by `field`. See
 [field types](#methods-field-types) for a comprehensive list of types, options,
 and examples.
-
-#### `table#index(columns, [options])`
-
-Add an index to the table. See
-[create table examples](#methods-createtable-table-index).
 
 #### `table#rename`
 
@@ -214,6 +221,34 @@ Drops a table column.
 ```js
 schema.alterTable('articles', function(table) {
   table.drop('title'); // drop the title column
+});
+```
+
+This is not [_reversible_](#reversible-migrations).
+
+#### `table#index(columns, [options])`
+
+Add an index to the table. See
+[create table examples](#methods-createtable-table-index).
+
+#### `table#renameIndex(from, to)`
+
+Rename an index associated with a table. The full index name must be provided.
+
+```js
+schema.alterTable('employees', function(table) {
+  table.renameIndex('full_name_index', 'full_name_idx');
+});
+```
+
+#### `table#dropIndex([columns], [options])`
+
+Drops an index associated with a table.
+
+```js
+schema.alterTable('employees', function(table) {
+  table.dropIndex('boss_id'); // drops employees_boss_id_idx
+  table.dropIndex({ name: 'full_name_index' }); // drops full_name_index
 });
 ```
 
