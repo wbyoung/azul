@@ -54,7 +54,7 @@ describe('ReverseSchema', function() {
       ));
     });
 
-    it('reverses a rename', function() {
+    it('reverses renaming a column', function() {
       var query = schema.alterTable('users', function(table) {
         table.rename('name', 'newname', 'string');
       });
