@@ -149,6 +149,12 @@ schema.createTable('articles')
 });
 ```
 
+#### `table#field(column, [options])`
+
+Create a column of the type given by `field`. See
+[field types](#methods-field-types) for a comprehensive list of types, options,
+and examples.
+
 #### `table#index(columns, [options])`
 
 Add an index to the table.
@@ -176,6 +182,11 @@ schema.alterTable('articles', function(table) {
 This method is [_reversible_](#reversible-migrations) unless you
 [`drop`](#methods-altertable-table-drop) a column.
 
+#### `table#field(column, [options])`
+
+Create a column of the type given by `field`. See
+[field types](#methods-field-types) for a comprehensive list of types, options,
+and examples.
 
 #### `table#index(columns, [options])`
 
