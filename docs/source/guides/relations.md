@@ -60,7 +60,7 @@ A migration for this would look involve creating the foreign key when creating
 the `articles` table:
 
 ```js
-exports.up = function(schema) {
+exports.change = function(schema) {
   schema.createTable('blogs', function(table) {
     table.string('title');
   });
@@ -70,11 +70,6 @@ exports.up = function(schema) {
     table.text('body');
     table.integer('blog_id').references('blogs.id');
   });
-};
-
-exports.down = function(schema) {
-  schema.dropTable('articles');
-  schema.dropTable('blogs');
 };
 ```
 
@@ -188,7 +183,7 @@ A migration for this would look involve creating the join table for the
 relationship:
 
 ```js
-exports.up = function(schema) {
+exports.change = function(schema) {
   schema.createTable('doctors', function(table) {
     table.string('name');
   });
@@ -202,12 +197,6 @@ exports.up = function(schema) {
     table.integer('doctor_id').references('doctors.id');
     table.integer('patient_id').references('patients.id');
   });
-};
-
-exports.down = function(schema) {
-  schema.dropTable('appointments');
-  schema.dropTable('patients');
-  schema.dropTable('doctors');
 };
 ```
 

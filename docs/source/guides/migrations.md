@@ -58,6 +58,20 @@ exports.down = function(schema) {
 };
 ```
 
+In fact, Azul.js is able to determine how to [reverse many
+migrations](#reversible-migrations). For these migrations, you'll only need to
+export a `change` function. The above example is reversible and could simply be
+written:
+
+```js
+exports.change = function(schema) {
+  schema.createTable('articles', function(table) {
+    table.string('title');
+    table.text('body');
+  });
+};
+```
+
 For examples of running multiple actions in a single migration, see the example
 migrations discussed in the [relations
 documentation][azul-relations#one-to-many].
@@ -78,6 +92,18 @@ queries. If you need full control, _manual_ mode can be enabled by simply
 returning a promise or _thenable_ from the from the `up` or `down` function. In
 manual mode, you are responsible for executing all queries in your migration.
 
+## Reversible Migrations
+
+Azul.js is able to determine the reverse of migrations that do not make
+destructive changes. For instance, _creating_ a table can be reversed because
+no additional information is needed to know that the reverse is to remove that
+table. On the other hand, if you write a migration to drop a table, more
+information would be needed to know how to re-create the table. Operations
+that _rename_ will also be reversible.
+
+Each method below will discuss in more detail whether it can be used with the
+`change` function.
+
 ## Methods
 
 ### `#createTable`
@@ -92,6 +118,8 @@ schema.createTable('articles', function(table) {
   table.text('body');
 });
 ```
+
+This method is always [_reversible_](#reversible-migrations).
 
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
@@ -145,6 +173,10 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
+This method is [_reversible_](#reversible-migrations) unless you
+[`drop`](#methods-altertable-table-drop) a column.
+
+
 #### `table#index(columns, [options])`
 
 Add an index to the table. See
@@ -174,6 +206,8 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
+This is not [_reversible_](#reversible-migrations).
+
 ### `#dropTable`
 
 Drop existing tables.
@@ -181,6 +215,8 @@ Drop existing tables.
 ```js
 schema.dropTable('articles');
 ```
+
+This method is never [_reversible_](#reversible-migrations).
 
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
