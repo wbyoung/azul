@@ -68,7 +68,7 @@ describe('PostgreSQL schema', function() {
           '"id" serial PRIMARY KEY NOT NULL, ' +
           '"first_name" varchar(255), ' +
           '"best_friend_id" integer DEFAULT 1 REFERENCES "people" ("id"), ' +
-          'INDEX "best_friend_id_idx" ("best_friend_id"))');
+          'INDEX "people_best_friend_id_idx" ("best_friend_id"))');
 
       var c = executedSQL()[0][0];
       expect(executedSQL()).to.eql([
@@ -77,7 +77,7 @@ describe('PostgreSQL schema', function() {
           '"id" serial PRIMARY KEY NOT NULL, ' +
           '"first_name" varchar(255), ' +
           '"best_friend_id" integer DEFAULT 1 REFERENCES "people" ("id"))', []],
-        [c, 'CREATE INDEX "best_friend_id_idx" ' +
+        [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
           'ON "people" ("best_friend_id")', []],
         [c, 'COMMIT', []],
       ]);
@@ -134,12 +134,14 @@ describe('PostgreSQL schema', function() {
         });
 
         expect(alter.sql).to
-          .eql('CREATE INDEX "first_name_idx" ON "people" ("first_name")');
+          .eql('CREATE INDEX "people_first_name_idx" '+
+            'ON "people" ("first_name")');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
-            [c, 'CREATE INDEX "first_name_idx" ON "people" ("first_name")', []]
+            [c, 'CREATE INDEX "people_first_name_idx" ' +
+              'ON "people" ("first_name")', []]
           ]);
         })
         .then(done, done);
@@ -154,14 +156,14 @@ describe('PostgreSQL schema', function() {
         expect(alter.sql).to.eql('-- procedure for ' +
           'ALTER TABLE "people" ' +
           'RENAME "first_name" TO "first", ' +
-          'ADD INDEX "first_idx" ("first")');
+          'ADD INDEX "people_first_idx" ("first")');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'BEGIN', []],
             [c, 'ALTER TABLE "people" RENAME "first_name" TO "first"', []],
-            [c, 'CREATE INDEX "first_idx" ON "people" ("first")', []],
+            [c, 'CREATE INDEX "people_first_idx" ON "people" ("first")', []],
             [c, 'COMMIT', []],
           ]);
         })
@@ -177,7 +179,7 @@ describe('PostgreSQL schema', function() {
         expect(alter.sql).to.eql('-- procedure for ' +
           'ALTER TABLE "people" ADD COLUMN "last" varchar(255), ' +
           'RENAME "first_name" TO "first", ' +
-          'ADD INDEX "first_last_idx" ("first", "last")');
+          'ADD INDEX "people_first_last_idx" ("first", "last")');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
@@ -185,7 +187,7 @@ describe('PostgreSQL schema', function() {
             [c, 'BEGIN', []],
             [c, 'ALTER TABLE "people" ADD COLUMN "last" varchar(255)', []],
             [c, 'ALTER TABLE "people" RENAME "first_name" TO "first"', []],
-            [c, 'CREATE INDEX "first_last_idx" ' +
+            [c, 'CREATE INDEX "people_first_last_idx" ' +
               'ON "people" ("first", "last")', []],
             [c, 'COMMIT', []],
           ]);

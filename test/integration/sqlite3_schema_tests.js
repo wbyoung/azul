@@ -61,7 +61,7 @@ describe('SQLite3 schema', function() {
           '"id" integer PRIMARY KEY NOT NULL, ' +
           '"first_name" varchar(255), ' +
           '"best_friend_id" integer DEFAULT 1 REFERENCES "people" ("id"), ' +
-          'INDEX "best_friend_id_idx" ("best_friend_id"))');
+          'INDEX "people_best_friend_id_idx" ("best_friend_id"))');
 
       var c = executedSQL()[0][0];
       expect(executedSQL()).to.eql([
@@ -71,7 +71,7 @@ describe('SQLite3 schema', function() {
           '"first_name" varchar(255), ' +
           '"best_friend_id" integer DEFAULT 1 ' +
           'REFERENCES "people" ("id"))', []],
-        [c, 'CREATE INDEX "best_friend_id_idx" ' +
+        [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
           'ON "people" ("best_friend_id")', []],
         [c, 'RELEASE AZULJS_1', []],
       ]);
@@ -105,14 +105,14 @@ describe('SQLite3 schema', function() {
         });
 
         expect(alter.sql).to.eql('CREATE INDEX ' +
-          '"first_name_best_friend_id_idx" ON "people" ' +
+          '"people_first_name_best_friend_id_idx" ON "people" ' +
           '("first_name", "best_friend_id")');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'CREATE INDEX ' +
-            '"first_name_best_friend_id_idx" ON "people" ' +
+            '"people_first_name_best_friend_id_idx" ON "people" ' +
             '("first_name", "best_friend_id")', []]
           ]);
         })
@@ -135,7 +135,7 @@ describe('SQLite3 schema', function() {
             [c, 'PRAGMA defer_foreign_keys=1', []],
             [c, 'PRAGMA table_info("people")', []],
             [c, 'PRAGMA index_list("people")', []],
-            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+            [c, 'PRAGMA index_info("people_best_friend_id_idx")', []],
             [c, 'PRAGMA foreign_key_list("people")', []],
             [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
             [c, 'CREATE TABLE "people" (' +
@@ -147,7 +147,7 @@ describe('SQLite3 schema', function() {
             [c, 'INSERT INTO "people" ("id", "first", "best_friend_id") ' +
               'SELECT "id", "first_name", "best_friend_id" FROM "people_old"', []],
             [c, 'DROP TABLE "people_old"', []],
-            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+            [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
               'ON "people" ("best_friend_id")', []],
             [c, 'RELEASE AZULJS_1', []],
           ]);
@@ -172,7 +172,7 @@ describe('SQLite3 schema', function() {
             [c, 'PRAGMA defer_foreign_keys=1', []],
             [c, 'PRAGMA table_info("people")', []],
             [c, 'PRAGMA index_list("people")', []],
-            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+            [c, 'PRAGMA index_info("people_best_friend_id_idx")', []],
             [c, 'PRAGMA foreign_key_list("people")', []],
             [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
             [c, 'CREATE TABLE "people" (' +
@@ -183,7 +183,7 @@ describe('SQLite3 schema', function() {
             [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
               'SELECT "id", "best_friend_id" FROM "people_old"', []],
             [c, 'DROP TABLE "people_old"', []],
-            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+            [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
               'ON "people" ("best_friend_id")', []],
             [c, 'RELEASE AZULJS_1', []],
           ]);
@@ -220,7 +220,7 @@ describe('SQLite3 schema', function() {
               [c, 'PRAGMA defer_foreign_keys=1', []],
               [c, 'PRAGMA table_info("people")', []],
               [c, 'PRAGMA index_list("people")', []],
-              [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+              [c, 'PRAGMA index_info("people_best_friend_id_idx")', []],
               [c, 'PRAGMA foreign_key_list("people")', []],
               [c, 'ALTER TABLE "people" RENAME TO "people_old_wrongname"', []],
               [c, 'CREATE TABLE "people" (' +
@@ -246,7 +246,7 @@ describe('SQLite3 schema', function() {
 
         expect(alter.sql).to.eql('-- procedure for ALTER TABLE "people" ' +
           'DROP COLUMN "first_name", ADD COLUMN "name" varchar(255), ' +
-          'ADD INDEX "name_idx" ("name")');
+          'ADD INDEX "people_name_idx" ("name")');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
@@ -255,7 +255,7 @@ describe('SQLite3 schema', function() {
             [c, 'PRAGMA defer_foreign_keys=1', []],
             [c, 'PRAGMA table_info("people")', []],
             [c, 'PRAGMA index_list("people")', []],
-            [c, 'PRAGMA index_info("best_friend_id_idx")', []],
+            [c, 'PRAGMA index_info("people_best_friend_id_idx")', []],
             [c, 'PRAGMA foreign_key_list("people")', []],
             [c, 'ALTER TABLE "people" RENAME TO "people_old"', []],
             [c, 'CREATE TABLE "people" (' +
@@ -267,9 +267,9 @@ describe('SQLite3 schema', function() {
             [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
               'SELECT "id", "best_friend_id" FROM "people_old"', []],
             [c, 'DROP TABLE "people_old"', []],
-            [c, 'CREATE INDEX "best_friend_id_idx" ' +
+            [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
               'ON "people" ("best_friend_id")', []],
-            [c, 'CREATE INDEX "name_idx" ON "people" ("name")', []],
+            [c, 'CREATE INDEX "people_name_idx" ON "people" ("name")', []],
             [c, 'RELEASE AZULJS_1', []],
           ]);
         })

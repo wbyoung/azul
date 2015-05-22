@@ -61,7 +61,7 @@ describe('MySQL schema', function() {
       expect(executedSQL()).to.eql([
         [c, 'CREATE TABLE `people` (`id` integer AUTO_INCREMENT PRIMARY KEY, ' +
           '`age` integer, ' +
-          'INDEX `age_idx` (`age`))', []],
+          'INDEX `people_age_idx` (`age`))', []],
       ]);
     });
   });
@@ -123,14 +123,14 @@ describe('MySQL schema', function() {
         });
 
         expect(alter.sql).to.eql('CREATE INDEX ' +
-          '`first_name_best_friend_id_idx` ON `people` ' +
+          '`people_first_name_best_friend_id_idx` ON `people` ' +
           '(`first_name`, `best_friend_id`)');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, 'CREATE INDEX ' +
-                '`first_name_best_friend_id_idx` ON `people` ' +
+                '`people_first_name_best_friend_id_idx` ON `people` ' +
                 '(`first_name`, `best_friend_id`)', []]
           ]);
         })

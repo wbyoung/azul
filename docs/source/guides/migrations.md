@@ -160,7 +160,7 @@ and examples.
 Add an index to the table.
 
 ```js
-table.index('boss_id'); // name automatically set to boss_id_idx
+table.index('boss_id'); // name automatically set to table_boss_id_idx
 table.index(['first_name', 'last_name'], { name: 'full_name_index' });
 ```
 

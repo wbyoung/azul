@@ -112,7 +112,7 @@ describe('CreateTable', function() {
     });
     expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("username" varchar(255), ' +
-      'INDEX "username_idx" ("username"))', []
+      'INDEX "users_username_idx" ("username"))', []
     ));
   });
 
