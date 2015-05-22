@@ -129,6 +129,43 @@ describe('AlterTable', function() {
     ));
   });
 
+  it('can add indexes', function() {
+    var query = db.schema.alterTable('users', function(table) {
+      table.index('name');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'CREATE INDEX "users_name_idx" ON "users" ("name")', []
+    ));
+  });
+
+  it('can drop indexes', function() {
+    var query = db.schema.alterTable('users', function(table) {
+      table.dropIndex('name');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'DROP INDEX "users_name_idx"', []
+    ));
+  });
+
+  it('can drop indexes by name', function() {
+    var query = db.schema.alterTable('users', function(table) {
+      table.dropIndex({ name: 'myindex' });
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'DROP INDEX "myindex"', []
+    ));
+  });
+
+  it('can rename indexes', function() {
+    var query = db.schema.alterTable('users', function(table) {
+      table.renameIndex('a', 'b');
+    });
+    expect(query.statement).to.eql(Statement.create(
+      'ALTER INDEX "a" RENAME TO "b"', []
+    ));
+  });
+
+
   it('can be cloned', function() {
     var query = db.schema.alterTable('users', function(table) {
       table.drop('id');

@@ -63,10 +63,36 @@ describe('ReverseSchema', function() {
       ));
     });
 
+    it('reverses adding an index', function() {
+      var query = schema.alterTable('users', function(table) {
+        table.index(['first', 'last']);
+      });
+      expect(query.statement).to.eql(Statement.create(
+        'DROP INDEX "users_first_last_idx"', []
+      ));
+    });
+
+    it('reverses renaming an index', function() {
+      var query = schema.alterTable('users', function(table) {
+        table.renameIndex('a', 'b');
+      });
+      expect(query.statement).to.eql(Statement.create(
+        'ALTER INDEX "b" RENAME TO "a"', []
+      ));
+    });
+
     it('is not reversible when columns are dropped', function() {
       expect(function() {
         schema.alterTable('users', function(table) {
           table.drop('name');
+        }).sql;
+      }).to.throw(/reverse.*cannot.*drop/i);
+    });
+
+    it('is not reversible when indexes are dropped', function() {
+      expect(function() {
+        schema.alterTable('users', function(table) {
+          table.dropIndex('name');
         }).sql;
       }).to.throw(/reverse.*cannot.*drop/i);
     });

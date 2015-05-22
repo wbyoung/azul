@@ -63,6 +63,14 @@ describe('ReversibleSchema', function() {
       }).to.throw(/reversible.*cannot.*drop/i);
     });
 
+    it('is not reversible when indexes are dropped', function() {
+      expect(function() {
+        schema.alterTable('users', function(table) {
+          table.dropIndex('name');
+        }).sql;
+      }).to.throw(/reversible.*cannot.*drop/i);
+    });
+
   });
 
   describe('#dropTable', function() {
