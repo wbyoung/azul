@@ -270,8 +270,7 @@ See examples in the [deleting section](#manipulating-data-delete).
 
 ### `#attrs`
 
-The attributes, keyed by database field name, currently set on this object.
-That is, a `Person` defined like so:
+The attributes of a model object. For instance, a `Person` defined like so:
 
 ```js
 var Person = db.model('person', {
@@ -285,7 +284,19 @@ var person = Person.create({ firstName: 'Whitney', lastName: 'Young' });
 Would have `attrs` of:
 
 ```js
-person.attrs; // => { first_name: 'Whitney', last_name: 'Young' }
+person.attrs; // => { pk: undefined, firstName: 'Whitney', lastName: 'Young' }
+```
+
+- readonly
+
+### `#dbattrs`
+
+The attributes, keyed by database field name, currently set on this object.
+That is, a `Person` defined [as shown in the above
+example](#methods-properties-attrs) would have `dbattrs` of:
+
+```js
+person.dbattrs; // => { id: undefined, first_name: 'Whitney', last_name: 'Young' }
 ```
 
 - readonly

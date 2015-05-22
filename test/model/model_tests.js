@@ -53,6 +53,28 @@ describe('Model', function() {
     expect(Article.tableName).to.eql('articles');
   });
 
+  it('knows all attributes', function() {
+    expect(Article.attrs).to.eql(['pk', 'title']);
+  });
+
+  it('instances can get attributes', function() {
+    Article.reopen({ authorName: db.attr() });
+    expect(Article.create().attrs).to.eql({
+      pk: undefined,
+      title: undefined,
+      authorName: undefined,
+    });
+    var attrs = { pk: 1, title: 'Welcome', authorName: 'Name' };
+    var article = Article.create(attrs);
+    expect(article.attrs).to.eql(attrs);
+    expect(article.dbattrs).to.eql({
+      'id': 1,
+      'title': 'Welcome',
+      'author_name': 'Name',
+    });
+    expect(Article.attrs).to.eql(['pk', 'title', 'authorName']);
+  });
+
   it('can get objects', function(done) {
     Article.objects.fetch().then(function(articles) {
       expect(adapter.executedSQL()).to.eql([
@@ -435,8 +457,8 @@ describe('Model', function() {
   describe('attribute storage', function() {
     it('includes undefined pk value', function() {
       var user = User.create();
-      expect(user.attrs).to.haveOwnProperty('id');
-      expect(user.attrs.id).to.equal(undefined);
+      expect(user.dbattrs).to.haveOwnProperty('id');
+      expect(user.dbattrs.id).to.equal(undefined);
     });
 
     it('allows override of attribute initializers', function() {
@@ -444,7 +466,7 @@ describe('Model', function() {
         usernameInit: function() { this.username = 'anonymous'; }
       });
       var user = User.create();
-      expect(user.attrs.username).to.equal('anonymous');
+      expect(user.dbattrs.username).to.equal('anonymous');
       expect(user.dirty).to.be.false;
     });
 
@@ -452,38 +474,38 @@ describe('Model', function() {
       var user = User.create();
       user.email = 'wbyoung@azuljs.com';
       expect(user.email).to.eql('wbyoung@azuljs.com');
-      expect(user.attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
+      expect(user.dbattrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works with custom column via constructor', function() {
       var user = User.create({ email: 'wbyoung@azuljs.com' });
       expect(user.email).to.eql('wbyoung@azuljs.com');
-      expect(user.attrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
+      expect(user.dbattrs).to.have.property('email_addr', 'wbyoung@azuljs.com');
     });
 
     it('works via setters', function() {
       var user = User.create();
       user.username = 'wbyoung';
       expect(user.username).to.eql('wbyoung');
-      expect(user.attrs).to.have.property('username', 'wbyoung');
+      expect(user.dbattrs).to.have.property('username', 'wbyoung');
     });
 
     it('works via constructor', function() {
       var user = User.create({ username: 'wbyoung' });
       expect(user.username).to.eql('wbyoung');
-      expect(user.attrs).to.have.property('username', 'wbyoung');
+      expect(user.dbattrs).to.have.property('username', 'wbyoung');
     });
 
     it('converts attributes to underscore case by default', function() {
       Article.reopen({ authorName: db.attr() });
       var article = Article.create({ authorName: 'Whitney' });
-      expect(article.attrs).to.have.property('author_name', 'Whitney');
+      expect(article.dbattrs).to.have.property('author_name', 'Whitney');
     });
 
     it('respects given attribute name', function() {
       Article.reopen({ name: db.attr('authorName') });
       var article = Article.create({ name: 'Whitney' });
-      expect(article.attrs).to.have.property('authorName', 'Whitney');
+      expect(article.dbattrs).to.have.property('authorName', 'Whitney');
     });
 
     it('can handles `false` as an attribute value', function() {

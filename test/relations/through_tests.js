@@ -118,7 +118,7 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."course_id" = "courses"."id" ' +
            'WHERE "enrollments"."student_id" = ?', [1]]
         ]);
-        expect(_.map(courses, 'attrs')).to.eql([
+        expect(_.map(courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' }
         ]);
@@ -151,7 +151,7 @@ describe('Model.hasMany :through', function() {
            'ON "enrollments"."course_id" = "courses"."id" ' +
            'WHERE "enrollments"."student_id" = ?', [1]]
         ]);
-        expect(_.map(courses, 'attrs')).to.eql([
+        expect(_.map(courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' }
         ]);
@@ -998,7 +998,7 @@ describe('Model.hasMany :through', function() {
       Student.objects.with('courses').fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
         expect(foundStudent.name).to.eql('Whitney');
-        expect(_.map(foundStudent.courses, 'attrs')).to.eql([
+        expect(_.map(foundStudent.courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
         ]);
@@ -1011,12 +1011,12 @@ describe('Model.hasMany :through', function() {
       .fetch().get('0').then(function(foundStudent) {
         expect(foundStudent.id).to.eql(1);
         expect(foundStudent.name).to.eql('Whitney');
-        expect(_(foundStudent.enrollments).map('course').map('attrs').value())
+        expect(_(foundStudent.enrollments).map('course').map('dbattrs').value())
         .to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
         ]);
-        expect(_.map(foundStudent.courses, 'attrs')).to.eql([
+        expect(_.map(foundStudent.courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
         ]);
@@ -1135,7 +1135,7 @@ describe('Model.hasMany :through', function() {
     it('works via `fetchOne`', function(done) {
       Student.objects.where({ id: 1 }).with('courses').fetchOne()
       .then(function(fetchedStudent) {
-        expect(_.map(fetchedStudent.courses, 'attrs')).to.eql([
+        expect(_.map(fetchedStudent.courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
         ]);
@@ -1145,7 +1145,7 @@ describe('Model.hasMany :through', function() {
 
     it('works via `find`', function(done) {
       Student.objects.with('courses').find(1).then(function(fetchedStudent) {
-        expect(_.map(fetchedStudent.courses, 'attrs')).to.eql([
+        expect(_.map(fetchedStudent.courses, 'dbattrs')).to.eql([
           { id: 9, subject: 'CS 101' },
           { id: 4, subject: 'History 101' },
         ]);

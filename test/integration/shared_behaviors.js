@@ -120,7 +120,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       })
       .then(function() { return Article.objects.fetch(); })
       .then(function(articles) {
-        expect(_.map(articles, 'attrs')).to.eql([
+        expect(_.map(articles, 'dbattrs')).to.eql([
           { id: 1, title: 'News', body: 'Azul 1.0' },
           { id: 2, title: 'Update', body: 'Azul 2.0' },
         ]);
@@ -129,7 +129,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         return Article.objects.where({ 'comments.body$icontains': 'rolex' });
       })
       .then(function(articles) {
-        expect(_.map(articles, 'attrs')).to.eql([
+        expect(_.map(articles, 'dbattrs')).to.eql([
           { id: 2, title: 'Update', body: 'Azul 2.0' },
         ]);
       })
@@ -138,7 +138,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
           .where({ 'comments.body$icontains': 'initial' });
       })
       .then(function(articles) {
-        expect(_.map(articles, 'attrs')).to.eql([
+        expect(_.map(articles, 'dbattrs')).to.eql([
           { id: 1, title: 'News', body: 'Azul 1.0' },
         ]);
       })
@@ -149,7 +149,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
           .where({ 'comments.body$icontains': 'initial' });
       })
       .then(function(articles) {
-        expect(_.map(articles, 'attrs')).to.eql([
+        expect(_.map(articles, 'dbattrs')).to.eql([
           { id: 1, title: 'News', body: 'Azul 1.0' },
           { id: 1, title: 'News', body: 'Azul 1.0' },
         ]);
@@ -158,7 +158,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         return Comment.objects.where({ 'article.title': 'News' });
       })
       .then(function(comments) {
-        expect(_.map(comments, 'attrs')).to.eql([
+        expect(_.map(comments, 'dbattrs')).to.eql([
           { identifier: 1, 'article_id': 1,
             email: 'info@azuljs.com', body: 'Sweet initial release.' },
           { identifier: 2, 'article_id': 1,

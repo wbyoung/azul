@@ -154,8 +154,8 @@ describe('Model many-to-many', function() {
     });
 
     it('caches the relevant related objects', function() {
-      expect(_.map(courses[1].students, 'attrs'))
-        .to.eql([this.student.attrs]);
+      expect(_.map(courses[1].students, 'dbattrs'))
+        .to.eql([this.student.dbattrs]);
     });
 
     it('does not load the inverse cache', function() {
@@ -174,7 +174,7 @@ describe('Model many-to-many', function() {
     });
 
     it('caches the relevant related objects', function() {
-      expect(_.map(this.student.courses, 'attrs')).to.eql([
+      expect(_.map(this.student.courses, 'dbattrs')).to.eql([
         { id: 3, subject: 'CS 101' },
         { id: 9, subject: 'History 101' },
       ]);
