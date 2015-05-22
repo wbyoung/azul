@@ -119,6 +119,46 @@ describe('SQLite3 schema', function() {
         .then(done, done);
       });
 
+      it('can drop an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.dropIndex('best_friend_id');
+        });
+
+        expect(alter.sql).to
+          .eql('DROP INDEX "people_best_friend_id_idx"');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'DROP INDEX "people_best_friend_id_idx"', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can rename an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.renameIndex('people_best_friend_id_idx', 'bff_idx');
+        });
+
+        expect(alter.sql).to
+          .eql('-- procedure for ALTER INDEX "people_best_friend_id_idx" ' +
+            'RENAME TO "bff_idx"');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'SAVEPOINT AZULJS_1', []],
+            [c, 'PRAGMA index_info("people_best_friend_id_idx")', []],
+            [c, 'DROP INDEX "people_best_friend_id_idx"', []],
+            [c, 'CREATE INDEX "bff_idx" ' +
+              'ON "people" ("best_friend_id")', []],
+            [c, 'RELEASE AZULJS_1', []],
+          ]);
+        })
+        .then(done, done);
+      });
+
       it('can rename columns', function(done) {
         var alter = db.schema.alterTable('people', function(table) {
           table.rename('first_name', 'first', 'string');
@@ -242,11 +282,13 @@ describe('SQLite3 schema', function() {
           table.drop('first_name');
           table.string('name');
           table.index('name');
+          table.renameIndex('people_best_friend_id_idx', 'bff_idx');
         });
 
         expect(alter.sql).to.eql('-- procedure for ALTER TABLE "people" ' +
           'DROP COLUMN "first_name", ADD COLUMN "name" varchar(255), ' +
-          'ADD INDEX "people_name_idx" ("name")');
+          'ADD INDEX "people_name_idx" ("name"), ' +
+          'RENAME INDEX "people_best_friend_id_idx" TO "bff_idx"');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
@@ -267,7 +309,7 @@ describe('SQLite3 schema', function() {
             [c, 'INSERT INTO "people" ("id", "best_friend_id") ' +
               'SELECT "id", "best_friend_id" FROM "people_old"', []],
             [c, 'DROP TABLE "people_old"', []],
-            [c, 'CREATE INDEX "people_best_friend_id_idx" ' +
+            [c, 'CREATE INDEX "bff_idx" ' +
               'ON "people" ("best_friend_id")', []],
             [c, 'CREATE INDEX "people_name_idx" ON "people" ("name")', []],
             [c, 'RELEASE AZULJS_1', []],
