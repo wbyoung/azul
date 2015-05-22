@@ -147,6 +147,42 @@ describe('PostgreSQL schema', function() {
         .then(done, done);
       });
 
+      it('can drop an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.dropIndex('best_friend_id');
+        });
+
+        expect(alter.sql).to
+          .eql('DROP INDEX "people_best_friend_id_idx"');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'DROP INDEX "people_best_friend_id_idx"', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can rename an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.renameIndex('people_best_friend_id_idx', 'bff_idx');
+        });
+
+        expect(alter.sql).to
+          .eql('ALTER INDEX "people_best_friend_id_idx" ' +
+            'RENAME TO "bff_idx"');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'ALTER INDEX "people_best_friend_id_idx" ' +
+              'RENAME TO "bff_idx"', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
       it('rename and index simultaneously', function(done) {
         var alter = db.schema.alterTable('people', function(table) {
           table.rename('first_name', 'first', 'string');
@@ -174,12 +210,16 @@ describe('PostgreSQL schema', function() {
           table.string('last');
           table.rename('first_name', 'first', 'string');
           table.index(['first', 'last']);
+          table.dropIndex('best_friend_id');
+          table.renameIndex('people_first_last_idx', 'name_idx');
         });
 
         expect(alter.sql).to.eql('-- procedure for ' +
           'ALTER TABLE "people" ADD COLUMN "last" varchar(255), ' +
           'RENAME "first_name" TO "first", ' +
-          'ADD INDEX "people_first_last_idx" ("first", "last")');
+          'DROP INDEX "people_best_friend_id_idx", ' +
+          'ADD INDEX "people_first_last_idx" ("first", "last"), ' +
+          'RENAME INDEX "people_first_last_idx" TO "name_idx"');
 
         alter.then(function() {
           var c = executedSQL()[0][0];
@@ -187,8 +227,10 @@ describe('PostgreSQL schema', function() {
             [c, 'BEGIN', []],
             [c, 'ALTER TABLE "people" ADD COLUMN "last" varchar(255)', []],
             [c, 'ALTER TABLE "people" RENAME "first_name" TO "first"', []],
+            [c, 'DROP INDEX "people_best_friend_id_idx"', []],
             [c, 'CREATE INDEX "people_first_last_idx" ' +
               'ON "people" ("first", "last")', []],
+            [c, 'ALTER INDEX "people_first_last_idx" RENAME TO "name_idx"', []],
             [c, 'COMMIT', []],
           ]);
         })
