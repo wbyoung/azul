@@ -38,40 +38,13 @@ describe('MySQL schema', function() {
     db._adapter._execute.restore();
   });
 
-  describe('creating a table with an index', function() {
-    beforeEach(function(done) {
-      db.schema.createTable('people', function(table) {
-        table.integer('age');
-        table.index('age');
-      })
-      .execute()
-      .return()
-      .then(done, done);
-    });
-
-    afterEach(function(done) {
-      db.schema.dropTable('people')
-        .execute()
-        .return()
-        .then(done, done);
-    });
-
-    it('was created with the right sql', function() {
-      var c = executedSQL()[0][0];
-      expect(executedSQL()).to.eql([
-        [c, 'CREATE TABLE `people` (`id` integer AUTO_INCREMENT PRIMARY KEY, ' +
-          '`age` integer, ' +
-          'INDEX `people_age_idx` (`age`))', []],
-      ]);
-    });
-  });
-
   describe('creating a table', function() {
     beforeEach(function(done) {
       db.schema.createTable('people', function(table) {
         table.serial('id').pk().notNull();
         table.string('first_name');
         table.integer('best_friend_id').references('id');
+        table.index('first_name');
       })
       .execute()
       .return()
@@ -90,7 +63,8 @@ describe('MySQL schema', function() {
       expect(executedSQL()).to.eql([
         [c, 'CREATE TABLE `people` (`id` integer AUTO_INCREMENT PRIMARY KEY NOT NULL, ' +
           '`first_name` varchar(255), `best_friend_id` integer, ' +
-          'FOREIGN KEY (`best_friend_id`) REFERENCES `people` (`id`))', []],
+          'FOREIGN KEY (`best_friend_id`) REFERENCES `people` (`id`), ' +
+          'INDEX `people_first_name_idx` (`first_name`))', []],
       ]);
     });
 
