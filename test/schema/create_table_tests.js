@@ -108,7 +108,7 @@ describe('CreateTable', function() {
     var query = db.schema.createTable('users')
     .primaryKey(null).with(function(table) {
       table.string('username');
-      table.index('username')
+      table.index('username');
     });
     expect(query.statement).to.eql(Statement.create(
       'CREATE TABLE "users" ("username" varchar(255), ' +
@@ -210,7 +210,7 @@ describe('CreateTable', function() {
   it('give an error for unsupported foreign key delete actions', function() {
     expect(function() {
       db.schema.createTable('users').pk(null).with(function(table) {
-        table.integer('profile_id').references('profiles.id').onDelete('bogus')
+        table.integer('profile_id').references('profiles.id').onDelete('bogus');
       }).sql;
     }).throw(/unknown.*foreign key.*action.*bogus/i);
   });
@@ -218,7 +218,7 @@ describe('CreateTable', function() {
   it('give an error for unsupported foreign key update actions', function() {
     expect(function() {
       db.schema.createTable('users').pk(null).with(function(table) {
-        table.integer('profile_id').references('profiles.id').onUpdate('bogus')
+        table.integer('profile_id').references('profiles.id').onUpdate('bogus');
       }).sql;
     }).throw(/unknown.*foreign key.*action.*bogus/i);
   });

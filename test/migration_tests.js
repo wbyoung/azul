@@ -481,7 +481,7 @@ describe('Migration', function() {
     beforeEach(function() {
       var cols = function(table) { table.string('name'); };
       var mod1 = this.mod1 = {
-        change: sinon.spy(function(schema, query) {
+        change: sinon.spy(function(schema) {
           schema.createTable('example1', cols);
           schema.createTable('example2', cols);
         }),
@@ -543,7 +543,7 @@ describe('Migration', function() {
     beforeEach(function() {
       var cols = function(table) { table.string('name'); };
       var mod1 = this.mod1 = {
-        change: sinon.spy(function(schema, query) {
+        change: sinon.spy(function(schema) {
           schema.createTable('example1', cols);
           schema.createTable('example2', cols);
         }),
