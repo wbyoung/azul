@@ -111,6 +111,47 @@ describe('MySQL schema', function() {
         .then(done, done);
       });
 
+      it('can drop an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.dropIndex('first_name');
+        });
+
+        expect(alter.sql).to
+          .eql('DROP INDEX `people_first_name_idx` ON `people`');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'DROP INDEX `people_first_name_idx` ON `people`', []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can rename an index', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.renameIndex('people_first_name_idx', 'bff_idx');
+        });
+
+        expect(alter.sql).to
+          .eql('-- procedure for ALTER INDEX `people_first_name_idx` ' +
+            'RENAME TO `bff_idx`');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'BEGIN', []],
+            [c, 'SHOW INDEX FROM `people` WHERE ' +
+              'KEY_NAME = ?', ['people_first_name_idx']],
+            [c, 'DROP INDEX `people_first_name_idx` ON `people`', []],
+            [c, 'CREATE INDEX `bff_idx` ' +
+              'ON `people` (`first_name`) USING BTREE', []],
+            [c, 'COMMIT', []],
+          ]);
+        })
+        .then(done, done);
+      });
+
       it('can add a column and named index', function(done) {
         var alter = db.schema.alterTable('people', function(table) {
           table.string('last_name');
@@ -126,6 +167,42 @@ describe('MySQL schema', function() {
           var c = executedSQL()[0][0];
           expect(executedSQL()).to.eql([
             [c, expectedSQL, []]
+          ]);
+        })
+        .then(done, done);
+      });
+
+      it('can add, rename, & index simultaneously', function(done) {
+        var alter = db.schema.alterTable('people', function(table) {
+          table.string('last');
+          table.rename('first_name', 'first', 'string');
+          table.index(['first', 'last']);
+          table.dropIndex('first_name');
+          table.renameIndex('people_first_last_idx', 'name_idx');
+        });
+
+        expect(alter.sql).to.eql('-- procedure for ' +
+          'ALTER TABLE `people` ADD COLUMN `last` varchar(255), ' +
+          'CHANGE `first_name` `first` varchar(255), ' +
+          'DROP INDEX `people_first_name_idx`, ' +
+          'ADD INDEX `people_first_last_idx` (`first`, `last`), ' +
+          'RENAME INDEX `people_first_last_idx` TO `name_idx`');
+
+        alter.then(function() {
+          var c = executedSQL()[0][0];
+          expect(executedSQL()).to.eql([
+            [c, 'BEGIN', []],
+            [c, 'ALTER TABLE `people` ADD COLUMN `last` varchar(255), ' +
+              'CHANGE `first_name` `first` varchar(255), ' +
+              'DROP INDEX `people_first_name_idx`, '+
+              'ADD INDEX `people_first_last_idx` (`first`, `last`)', []],
+            [c, 'SHOW INDEX FROM `people` WHERE ' +
+              'KEY_NAME = ?', ['people_first_last_idx']],
+            [c, 'DROP INDEX `people_first_last_idx` ON `people`', []],
+            [c, 'CREATE INDEX `name_idx` ' +
+              'ON `people` (`first`, `last`) USING BTREE', []],
+
+            [c, 'COMMIT', []],
           ]);
         })
         .then(done, done);
