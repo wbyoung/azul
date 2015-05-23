@@ -92,7 +92,7 @@ a query that contains no conditions via the [`objects`][azul-models#objects]
 property of your model class. For more details and customization of this base
 query, read about [managers][azul-managers].
 
-### `#where`
+### `#where(condition...)`
 
 Narrowing the scope of objects returned form the database is accomplished by
 using the `where` method.
@@ -118,7 +118,7 @@ Azul.js allows for the creation of complex queries, though, through
 
 - [Automatically joins](#relationships-automatic-joining) relationships
 
-### `#limit`
+### `#limit(n)`
 
 Limit the number of results for a query.
 
@@ -126,7 +126,7 @@ Limit the number of results for a query.
 Article.objects.limit(8); // a maximum of 8 results will be returned
 ```
 
-### `#offset`
+### `#offset(n)`
 
 Set the offset for a query.
 
@@ -134,7 +134,7 @@ Set the offset for a query.
 Article.objects.offset(2); // skip the first 2 results
 ```
 
-### `#order`
+### `#order(ordering...)`
 
 Order the results of a query.
 
@@ -149,7 +149,7 @@ Article.objects.order('-title', 'body');
 - Can be used via the `orderBy` alias
 - [Automatically joins](#relationships-automatic-joining) relationships
 
-### `#groupBy`
+### `#groupBy(column)`
 
 Groups the results of a query.
 
@@ -169,13 +169,13 @@ useful.
 </div>
 </div>
 
-### `#unique`
+### `#unique()`
 
 Performs a [`groupBy`](#methods-groupby) with the primary key of the model. This
 is useful when [joining relations](#relationships-join).
 
 
-### `#clone`
+### `#clone()`
 
 Create a new query that has the exact same conditions as this query. This
 method can be used to ensure that executing a query will not use a
@@ -441,7 +441,7 @@ _Requires extension in [SQLite3][azul-backends#sqlite-lookups]._
 
 ## Executing
 
-### `#execute`
+### `#execute()`
 
 Executes a query. Once executed, subsequent calls will use the result from the
 first execution. [Read the details in caching](#basics-caching).
@@ -452,7 +452,7 @@ query.execute(function(results) {
 });
 ```
 
-### `#fetch`
+### `#fetch()`
 
 Essentially an alias for [`execute`](#executing-execute), this method is
 preferred in most cases for readability when reading data from the database.
@@ -466,7 +466,7 @@ Article.objects.execute().then(function() { /* ... */ });
 that the resolved object is transformed to an array rather than a standard
 result object.
 
-### `#fetchOne`
+### `#fetchOne()`
 
 This method fetches a single result. Like `fetch`, this method executes the
 query. It will reject the promise with one of the following codes if a single
@@ -482,7 +482,7 @@ defined on it:
 - `sql` the SQL of the query
 - `args` the arguments bound to the SQL statement
 
-### `#find`
+### `#find(pk)`
 
 Find is a shortcut method to find a single result by primary key:
 
@@ -491,7 +491,7 @@ query.find(3);
 query.where({ pk: 3 }).limit(1).fetchOne(); // the same
 ```
 
-### `#findOrCreate`
+### `#findOrCreate(attrs)`
 
 Find or create is a shortcut method to use with models to find a single result
 or create one if it does not exist:
@@ -521,7 +521,7 @@ Article.objects.findOrCreate({ title: 'Azul.js 1.0' }, { author: 'Whitney' });
 ```
 
 
-### `#then`
+### `#then(fulfillment, rejection)`
 
 Query objects are _thenable_ objects, meaning that you can return them inside
 of a promise & they will be executed before the next promise handler.
@@ -570,7 +570,7 @@ var Comment = db.model('comment', {
 });
 ```
 
-### `#with`
+### `#with(association...)`
 
 Pre-fetch [related objects][azul-relations] to avoid executing _N + 1_ queries.
 
@@ -611,7 +611,7 @@ Article.objects.with('comments').fetch().then(function(articles) {
 });
 ```
 
-### `#join`
+### `#join(association)`
 
 In certain cases, you may need to access data from two tables in order to form
 a query.
@@ -698,7 +698,7 @@ There are a few main differences between these and
 1. The resulting data will be model objects for `all` and `raw` queries.
 1. You do not provide a table name.
 
-### `#all`
+### `#all()`
 
 Create a [select query](#data-queries-select) bound to this model that
 will transform the resulting data into model objects. The resulting query is
@@ -709,19 +709,19 @@ Article.objects.fetch().then(function(models) { /**/ });
 Article.objects.all().fetch().then(function(models) { /**/ });
 ```
 
-### `#select`
+### `#select([columns])`
 
 Create a [select query](#data-queries-select) bound to this model that
 _does not_ convert the resulting data into model objects.
 
 ```js
-Article.objects.all().fetch().then(function(rows) {
+Article.objects.all().select().then(function(rows) {
   console.log(rows);
 });
 // ~> [ { id: 4, title: 'Breaking News' } ]
 ```
 
-### `#insert`
+### `#insert([values])`
 
 Create an [insert query](#data-queries-insert) bound to this model.
 
@@ -734,7 +734,7 @@ Article.objects.insert({ title: 'News' }).then(function(rows) {
 // ~> [ { id: 9 } ]
 ```
 
-### `#update`
+### `#update([values])`
 
 Create an [update query](#data-queries-update) bound to this model.
 
@@ -747,7 +747,7 @@ Article.objects.where({ pk: article.pk }).update({ title: 'Breaking News' });
 // !> ['Breaking News', 1]
 ```
 
-### `#delete`
+### `#delete()`
 
 Create an [delete query](#data-queries-delete) bound to this model.
 
@@ -759,7 +759,7 @@ Comment.objects.where({ spam: true }).delete();
 // !> [true]
 ```
 
-### `#raw`
+### `#raw(sql, [args])`
 
 Create a [raw query](#data-queries-raw) bound to this model that will transform the
 resulting data into model objects.
@@ -786,7 +786,7 @@ Transaction objects can be created via `db.transaction()` or
 
 For more details [see the transactions guide][azul-transactions].
 
-### `#transaction`
+### `#transaction([transaction])`
 
 When called with no arguments, this gets the transaction associated with the
 current query.

@@ -106,7 +106,7 @@ Each method below will discuss in more detail whether it can be used with the
 
 ## Methods
 
-### `#createTable`
+### `#createTable(name, [cb])`
 
 Create new tables. Pass the name of the table you want to create and a callback
 that will receive a table object with which you will be able to create columns
@@ -124,18 +124,18 @@ This method is always [_reversible_](#reversible-migrations).
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
-#### `#primaryKey` or `#pk`
+#### `#primaryKey(column)` or `#pk`
 
 Defines the primary key of the table. The default is `id`. Pass
 `null` to create a table without a primary key. You can configure the primary
 key's type or options within your table definition callback. See below for an
 example.
 
-#### `#unlessExists`
+#### `#unlessExists()`
 
 Will not create the table if it already exists.
 
-#### `#with`
+#### `#with(cb)`
 
 Allows delayed definition of the table columns & indexes.
 
@@ -176,7 +176,7 @@ schema.renameTable('articles', 'posts');
 This method is always [_reversible_](#reversible-migrations).
 
 
-### `#alterTable`
+### `#alterTable(table, cb)`
 
 Alter existing tables. Pass the name of the table you want to alter and a
 callback that will receive a table object with which you will be able to
@@ -200,7 +200,7 @@ Create a column of the type given by `field`. See
 [field types](#methods-field-types) for a comprehensive list of types, options,
 and examples.
 
-#### `table#rename`
+#### `table#rename(from, to)`
 
 Renames a table column.
 
@@ -214,7 +214,7 @@ schema.alterTable('articles', function(table) {
 });
 ```
 
-#### `table#drop`
+#### `table#drop(column)`
 
 Drops a table column.
 
@@ -254,7 +254,7 @@ schema.alterTable('employees', function(table) {
 
 This is not [_reversible_](#reversible-migrations).
 
-### `#dropTable`
+### `#dropTable(table)`
 
 Drop existing tables.
 
@@ -267,14 +267,14 @@ This method is never [_reversible_](#reversible-migrations).
 Returns a _thenable_ [basic query][azul-queries#data-queries] with the
 following chainable methods:
 
-#### `#ifExists`
+#### `#ifExists()`
 
 Will only drop the table if it exists.
 
 
 ### Field Types
 
-#### `serial`
+#### `serial(column)`
 
 Automatically incrementing integer type usually used for `id` primary key
 columns.
@@ -284,15 +284,15 @@ You can also use one of the following aliases:
 - `auto`
 - `increments`
 
-#### `integer`
+#### `integer(column)`
 
 Standard sized integer.
 
-#### `integer64`
+#### `integer64(column)`
 
 64 bit integer.
 
-#### `string`
+#### `string(column, [options])`
 
 A string. Accepts a `length` option which defaults to `255`.
 
@@ -300,31 +300,31 @@ A string. Accepts a `length` option which defaults to `255`.
 table.string('title', { length: 80 });
 ```
 
-#### `text`
+#### `text(column)`
 
 Arbitrary length (long) text.
 
-#### `binary`
+#### `binary(column)`
 
 Binary data.
 
-#### `bool`
+#### `bool(column)`
 
 Boolean.
 
-#### `date`
+#### `date(column)`
 
 A date type that does not include a time.
 
 _Quirks in [SQLite3][azul-backends#sqlite-date]._
 
-#### `time`
+#### `time(column)`
 
 A time type that does not include a date.
 
 _Quirks in [SQLite3][azul-backends#sqlite-time]._
 
-#### `dateTime`
+#### `dateTime(column)`
 
 A date and type type. Sometimes also known as a _timestamp_, this may or may
 not use a _timestamp_ type depending on the database back-end, but will contain
@@ -332,11 +332,11 @@ both the date and time components of a date.
 
 _Quirks in [SQLite3][azul-backends#sqlite-datetime]._
 
-#### `float`
+#### `float(column)`
 
 A floating point number.
 
-#### `decimal`
+#### `decimal(column, [options])`
 
 A decimal type that accepts the options `precision` and `scale`.
 
@@ -354,20 +354,20 @@ Options are enabled by chaining any of the following methods onto the end of
 the field definition as shown in
 [the create table example](#methods-createtable).
 
-#### `primaryKey` or `pk`
+#### `primaryKey()` or `pk()`
 
 Mark this column as being a primary key column.
 
-#### `notNull`
+#### `notNull()`
 
 Mark this column as not accepting null values.
 
-#### `unique`
+#### `unique()`
 
 Mark this column as containing unique values.
 
 
-#### `default`
+#### `default(value)`
 
 Set the default value for this column.
 
@@ -380,13 +380,26 @@ escape the value that's sent to it to prevent security vulnerabilities, but we
 still recommend against sending user-input to this method.
 
 
-#### `references`
+#### `references(reference)`
 
 Set the column that this column references.
 
 ```js
 table.integer('article_id').references('articles.id')
 ```
+
+#### `onDelete(action)`
+
+Set the delete action for a foreign key set up with
+[`references`](#methods-field-options-references). The action must be one of
+`cascade`, `restrict`, or `nullify`.
+
+#### `onDelete(action)`
+
+Set the update action for a foreign key set up with
+[`references`](#methods-field-options-references). The action must be one of
+`cascade`, `restrict`, or `nullify`.
+
 
 [azul-backends#sqlite-date]: /guides/backends/#sqlite3-date
 [azul-backends#sqlite-time]: /guides/backends/#sqlite3-time

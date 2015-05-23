@@ -246,7 +246,7 @@ article.save().then(function() {
 
 ## Methods & Properties
 
-### `#save`
+### `#save([options])`
 
 Saves the model if it hasn't already been saved. This method is used to persist
 in memory changes and must be called after creating, altering, or deleting a
@@ -259,7 +259,7 @@ succeeds.
 model.save().then(function(model) { /* ... */ });
 ```
 
-### `#delete`
+### `#delete()`
 
 Marks the model for deletion.
 

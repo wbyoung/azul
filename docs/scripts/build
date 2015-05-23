@@ -156,10 +156,13 @@ var toc = function() {
         var id = header.attr('id');
 
         // check if this is a method name & if so, fix up the links
-        var codeTitle = header.find('code').text();
+        var codeTitle = header.find('code:first-of-type').text();
         if (codeTitle) {
           title = codeTitle.replace(/^(\w*[#.]?\w+).*/i, '$1');
           id = title.toLowerCase().replace(/[^a-z]/, '-').replace(/^-/, '');
+          if (codeTitle.match(/\w+\(.*\)/)) {
+            title = title + '()';
+          }
         }
 
         // change ids so that they are all more unique (based on parent ids)

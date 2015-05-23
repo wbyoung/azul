@@ -10,7 +10,7 @@ template: guide-page.html
 
 All features are known to work with PostgreSQL.
 
-### `Query#returning`
+### `Query#returning(column)`
 
 An additional query method, `returning` can be used to return a specific value
 from [insert queries][azul-queries#insert]. This method is only fully supported
@@ -20,7 +20,7 @@ in PostgreSQL.
 
 All features are known to work with MySQL.
 
-### `Query#returning`
+### `Query#returning(column)`
 
 Using MySQL, the only value that can be returned is the auto-incremented
 primary key. Requesting any other value will result in undefined behavior.
@@ -31,7 +31,7 @@ There are a few features that are currently not supported in SQLite3. If you'd
 like to see these improved, please open [an issue][azul-issues] or send over a
 [pull request][azul-pulls] with support.
 
-### `Query#returning`
+### `Query#returning(column)`
 
 Using SQLite3, the only value that can be returned is the primary key if it is
 aliased to the [`ROWID`][sqlite-autoinc]. Requesting any other value will
