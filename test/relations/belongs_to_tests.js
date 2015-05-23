@@ -112,7 +112,7 @@ describe('Model.belongsTo', function() {
 
     it('fetches related object', function(done) {
       article.fetchAuthor().then(function(user) {
-        expect(user.dbattrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
@@ -124,7 +124,7 @@ describe('Model.belongsTo', function() {
       article.fetchAuthor()
       .then(function() { return article.fetchAuthor(); })
       .then(function(user) {
-        expect(user.dbattrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(user.attrs).to.eql({ id: 623, username: 'wbyoung' });
         expect(adapter.executedSQL()).to.eql([
           ['SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]]
         ]);
@@ -163,7 +163,7 @@ describe('Model.belongsTo', function() {
 
     it('allows access loaded item', function(done) {
       article.fetchAuthor().then(function() {
-        expect(article.author.dbattrs).to.eql({ id: 623, username: 'wbyoung' });
+        expect(article.author.attrs).to.eql({ id: 623, username: 'wbyoung' });
       })
       .done(done, done);
     });

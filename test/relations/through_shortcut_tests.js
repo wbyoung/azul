@@ -116,7 +116,7 @@ describe('Model.hasMany :through-shortcut', function() {
            'ON "comments"."article_id" = "articles"."id" ' +
            'WHERE "articles"."blog_id" = ?', [12]]
         ]);
-        expect(_.map(comments, 'dbattrs')).to.eql([
+        expect(_.map(comments, 'attrs')).to.eql([
           { id: 1, body: 'Great post.', 'article_id': 9 },
           { id: 2, body: 'Nicely worded.', 'article_id': 9 },
         ]);
@@ -172,7 +172,7 @@ describe('Model.hasMany :through-shortcut', function() {
            'ON "articles"."blog_id" = "blogs"."id" ' +
            'WHERE "blogs"."owner_id" = ?', [4]]
         ]);
-        expect(_.map(comments, 'dbattrs')).to.eql([
+        expect(_.map(comments, 'attrs')).to.eql([
           { id: 1, body: 'Great post.', 'article_id': 9 },
           { id: 2, body: 'Nicely worded.', 'article_id': 9 },
         ]);
@@ -315,7 +315,7 @@ describe('Model.hasMany :through-shortcut', function() {
       Site.objects.with('comments').find(41).then(function(fetchedSite) {
         expect(fetchedSite.id).to.eql(41);
         expect(fetchedSite.name).to.eql('azuljs.com');
-        expect(_.map(fetchedSite.comments, 'dbattrs')).to.eql([
+        expect(_.map(fetchedSite.comments, 'attrs')).to.eql([
           { id: 1, body: 'Great post.', 'article_id': 9 },
           { id: 2, body: 'Nicely worded.', 'article_id': 9 },
         ]);
@@ -402,7 +402,7 @@ describe('Model.hasMany :through-shortcut', function() {
         ]);
         expect(function() { fetchedSite.authors; })
           .to.throw(/authors.*not yet.*loaded/i);
-        expect(_.map(fetchedSite.commenters, 'dbattrs')).to.eql([
+        expect(_.map(fetchedSite.commenters, 'attrs')).to.eql([
           { id: 1, name: 'John' },
           { id: 2, name: 'Katy' },
           { id: 3, name: 'Phil' },
