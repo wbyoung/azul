@@ -213,6 +213,53 @@ describe('Model many-to-many', function() {
         expect(this.student.courses).to.not.contain(this.course);
       });
     });
+
+    describe('json', function() {
+
+      it('does not include relations', function() {
+        expect(this.student.json).to.eql({
+          id: 6,
+          name: 'Whitney',
+        });
+        expect(this.course.json).to.eql({
+          id: 3,
+          subject: 'CS',
+        });
+      });
+
+      it('can be extended to include relations', function(done) {
+        Student.reopen({
+          toJSON: function() {
+            return _.extend(this._super(), {
+              courses: _.invoke(this.courses, 'toObject')
+            });
+          },
+        });
+        Course.reopen({
+          toJSON: function() {
+            return _.extend(this._super(), {
+              students: _.invoke(this.students, 'toObject')
+            });
+          },
+        });
+
+        var student = this.student;
+        var course = this.student.courses[0];
+        course.studentObjects.fetch().then(function() {
+          expect(student.json).to.eql({
+            id: 6,
+            name: 'Whitney',
+            courses: [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }]
+          });
+          expect(course.json).to.eql({
+            id: 3,
+            subject: 'CS 101',
+            students: [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }]
+          });
+        })
+        .then(done, done);
+      });
+    });
   });
 
   describe('when adding existing object via belongsTo', function() {

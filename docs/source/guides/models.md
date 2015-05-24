@@ -268,6 +268,61 @@ memory. Re-saving an object in this state will have no effect.
 
 See examples in the [deleting section](#manipulating-data-delete).
 
+### `#toObject()`
+
+This method is used by [`toJSON`](#methods-properties-tojson) and may be useful
+when customizing your your model's conversion to a JSON object. See example
+usage in [overriding `toJSON`](#methods-properties-tojson). This method must
+not be overridden. It will always return the unaltered version of the model
+object's attributes & values.
+
+### `#toJSON()`
+
+This method is used by the [`json`](#methods-properties-json) property and can
+be overridden to customize your model's conversion to a JSON object. For
+instance, you could include relationships in your JSON like so:
+
+```js
+var Author = db.model('author', {
+  name: db.attr(),
+  books: db.hasMany(),
+  toJSON: function() {
+    return _.extend(this._super(), {
+      books: _.invoke(this.books, 'toNestable')
+    });
+  },
+});
+
+var Book = db.model('book', {
+  title: db.attr(),
+  author: db.belongsTo(),
+  toJSON: function() {
+    return _.extend(this.toNestable(), {
+      author: this.author.toObject()
+    });
+  },
+  toNestable: function() {
+    return _.omit(this.toObject(), 'authorId');
+  },
+});
+
+/*
+ * author.json
+ * {
+ *   id: 395,
+ *   name: 'Whitney',
+ *   books: [{ id: 721, title: 'Intro to Azul.js' }]
+ * }
+ *
+ * book.json
+ * {
+ *   id: 721,
+ *   title: 'Intro to Azul.js',
+ *   author: { id: 395, name: 'Whitney' },
+ * }
+ */
+```
+
 ### `#json`
 
 The attributes of a model object. For instance, a `Person` defined like so:

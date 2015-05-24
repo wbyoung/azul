@@ -4,6 +4,7 @@ var chai = require('chai');
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
+var _ = require('lodash');
 var BluebirdPromise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
@@ -26,7 +27,7 @@ describe('Model one-to-many', function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      author: belongsTo('user')
+      author: belongsTo('user'),
     });
     User = db.model('user').reopen({
       username: attr(),
@@ -516,6 +517,54 @@ describe('Model one-to-many', function() {
 
       it('adds to hasMany collection cache', function() {
         expect(this.newAuthor.articles).to.contain(this.article);
+      });
+    });
+
+    describe('json', function() {
+
+      it('does not include relations', function() {
+        expect(this.author.json).to.eql({
+          id: 395,
+          username: 'miles',
+        });
+        expect(this.article.json).to.eql({
+          id: 828,
+          authorId: undefined,
+          title: 'Dog Psychology',
+        });
+      });
+
+      it('can be extended to include relations', function() {
+        User.reopen({
+          toJSON: function() {
+            return _.extend(this._super(), {
+              articles: _.invoke(this.articles, 'toNestable')
+            });
+          },
+        });
+        Article.reopen({
+          toNestable: function() {
+            return _.omit(this.toObject(), 'authorId');
+          },
+          toJSON: function() {
+            return _.extend(this.toNestable(), {
+              author: this.author.toObject()
+            });
+          },
+        });
+
+        expect(this.author.json).to.eql({
+          id: 395,
+          username: 'miles',
+          articles: [{ id: 1, title: 'Journal' }]
+        });
+
+        expect(this.author.articles[0].json).to.eql({
+          id: 1,
+          title: 'Journal',
+          author: { id: 395, username: 'miles' },
+        });
+
       });
     });
   });
