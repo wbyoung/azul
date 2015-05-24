@@ -352,7 +352,7 @@ not be available.
 
 ## Methods
 
-### `#belongsTo`
+### `#belongsTo([options])`
 
 A belongs-to relationship adds the following properties and methods:
 
@@ -384,7 +384,7 @@ Article.reopen({
 - `primaryKey` The name of the primary key in the relationship.
 - `foreignKey` The name of the foreign key in the relationship.
 
-#### `#association`
+#### `#association=`
 
 Access the relation. This will throw an error if the relation has not yet been
 loaded. Load the association before accessing it using
@@ -450,7 +450,7 @@ var Article = db.model('article', {
 });
 ```
 
-#### `#createAssociation`
+#### `#createAssociation([attrs])`
 
 Create a new object of the relationship type.
 
@@ -458,7 +458,7 @@ Create a new object of the relationship type.
 var blog = article.createBlog({ title: 'Blog' });
 ```
 
-#### `#fetchAssociation`
+#### `#fetchAssociation()`
 
 Fetch the associated object.
 
@@ -484,7 +484,7 @@ Article.objects.find(1).tap(function(article) {
 // see bluebird.js for details on tap
 ```
 
-### `#hasMany`
+### `#hasMany([options])`
 
 A has-many relationship adds the following properties and methods:
 
@@ -579,7 +579,7 @@ Blog.objects.find(1).then(function(blog) {
 });
 ```
 
-#### `#createAssociation`
+#### `#createAssociation([attrs])`
 
 Create a new object of the relationship type. This will also set the foreign
 key on the created object.
@@ -590,7 +590,7 @@ blog.id; // => 7
 article.blogId; // => 7
 ```
 
-#### `#addAssociation`
+#### `#addAssociation(model)`
 
 This method is used to add objects to the relationship. The changes will remain
 in memory until [saved][azul-models#save]:
@@ -613,7 +613,7 @@ Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
 });
 ```
 
-#### `#addAssociations`
+#### `#addAssociations(models)`
 
 Allows [adding](#methods-hasmany-addassociations) of multiple associations.
 Pass an array or multiple arguments.
@@ -623,7 +623,7 @@ blog.addArticles([article1, article2]);
 blog.addArticles(article1, article2);
 ```
 
-#### `#removeAssociation`
+#### `#removeAssociation(model)`
 
 This method is used to remove objects to the relationship. The changes will
 remain in memory until [saved][azul-models#save]:
@@ -639,7 +639,7 @@ Promise.all([ Article.objects.find(1), Blog.objects.find(4) ])
 Like [`addAssociation()`](#methods-hasmany-addassociation), this method
 returns a _thenable_ object that simply saves the object.
 
-#### `#removeAssociations`
+#### `#removeAssociations(models)`
 
 Allows [removing](#methods-hasmany-removeassociation) of multiple
 associations. Pass an array or multiple arguments.
@@ -649,7 +649,7 @@ blog.removeArticles([article1, article2]);
 blog.removeArticles(article1, article2);
 ```
 
-#### `#clearAssociations`
+#### `#clearAssociations()`
 
 Clear all related objects.
 
