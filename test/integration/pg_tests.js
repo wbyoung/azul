@@ -53,6 +53,7 @@ describe('PostgreSQL', function() {
         return array.concat([result]);
       });
     }, [])
+    .map(_.partial(_.omit, _, 'client'))
     .spread(function(result1, result2, result3, result4) {
       expect(result1).to.eql({ rows: [], fields: [] });
       expect(result2).to.eql({
@@ -102,6 +103,7 @@ describe('PostgreSQL', function() {
     it('allows use of returning on non primary key', function(done) {
       db.insert('azul_test', { name: 'Azul' })
       .returning('name')
+      .then(_.partial(_.omit, _, 'client'))
       .then(function(data) {
         expect(data).to.eql({ rows: [{ name: 'Azul' }], fields: ['name'] });
       })
@@ -112,6 +114,7 @@ describe('PostgreSQL', function() {
       resetSequence('azul_test').then(function() {
         return db.insert('azul_test', { name: 'Azul' }).returning('*');
       })
+      .then(_.partial(_.omit, _, 'client'))
       .then(function(data) {
         expect(data).to.eql({
           rows: [{ id: 1, name: 'Azul' }],

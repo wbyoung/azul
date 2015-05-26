@@ -55,6 +55,7 @@ describe('SQLite3', function() {
         return array.concat([result]);
       });
     }, [])
+    .map(_.partial(_.omit, _, 'client'))
     .spread(function(result1, result2, result3, result4) {
       expect(result1).to.eql({ rows: [], fields: [] });
       expect(result2).to.eql({
