@@ -1,6 +1,6 @@
 {
   "name": "azul",
-  "version": "0.0.1-alpha.12",
+  "version": "0.0.1-alpha.13",
   "description": "Elegant ORM for Node.js",
   "homepage": "https://github.com/wbyoung/azul",
   "bugs": {
