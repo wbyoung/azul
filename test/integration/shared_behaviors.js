@@ -191,7 +191,7 @@ shared.shouldSupportStandardTypes = function(it) {
       return this.castDatabaseValue(type, result, options);
     };
     equal = equal || 'equal';
-    fn = fn || function() {};
+    fn = fn || _.noop;
     return function(done) {
       BluebirdPromise.bind(this)
       .then(function() {
