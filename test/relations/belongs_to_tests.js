@@ -231,6 +231,17 @@ describe('Model.belongsTo', function() {
       .done(done, done);
     });
 
+    it('allows save to clear relationship', function(done) {
+      article.author = null;
+      article.save().then(function() {
+        expect(adapter.executedSQL()).to.eql([
+          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Azul News', undefined, 932]]
+        ]);
+      })
+      .done(done, done);
+    });
+
     it('allows store with unsaved object', function(done) {
       var user = User.create({ username: 'jack' });
       article.author = user;
