@@ -26,7 +26,7 @@ interested in helping, please reach out.
 A few additional components that you can use with Azul.js are:
 
 - [Azul.js Transaction Middleware][azul-transaction] Transaction middleware for
-  Express.
+  Express
 - [Azul.js Logger][azul-logger] Logs queries being executed
 - [Azul.js Tracker][azul-tracker] Reports queries that were created, but never
   executed
