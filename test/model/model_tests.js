@@ -57,6 +57,16 @@ describe('Model', function() {
     expect(Article.attrs).to.eql(['id', 'title']);
   });
 
+  it('prefers last attr for attributes', function() {
+    Article.reopen({
+      identifier: db.attr('id'), // preferred
+      headline: db.attr('title'), // preferred
+      lastName: db.attr('last_name'),
+      surname: db.attr('last_name'), // preferred
+    });
+    expect(Article.attrs).to.eql(['identifier', 'headline', 'surname']);
+  });
+
   it('instances can get json', function() {
     Article.reopen({ authorName: db.attr() });
     expect(Article.create().json).to.eql({
