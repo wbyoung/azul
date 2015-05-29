@@ -31,7 +31,9 @@ transaction.begin().execute()
 ```
 
 Read on to see how to associate transactions with [queries](#with-queries) and
-[models](#with-models)
+[models](#with-models). If you're using Express, we recommend reading the
+[Express guide][azul-express] as well which makes using transactions on a
+per-request basis extremely simple.
 
 ## Methods
 
@@ -92,6 +94,7 @@ transaction.begin().execute()
 .catch(function() { return transaction.rollback(); });
 ```
 
+[azul-express]: /guides/express/
 [azul-model#save]: /guides/models/#methods-properties-save
 [azul-queries#transactions]: /guides/queries/#transactions
 [azul-queries#transaction-method]: /guides/queries/#transactions-transaction
