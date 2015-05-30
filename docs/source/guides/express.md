@@ -284,7 +284,6 @@ for `POST /articles` will be performed in the same transaction.
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var BPromise = require('bluebird');
 
 var azul = require('azul');
 var env = process.env.NODE_ENV || 'development';
