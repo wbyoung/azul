@@ -4,7 +4,7 @@ var _ = require('lodash');
 var util = require('util');
 var expect = require('chai').expect;
 var path = require('path');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 var Condition = require('../../lib/condition'),
   w = Condition.w;
 
@@ -32,7 +32,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
     });
 
     it('can insert, update, and delete data', function(done) {
-      BluebirdPromise.bind({})
+      Promise.bind({})
       .then(function() {
         return db
           .insert('articles', { title: 'Title 1', body: 'Contents 1'});
@@ -85,7 +85,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         article: db.belongsTo()
       });
 
-      BluebirdPromise.bind({})
+      Promise.bind({})
       .then(function() {
         this.article1 = Article.create({ title: 'News', body: 'Azul 1.0' });
         return this.article1.save();
@@ -193,7 +193,7 @@ shared.shouldSupportStandardTypes = function(it) {
     equal = equal || 'equal';
     fn = fn || _.noop;
     return function(done) {
-      BluebirdPromise.bind(this)
+      Promise.bind(this)
       .then(function() {
         return db.schema.createTable(table).pk(null).with(function(table) {
           fn(table[type]('column', options));
@@ -260,7 +260,7 @@ shared.shouldSupportStandardTypes = function(it) {
     it('supports `default`', function(done) {
       var table = 'azul_default';
       var value = 'azul\'s default\\\n\t\b\r\x1a"';
-      BluebirdPromise.bind(this)
+      Promise.bind(this)
       .then(function() {
         return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('required');
@@ -281,7 +281,7 @@ shared.shouldSupportStandardTypes = function(it) {
 
     it('supports `notNull`', function(done) {
       var table = 'azul_not_null';
-      BluebirdPromise.bind(this)
+      Promise.bind(this)
       .then(function() {
         return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('column').notNull();
@@ -298,7 +298,7 @@ shared.shouldSupportStandardTypes = function(it) {
 
     it('supports `unique`', function(done) {
       var table = 'azul_unique';
-      BluebirdPromise.bind(this)
+      Promise.bind(this)
       .then(function() {
         return db.schema.createTable(table).pk(null).with(function(table) {
           table.string('column').unique();

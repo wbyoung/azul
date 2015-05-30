@@ -5,7 +5,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var path = require('path');
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 
 var Migration = require('../lib/migration');
 var EntryQuery = require('../lib/query/entry');
@@ -185,7 +185,7 @@ describe('Migration', function() {
         name: 'migration_file_2', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod1, mod2]));
+        .returns(Promise.resolve([mod1, mod2]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -242,12 +242,12 @@ describe('Migration', function() {
         var up2Sequence;
 
         this.mod1.up = function() {
-          return BluebirdPromise.delay(5).then(function() {
+          return Promise.delay(5).then(function() {
             up1Sequence = sequence++;
           });
         };
         this.mod2.up = function() {
-          return BluebirdPromise.delay(0).then(function() {
+          return Promise.delay(0).then(function() {
             up2Sequence = sequence++;
           });
         };
@@ -313,7 +313,7 @@ describe('Migration', function() {
   describe('with pending migrations stubbed as empty', function() {
     beforeEach(function() {
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([]));
+        .returns(Promise.resolve([]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -347,7 +347,7 @@ describe('Migration', function() {
       };
       var mods = this.mods = [mod2, mod1];
       sinon.stub(migration, '_loadExecutedMigrations')
-        .returns(BluebirdPromise.resolve(mods));
+        .returns(Promise.resolve(mods));
     });
     afterEach(function() {
       migration._loadExecutedMigrations.restore();
@@ -413,12 +413,12 @@ describe('Migration', function() {
         var down2Sequence;
 
         this.mod1.down = function() {
-          return BluebirdPromise.delay(0).then(function() {
+          return Promise.delay(0).then(function() {
             down1Sequence = sequence++;
           });
         };
         this.mod2.down = function() {
-          return BluebirdPromise.delay(5).then(function() {
+          return Promise.delay(5).then(function() {
             down2Sequence = sequence++;
           });
         };
@@ -494,7 +494,7 @@ describe('Migration', function() {
         name: 'migration_file_2', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod1, mod2]));
+        .returns(Promise.resolve([mod1, mod2]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -521,7 +521,7 @@ describe('Migration', function() {
 
     it('fails if not serial', function(done) {
       this.mod1.change = function() {
-        return BluebirdPromise.resolve();
+        return Promise.resolve();
       };
       migration.migrate()
       .throw(new Error('Expected migration to fail'))
@@ -556,7 +556,7 @@ describe('Migration', function() {
         name: 'migration_file_2', batch: 1
       };
       sinon.stub(migration, '_loadExecutedMigrations')
-        .returns(BluebirdPromise.resolve([mod2, mod1]));
+        .returns(Promise.resolve([mod2, mod1]));
     });
     afterEach(function() {
       migration._loadExecutedMigrations.restore();
@@ -608,7 +608,7 @@ describe('Migration', function() {
         name: 'migration_file_2', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod1, mod2]));
+        .returns(Promise.resolve([mod1, mod2]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -642,7 +642,7 @@ describe('Migration', function() {
         name: 'migration_file_1', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod]));
+        .returns(Promise.resolve([mod]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -670,7 +670,7 @@ describe('Migration', function() {
         name: 'migration_file_1', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod]));
+        .returns(Promise.resolve([mod]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();
@@ -693,13 +693,13 @@ describe('Migration', function() {
           var q = query.update('users');
           q.set({ id: 5 });
           q.set({ id: 6 });
-          return BluebirdPromise.resolve();
+          return Promise.resolve();
         }),
         down: sinon.spy(function(/*schema*/) {}),
         name: 'migration_file_1', batch: 1
       };
       sinon.stub(migration, '_loadPendingMigrations')
-        .returns(BluebirdPromise.resolve([mod]));
+        .returns(Promise.resolve([mod]));
     });
     afterEach(function() {
       migration._loadPendingMigrations.restore();

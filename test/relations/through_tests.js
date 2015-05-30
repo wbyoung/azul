@@ -6,7 +6,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 
@@ -206,7 +206,7 @@ describe('Model.hasMany :through', function() {
       student = Student.fresh({ id: 6 });
       course = Course.fresh({ id: 2 });
 
-      BluebirdPromise.bind()
+      Promise.bind()
       .then(function() {
         return student.workshopObjects;
       })

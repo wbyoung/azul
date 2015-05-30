@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 var Adapter = require('../../lib/adapters/base');
 var Database = require('../../lib/database');
 var returning = require('../../lib/adapters/mixins/returning'),
@@ -17,9 +17,9 @@ describe('Adapter with PseudoReturn', function() {
   beforeEach(function() {
     this.fns = {};
     CustomAdapter = Adapter.extend({
-      _connect: BluebirdPromise.method(function() {}),
-      _disconnect: BluebirdPromise.method(function() {}),
-      _execute: BluebirdPromise.method(function() {
+      _connect: Promise.method(function() {}),
+      _disconnect: Promise.method(function() {}),
+      _execute: Promise.method(function() {
         return this.fns.execute.apply(this, arguments);
       }.bind(this))
     });

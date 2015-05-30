@@ -9,7 +9,7 @@ var TransactionQuery = require('../../lib/query/transaction');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/types/statement');
 var BaseQuery = require('../../lib/query/base');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 
 var db;
 
@@ -261,7 +261,7 @@ describe('Transaction Mixin', function() {
       var txn = this.transaction;
       var query = db.query.transaction(txn);
       var client;
-      BluebirdPromise.resolve()
+      Promise.resolve()
       .then(function() { return txn.begin(); })
       .then(function() { return txn.acquireClient(); })
       .then(function(_client) { client = _client; })

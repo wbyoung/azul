@@ -6,7 +6,7 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 var Manager = require('../../lib/model/manager');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 
 require('../helpers/model');
 
@@ -371,7 +371,7 @@ describe('Model', function() {
   });
 
   it('can get objects multiple times', function(done) {
-    BluebirdPromise.all([
+    Promise.all([
       Article.objects,
       Article.objects
     ])

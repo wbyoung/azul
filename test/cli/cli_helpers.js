@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var sinon = require('sinon');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 
 /**
  * Helper function to run the CLI and capture output/exit status. The resolved
@@ -38,7 +38,7 @@ module.exports.cmd = function(env, fn) {
     details.stderr += data.toString();
   });
 
-  return BluebirdPromise
+  return Promise
   .resolve(env)
   .then(fn)
   .catch(function(e) {

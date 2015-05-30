@@ -10,7 +10,7 @@ if (!/^(1|true)$/i.test(process.env.TEST_POSTGRES || '1')) { return; }
 var _ = require('lodash');
 var expect = require('chai').expect;
 var Database = require('../../lib/database');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 var shared = require('./shared_behaviors');
 
 var db, connection = {
@@ -47,7 +47,7 @@ describe('PostgreSQL', function() {
       ['SELECT * FROM azul_raw_sql_test'],
       ['DROP TABLE azul_raw_sql_test']
     ];
-    BluebirdPromise.reduce(queries, function(array, info) {
+    Promise.reduce(queries, function(array, info) {
       var query = info[0], args = info[1] || [];
       return db._adapter.execute(query, args).then(function(result) {
         return array.concat([result]);

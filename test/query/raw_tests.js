@@ -9,7 +9,7 @@ var Database = require('../../lib/database');
 var RawQuery = require('../../lib/query/raw');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/types/statement');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 
 var db;
 
@@ -70,7 +70,7 @@ describe('RawQuery', function() {
     });
 
     it('will not execute more than once', function(done) {
-      BluebirdPromise.settle([
+      Promise.settle([
         query.execute(),
         query.execute(),
         query.execute()

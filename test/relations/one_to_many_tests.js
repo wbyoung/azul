@@ -5,7 +5,7 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 var _ = require('lodash');
-var BluebirdPromise = require('bluebird');
+var Promise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 
@@ -634,7 +634,7 @@ describe('Model one-to-many', function() {
   describe('when adding to a hasMany fails in the database', function() {
     beforeEach(function() {
       sinon.stub(adapter, '_execute', function() {
-        return new BluebirdPromise.reject(new Error('Intended test error.'));
+        return new Promise.reject(new Error('Intended test error.'));
       });
     });
 
