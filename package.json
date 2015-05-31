@@ -11,7 +11,8 @@
     "azul": "./bin/azul"
   },
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report $(if [ \"$TRAVIS\" ]; then echo lcovonly; else echo html; fi) -- --recursive && if [ \"$TRAVIS\" ]; then cat ./coverage/lcov.info | ./node_modules/.bin/coveralls; fi",
+    "test": "istanbul cover node_modules/.bin/_mocha --report html --",
+    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly --",
     "docs": "./docs/scripts/build && ./docs/scripts/deploy"
   },
   "files": [
@@ -38,7 +39,6 @@
   "devDependencies": {
     "chai": "^2.2.0",
     "cheerio": "^0.19.0",
-    "coveralls": "^2.11.1",
     "gulp": "^3.8.8",
     "gulp-cached": "^1.0.1",
     "gulp-istanbul": "^0.9.0",

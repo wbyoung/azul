@@ -10,8 +10,11 @@ before_script:
   - psql -c 'create database "azul_test";' -U postgres
   - mysql -e 'create database `azul_test`;'
 
+after_script:
+  - npm install coveralls@2 && cat ./coverage/lcov.info | coveralls
+
 env:
-  - ACTION=test PG_USER=postgres MYSQL_USER=travis
+  - ACTION=test-travis PG_USER=postgres MYSQL_USER=travis
   - ACTION=docs
 
 matrix:
