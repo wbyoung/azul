@@ -7,7 +7,7 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 var BaseRelation = require('../../lib/relations/base');
-var property = require('../../lib/util/property').fn;
+var property = require('corazon/property');
 
 require('../helpers/model');
 

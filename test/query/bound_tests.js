@@ -7,7 +7,7 @@ var Database = require('../../lib/database');
 var BoundQuery = require('../../lib/query/bound');
 var FakeAdapter = require('../fakes/adapter');
 var Statement = require('../../lib/types/statement');
-var property = require('../../lib/util/property').fn;
+var property = require('corazon/property');
 
 var db,
   adapter;

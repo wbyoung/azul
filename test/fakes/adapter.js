@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var Adapter = require('../../lib/adapters/base');
-var property = require('../../lib/util/property').fn;
+var property = require('corazon/property');
 
 var sequence = 0;
 function FakeAdapterClient() { this.id = sequence++; }
