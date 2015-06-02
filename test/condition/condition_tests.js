@@ -318,6 +318,18 @@ describe('Condition', function() {
       expect(result).to.eql('first = "Whitney" AND last = "Young"');
     });
 
+    it('supports "and" string joining conditions', function() {
+      var condition = w({ first: 'Whitney' }, 'and', { last: 'Young' });
+      var result = this.stringify(condition);
+      expect(result).to.eql('first = "Whitney" AND last = "Young"');
+    });
+
+    it('supports "&&" string joining conditions', function() {
+      var condition = w({ first: 'Whitney' }, '&&', { last: 'Young' });
+      var result = this.stringify(condition);
+      expect(result).to.eql('first = "Whitney" AND last = "Young"');
+    });
+
     it('does not support "and" prefixing conditions', function() {
       expect(function() {
         w(w.and, { first: 'Whitney' });
@@ -337,6 +349,18 @@ describe('Condition', function() {
 
     it('supports "or" joining conditions', function() {
       var condition = w({ first: 'Whitney' }, w.or, { first: 'Whit' });
+      var result = this.stringify(condition);
+      expect(result).to.eql('first = "Whitney" OR first = "Whit"');
+    });
+
+    it('supports "or" string joining conditions', function() {
+      var condition = w({ first: 'Whitney' }, 'or', { first: 'Whit' });
+      var result = this.stringify(condition);
+      expect(result).to.eql('first = "Whitney" OR first = "Whit"');
+    });
+
+    it('supports "||" string joining conditions', function() {
+      var condition = w({ first: 'Whitney' }, '||', { first: 'Whit' });
       var result = this.stringify(condition);
       expect(result).to.eql('first = "Whitney" OR first = "Whit"');
     });
@@ -366,6 +390,16 @@ describe('Condition', function() {
 
     it('supports "not" prefixing conditions', function() {
       var result = this.stringify(w(w.not, { first: 'Whitney' }));
+      expect(result).to.eql('NOT first = "Whitney"');
+    });
+
+    it('supports "not" string prefixing conditions', function() {
+      var result = this.stringify(w('not', { first: 'Whitney' }));
+      expect(result).to.eql('NOT first = "Whitney"');
+    });
+
+    it('supports "!" string prefixing conditions', function() {
+      var result = this.stringify(w('!', { first: 'Whitney' }));
       expect(result).to.eql('NOT first = "Whitney"');
     });
 
