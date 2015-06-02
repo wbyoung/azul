@@ -187,12 +187,12 @@ Complex conditions can be created using `azul.w`. For instance, you would use
 `w` to create an _OR_:
 
 ```js
-Article.objects.where(w({ title: 'Azul' }, w.or, { title: 'Azul.js' }));
+Article.objects.where({ title: 'Azul' }, w.or, { title: 'Azul.js' });
 ```
 
 A few more examples should make the use of `w` objects clear. There is support
 for _OR_, _NOT_, and _AND_ operators. When no operator is specified, an _AND_
-is assumed.
+is assumed. Operators can also be specified as strings.
 
 ```js
 w({ id: 5 }, { title: 'Azul.js' }); // defaults to AND
@@ -200,9 +200,9 @@ w(w.not, { title: 'Azul' }); // a NOT condition
 
 // a complex condition representing
 // (first = "Whitney" OR first = "Whit") AND last = "Young"
-var firstName = w({ first: 'Whitney' }, w.or, { first: 'Whit' });
+var firstName = w({ first: 'Whitney' }, 'or', { first: 'Whit' });
 var lastName = { last: 'Young' };
-var fullCondition = w(firstName, w.and, lastName);
+var fullCondition = w(firstName, 'and', lastName);
 ```
 
 Conditions default to treating the left hand side as a field (column) name and
