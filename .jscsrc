@@ -1,32 +1,32 @@
 {
   "preset": "airbnb",
-  "requirePaddingNewLinesAfterBlocks": null,
+  "disallowEmptyBlocks": null,
+  "disallowFunctionDeclarations": true,
+  "disallowKeywordsOnNewLine": null,
+  "disallowMultipleLineBreaks": null,
+  "disallowMultipleVarDecl": "exceptUndefined",
+  "disallowSpacesInAnonymousFunctionExpression":  {
+    "beforeOpeningRoundBrace": true
+  },
+  "disallowSpacesInFunctionExpression": {
+    "beforeOpeningRoundBrace": true
+  },
   "disallowTrailingComma": null,
+  "maximumLineLength": 80,
+  "maximumNumberOfLines": 1000,
+  "requireBlocksOnNewline": 2,
+  "requireKeywordsOnNewLine": ["else"],
+  "requirePaddingNewLinesAfterBlocks": null,
+  "requirePaddingNewLinesAfterUseStrict": true,
+  "requirePaddingNewLinesBeforeExport": true,
+  "requireSemicolons": true,
+  "requireSpaceAfterLineComment": true,
+  "requireSpacesInsideObjectBrackets": "all",
   "requireTrailingComma": {
     "ignoreSingleLine": true,
     "ignoreSingleValue": true
   },
   "safeContextKeyword": "self",
-  "disallowMultipleLineBreaks": null,
-  "disallowSpacesInFunctionExpression": {
-    "beforeOpeningRoundBrace": true
-  },
-  "disallowSpacesInAnonymousFunctionExpression":  {
-    "beforeOpeningRoundBrace": true
-  },
-  "disallowKeywordsOnNewLine": null,
-  "requireKeywordsOnNewLine": ["else"],
-  "disallowEmptyBlocks": null,
-  "disallowMultipleVarDecl": "exceptUndefined",
-  "disallowFunctionDeclarations": true,
-  "maximumLineLength": 80,
-  "requireSpaceAfterLineComment": true,
-  "requirePaddingNewLinesAfterUseStrict": true,
-  "requirePaddingNewLinesBeforeExport": true,
-  "requireSpacesInsideObjectBrackets": "all",
-  "maximumNumberOfLines": 1000,
-  "requireSemicolons": true,
-  "requireBlocksOnNewline": 2,
   "plugins": [
     "jscs-jsdoc"
   ],
@@ -37,10 +37,10 @@
         "scope": "some"
       }
     },
-    "requireParamTypes": true,
     "checkReturnTypes": true,
-    "enforceExistence": true,
     "checkTypes": "capitalizedNativeCase",
-    "requireNewlineAfterDescription": true
+    "enforceExistence": true,
+    "requireNewlineAfterDescription": true,
+    "requireParamTypes": true
   }
 }
