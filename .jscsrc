@@ -29,6 +29,7 @@
     },
     "requireParamTypes": true,
     "checkReturnTypes": true,
+    "enforceExistence": true,
     "checkTypes": "capitalizedNativeCase",
     "requireNewlineAfterDescription": true
   }
