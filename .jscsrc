@@ -1,0 +1,16 @@
+{
+  "preset": "airbnb",
+  "requirePaddingNewLinesAfterBlocks": null,
+  "disallowTrailingComma": null,
+  "safeContextKeyword": "self",
+  "disallowMultipleLineBreaks": null,
+  "disallowSpacesInFunctionExpression": {
+    "beforeOpeningRoundBrace": true
+  },
+  "disallowSpacesInAnonymousFunctionExpression":  {
+    "beforeOpeningRoundBrace": true
+  },
+  "disallowEmptyBlocks": null,
+  "disallowMultipleVarDecl": null,
+  "requireBlocksOnNewline": 2
+}
