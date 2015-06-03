@@ -11,8 +11,8 @@
     "azul": "./bin/azul"
   },
   "scripts": {
-    "test": "jshint . && jscs lib && istanbul cover node_modules/.bin/_mocha --report html --",
-    "test-travis": "jshint . && jscs lib && istanbul cover node_modules/.bin/_mocha --report lcovonly --",
+    "test": "jshint . && jscs *.js lib && istanbul cover node_modules/.bin/_mocha --report html --",
+    "test-travis": "jshint . && jscs *.js lib && istanbul cover node_modules/.bin/_mocha --report lcovonly --",
     "docs": "./docs/scripts/build && ./docs/scripts/deploy"
   },
   "files": [
