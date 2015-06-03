@@ -5,7 +5,7 @@ var util = require('util');
 var expect = require('chai').expect;
 var path = require('path');
 var Promise = require('bluebird');
-var Condition = require('../../lib/condition'),
+var Condition = require('maguey').Condition,
   w = Condition.w;
 
 require('../helpers/model');

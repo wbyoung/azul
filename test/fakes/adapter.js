@@ -1,7 +1,7 @@
 'use strict';
 
 var Promise = require('bluebird');
-var Adapter = require('../../lib/adapters/base');
+var Adapter = require('maguey').Adapter;
 var property = require('corazon/property');
 
 var sequence = 0;

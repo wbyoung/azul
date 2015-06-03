@@ -8,8 +8,8 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Promise = require('bluebird');
 
 var Migration = require('../lib/migration');
-var EntryQuery = require('../lib/query/entry');
-var Schema = require('../lib/schema');
+var EntryQuery = require('maguey').EntryQuery;
+var Schema = require('maguey').Schema;
 var FakeAdapter = require('./fakes/adapter');
 var migration, adapter, query;
 

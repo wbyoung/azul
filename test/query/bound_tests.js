@@ -2,22 +2,13 @@
 
 var chai = require('chai');
 var expect = chai.expect;
+var helpers = require('../helpers');
 
-var Database = require('../../lib/database');
 var BoundQuery = require('../../lib/query/bound');
-var FakeAdapter = require('../fakes/adapter');
-var Statement = require('../../lib/types/statement');
 var property = require('corazon/property');
+var test = helpers.withDatabase;
 
-var db,
-  adapter;
-
-describe('BoundQuery', function() {
-  beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    db = Database.create({ adapter: adapter });
-  });
-
+describe('BoundQuery', test(function(db) {
   it('cannot be created directly', function() {
     expect(function() {
       BoundQuery.create();
@@ -33,44 +24,38 @@ describe('BoundQuery', function() {
     });
 
     it('defaults to selecting data', function() {
-      expect(this.query.statement).to.eql(Statement.create(
-        'SELECT * FROM "users"', []
-      ));
+      expect(this.query).to.be.a.query(
+        'SELECT * FROM "users"', []);
     });
 
     it('selects data', function() {
       var query = this.query.select();
-      expect(query.statement).to.eql(Statement.create(
-        'SELECT * FROM "users"', []
-      ));
+      expect(query).to.be.a.query(
+        'SELECT * FROM "users"', []);
     });
 
     it('inserts data', function() {
       var query = this.query.insert({ name: 'Whitney' });
-      expect(query.statement).to.eql(Statement.create(
-        'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']
-      ));
+      expect(query).to.be.a.query(
+        'INSERT INTO "users" ("name") VALUES (?)', ['Whitney']);
     });
 
     it('updates data', function() {
       var query = this.query.update({ name: 'Whitney' });
-      expect(query.statement).to.eql(Statement.create(
-        'UPDATE "users" SET "name" = ?', ['Whitney']
-      ));
+      expect(query).to.be.a.query(
+        'UPDATE "users" SET "name" = ?', ['Whitney']);
     });
 
     it('deletes data', function() {
       var query = this.query.delete();
-      expect(query.statement).to.eql(Statement.create(
-        'DELETE FROM "users"', []
-      ));
+      expect(query).to.be.a.query(
+        'DELETE FROM "users"', []);
     });
 
     it('executes raw queries', function() {
       var query = this.query.raw('SELECT * FROM "users"');
-      expect(query.statement).to.eql(Statement.create(
-        'SELECT * FROM "users"', []
-      ));
+      expect(query).to.be.a.query(
+        'SELECT * FROM "users"', []);
     });
 
     describe('with pre-specified condition', function() {
@@ -79,21 +64,18 @@ describe('BoundQuery', function() {
       });
 
       it('allows select', function() {
-        expect(this.query.select().statement).to.eql(Statement.create(
-          'SELECT * FROM "users" WHERE "name" = ?', ['Whitney']
-        ));
+        expect(this.query.select()).to.be.a.query(
+          'SELECT * FROM "users" WHERE "name" = ?', ['Whitney']);
       });
 
       it('allows update', function() {
-        expect(this.query.update({ name: 'Whit' }).statement).to.eql(Statement.create(
-          'UPDATE "users" SET "name" = ? WHERE "name" = ?', ['Whit', 'Whitney']
-        ));
+        expect(this.query.update({ name: 'Whit' })).to.be.a.query(
+          'UPDATE "users" SET "name" = ? WHERE "name" = ?', ['Whit', 'Whitney']);
       });
 
       it('allows delete', function() {
-        expect(this.query.delete().statement).to.eql(Statement.create(
-          'DELETE FROM "users" WHERE "name" = ?', ['Whitney']
-        ));
+        expect(this.query.delete()).to.be.a.query(
+          'DELETE FROM "users" WHERE "name" = ?', ['Whitney']);
       });
 
       it('does not allow insert', function() {
@@ -145,9 +127,8 @@ describe('BoundQuery', function() {
       });
 
       it('allows select', function() {
-        expect(this.query.select().statement).to.eql(Statement.create(
-          'SELECT * FROM "users" LIMIT 3', []
-        ));
+        expect(this.query.select()).to.be.a.query(
+          'SELECT * FROM "users" LIMIT 3', []);
       });
 
       it('does not allow insert', function() {
@@ -182,30 +163,27 @@ describe('BoundQuery', function() {
       });
 
       it('allows select', function() {
-        expect(this.query.select().statement).to.eql(Statement.create(
+        expect(this.query.select()).to.be.a.query(
           'SELECT "users".* FROM "users" LEFT JOIN "profiles" ' +
-          'ON "users"."profile_id" = "profiles"."id"', []
-        ));
+          'ON "users"."profile_id" = "profiles"."id"', []);
       });
 
       it('allows select with specific args', function() {
-        expect(this.query.select(['pk']).statement).to.eql(Statement.create(
+        expect(this.query.select(['pk'])).to.be.a.query(
           'SELECT "users"."id" FROM "users" LEFT JOIN "profiles" ' +
-          'ON "users"."profile_id" = "profiles"."id"', []
-        ));
+          'ON "users"."profile_id" = "profiles"."id"', []);
       });
 
       it('allows join after unbind', function() {
         var query = this.query.unbind()
           .join('companies', 'left', 'users.company_id=companies.id')
           .select(['column']); // unbound query should not alter this column
-        expect(query.statement).to.eql(Statement.create(
+        expect(query).to.be.a.query(
           'SELECT "column" FROM "users" ' +
           'LEFT JOIN "profiles" ' +
           'ON "users"."profile_id" = "profiles"."id" ' +
           'LEFT JOIN "companies" ' +
-          'ON "users"."company_id" = "companies"."id"', []
-        ));
+          'ON "users"."company_id" = "companies"."id"', []);
       });
 
       it('does not allow insert', function() {
@@ -235,29 +213,26 @@ describe('BoundQuery', function() {
 
     it('allows relationship join', function() {
       var query = this.query.join('organization');
-      expect(query.statement).to.eql(Statement.create(
+      expect(query).to.be.a.query(
         'SELECT "users".* FROM "users" ' +
         'INNER JOIN "organizations" ' +
-        'ON "users"."organization_id" = "organizations"."id"', []
-      ));
+        'ON "users"."organization_id" = "organizations"."id"', []);
     });
 
     it('allows relationship join after `select`', function() {
       var query = this.query.select(['pk']).join('organization');
-      expect(query.statement).to.eql(Statement.create(
+      expect(query).to.be.a.query(
         'SELECT "users"."id" FROM "users" ' +
         'INNER JOIN "organizations" ' +
-        'ON "users"."organization_id" = "organizations"."id"', []
-      ));
+        'ON "users"."organization_id" = "organizations"."id"', []);
     });
 
     it('allows relationship join after `all`', function() {
       var query = this.query.all().join('organization');
-      expect(query.statement).to.eql(Statement.create(
+      expect(query).to.be.a.query(
         'SELECT "users".* FROM "users" ' +
         'INNER JOIN "organizations" ' +
-        'ON "users"."organization_id" = "organizations"."id"', []
-      ));
+        'ON "users"."organization_id" = "organizations"."id"', []);
     });
 
     it('allows relationship in where after `all`', function() {
@@ -266,13 +241,12 @@ describe('BoundQuery', function() {
       var query = this.query.all().where({
         organization: organization
       });
-      expect(query.statement).to.eql(Statement.create(
+      expect(query).to.be.a.query(
         'SELECT "users".* FROM "users" ' +
         'INNER JOIN "organizations" ' +
         'ON "users"."organization_id" = "organizations"."id" ' +
         'WHERE "organizations"."id" = ? ' +
-        'GROUP BY "users"."id"', [5]
-      ));
+        'GROUP BY "users"."id"', [5]);
     });
 
     it('has a fetch method', function(done) {
@@ -358,4 +332,4 @@ describe('BoundQuery', function() {
     }).to.throw(/test error/i);
   });
 
-});
+}));

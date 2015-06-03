@@ -33,20 +33,6 @@ describe('Database', function() {
     }).to.not.throw();
   });
 
-  it('shows require errors for non-invalid-adapter errors', function() {
-    var config = {
-      adapter: '../../../test/fixtures/adapters/missing',
-      connection: {
-        username: 'root',
-        password: '',
-        database: 'azul_test'
-      }
-    };
-    expect(function() {
-      Database.create(config);
-    }).to.throw(/cannot find module.*missing/i);
-  });
-
   it('fails with when no configuration is given', function() {
     expect(function() {
       Database.create();
