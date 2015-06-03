@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 var _ = require('lodash');
 var sinon = require('sinon');
 var Promise = require('bluebird');

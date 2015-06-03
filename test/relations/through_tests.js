@@ -1,5 +1,6 @@
-
 'use strict';
+
+require('../helpers');
 
 var _ = require('lodash');
 var chai = require('chai');
@@ -9,8 +10,6 @@ var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var Promise = require('bluebird');
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
-
-require('../helpers/model');
 
 var db,
   adapter,

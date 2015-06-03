@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 if (!/^(1|true)$/i.test(process.env.TEST_SQLITE || '1')) { return; }
 
 var _ = require('lodash');

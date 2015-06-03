@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 // $ mysql -u root
 // > CREATE DATABASE azul_test;
 // > exit

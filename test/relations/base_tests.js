@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 var chai = require('chai');
 var sinon = require('sinon'); chai.use(require('sinon-chai'));
 var expect = chai.expect;
@@ -8,8 +10,6 @@ var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 var BaseRelation = require('../../lib/relations/base');
 var property = require('corazon/property');
-
-require('../helpers/model');
 
 var db,
   adapter,

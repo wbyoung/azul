@@ -1,12 +1,12 @@
 'use strict';
 
+require('../helpers');
+
 var chai = require('chai');
 var expect = chai.expect;
 
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
-
-require('../helpers/model');
 
 var db,
   adapter,

@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 // $ createuser -s root
 // $ psql -U root -d postgres
 // > CREATE DATABASE azul_test;

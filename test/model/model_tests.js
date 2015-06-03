@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -7,8 +9,6 @@ var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 var Manager = require('../../lib/model/manager');
 var Promise = require('bluebird');
-
-require('../helpers/model');
 
 var db,
   attr,

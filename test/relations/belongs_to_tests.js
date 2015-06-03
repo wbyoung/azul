@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers');
+
 var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
@@ -7,8 +9,6 @@ var expect = chai.expect;
 var Database = require('../../lib/database');
 var FakeAdapter = require('../fakes/adapter');
 var InverseRelation = require('../../lib/relations/inverse');
-
-require('../helpers/model');
 
 var db,
   adapter,

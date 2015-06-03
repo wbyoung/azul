@@ -1,14 +1,15 @@
 'use strict';
 
+require('../helpers');
+
 var chai = require('chai');
 var expect = chai.expect;
 var helpers = require('../helpers');
 
 var BoundQuery = require('../../lib/query/bound');
 var property = require('corazon/property');
-var test = helpers.withDatabase;
 
-describe('BoundQuery', test(function(db) {
+describe('BoundQuery', __db(function(db, adapter) {
   it('cannot be created directly', function() {
     expect(function() {
       BoundQuery.create();
