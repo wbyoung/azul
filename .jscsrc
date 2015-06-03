@@ -14,8 +14,13 @@
   "disallowSpacesInAnonymousFunctionExpression":  {
     "beforeOpeningRoundBrace": true
   },
+  "disallowKeywordsOnNewLine": null,
+  "requireKeywordsOnNewLine": ["else"],
   "disallowEmptyBlocks": null,
-  "disallowMultipleVarDecl": null,
+  "disallowMultipleVarDecl": "exceptUndefined",
+  "disallowFunctionDeclarations": true,
+  "maximumNumberOfLines": 1000,
+  "requireSemicolons": true,
   "requireBlocksOnNewline": 2,
   "plugins": [
     "jscs-jsdoc"
