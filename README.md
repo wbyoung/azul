@@ -32,7 +32,7 @@ A few additional components that you can use with Azul.js are:
 
 ### Testing
 
-Simply run `gulp test` to run the full test suite.
+Simply run `npm test` to run the full test suite.
 
 This build currently connects to databases for testing purposes. To replicate this on your machine, do the following:
 
