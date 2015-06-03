@@ -16,5 +16,20 @@
   },
   "disallowEmptyBlocks": null,
   "disallowMultipleVarDecl": null,
-  "requireBlocksOnNewline": 2
+  "requireBlocksOnNewline": 2,
+  "plugins": [
+    "jscs-jsdoc"
+  ],
+  "jsDoc": {
+    "checkAnnotations": {
+      "preset": "jsdoc3",
+      "extra": {
+        "scope": "some"
+      }
+    },
+    "requireParamTypes": true,
+    "checkReturnTypes": true,
+    "checkTypes": "capitalizedNativeCase",
+    "requireNewlineAfterDescription": true
+  }
 }
