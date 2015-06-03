@@ -23,21 +23,7 @@
     "beforeEach": true,
     "after": true,
     "afterEach": true,
-    "expect": true,
-    "sinon": true,
-
-    "__app": true,
-    "__fixture": true,
-    "__respondWithJSONFixture": true,
-    "find": true,
-    "visit": true,
-    "click": true,
-    "fillIn": true,
-    "andThen": true,
-    "currentRouteName": true,
-    "currentPath": true,
-    "currentURL": true,
-    "applicationContainer": true
+    "__db": true
   },
   "expr": true
 }

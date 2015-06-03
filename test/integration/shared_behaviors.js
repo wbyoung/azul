@@ -3,12 +3,9 @@
 require('../helpers');
 
 var _ = require('lodash');
-var util = require('util');
 var expect = require('chai').expect;
 var path = require('path');
 var Promise = require('bluebird');
-var Condition = require('maguey').Condition,
-  w = Condition.w;
 
 var shared = {};
 

@@ -5,7 +5,6 @@ require('../helpers');
 if (!/^(1|true)$/i.test(process.env.TEST_SQLITE || '1')) { return; }
 
 var _ = require('lodash');
-var expect = require('chai').expect;
 var Database = require('../../lib/database');
 var Promise = require('bluebird');
 var shared = require('./shared_behaviors');

@@ -4,7 +4,6 @@ require('../helpers');
 
 var chai = require('chai');
 var expect = chai.expect;
-var helpers = require('../helpers');
 
 var BoundQuery = require('../../lib/query/bound');
 var property = require('corazon/property');
