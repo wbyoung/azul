@@ -5,7 +5,7 @@ require('../helpers');
 var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
-var sinon = require('sinon'); chai.use(require('sinon-chai'));
+var sinon = require('sinon');
 
 var actions = require('../../lib/cli/actions');
 var cmd = require('./cli_helpers').cmd;

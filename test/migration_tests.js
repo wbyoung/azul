@@ -6,7 +6,7 @@ var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 var path = require('path');
-var sinon = require('sinon'); chai.use(require('sinon-chai'));
+var sinon = require('sinon');
 var Promise = require('bluebird');
 
 var Migration = require('../lib/migration');
