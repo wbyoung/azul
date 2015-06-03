@@ -19,6 +19,7 @@
   "disallowEmptyBlocks": null,
   "disallowMultipleVarDecl": "exceptUndefined",
   "disallowFunctionDeclarations": true,
+  "maximumLineLength": 80,
   "maximumNumberOfLines": 1000,
   "requireSemicolons": true,
   "requireBlocksOnNewline": 2,
