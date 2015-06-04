@@ -1,20 +1,11 @@
 'use strict';
 
+require('./reset')();
+
 var _ = require('lodash');
 var chai = require('chai');
 var util = require('util');
 
-// clear require cache of all maguey references. this is required to support
-// mocha re-running the test suite in watch mode. mocha re-loads all of
-// azul.js, and azul.js makes changes to certain classes in maguey. we need a
-// fresh copy of the maguey classes so azul.js isn't adding changes on top of
-// existing changes. do not require any modules before clearing the cache that
-// would cause maguey to be loaded.
-_.forEach(require.cache, function(value, key) {
-  if (key.match(/\/maguey\//) && !key.match(/\/maguey\/node_modules\//)) {
-    delete require.cache[key];
-  }
-});
 
 var BaseQuery = require('maguey').BaseQuery;
 var Database = require('../../lib/database');
