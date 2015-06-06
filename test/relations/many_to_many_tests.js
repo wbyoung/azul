@@ -3,24 +3,14 @@
 require('../helpers');
 
 var _ = require('lodash');
-var chai = require('chai');
-var expect = chai.expect;
-var sinon = require('sinon');
-
-var Database = require('../../lib/database');
-var FakeAdapter = require('../fakes/adapter');
-
-var db,
-  adapter,
-  Student,
+var Student,
   Course,
   Enrollment;
 
-describe('Model many-to-many', function() {
-  beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    db = Database.create({ adapter: adapter });
+describe('Model many-to-many', __db(function() {
+  /* global db, adapter */
 
+  beforeEach(function() {
     var hasMany = db.hasMany;
     var belongsTo = db.belongsTo;
     var attr = db.attr;
@@ -43,31 +33,22 @@ describe('Model many-to-many', function() {
   });
 
   beforeEach(function() {
-    adapter.intercept(/select.*from "students"/i, {
-      fields: ['id', 'name'],
-      rows: [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }]
-    });
-    adapter.intercept(/select.*from "students" where "id" = ?/i, {
-      fields: ['id', 'name'],
-      rows: [{ id: 6, name: 'Whitney' }]
-    });
-    adapter.intercept(/select.*from "courses"/i, {
-      fields: ['id', 'subject'],
-      rows: [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }]
-    });
-    adapter.intercept(/select.*from "enrollments"/i, {
-      fields: ['id', 'student_id', 'course_id', 'date'],
-      rows: [{
-        id: 1, 'student_id': 6, 'course_id': 3,
-        date: new Date(2014, 12, 17)
-      }, {
-        id: 2, 'student_id': 6, 'course_id': 9,
-        date: new Date(2014, 12, 16)
-      }, {
-        id: 3, 'student_id': 7, 'course_id': 3,
-        date: new Date(2014, 12, 16)
-      }]
-    });
+    adapter.respond(/select.*from "students"/i,
+      [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }]);
+    adapter.respond(/select.*from "students" where "id" = ?/i,
+      [{ id: 6, name: 'Whitney' }]);
+    adapter.respond(/select.*from "courses"/i,
+      [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }]);
+    adapter.respond(/select.*from "enrollments"/i, [{
+      id: 1, 'student_id': 6, 'course_id': 3,
+      date: new Date(2014, 12, 17)
+    }, {
+      id: 2, 'student_id': 6, 'course_id': 9,
+      date: new Date(2014, 12, 16)
+    }, {
+      id: 3, 'student_id': 7, 'course_id': 3,
+      date: new Date(2014, 12, 16)
+    }]);
   });
 
   beforeEach(function() {
@@ -145,11 +126,10 @@ describe('Model many-to-many', function() {
   describe('when a relationship is pre-fetched', function() {
     var courses;
 
-    beforeEach(function(done) {
-      Course.objects.with('students').fetch().then(function(result) {
+    beforeEach(function() {
+      return Course.objects.with('students').fetch().then(function(result) {
         courses = result;
-      })
-      .then(done, done);
+      });
     });
 
     it('caches the relevant related objects', function() {
@@ -168,8 +148,8 @@ describe('Model many-to-many', function() {
   });
 
   describe('when collection cache is loaded via query', function() {
-    beforeEach(function(done) {
-      this.student.courseObjects.fetch().then(function() { done(); }, done);
+    beforeEach(function() {
+      return this.student.courseObjects.fetch();
     });
 
     it('caches the relevant related objects', function() {
@@ -195,13 +175,12 @@ describe('Model many-to-many', function() {
     });
 
     describe('when removing existing object', function() {
-      beforeEach(function(done) {
-        this.course.studentObjects
+      beforeEach(function() {
+        return this.course.studentObjects
           .with('courses')
           .execute()
           .bind(this)
-          .then(function(students) { this.student = students[0]; })
-          .done(done, done);
+          .then(function(students) { this.student = students[0]; });
       });
 
       beforeEach(function() {
@@ -226,7 +205,7 @@ describe('Model many-to-many', function() {
         });
       });
 
-      it('can be extended to include relations', function(done) {
+      it('can be extended to include relations', function() {
         Student.reopen({
           toJSON: function() {
             return _.extend(this._super(), {
@@ -244,7 +223,7 @@ describe('Model many-to-many', function() {
 
         var student = this.student;
         var course = this.student.courses[0];
-        course.studentObjects.fetch().then(function() {
+        return course.studentObjects.fetch().then(function() {
           expect(student.json).to.eql({
             id: 6,
             name: 'Whitney',
@@ -255,8 +234,7 @@ describe('Model many-to-many', function() {
             subject: 'CS 101',
             students: [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }]
           });
-        })
-        .then(done, done);
+        });
       });
     });
   });
@@ -295,4 +273,4 @@ describe('Model many-to-many', function() {
     });
   });
 
-});
+}));

@@ -2,9 +2,6 @@
 
 require('../helpers');
 
-var chai = require('chai');
-var expect = chai.expect;
-var sinon = require('sinon');
 var cli = require('../../lib/cli');
 var actions = require('../../lib/cli/actions');
 var cmd = require('./cli_helpers').cmd;
@@ -24,95 +21,88 @@ describe('CLI', function() {
     actions.migrate.restore();
   });
 
-  it('provides help when no command is given', function(done) {
+  it('provides help when no command is given', function() {
     process.argv = ['node', '/path/to/azul'];
-    cmd({ modulePath: '.', configPath: azulfile }, cli)
+    return cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/usage: azul \[options\] command/i);
       expect(proc.stdout.match(/--azulfile/g).length).to.eql(1);
-    })
-    .done(done, done);
+    });
   });
 
-  it('provides help when local azul is missing', function(done) {
+  it('provides help when local azul is missing', function() {
     process.argv = ['node', '/path/to/azul', '--help'];
-    cmd({ modulePath: '.', configPath: null }, cli)
+    return cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/usage: azul \[options\] command/i);
       expect(proc.stdout.match(/--azulfile/g).length).to.eql(1);
-    })
-    .done(done, done);
+    });
   });
 
-  it('provides version when local azul is missing', function(done) {
+  it('provides version when local azul is missing', function() {
     process.argv = ['node', '/path/to/azul', '--version'];
-    cmd({ modulePath: '.', configPath: null }, cli)
+    return cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/\d+\.\d+\.\d+(-(alpha|beta)\.\d+)?\n/i);
-    })
-    .done(done, done);
+    });
   });
 
-  it('ensures a local azul is present', function(done) {
+  it('ensures a local azul is present', function() {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    cmd({ modulePath: null, cwd: '.', configPath: azulfile }, cli)
+    return cmd({ modulePath: null, cwd: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.not.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/local azul not found/i);
       expect(actions.migrate).to.not.have.been.called;
-    })
-    .done(done, done);
+    });
   });
 
-  it('ensures an azulfile is present', function(done) {
+  it('ensures an azulfile is present', function() {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    cmd({ modulePath: '.', configPath: null }, cli)
+    return cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.not.eql(0);
       expect(proc.exitCalled).to.eql(true);
       expect(proc.stdout).to.match(/no azulfile found/i);
       expect(actions.migrate).to.not.have.been.called;
-    })
-    .done(done, done);
+    });
   });
 
-  it('does not need an azulfile for init', function(done) {
+  it('does not need an azulfile for init', function() {
     process.argv = ['node', '/path/to/azul', 'init'];
-    cmd({ modulePath: '.', configPath: null }, cli)
+    return cmd({ modulePath: '.', configPath: null }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
       expect(proc.stdout).to.eql('');
       expect(actions.init).to.have.been.calledOnce;
-    })
-    .done(done, done);
+    });
   });
 
-  it('calls actions when a command is given', function(done) {
+  it('calls actions when a command is given', function() {
     process.argv = ['node', '/path/to/azul', 'migrate'];
-    cmd({ modulePath: '.', configPath: azulfile }, cli)
+    return cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
       expect(proc.stdout).to.eql('');
       expect(actions.migrate).to.have.been.calledOnce;
-    })
-    .done(done, done);
+    });
   });
 
-  it('passes config & options to actions', function(done) {
+  it('passes config & options to actions', function() {
     process.argv = [
       'node', '/path/to/azul', 'migrate',
       '--migrations', './db-migrations'
     ];
-    cmd({ modulePath: '.', configPath: azulfile }, cli)
+    return cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {
       expect(proc.exitStatus).to.eql(0);
       expect(proc.exitCalled).to.eql(false);
@@ -122,33 +112,29 @@ describe('CLI', function() {
         .to.eql({ test: { adapter: 'mock' }});
       expect(actions.migrate.getCall(0).args[1].migrations)
         .to.eql('./db-migrations');
-    })
-    .done(done, done);
+    });
   });
 
   describe('exported event handlers', function() {
-    it('displays a message when external modules are loaded', function(done) {
-      cmd(null, function() { cli.require('xmod'); })
+    it('displays a message when external modules are loaded', function() {
+      return cmd(null, function() { cli.require('xmod'); })
       .then(function(proc) {
         expect(proc.stdout).to.match(/requiring.*module.*xmod/i);
-      })
-      .done(done, done);
+      });
     });
 
-    it('displays a message when external modules fail to load', function(done) {
-      cmd(null, function() { cli.requireFail('xmod'); })
+    it('displays a message when external modules fail to load', function() {
+      return cmd(null, function() { cli.requireFail('xmod'); })
       .then(function(proc) {
         expect(proc.stdout).to.match(/failed.*module.*xmod/i);
-      })
-      .done(done, done);
+      });
     });
 
-    it('displays a message when respawned', function(done) {
-      cmd(null, function() { cli.respawn(['--harmony'], { pid: 1234 }); })
+    it('displays a message when respawned', function() {
+      return cmd(null, function() { cli.respawn(['--harmony'], { pid: 1234 }); })
       .then(function(proc) {
         expect(proc.stdout).to.match(/flags.*--harmony.*\n.*respawn.*1234/im);
-      })
-      .done(done, done);
+      });
     });
   });
 });

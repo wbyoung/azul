@@ -36,7 +36,7 @@ describe('SQLite3', function() {
   before(function() { db = this.db = Database.create(connection); });
   before(function() { this.resetSequence = resetSequence; });
   before(function() { this.castDatabaseValue = castDatabaseValue; });
-  after(function(done) { db.disconnect().then(done, done); });
+  after(function() { return db.disconnect(); });
 
   // run all shared examples
   var skip = /`i?regex|year|month|day|weekday|hour|minute|second`/i;

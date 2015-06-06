@@ -23,7 +23,12 @@
     "beforeEach": true,
     "after": true,
     "afterEach": true,
-    "__db": true
+    "expect": true,
+    "should": true,
+    "sinon": true,
+    "__adapter": true,
+    "__db": true,
+    "__query": true
   },
   "expr": true
 }

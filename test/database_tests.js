@@ -2,7 +2,6 @@
 
 require('./helpers');
 
-var expect = require('chai').expect;
 var Database = require('../lib/database');
 
 describe('Database', function() {

@@ -2,13 +2,12 @@
 
 require('../helpers');
 
-var chai = require('chai');
-var expect = chai.expect;
-
 var BoundQuery = require('../../lib/query/bound');
 var property = require('corazon/property');
 
-describe('BoundQuery', __db(function(db, adapter) {
+describe('BoundQuery', __db(function() {
+  /* global db, adapter */
+
   it('cannot be created directly', function() {
     expect(function() {
       BoundQuery.create();
@@ -249,26 +248,18 @@ describe('BoundQuery', __db(function(db, adapter) {
         'GROUP BY "users"."id"', [5]);
     });
 
-    it('has a fetch method', function(done) {
-      adapter.intercept(/select.*from "users"/i, {
-        fields: ['id', 'title'],
-        rows: [{ id: 1, title: '1' }]
-      });
-      this.query.fetch().then(function(rows) {
+    it('has a fetch method', function() {
+      adapter.respond(/select.*from "users"/i, [{ id: 1, title: '1' }]);
+      return this.query.fetch().then(function(rows) {
         expect(rows).to.eql([{ id: 1, title: '1' }]);
-      })
-      .then(done, done);
+      });
     });
 
-    it('has a fetchOne method', function(done) {
-      adapter.intercept(/select.*from "users"/i, {
-        fields: ['id', 'title'],
-        rows: [{ id: 1, title: '1' }]
-      });
-      db.select('users').fetchOne().then(function(result) {
+    it('has a fetchOne method', function() {
+      adapter.respond(/select.*from "users"/i, [{ id: 1, title: '1' }]);
+      return db.select('users').fetchOne().then(function(result) {
         expect(result).to.eql({ id: 1, title: '1' });
-      })
-      .then(done, done);
+      });
     });
 
     it('gives a useful error when bad attr is used in `where`', function() {

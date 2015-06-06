@@ -3,24 +3,57 @@
 require('./reset')();
 
 var _ = require('lodash');
+var sinon = require('sinon');
 var chai = require('chai');
-var util = require('util');
+var chaiAsPromised = require('chai-as-promised');
 
+var createAdapter = require('maguey-chai').adapter;
+var EntryQuery = require('maguey').EntryQuery;
+var Database = require('../..').Database;
+var Model = require('../..').Model;
 
-var BaseQuery = require('maguey').BaseQuery;
-var Database = require('../../lib/database');
-var FakeAdapter = require('../fakes/adapter');
-var Model = require('../../lib/model');
+chaiAsPromised.transferPromiseness = function (assertion, promise) {
+  assertion.then = promise.then.bind(promise);
+  assertion.meanwhile = function(value) {
+    var result = promise.return(value);
+    return _.extend(result, { should: result.should.eventually });
+  };
+};
+
+chai.use(require('sinon-chai'));
+chai.use(require('maguey-chai'));
+chai.use(require('chai-properties'));
+chai.use(require('chai-as-promised'));
+
+global.expect = chai.expect;
+global.should = chai.should();
+global.sinon = sinon;
+
+global.__adapter = function(fn) {
+  return function() {
+    beforeEach(function() {
+      global.adapter = createAdapter();
+    });
+    fn.call(this);
+  };
+};
+
+global.__query = function(fn) {
+  return __adapter(function() {
+    beforeEach(function() {
+      global.query = EntryQuery.create(global.adapter);
+    });
+    fn.call(this);
+  });
+};
 
 global.__db = function(fn) {
-  var adapter = FakeAdapter.create({});
-  var db = Database.create({ adapter: adapter });
-  beforeEach(function() {
-    db.init({ adapter: adapter }); // re-initialize
+  return __adapter(function() {
+    beforeEach(function() {
+      global.db = Database.create({ adapter: global.adapter });
+    });
+    fn.call(this);
   });
-  return function() {
-    fn.call(this, db, adapter);
-  };
 };
 
 Model.reopenClass({
@@ -31,22 +64,19 @@ Model.reopenClass({
   }
 });
 
-chai.use(require('sinon-chai'));
+createAdapter().__identity__.reopen({
 
-chai.use(function (_chai, _) {
-  var Assertion = _chai.Assertion;
-  Assertion.addMethod('query', function(sql, args) {
-    var obj = this._obj;
-    new Assertion(this._obj).to.be.instanceof(BaseQuery.__class__);
-    var pass =
-      _.eql(obj.sql, sql) &&
-      _.eql(obj.args, args || []);
-    var fmt = function(s, a) {
-      return util.format('%s ~[%s]', s, a.join(', '));
-    };
-    this.assert(pass,
-      'expected #{this} to have SQL #{exp} but got #{act}',
-      'expected #{this} to not have SQL of #{act}',
-      fmt(sql, args || []), fmt(obj.sql, obj.args));
-  });
+  /**
+   * Respond specifically for select of migrations.
+   *
+   * @param {Array} names Names of migrations that will be used to build the
+   * full result.
+   */
+  respondToMigrations: function(names) {
+    var migrations = names.map(function(name, index) {
+      return { id: index + 1, name: name, batch: 1 };
+    });
+    this.respond(/select.*from "azul_migrations"/i, migrations);
+  }
+
 });

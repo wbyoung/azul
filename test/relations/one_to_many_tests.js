@@ -2,25 +2,17 @@
 
 require('../helpers');
 
-var chai = require('chai');
-var sinon = require('sinon');
-var expect = chai.expect;
-
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Database = require('../../lib/database');
-var FakeAdapter = require('../fakes/adapter');
 
-var db,
-  adapter,
-  Article,
+var Article,
   User;
 
-describe('Model one-to-many', function() {
-  beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    db = Database.create({ adapter: adapter });
+describe('Model one-to-many', __db(function() {
+  /* global db:true, adapter */
 
+  beforeEach(function() {
     var hasMany = db.hasMany;
     var belongsTo = db.belongsTo;
     var attr = db.attr;
@@ -41,18 +33,12 @@ describe('Model one-to-many', function() {
   });
 
   beforeEach(function() {
-    adapter.intercept(/select.*from "users"/i, {
-      fields: ['id', 'username'],
-      rows: [{ id: 1, username: 'wbyoung' }]
-    });
-    adapter.intercept(/select.*from "articles"/i, {
-      fields: ['id', 'title'],
-      rows: [{ id: 1, title: 'Journal', 'author_id': 1 }]
-    });
-    adapter.intercept(/insert into "users"/i, {
-      fields: ['id'],
-      rows: [{ id: 43 }]
-    });
+    adapter.respond(/select.*from "users"/i,
+      [{ id: 1, username: 'wbyoung' }]);
+    adapter.respond(/select.*from "articles"/i,
+      [{ id: 1, title: 'Journal', 'author_id': 1 }]);
+    adapter.respond(/insert into "users"/i,
+      [{ id: 43 }]);
   });
 
   describe('definition', function() {
@@ -402,14 +388,13 @@ describe('Model one-to-many', function() {
     });
 
     describe('when executed', function() {
-      beforeEach(function(done) {
-        this.author.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.author.save();
       });
 
       it('executes the proper sql', function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]);
       });
     });
   });
@@ -429,15 +414,14 @@ describe('Model one-to-many', function() {
     });
 
     describe('when executed', function() {
-      beforeEach(function(done) {
-        this.author.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.author.save();
       });
 
       it('executes the proper sql', function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? ' +
-           'WHERE "id" = ?', [undefined, 828]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_id" = ? ' +
+           'WHERE "id" = ?', [undefined, 828]);
       });
     });
   });
@@ -445,11 +429,10 @@ describe('Model one-to-many', function() {
   describe('when a hasMany relationship is pre-fetched', function() {
     var users;
 
-    beforeEach(function(done) {
-      User.objects.with('articles').fetch().then(function(result) {
+    beforeEach(function() {
+      return User.objects.with('articles').fetch().then(function(result) {
         users = result;
-      })
-      .then(done, done);
+      });
     });
 
     it('caches the relevant belongsTo objects', function() {
@@ -459,8 +442,8 @@ describe('Model one-to-many', function() {
   });
 
   describe('when hasMany collection cache is loaded', function() {
-    beforeEach(function(done) {
-      this.author.articleObjects.fetch().then(function() { done(); }, done);
+    beforeEach(function() {
+      return this.author.articleObjects.fetch();
     });
 
     it('caches the relevant belongsTo objects', function() {
@@ -476,19 +459,16 @@ describe('Model one-to-many', function() {
       });
 
       describe('when executed', function() {
-        beforeEach(function(done) {
-          this.article.save().then(function() { done(); }, done);
+        beforeEach(function() {
+          return this.article.save();
         });
 
         it('executes the proper sql', function() {
-          expect(adapter.executedSQL()).to.eql([
+          adapter.should.have.executed(
             // included from the fetch when loading the cache
-            ['SELECT * FROM "articles" WHERE "author_id" = ?', [395]],
-            // note that this expectation depends on ordering of object
-            // properties which is not guaranteed to be a stable ordering.
-            ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-             'WHERE "id" = ?', ['Dog Psychology', 395, 828]]
-          ]);
+            'SELECT * FROM "articles" WHERE "author_id" = ?', [395],
+            'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+             'WHERE "id" = ?', ['Dog Psychology', 395, 828]);
         });
       });
     });
@@ -579,17 +559,14 @@ describe('Model one-to-many', function() {
     });
 
     describe('when executed', function() {
-      beforeEach(function(done) {
-        this.article.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.article.save();
       });
 
       it('executes the proper sql', function() {
-        expect(adapter.executedSQL()).to.eql([
-          // note that this expectation depends on ordering of object
-          // properties which is not guaranteed to be a stable ordering.
-          ['UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-           'WHERE "id" = ?', ['Dog Psychology', 395, 828]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+           'WHERE "id" = ?', ['Dog Psychology', 395, 828]);
       });
     });
   });
@@ -606,8 +583,8 @@ describe('Model one-to-many', function() {
 
 
     describe('when executed', function() {
-      beforeEach(function(done) {
-        this.article.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.article.save();
       });
     });
   });
@@ -625,8 +602,8 @@ describe('Model one-to-many', function() {
     });
 
     describe('when executed', function() {
-      beforeEach(function(done) {
-        this.article.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.article.save();
       });
     });
   });
@@ -642,14 +619,13 @@ describe('Model one-to-many', function() {
       adapter._execute.restore();
     });
 
-    beforeEach(function(done) {
+    beforeEach(function() {
       this.author.addArticle(this.article);
-      this.author.save()
+      return this.author.save()
       .bind(this)
       .catch(function(e) {
         this.error = e;
-      })
-      .then(done, done);
+      });
     });
 
     it('gives a descriptive error', function() {
@@ -677,8 +653,8 @@ describe('Model one-to-many', function() {
         sinon.spy(adapter, '_execute');
       });
 
-      beforeEach(function(done) {
-        this.author.save().then(function() { done(); }, done);
+      beforeEach(function() {
+        return this.author.save();
       });
 
       it('leaves the belongsTo object in a clean state', function() {
@@ -697,10 +673,9 @@ describe('Model one-to-many', function() {
       });
 
       it('executes the proper sql', function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_id" = ? WHERE "id" = ?', [395, 828]);
       });
     });
   });
-});
+}));

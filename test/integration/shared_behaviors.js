@@ -3,7 +3,6 @@
 require('../helpers');
 
 var _ = require('lodash');
-var expect = require('chai').expect;
 var path = require('path');
 var Promise = require('bluebird');
 
@@ -13,23 +12,23 @@ shared.shouldRunMigrationsAndQueries = function(it) {
   var db; before(function() { db = this.db; });
 
   describe('with migrations applied', function() {
-    before(function(done) {
+    before(function() {
       var migration =
         path.join(__dirname, '../fixtures/migrations/blog');
       this.migrator = db.migrator(migration);
-      this.migrator.migrate().then(function() { done(); }, done);
+      return this.migrator.migrate();
     });
 
-    after(function(done) {
-      this.migrator.rollback().then(function() { done(); }, done);
+    after(function() {
+      return this.migrator.rollback();
     });
 
-    afterEach(function(done) {
-      this.resetSequence('articles').then(function() { done(); }, done);
+    afterEach(function() {
+      return this.resetSequence('articles');
     });
 
-    it('can insert, update, and delete data', function(done) {
-      Promise.bind({})
+    it('can insert, update, and delete data', function() {
+      return Promise.bind({})
       .then(function() {
         return db
           .insert('articles', { title: 'Title 1', body: 'Contents 1'});
@@ -62,11 +61,10 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function() { return db.select('articles'); }).get('rows')
       .then(function(articles) {
         expect(articles).to.eql([]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('can create, update, read, and delete models', function(done) {
+    it('can create, update, read, and delete models', function() {
 
       var Article = db.model('article').reopen({
         title: db.attr(),
@@ -82,7 +80,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         article: db.belongsTo()
       });
 
-      Promise.bind({})
+      return Promise.bind({})
       .then(function() {
         this.article1 = Article.create({ title: 'News', body: 'Azul 1.0' });
         return this.article1.save();
@@ -161,18 +159,16 @@ shared.shouldRunMigrationsAndQueries = function(it) {
           { identifier: 2, 'article_id': 1,
             email: 'person@azuljs.com', body: 'Great initial release!' }
         ]);
-      })
-      .then(done, done);
+      });
 
     });
 
-    it('cannot violate foreign key constraint', function(done) {
-      db.insert('comments', { 'article_id': 923 }).execute()
+    it('cannot violate foreign key constraint', function() {
+      return db.insert('comments', { 'article_id': 923 }).execute()
       .throw(new Error(''))
       .catch(function(e) {
         expect(e.message).to.match(/constraint/i);
-      })
-      .then(done, done);
+      });
     });
 
   });

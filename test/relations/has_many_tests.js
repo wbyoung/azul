@@ -3,25 +3,17 @@
 require('../helpers');
 
 var _ = require('lodash');
-var chai = require('chai');
-var expect = chai.expect;
-
-var Database = require('../../lib/database');
-var FakeAdapter = require('../fakes/adapter');
 var InverseRelation = require('../../lib/relations/inverse');
 
-var db,
-  adapter,
-  Article,
+var Article,
   User,
   user,
   articleObjects;
 
-describe('Model.hasMany', function() {
-  beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    db = Database.create({ adapter: adapter });
+describe('Model.hasMany', __db(function() {
+  /* global db, adapter */
 
+  beforeEach(function() {
     var hasMany = db.hasMany;
     var attr = db.attr;
 
@@ -41,18 +33,12 @@ describe('Model.hasMany', function() {
   });
 
   beforeEach(function() {
-    adapter.intercept(/select.*from "users"/i, {
-      fields: ['id', 'username'],
-      rows: [{ id: 1, username: 'wbyoung' }]
-    });
-    adapter.intercept(/select.*from "articles"/i, {
-      fields: ['id', 'title'],
-      rows: [{ id: 1, title: 'Journal', 'author_num': 1 }]
-    });
-    adapter.intercept(/insert into "articles"/i, {
-      fields: ['id'],
-      rows: [{ id: 23 }]
-    });
+    adapter.respond(/select.*from "users"/i,
+      [{ id: 1, username: 'wbyoung' }]);
+    adapter.respond(/select.*from "articles"/i,
+      [{ id: 1, title: 'Journal', 'author_num': 1 }]);
+    adapter.respond(/insert into "articles"/i,
+      [{ id: 23 }]);
   });
 
   describe('definition', function() {
@@ -104,27 +90,21 @@ describe('Model.hasMany', function() {
 
   describe('relation', function() {
 
-    it('fetches related objects', function(done) {
-      articleObjects.fetch().then(function(articles) {
+    it('fetches related objects', function() {
+      return articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
+        adapter.should.have.executed(
+          'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
+      });
     });
 
-    it('fetches related objects when the result set is empty', function(done) {
-      adapter.intercept(/select.*from "articles"/i, {
-        fields: ['id', 'title', 'author_num'],
-        rows: []
-      });
-      articleObjects.fetch().then(function(articles) {
+    it('fetches related objects when the result set is empty', function() {
+      adapter.respond(/select.*from "articles"/i, []);
+      return articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([]);
-      })
-      .done(done, done);
+      });
     });
 
     it('caches the related objects query', function() {
@@ -137,74 +117,58 @@ describe('Model.hasMany', function() {
       }).to.throw(/articles.*not yet.*loaded/i);
     });
 
-    it('does not consider relation loaded when fetched on a duplicated query', function(done) {
-      articleObjects.clone().fetch().then(function() {
+    it('does not consider relation loaded when fetched on a duplicated query', function() {
+      return articleObjects.clone().fetch().then(function() {
         return user.articles;
       })
       .throw(new Error('Expected access to relation to fail.'))
       .catch(function(e) {
         expect(e.message).to.match(/articles.*not yet.*loaded/i);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows access loaded collection', function(done) {
-      articleObjects.fetch().then(function() {
+    it('allows access loaded collection', function() {
+      return articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not load collection cache during model load', function(done) {
-      User.objects.fetchOne().then(function(fetchedUser) {
+    it('does not load collection cache during model load', function() {
+      return User.objects.fetchOne().then(function(fetchedUser) {
         expect(function() {
           fetchedUser.articles;
         }).to.throw(/articles.*not yet.*loaded/i);
-      })
-      .done(done, done);
-    });
-
-    it('allows access loaded collection when the result set is empty', function(done) {
-      adapter.intercept(/select.*from "articles"/i, {
-        fields: ['id', 'title', 'author_num'],
-        rows: []
       });
-      articleObjects.fetch().then(function() {
+    });
+
+    it('allows access loaded collection when the result set is empty', function() {
+      adapter.respond(/select.*from "articles"/i, []);
+      return articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('can be filtered', function(done) {
-      articleObjects.where({ title: 'Azul' }).fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "articles" ' +
-           'WHERE ("author_num" = ?) AND ' +
-           '("title" = ?)', [1, 'Azul']]
-        ]);
-      })
-      .done(done, done);
+    it('can be filtered', function() {
+      return articleObjects.where({ title: 'Azul' }).fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT * FROM "articles" ' +
+        'WHERE ("author_num" = ?) AND ' +
+        '("title" = ?)', [1, 'Azul']);
     });
 
-    it('allows update', function(done) {
-      articleObjects.update({ title: 'Azul' }).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "title" = ? ' +
-           'WHERE "author_num" = ?', ['Azul', 1]]
-        ]);
-      })
-      .done(done, done);
+    it('allows update', function() {
+      return articleObjects.update({ title: 'Azul' }).should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'UPDATE "articles" SET "title" = ? ' +
+        'WHERE "author_num" = ?', ['Azul', 1]);
     });
 
-    it('allows delete', function(done) {
-      articleObjects.delete().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['DELETE FROM "articles" WHERE "author_num" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
+    it('allows delete', function() {
+      return articleObjects.delete().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'DELETE FROM "articles" WHERE "author_num" = ?', [1]);
     });
   });
 
@@ -223,15 +187,14 @@ describe('Model.hasMany', function() {
       expect(article).to.exist;
     });
 
-    it('updates collection cache during create', function(done) {
+    it('updates collection cache during create', function() {
       var article;
-      user.articleObjects.fetch().then(function() {
+      return user.articleObjects.fetch().then(function() {
         article = user.createArticle({ title: 'Hello' });
       })
       .then(function() {
         expect(user.articles).to.contain(article);
-      })
-      .done(done, done);
+      });
     });
 
     it('clears query cache during create', function() {
@@ -241,97 +204,84 @@ describe('Model.hasMany', function() {
       expect(article).to.exist;
     });
 
-    it('allows add with existing objects', function(done) {
+    it('allows add with existing objects', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
-      user.addArticle(article).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" = ?', [1, 5]]
-        ]);
+      return user.addArticle(article).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" = ?', [1, 5]);
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not try to repeat addition updates', function(done) {
+    it('does not try to repeat addition updates', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       user.addArticle(article);
-      user.save().then(function() {
+      return user.save().then(function() {
         return user.save();
       })
       .then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" = ?', [1, 5]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" = ?', [1, 5]);
         expect(user.articlesRelation._getInFlightData(user)).to.eql({
           clear: false,
           add: [],
           remove: [],
         });
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows add with multiple existing objects', function(done) {
+    it('allows add with multiple existing objects', function() {
       var article1 = Article.fresh({ id: 5, title: 'Hello' });
       var article2 = Article.fresh({ id: 8, title: 'Hello' });
-      user.addArticles(article1, article2).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" IN (?, ?)', [1, 5, 8]]
-        ]);
+      return user.addArticles(article1, article2).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" IN (?, ?)', [1, 5, 8]);
         expect(article1).to.have.property('dirty', false);
         expect(article2).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows add with unsaved objects', function(done) {
+    it('allows add with unsaved objects', function() {
       var article = Article.fresh({ id: 12, title: 'Hello' });
       article.title = 'Renamed';
-      user.addArticle(article).then(function() {
-        // note that this expectation depends on ordering of object properties
-        // which is not guaranteed to be a stable ordering.
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
-           'WHERE "id" = ?', ['Renamed', 1, 12]]
-        ]);
+      return user.addArticle(article).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
+          'WHERE "id" = ?', ['Renamed', 1, 12]);
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows add with created objects', function(done) {
+    it('allows add with created objects', function() {
       var article = Article.create({ title: 'Hello' });
-      user.addArticle(article).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['INSERT INTO "articles" ("title", "author_num") VALUES (?, ?) ' +
-           'RETURNING "id"', ['Hello', 1]]
-        ]);
+      return user.addArticle(article).then(function() {
+        adapter.should.have.executed(
+          'INSERT INTO "articles" ("title", "author_num") VALUES (?, ?) ' +
+          'RETURNING "id"', ['Hello', 1]);
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('updates collection cache during add', function(done) {
+    it('updates collection cache during add', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
-      user.articleObjects.fetch().then(function() {
+      return user.articleObjects.fetch().then(function() {
         return user.addArticle(article);
       })
       .then(function() {
         expect(user.articles).to.contain(article);
-      })
-      .done(done, done);
+      });
     });
 
-    it('clears query cache during add', function(done) {
+    it('clears query cache during add', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       var articleObjects = user.articleObjects;
       var chachedValues = [articleObjects];
 
-      articleObjects.fetch()
+      return articleObjects.fetch()
       .then(function() { user.addArticle(article); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
@@ -340,99 +290,85 @@ describe('Model.hasMany', function() {
       .then(function() { return user.save(); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows remove with existing objects', function(done) {
+    it('allows remove with existing objects', function() {
       var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
-      user.removeArticle(article).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" = ?', [undefined, 5]]
-        ]);
+      return user.removeArticle(article).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" = ?', [undefined, 5]);
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not try to repeat removal updates', function(done) {
+    it('does not try to repeat removal updates', function() {
       var article = Article.fresh({ id: 5, title: 'Hello' });
       user.removeArticle(article);
-      user.save().then(function() {
+      return user.save().then(function() {
         return user.save();
       })
       .then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" = ?', [undefined, 5]]
-        ]);
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" = ?', [undefined, 5]);
         expect(user.articlesRelation._getInFlightData(user)).to.eql({
           clear: false,
           add: [],
           remove: [],
         });
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows remove with multiple existing objects', function(done) {
+    it('allows remove with multiple existing objects', function() {
       var article1 = Article.fresh({ id: 5, title: 'Hello' });
       var article2 = Article.fresh({ id: 8, title: 'Hello' });
-      user.removeArticles(article1, article2).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" IN (?, ?)', [undefined, 5, 8]]
-        ]);
+      return user.removeArticles(article1, article2).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "author_num" = ? ' +
+          'WHERE "id" IN (?, ?)', [undefined, 5, 8]);
         expect(article1).to.have.property('dirty', false);
         expect(article2).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows remove with unsaved objects', function(done) {
+    it('allows remove with unsaved objects', function() {
       var article = Article.fresh({ id: 12, title: 'Hello' });
       article.title = 'Renamed';
-      user.removeArticle(article).then(function() {
-        // note that this expectation depends on ordering of object properties
-        // which is not guaranteed to be a stable ordering.
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
-           'WHERE "id" = ?', ['Renamed', undefined, 12]]
-        ]);
+      return user.removeArticle(article).then(function() {
+        adapter.should.have.executed(
+          'UPDATE "articles" SET "title" = ?, "author_num" = ? ' +
+          'WHERE "id" = ?', ['Renamed', undefined, 12]);
         expect(article).to.have.property('dirty', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows remove with created objects', function(done) {
+    it('allows remove with created objects', function() {
       var article = Article.create({ title: 'Hello' });
-      user.removeArticle(article).then(function() {
-        expect(adapter.executedSQL()).to.eql([
-        ]);
+      return user.removeArticle(article).then(function() {
+        adapter.should.have.executed();
         expect(article).to.have.property('persisted', false);
-      })
-      .done(done, done);
+      });
     });
 
-    it('updates collection cache during remove', function(done) {
+    it('updates collection cache during remove', function() {
       var article;
-      user.articleObjects.fetch().then(function() {
+      return user.articleObjects.fetch().then(function() {
         article = user.articles[0];
         return user.removeArticle(article);
       })
       .then(function() {
         expect(user.articles).to.not.contain(article);
-      })
-      .done(done, done);
+      });
     });
 
-    it('clears query cache during remove', function(done) {
+    it('clears query cache during remove', function() {
       var articleObjects = user.articleObjects;
       var chachedValues = [articleObjects];
 
-      articleObjects.fetch()
+      return articleObjects.fetch()
       .then(function() { user.removeArticle(user.articles[0]); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
@@ -441,35 +377,30 @@ describe('Model.hasMany', function() {
       .then(function() { return user.save(); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
-      })
-      .done(done, done);
+      });
     });
 
-    it('allows clear', function(done) {
-      user.clearArticles().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "author_num" = ?', [undefined, 1]]
-        ]);
-      })
-      .done(done, done);
+    it('allows clear', function() {
+      return user.clearArticles().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'UPDATE "articles" SET "author_num" = ? ' +
+        'WHERE "author_num" = ?', [undefined, 1]);
     });
 
-    it('updates collection cache during clear', function(done) {
-      user.articleObjects.fetch().then(function() {
+    it('updates collection cache during clear', function() {
+      return user.articleObjects.fetch().then(function() {
         return user.clearArticles();
       })
       .then(function() {
         expect(user.articles).to.eql([]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('clears query cache during clear', function(done) {
+    it('clears query cache during clear', function() {
       var articleObjects = user.articleObjects;
       var chachedValues = [articleObjects];
 
-      articleObjects.fetch()
+      return articleObjects.fetch()
       .then(function() { user.clearArticles(); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
@@ -478,19 +409,17 @@ describe('Model.hasMany', function() {
       .then(function() { return user.save(); })
       .then(function() {
         expect(chachedValues).to.not.contain(user.articleObjects);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not clear query cache during save', function(done) {
+    it('does not clear query cache during save', function() {
       var articleObjects = user.articleObjects;
-      user.save().then(function() {
+      return user.save().then(function() {
         expect(articleObjects).to.equal(user.articleObjects);
-      })
-      .done(done, done);
+      });
     });
 
-    it('processes a complex sequence using add, remove, and clear', function(done) {
+    it('processes a complex sequence using add, remove, and clear', function() {
       var article1 = Article.fresh({ id: 1, title: '#1' });
       var article2 = Article.fresh({ id: 2, title: '#2' });
       var article3 = Article.fresh({ id: 3, title: '#3' });
@@ -510,8 +439,8 @@ describe('Model.hasMany', function() {
       user.removeArticles(article6);
       user.addArticle(article2);
 
-      user.save().then(function() {
-        var executed = adapter.executedSQL();
+      return user.save().then(function() {
+        var executed = adapter.executedSQL;
         var clear = executed[0];
         expect(clear).to.eql(
           ['UPDATE "articles" SET "author_num" = ? ' +
@@ -529,49 +458,38 @@ describe('Model.hasMany', function() {
           ['UPDATE "articles" SET "author_num" = ? ' +
            'WHERE "id" IN (?, ?)', [undefined, 5, 4]],
         ]);
-      })
-      .done(done, done);
+      });
     });
   });
 
   describe('joins', function() {
-    it('generates simple join queries', function(done) {
-      User.objects.join('articles').fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id"', []]
-        ]);
-      })
-      .done(done, done);
+    it('generates simple join queries', function() {
+      return User.objects.join('articles').fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id"');
     });
 
-    it('generates join queries that use where accessing fields in both types', function(done) {
-      User.objects.join('articles').where({
+    it('generates join queries that use where accessing fields in both types', function() {
+      return User.objects.join('articles').where({
         username: 'wbyoung',
         title$contains: 'News'
-      }).fetch().then(function() {
-        // note that this expectation depends on ordering of object
-        // properties which is not guaranteed to be a stable ordering.
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "users"."username" = ? ' +
-           'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']]
-        ]);
       })
-      .done(done, done);
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "users"."username" = ? ' +
+        'AND "articles"."title" LIKE ?', ['wbyoung', '%News%']);
     });
 
-    it('defaults to the main model on ambiguous property', function(done) {
-      User.objects.join('articles').where({ id: 5 })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "users"."id" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
+    it('defaults to the main model on ambiguous property', function() {
+      return User.objects.join('articles').where({ id: 5 })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "users"."id" = ?', [5]);
     });
 
     it('gives an error when there is an ambiguous property in two joins', function() {
@@ -587,118 +505,94 @@ describe('Model.hasMany', function() {
       }).to.throw(/ambiguous.*"title".*"(articles|blogs)".*"(articles|blogs)"/i);
     });
 
-    it('resolves fields specified by relation name', function(done) {
-      User.objects.join('articles').where({ 'articles.id': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."id" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
+    it('resolves fields specified by relation name', function() {
+      return User.objects.join('articles').where({ 'articles.id': 5, })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "articles"."id" = ?', [5]);
     });
 
-    it('resolves fields specified by relation name & attr name', function(done) {
-      User.objects.join('articles').where({ 'articles.pk': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."id" = ?', [5]]
-        ]);
-      })
-      .done(done, done);
+    it('resolves fields specified by relation name & attr name', function() {
+      return User.objects.join('articles').where({ 'articles.pk': 5, })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "articles"."id" = ?', [5]);
     });
 
-    it('automatically determines joins from conditions', function(done) {
-      User.objects.where({ 'articles.title': 'News', })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."title" = ? ' +
-           'GROUP BY "users"."id"', ['News']]
-        ]);
-      })
-      .done(done, done);
+    it('automatically determines joins from conditions', function() {
+      return User.objects.where({ 'articles.title': 'News', })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "articles"."title" = ? ' +
+        'GROUP BY "users"."id"', ['News']);
     });
 
-    it('automatically determines joins from order by', function(done) {
-      User.objects.orderBy('-articles.pk')
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'GROUP BY "users"."id" ' +
-           'ORDER BY "articles"."id" DESC', []]
-        ]);
-      })
-      .done(done, done);
+    it('automatically determines joins from order by', function() {
+      return User.objects.orderBy('-articles.pk')
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'GROUP BY "users"."id" ' +
+        'ORDER BY "articles"."id" DESC');
     });
 
-    it('handles attrs during automatic joining', function(done) {
-      User.objects.where({ 'articles.pk': 5, })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."id" = ? ' +
-           'GROUP BY "users"."id"', [5]]
-        ]);
-      })
-      .done(done, done);
+    it('handles attrs during automatic joining', function() {
+      return User.objects.where({ 'articles.pk': 5, })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "articles"."id" = ? ' +
+        'GROUP BY "users"."id"', [5]);
     });
 
-    it('does not automatically join based on attributes', function(done) {
-      User.objects.where({ 'username': 'wbyoung', })
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users" ' +
-           'WHERE "username" = ?', ['wbyoung']]
-        ]);
-      })
-      .done(done, done);
+    it('does not automatically join based on attributes', function() {
+      return User.objects.where({ 'username': 'wbyoung', })
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT * FROM "users" ' +
+        'WHERE "username" = ?', ['wbyoung']);
     });
 
-    it('works with a complex query', function(done) {
-      User.objects.where({ 'articles.title$contains': 'news', })
+    it('works with a complex query', function() {
+      return User.objects.where({ 'articles.title$contains': 'news', })
       .orderBy('username', '-articles.title')
       .limit(10)
       .offset(20)
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'WHERE "articles"."title" LIKE ? ' +
-           'GROUP BY "users"."id" ' +
-           'ORDER BY "users"."username" ASC, "articles"."title" DESC ' +
-           'LIMIT 10 OFFSET 20', ['%news%']]
-        ]);
-      })
-      .done(done, done);
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'WHERE "articles"."title" LIKE ? ' +
+        'GROUP BY "users"."id" ' +
+        'ORDER BY "users"."username" ASC, "articles"."title" DESC ' +
+        'LIMIT 10 OFFSET 20', ['%news%']);
     });
 
-    it('joins & orders across multiple relationships', function(done) {
+    it('joins & orders across multiple relationships', function() {
       var Comment = db.model('comment');
       Comment.reopen({ body: db.attr() });
       Article.reopen({ comments: db.hasMany() });
-      User.objects.where({ 'articles.comments.body$contains': 'rolex', })
+      return User.objects.where({ 'articles.comments.body$contains': 'rolex', })
       .orderBy('username', 'articles.comments.body')
       .limit(10)
       .offset(20)
-      .fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT "users".* FROM "users" ' +
-           'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
-           'INNER JOIN "comments" ON "comments"."article_id" = "articles"."id" ' +
-           'WHERE "comments"."body" LIKE ? ' +
-           'GROUP BY "users"."id" ' +
-           'ORDER BY "users"."username" ASC, "comments"."body" ASC ' +
-           'LIMIT 10 OFFSET 20', ['%rolex%']]
-        ]);
-      })
-      .done(done, done);
+      .fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "users".* FROM "users" ' +
+        'INNER JOIN "articles" ON "articles"."author_num" = "users"."id" ' +
+        'INNER JOIN "comments" ON "comments"."article_id" = "articles"."id" ' +
+        'WHERE "comments"."body" LIKE ? ' +
+        'GROUP BY "users"."id" ' +
+        'ORDER BY "users"."username" ASC, "comments"."body" ASC ' +
+        'LIMIT 10 OFFSET 20', ['%rolex%']);
     });
 
     it('gives a useful error when second bad relation is used for `join`', function() {
@@ -709,62 +603,49 @@ describe('Model.hasMany', function() {
   });
 
   describe('pre-fetch', function() {
-    it('executes multiple queries', function(done) {
-      User.objects.with('articles').fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users"', []],
-          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
+    it('executes multiple queries', function() {
+      return User.objects.with('articles').fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT * FROM "users"',
+        'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
     });
 
-    it('works with all', function(done) {
-      User.objects.with('articles').all().fetch().then(function() {
-        expect(adapter.executedSQL()).to.eql([
-          ['SELECT * FROM "users"', []],
-          ['SELECT * FROM "articles" WHERE "author_num" = ?', [1]]
-        ]);
-      })
-      .done(done, done);
+    it('works with all', function() {
+      return User.objects.with('articles').all().fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT * FROM "users"',
+        'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
     });
 
-    it('caches related objects', function(done) {
-      User.objects.with('articles').fetch().get('0').then(function(foundUser) {
+    it('caches related objects', function() {
+      return User.objects.with('articles').fetch().get('0').then(function(foundUser) {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('works with multiple models each having multiple related objects', function(done) {
+    it('works with multiple models each having multiple related objects', function() {
       var usersRegex = /select.*from "users".*order by "id"/i;
       var articlesRegex =
         /select.*from "articles" where "author_num" in \(\?, \?, \?\)/i;
-      adapter.intercept(usersRegex, {
-        fields: ['id', 'username'],
-        rows: [
-          { id: 1, username: 'wbyoung' },
-          { id: 2, username: 'kate' },
-          { id: 4, username: 'sam' },
-        ]
-      });
-      adapter.intercept(articlesRegex, {
-        fields: ['id', 'title', 'author_num'],
-        rows: [
-          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
-          { id: 9, title: 'Delicious Pancakes', 'author_num': 2 },
-          { id: 8, title: 'Awesome Margaritas', 'author_num': 2 },
-          { id: 4, title: 'Tasty Kale Salad', 'author_num': 2 },
-          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
-        ]
-      });
+      adapter.respond(usersRegex, [
+        { id: 1, username: 'wbyoung' },
+        { id: 2, username: 'kate' },
+        { id: 4, username: 'sam' },
+      ]);
+      adapter.respond(articlesRegex, [
+        { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+        { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+        { id: 9, title: 'Delicious Pancakes', 'author_num': 2 },
+        { id: 8, title: 'Awesome Margaritas', 'author_num': 2 },
+        { id: 4, title: 'Tasty Kale Salad', 'author_num': 2 },
+        { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
+      ]);
 
-      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+      return User.objects.with('articles').orderBy('id').fetch().then(function(users) {
         expect(users[0].username).to.eql('wbyoung');
         expect(users[1].username).to.eql('kate');
         expect(users[2].username).to.eql('sam');
@@ -777,33 +658,26 @@ describe('Model.hasMany', function() {
         expect(_.map(users[2].articles, 'title')).to.eql([
           'The Bipartisan System'
         ]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('works when some the objects have an empty result set', function(done) {
+    it('works when some the objects have an empty result set', function() {
       var usersRegex = /select.*from "users".*order by "id"/i;
       var articlesRegex =
         /select.*from "articles" where "author_num" in \(\?, \?, \?\, \?\)/i;
-      adapter.intercept(usersRegex, {
-        fields: ['id', 'username'],
-        rows: [
-          { id: 1, username: 'wbyoung' },
-          { id: 2, username: 'kate' },
-          { id: 3, username: 'vanessa' },
-          { id: 4, username: 'sam' },
-        ]
-      });
-      adapter.intercept(articlesRegex, {
-        fields: ['id', 'title', 'author_num'],
-        rows: [
-          { id: 3, title: 'Announcing Azul', 'author_num': 1 },
-          { id: 5, title: 'Node.js ORM', 'author_num': 1 },
-          { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
-        ]
-      });
+      adapter.respond(usersRegex, [
+        { id: 1, username: 'wbyoung' },
+        { id: 2, username: 'kate' },
+        { id: 3, username: 'vanessa' },
+        { id: 4, username: 'sam' },
+      ]);
+      adapter.respond(articlesRegex, [
+        { id: 3, title: 'Announcing Azul', 'author_num': 1 },
+        { id: 5, title: 'Node.js ORM', 'author_num': 1 },
+        { id: 6, title: 'The Bipartisan System', 'author_num': 4 },
+      ]);
 
-      User.objects.with('articles').orderBy('id').fetch().then(function(users) {
+      return User.objects.with('articles').orderBy('id').fetch().then(function(users) {
         expect(users[0].username).to.eql('wbyoung');
         expect(users[1].username).to.eql('kate');
         expect(users[2].username).to.eql('vanessa');
@@ -816,38 +690,31 @@ describe('Model.hasMany', function() {
         expect(_.map(users[3].articles, 'title')).to.eql([
           'The Bipartisan System'
         ]);
-      })
-      .done(done, done);
-    });
-
-    it('works when no objects are returned', function(done) {
-      adapter.intercept(/select.*from "users"/i, {
-        fields: ['id', 'title', 'author_id'],
-        rows: []
       });
-      User.objects.with('articles').fetch().then(function(articles) {
-        expect(articles).to.eql([]);
-      })
-      .done(done, done);
     });
 
-    it('works via `fetchOne`', function(done) {
-      User.objects.where({ id: 1 }).with('articles').fetchOne()
+    it('works when no objects are returned', function() {
+      adapter.respond(/select.*from "users"/i, []);
+      return User.objects.with('articles').fetch().then(function(articles) {
+        expect(articles).to.eql([]);
+      });
+    });
+
+    it('works via `fetchOne`', function() {
+      return User.objects.where({ id: 1 }).with('articles').fetchOne()
       .then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('works via `find`', function(done) {
-      User.objects.with('articles').find(1).then(function(fetchedUser) {
+    it('works via `find`', function() {
+      return User.objects.with('articles').find(1).then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
           Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
         ]);
-      })
-      .done(done, done);
+      });
     });
   });
 
@@ -864,4 +731,4 @@ describe('Model.hasMany', function() {
       expect(article.authorKey).to.eql(5);
     });
   });
-});
+}));

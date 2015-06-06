@@ -2,24 +2,15 @@
 
 require('../helpers');
 
-var chai = require('chai');
-var sinon = require('sinon');
-var expect = chai.expect;
-
-var Database = require('../../lib/database');
-var FakeAdapter = require('../fakes/adapter');
 var BaseRelation = require('../../lib/relations/base');
 var property = require('corazon/property');
 
-var db,
-  adapter,
-  User;
+var User;
 
-describe('BaseRelation', function() {
+describe('BaseRelation', __db(function() {
+  /* global db */
 
   beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    db = Database.create({ adapter: adapter });
     User = db.model('user').reopen({ username: db.attr() });
   });
 
@@ -110,4 +101,4 @@ describe('BaseRelation', function() {
     expect(setter).to.have.been.calledTwice;
   });
 
-});
+}));

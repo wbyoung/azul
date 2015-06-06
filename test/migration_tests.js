@@ -3,44 +3,39 @@
 require('./helpers');
 
 var _ = require('lodash');
-var chai = require('chai');
-var expect = chai.expect;
 var path = require('path');
-var sinon = require('sinon');
 var Promise = require('bluebird');
 
 var Migration = require('../lib/migration');
 var EntryQuery = require('maguey').EntryQuery;
 var Schema = require('maguey').Schema;
-var FakeAdapter = require('./fakes/adapter');
-var migration, adapter, query;
+var migration;
 
-describe('Migration', function() {
+describe('Migration', __query(function() {
+  /* global query, adapter */
+
   beforeEach(function() {
-    adapter = FakeAdapter.create({});
-    query = EntryQuery.create(adapter);
     migration = Migration.create(query,
       path.join(__dirname, 'fixtures/migrations/blog'));
   });
 
   describe('#_readMigrations', function() {
 
-    it('reads migrations in order', function(done) {
-      migration._readMigrations().then(function(migrations) {
+    it('reads migrations in order', function() {
+      return migration._readMigrations().then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202234_create_articles' },
           { name: '20141022202634_create_comments' },
         ]);
-      })
-      .done(done, done);
+      });
     });
 
   });
 
   describe('#_loadMigrations', function() {
 
-    it('loads migrations in order', function(done) {
-      migration._loadMigrations().then(function(migrations) {
+    it('loads migrations in order', function() {
+      return migration._loadMigrations().then(function(migrations) {
         expect(migrations).to.eql([
           _.extend({
             name: '20141022202234_create_articles'
@@ -51,61 +46,58 @@ describe('Migration', function() {
           }, require('./fixtures/migrations/blog/' +
             '20141022202634_create_comments'))
         ]);
-      })
-      .done(done, done);
+      });
     });
 
   });
 
   describe('#_readPendingMigrations', function() {
-    beforeEach(function(done) {
-      migration._transaction.begin().then(function() { done(); }, done);
+    beforeEach(function() {
+      return migration._transaction.begin();
     });
-    afterEach(function(done) {
-      migration._transaction.commit().then(function() { done(); }, done);
+    afterEach(function() {
+      return migration._transaction.commit();
     });
 
-    it('reads migrations in order', function(done) {
-      migration._readPendingMigrations().bind(this)
+    it('reads migrations in order', function() {
+      return migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202234_create_articles', batch: 1 },
           { name: '20141022202634_create_comments', batch: 1 }
         ]);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not include executed migrations', function(done) {
-      adapter.interceptSelectMigrations([
+    it('does not include executed migrations', function() {
+      adapter.respondToMigrations([
         '20141022202234_create_articles'
       ]);
 
-      migration._readPendingMigrations().bind(this)
+      return migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202634_create_comments', batch: 2 }
         ]);
-      })
-      .done(done, done);
+      });
     });
 
   });
 
   describe('#_loadPendingMigrations', function() {
-    beforeEach(function(done) {
-      migration._transaction.begin().then(function() { done(); }, done);
+    beforeEach(function() {
+      return migration._transaction.begin();
     });
-    afterEach(function(done) {
-      migration._transaction.commit().then(function() { done(); }, done);
+    afterEach(function() {
+      return migration._transaction.commit();
     });
 
-    it('loads pending migrations', function(done) {
-      adapter.interceptSelectMigrations([
+    it('loads pending migrations', function() {
+      adapter.respondToMigrations([
         '20141022202234_create_articles'
       ]);
 
-      migration._loadPendingMigrations().bind(this)
+      return migration._loadPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
           _.extend({
@@ -114,54 +106,52 @@ describe('Migration', function() {
           }, require('./fixtures/migrations/blog/' +
             '20141022202634_create_comments')),
         ]);
-      })
-      .done(done, done);
+      });
     });
 
   });
 
   describe('#_readExecutedMigrations', function() {
-    beforeEach(function(done) {
-      migration._transaction.begin().then(function() { done(); }, done);
+    beforeEach(function() {
+      return migration._transaction.begin();
     });
-    afterEach(function(done) {
-      migration._transaction.commit().then(function() { done(); }, done);
+    afterEach(function() {
+      return migration._transaction.commit();
     });
 
-    it('reads migrations in order', function(done) {
-      adapter.interceptSelectMigrations([
+    it('reads migrations in order', function() {
+      adapter.respondToMigrations([
         '20141022202634_create_comments',
         '20141022202234_create_articles',
       ]);
 
-      migration._readExecutedMigrations().bind(this)
+      return migration._readExecutedMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202634_create_comments', batch: 1 },
           { name: '20141022202234_create_articles', batch: 1 },
         ]);
-        expect(_.last(adapter.executedSQL())[0])
+        expect(_.last(adapter.executedSQL)[0])
           .to.match(/select.*from "azul_migrations".*order by "name" desc/i);
-      })
-      .done(done, done);
+      });
     });
 
   });
 
   describe('#_loadExecutedMigrations', function() {
-    beforeEach(function(done) {
-      migration._transaction.begin().then(function() { done(); }, done);
+    beforeEach(function() {
+      return migration._transaction.begin();
     });
-    afterEach(function(done) {
-      migration._transaction.commit().then(function() { done(); }, done);
+    afterEach(function() {
+      return migration._transaction.commit();
     });
 
-    it('loads migrations in order', function(done) {
-      adapter.interceptSelectMigrations([
+    it('loads migrations in order', function() {
+      adapter.respondToMigrations([
         '20141022202234_create_articles'
       ]);
 
-      migration._loadExecutedMigrations().bind(this)
+      return migration._loadExecutedMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
           _.extend({
@@ -170,8 +160,7 @@ describe('Migration', function() {
           }, require('./fixtures/migrations/blog/' +
             '20141022202234_create_articles')),
         ]);
-      })
-      .done(done, done);
+      });
     });
 
   });
@@ -195,25 +184,23 @@ describe('Migration', function() {
 
     describe('#migrate', function() {
 
-      it('calls the up methods', function(done) {
-        migration.migrate().bind(this).then(function() {
+      it('calls the up methods', function() {
+        return migration.migrate().bind(this).then(function() {
           expect(this.mod1.up).to.have.been.calledOnce;
           expect(this.mod2.up).to.have.been.calledOnce;
-        })
-        .done(done, done);
+        });
       });
 
-      it('resolves with migration details', function(done) {
-        migration.migrate().then(function(migrations) {
+      it('resolves with migration details', function() {
+        return migration.migrate().then(function(migrations) {
           expect(_.map(migrations, 'batch')).to.eql([1, 1]);
           expect(_.map(migrations, 'name'))
             .to.eql(['migration_file_1', 'migration_file_2']);
-        })
-        .done(done, done);
+        });
       });
 
-      it('calls the up methods with the correct args', function(done) {
-        migration.migrate().bind(this).then(function() {
+      it('calls the up methods with the correct args', function() {
+        return migration.migrate().bind(this).then(function() {
           expect(this.mod1.up).to.have.been.calledOnce;
           expect(this.mod1.up.getCall(0).args.length).to.eql(2);
           expect(this.mod1.up.getCall(0).args[0])
@@ -226,19 +213,17 @@ describe('Migration', function() {
             .to.be.instanceof(Schema.__class__);
           expect(this.mod2.up.getCall(0).args[1])
             .to.be.instanceof(EntryQuery.__class__);
-        })
-        .done(done, done);
+        });
       });
 
-      it('does not call the down methods', function(done) {
-        migration.migrate().bind(this).then(function() {
+      it('does not call the down methods', function() {
+        return migration.migrate().bind(this).then(function() {
           expect(this.mod1.down).to.not.have.been.called;
           expect(this.mod2.down).to.not.have.been.called;
-        })
-        .done(done, done);
+        });
       });
 
-      it('respects migration promises', function(done) {
+      it('respects migration promises', function() {
         var sequence = 0;
         var up1Sequence;
         var up2Sequence;
@@ -254,60 +239,52 @@ describe('Migration', function() {
           });
         };
 
-        migration.migrate().then(function() {
+        return migration.migrate().then(function() {
           expect(up1Sequence).to.eql(0);
           expect(up2Sequence).to.eql(1);
-        })
-        .done(done, done);
+        });
       });
 
-      it('rolls back transaction for failed migration', function(done) {
+      it('rolls back transaction for failed migration', function() {
         this.mod2.up = function() {
           throw new Error('Intentional Error');
         };
-        migration.migrate().throw('Migration should have been rolled back.')
+        return migration.migrate().throw('Migration should have been rolled back.')
         .catch(function(e) {
           expect(e.message).to.eql('Intentional Error');
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['ROLLBACK', []]
-          ]);
-        })
-        .done(done, done);
+          adapter.should.have.executed(
+            'BEGIN',
+            'ROLLBACK');
+        });
       });
 
-      it('raises a descriptive error if rollback fails', function(done) {
-        adapter.intercept(/rollback/i, function() {
-          throw new Error('Cannot rollback.');
-        });
+      it('raises a descriptive error if rollback fails', function() {
+        adapter.fail(/rollback/i);
         this.mod2.up = function() {
           throw new Error('Intentional Error');
         };
-        migration.migrate().throw('Migration should have been rolled back.')
+        return migration.migrate().throw('Migration should have been rolled back.')
         .catch(function(e) {
           expect(e.message)
-            .to.match(/intentional error.*rollback.*cannot rollback/i);
-          expect(adapter.executedSQL()).to.eql([
+            .to.match(/intentional error.*rollback.*fakefail.*rollback/i);
+          adapter.should.have.executed(
+            'BEGIN');
+          expect(adapter.attemptedSQL).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
-        })
-        .done(done, done);
+        });
       });
 
-      it('records migrations in database', function(done) {
-        migration.migrate().bind(this).then(function() {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            [
-              'INSERT INTO "azul_migrations" ("name", "batch") ' +
+      it('records migrations in database', function() {
+        return migration.migrate().bind(this).then(function() {
+          adapter.should.have.executed(
+            'BEGIN',
+            'INSERT INTO "azul_migrations" ("name", "batch") ' +
               'VALUES (?, ?), (?, ?)',
-              ['migration_file_1', 1, 'migration_file_2', 1]
-            ],
-            ['COMMIT', []]
-          ]);
-        })
-        .done(done, done);
+              ['migration_file_1', 1, 'migration_file_2', 1],
+            'COMMIT');
+        });
       });
     });
   });
@@ -323,14 +300,12 @@ describe('Migration', function() {
 
     describe('#migrate', function() {
 
-      it('does not record migrations in database', function(done) {
-        migration.migrate().bind(this).then(function() {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['COMMIT', []]
-          ]);
-        })
-        .done(done, done);
+      it('does not record migrations in database', function() {
+        return migration.migrate().bind(this).then(function() {
+          adapter.should.have.executed(
+            'BEGIN',
+            'COMMIT');
+        });
       });
 
     });
@@ -357,34 +332,31 @@ describe('Migration', function() {
 
     describe('#rollback', function() {
 
-      it('calls the down methods', function(done) {
-        migration.rollback().bind(this).then(function() {
+      it('calls the down methods', function() {
+        return migration.rollback().bind(this).then(function() {
           expect(this.mod1.down).to.have.been.calledOnce;
           expect(this.mod2.down).to.have.been.calledOnce;
-        })
-        .done(done, done);
+        });
       });
 
-      it('resolves with migration details', function(done) {
-        migration.rollback().then(function(migrations) {
+      it('resolves with migration details', function() {
+        return migration.rollback().then(function(migrations) {
           expect(_.map(migrations, 'batch')).to.eql([1, 1]);
           expect(_.map(migrations, 'name'))
             .to.eql(['migration_file_2', 'migration_file_1']);
-        })
-        .done(done, done);
+        });
       });
 
-      it('works when there are no migrations to run', function(done) {
+      it('works when there are no migrations to run', function() {
         this.mods.splice(0, 2);
-        migration.rollback().bind(this).then(function() {
+        return migration.rollback().bind(this).then(function() {
           expect(this.mod1.down).to.not.have.been.called;
           expect(this.mod2.down).to.not.have.been.called;
-        })
-        .done(done, done);
+        });
       });
 
-      it('calls the down methods with the correct args', function(done) {
-        migration.rollback().bind(this).then(function() {
+      it('calls the down methods with the correct args', function() {
+        return migration.rollback().bind(this).then(function() {
           expect(this.mod1.down).to.have.been.calledOnce;
           expect(this.mod1.down.getCall(0).args.length).to.eql(2);
           expect(this.mod1.down.getCall(0).args[0])
@@ -397,19 +369,17 @@ describe('Migration', function() {
             .to.be.instanceof(Schema.__class__);
           expect(this.mod2.down.getCall(0).args[1])
             .to.be.instanceof(EntryQuery.__class__);
-        })
-        .done(done, done);
+        });
       });
 
-      it('does not call the up methods', function(done) {
-        migration.rollback().bind(this).then(function() {
+      it('does not call the up methods', function() {
+        return migration.rollback().bind(this).then(function() {
           expect(this.mod1.up).to.not.have.been.called;
           expect(this.mod2.up).to.not.have.been.called;
-        })
-        .done(done, done);
+        });
       });
 
-      it('respects migration promises', function(done) {
+      it('respects migration promises', function() {
         var sequence = 0;
         var down1Sequence;
         var down2Sequence;
@@ -425,56 +395,50 @@ describe('Migration', function() {
           });
         };
 
-        migration.rollback().then(function() {
+        return migration.rollback().then(function() {
           expect(down1Sequence).to.eql(1);
           expect(down2Sequence).to.eql(0); // executed 1st
-        })
-        .done(done, done);
+        });
       });
 
-      it('rolls back transaction for failed migration', function(done) {
+      it('rolls back transaction for failed migration', function() {
         this.mod1.down = function() {
           throw new Error('Intentional Error');
         };
-        migration.rollback().throw('Migration should have been rolled back.')
+        return migration.rollback().throw('Migration should have been rolled back.')
         .catch(function(e) {
           expect(e.message).to.eql('Intentional Error');
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['ROLLBACK', []]
-          ]);
-        })
-        .done(done, done);
+          adapter.should.have.executed(
+            'BEGIN',
+            'ROLLBACK');
+        });
       });
 
-      it('raises a descriptive error if rollback fails', function(done) {
-        adapter.intercept(/rollback/i, function() {
-          throw new Error('Cannot rollback.');
-        });
+      it('raises a descriptive error if rollback fails', function() {
+        adapter.fail(/rollback/i);
         this.mod1.down = function() {
           throw new Error('Intentional Error');
         };
-        migration.rollback().throw('Rollback should have been rolled back.')
+        return migration.rollback().throw('Rollback should have been rolled back.')
         .catch(function(e) {
           expect(e.message)
-            .to.match(/intentional error.*rollback.*cannot rollback/i);
-          expect(adapter.executedSQL()).to.eql([
+            .to.match(/intentional error.*rollback.*fakefail.*rollback/i);
+          adapter.should.have.executed(
+            'BEGIN');
+          expect(adapter.attemptedSQL).to.eql([
             ['BEGIN', []],
             ['ROLLBACK', []]
           ]);
-        })
-        .done(done, done);
+        });
       });
 
-      it('removes migrations recorded in database', function(done) {
-        migration.rollback().bind(this).then(function() {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
-            ['COMMIT', []]
-          ]);
-        })
-        .done(done, done);
+      it('removes migrations recorded in database', function() {
+        return migration.rollback().bind(this).then(function() {
+          adapter.should.have.executed(
+            'BEGIN',
+            'DELETE FROM "azul_migrations" WHERE "batch" = ?', [1],
+            'COMMIT');
+        });
       });
     });
   });
@@ -502,42 +466,38 @@ describe('Migration', function() {
       migration._loadPendingMigrations.restore();
     });
 
-    it('runs all expected queries on migrate', function(done) {
-        migration.migrate().then(function(/*migrations*/) {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['CREATE TABLE "example1" ("id" serial PRIMARY KEY, ' +
-              '"name" varchar(255))', []],
-            ['CREATE TABLE "example2" ("id" serial PRIMARY KEY, ' +
-              '"name" varchar(255))', []],
-            ['CREATE TABLE "example3" ("id" serial PRIMARY KEY, ' +
-              '"name" varchar(255))', []],
-            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
+    it('runs all expected queries on migrate', function() {
+        return migration.migrate().then(function(/*migrations*/) {
+          adapter.should.have.executed(
+            'BEGIN',
+            'CREATE TABLE "example1" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))',
+            'CREATE TABLE "example2" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))',
+            'CREATE TABLE "example3" ("id" serial PRIMARY KEY, ' +
+              '"name" varchar(255))',
+            'INSERT INTO "azul_migrations" ("name", "batch") ' +
              'VALUES (?, ?), (?, ?)', [
-               'migration_file_1', 1, 'migration_file_2', 1]],
-            ['COMMIT', []],
-          ]);
-        })
-        .done(done, done);
+               'migration_file_1', 1, 'migration_file_2', 1],
+            'COMMIT');
+        });
     });
 
-    it('fails if not serial', function(done) {
+    it('fails if not serial', function() {
       this.mod1.change = function() {
         return Promise.resolve();
       };
-      migration.migrate()
+      return migration.migrate()
       .throw(new Error('Expected migration to fail'))
       .catch(function(e) {
         expect(e).to.match(/reversible.*must.*serial/i);
-      })
-      .done(done, done);
+      });
     });
 
-    it('does not provide a query argument', function(done) {
-      migration.migrate().then(function(/*migrations*/) {
+    it('does not provide a query argument', function() {
+      return migration.migrate().then(function(/*migrations*/) {
         expect(this.mod1.change.getCall(0).args[1]).to.not.exist;
-      }.bind(this))
-      .done(done, done);
+      }.bind(this));
     });
   });
 
@@ -564,25 +524,22 @@ describe('Migration', function() {
       migration._loadExecutedMigrations.restore();
     });
 
-    it('runs all expected queries on rollback', function(done) {
-        migration.rollback().then(function(/*migrations*/) {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['DROP TABLE "example3"', []],
-            ['DROP TABLE "example2"', []],
-            ['DROP TABLE "example1"', []],
-            ['DELETE FROM "azul_migrations" WHERE "batch" = ?', [1]],
-            ['COMMIT', []],
-          ]);
-        })
-        .done(done, done);
+    it('runs all expected queries on rollback', function() {
+        return migration.rollback().then(function(/*migrations*/) {
+          adapter.should.have.executed(
+            'BEGIN',
+            'DROP TABLE "example3"',
+            'DROP TABLE "example2"',
+            'DROP TABLE "example1"',
+            'DELETE FROM "azul_migrations" WHERE "batch" = ?', [1],
+            'COMMIT');
+        });
     });
 
-    it('does not provide a query argument', function(done) {
-      migration.rollback().then(function(/*migrations*/) {
+    it('does not provide a query argument', function() {
+      return migration.rollback().then(function(/*migrations*/) {
         expect(this.mod1.change.getCall(0).args[1]).to.not.exist;
-      }.bind(this))
-      .done(done, done);
+      }.bind(this));
     });
   });
 
@@ -616,21 +573,19 @@ describe('Migration', function() {
       migration._loadPendingMigrations.restore();
     });
 
-    it('runs all expected queries', function(done) {
-        migration.migrate().then(function(/*migrations*/) {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['UPDATE "example0" SET "id" = ?', [0]],
-            ['CREATE TABLE "example1" ("id" integer PRIMARY KEY)', []],
-            ['CREATE TABLE "example2" ("id" integer PRIMARY KEY)', []],
-            ['CREATE TABLE "example3" ("id" integer PRIMARY KEY)', []],
-            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
+    it('runs all expected queries', function() {
+        return migration.migrate().then(function(/*migrations*/) {
+          adapter.should.have.executed(
+            'BEGIN',
+            'UPDATE "example0" SET "id" = ?', [0],
+            'CREATE TABLE "example1" ("id" integer PRIMARY KEY)',
+            'CREATE TABLE "example2" ("id" integer PRIMARY KEY)',
+            'CREATE TABLE "example3" ("id" integer PRIMARY KEY)',
+            'INSERT INTO "azul_migrations" ("name", "batch") ' +
              'VALUES (?, ?), (?, ?)', [
-               'migration_file_1', 1, 'migration_file_2', 1]],
-            ['COMMIT', []],
-          ]);
-        })
-        .done(done, done);
+               'migration_file_1', 1, 'migration_file_2', 1],
+            'COMMIT');
+        });
     });
   });
 
@@ -650,13 +605,12 @@ describe('Migration', function() {
       migration._loadPendingMigrations.restore();
     });
 
-    it('informs the user this is invalid', function(done) {
-        migration.migrate()
+    it('informs the user this is invalid', function() {
+        return migration.migrate()
         .throw(new Error('Expected migration to fail.'))
         .catch(function(e) {
           expect(e).to.match(/serial migration.*must not execute/i);
-        })
-        .done(done, done);
+        });
     });
   });
 
@@ -678,13 +632,12 @@ describe('Migration', function() {
       migration._loadPendingMigrations.restore();
     });
 
-    it('informs the user this is invalid', function(done) {
-        migration.migrate()
+    it('informs the user this is invalid', function() {
+        return migration.migrate()
         .throw(new Error('Expected migration to fail.'))
         .catch(function(e) {
           expect(e).to.match(/serial migration.*must not re-use/i);
-        })
-        .done(done, done);
+        });
     });
   });
 
@@ -707,16 +660,14 @@ describe('Migration', function() {
       migration._loadPendingMigrations.restore();
     });
 
-    it('does not run queries', function(done) {
-        migration.migrate().then(function(/*migrations*/) {
-          expect(adapter.executedSQL()).to.eql([
-            ['BEGIN', []],
-            ['INSERT INTO "azul_migrations" ("name", "batch") ' +
-             'VALUES (?, ?)', ['migration_file_1', 1]],
-            ['COMMIT', []],
-          ]);
-        })
-        .done(done, done);
+    it('does not run queries', function() {
+        return migration.migrate().then(function(/*migrations*/) {
+          adapter.should.have.executed(
+            'BEGIN',
+            'INSERT INTO "azul_migrations" ("name", "batch") ' +
+             'VALUES (?, ?)', ['migration_file_1', 1],
+            'COMMIT');
+        });
     });
   });
-});
+}));

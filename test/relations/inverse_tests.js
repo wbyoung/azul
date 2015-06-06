@@ -2,9 +2,6 @@
 
 require('../helpers');
 
-var chai = require('chai');
-var expect = chai.expect;
-
 var InverseRelation = require('../../lib/relations/inverse');
 
 describe('InverseRelation', function() {

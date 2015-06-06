@@ -38,6 +38,8 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^2.2.0",
+    "chai-as-promised": "^5.0.0",
+    "chai-properties": "^1.2.0",
     "cheerio": "^0.19.0",
     "ink-docstrap": "^0.5.2",
     "istanbul": "^0.3.0",
@@ -71,7 +73,8 @@
     "interpret": "^0.6.0",
     "liftoff": "^2.0.0",
     "lodash": "^3.0.0",
-    "maguey": "^0.0.1",
+    "maguey": "^0.0.2",
+    "maguey-chai": "0.1.0",
     "minimist": "^1.1.0",
     "tildify": "^1.0.0",
     "underscore.string": "^3.0.0",
