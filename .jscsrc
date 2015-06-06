@@ -23,8 +23,7 @@
   "requireSpaceAfterLineComment": true,
   "requireSpacesInsideObjectBrackets": "all",
   "requireTrailingComma": {
-    "ignoreSingleLine": true,
-    "ignoreSingleValue": true
+    "ignoreSingleLine": true
   },
   "safeContextKeyword": "self",
   "plugins": [
