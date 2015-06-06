@@ -132,10 +132,9 @@ describe('Model.hasMany :through-shortcut', __db(function() {
 
     it('does not do anything special on save', function() {
       blog.title = 'AzulJS Blog';
-      return blog.save().then(function() {
-        adapter.should.have.executed(
-          'UPDATE "blogs" SET "title" = ? WHERE "id" = ?', ['AzulJS Blog', 12]);
-      });
+      return blog.save().should.eventually.exist
+      .meanwhile(adapter).should.have.executed(
+        'UPDATE "blogs" SET "title" = ? WHERE "id" = ?', ['AzulJS Blog', 12]);
     });
 
     it('fetches through two relationships', function() {
