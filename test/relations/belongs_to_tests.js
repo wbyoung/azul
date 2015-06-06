@@ -20,14 +20,14 @@ describe('Model.belongsTo', __db(function() {
     Article = db.model('article').reopen({
       title: attr(),
       author: belongsTo('user'),
-      authorKey: attr('author_id') // writable access to foreign key attr
+      authorKey: attr('author_id'), // writable access to foreign key attr
     });
     Comment = db.model('comment').reopen({
       body: db.attr(),
-      article: db.belongsTo('article')
+      article: db.belongsTo('article'),
     });
     User = db.model('user').reopen({
-      username: attr()
+      username: attr(),
     });
   });
 
@@ -51,7 +51,7 @@ describe('Model.belongsTo', __db(function() {
   describe('definition', function() {
     it('does not need to provide name', function() {
       Article.reopen({
-        user: db.Model.belongsTo()
+        user: db.Model.belongsTo(),
       });
       expect(article.userRelation._relatedModel).to.eql(db.model('user'));
     });
@@ -247,7 +247,7 @@ describe('Model.belongsTo', __db(function() {
     it('generates join queries that use where accessing fields in both types', function() {
       return Article.objects.join('author').where({
         username: 'wbyoung',
-        title$contains: 'News'
+        title$contains: 'News',
       })
       .fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -452,21 +452,21 @@ describe('Model.belongsTo', __db(function() {
         { id: 5, title: 'Node.js ORM', 'author_id': 1 },
         { id: 6, title: 'The Bipartisan System', 'author_id': 4 },
         { id: 8, title: 'Awesome Margaritas', 'author_id': 2 },
-        { id: 9, title: 'Delicious Pancakes', 'author_id': 2 }
+        { id: 9, title: 'Delicious Pancakes', 'author_id': 2 },
       ]);
       adapter.respond(usersRegex, [
         { id: 1, username: 'wbyoung' },
         { id: 4, username: 'sam' },
-        { id: 2, username: 'kate' }
+        { id: 2, username: 'kate' },
       ]);
 
       return Article.objects.with('author').orderBy('id').fetch().then(function(articles) {
         expect(_(articles).map('title').value()).to.eql([
           'Announcing Azul', 'Tasty Kale Salad', 'Node.js ORM',
-          'The Bipartisan System', 'Awesome Margaritas', 'Delicious Pancakes'
+          'The Bipartisan System', 'Awesome Margaritas', 'Delicious Pancakes',
         ]);
         expect(_(articles).map('author').map('username').value()).to.eql([
-          'wbyoung', 'kate', 'wbyoung', 'sam', 'kate', 'kate'
+          'wbyoung', 'kate', 'wbyoung', 'sam', 'kate', 'kate',
         ]);
       });
     });
@@ -485,11 +485,11 @@ describe('Model.belongsTo', __db(function() {
 
       return Article.objects.with('author').orderBy('id').fetch().then(function(articles) {
         expect(_(articles).map('title').value()).to.eql([
-          'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System'
+          'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System',
         ]);
         expect(_.map(articles, 'author')).to.eql([
           User.fresh({ id: 874, username: 'wbyoung' }), null,
-          User.fresh({ id: 4, username: 'kate' })
+          User.fresh({ id: 4, username: 'kate' }),
         ]);
       });
     });

@@ -23,7 +23,7 @@ describe('Model one-to-many', __db(function() {
     });
     User = db.model('user').reopen({
       username: attr(),
-      articles: hasMany('article', { inverse: 'author' })
+      articles: hasMany('article', { inverse: 'author' }),
     });
   });
 
@@ -47,17 +47,17 @@ describe('Model one-to-many', __db(function() {
       var relation = prototype[relationName + 'Relation'];
       return [
         relation.primaryKey, relation.primaryKeyAttr,
-        relation.foreignKey, relation.foreignKeyAttr
+        relation.foreignKey, relation.foreignKeyAttr,
       ];
     };
 
     it('defaults to logical primary & foreign keys', function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
-        articles: db.hasMany()
+        articles: db.hasMany(),
       });
       Article = db.model('article', {
-        user: db.belongsTo()
+        user: db.belongsTo(),
       });
       expect(keys(User, 'articles')).to.eql(['pk', 'id', 'userId', 'user_id']);
       expect(keys(Article, 'user')).to.eql(['pk', 'id', 'userId', 'user_id']);
@@ -66,10 +66,10 @@ describe('Model one-to-many', __db(function() {
     it('changes the foreign key based on the belongsTo relation name', function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
-        articles: db.hasMany({ inverse: 'author' })
+        articles: db.hasMany({ inverse: 'author' }),
       });
       Article = db.model('article', {
-        author: db.belongsTo('user')
+        author: db.belongsTo('user'),
       });
       expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorId', 'author_id']);
       expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_id']);
@@ -78,11 +78,11 @@ describe('Model one-to-many', __db(function() {
     it('allows custom foreign key', function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
-        articles: db.hasMany({ inverse: 'author' })
+        articles: db.hasMany({ inverse: 'author' }),
       });
       Article = db.model('article', {
         author: db.belongsTo('user'),
-        authorId: db.attr('author_fk')
+        authorId: db.attr('author_fk'),
       });
       expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
       expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
@@ -92,7 +92,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       Article = db.model('article', {
         author: db.belongsTo('user'),
-        authorId: db.attr('author_fk')
+        authorId: db.attr('author_fk'),
       });
       expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorId', 'author_fk']);
     });
@@ -100,10 +100,10 @@ describe('Model one-to-many', __db(function() {
     it('allows specific foreign key', function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
-        articles: db.hasMany({ inverse: 'author' })
+        articles: db.hasMany({ inverse: 'author' }),
       });
       Article = db.model('article', {
-        author: db.belongsTo('user', { foreignKey: 'authorFk' })
+        author: db.belongsTo('user', { foreignKey: 'authorFk' }),
       });
       expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
       expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
@@ -113,7 +113,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       Article = db.model('article', {
         author: db.belongsTo('user', { foreignKey: 'authorFk' }),
-        authorFk: db.attr('author_key')
+        authorFk: db.attr('author_key'),
       });
       expect(keys(Article, 'author')).to.eql(['pk', 'id', 'authorFk', 'author_key']);
     });
@@ -121,7 +121,7 @@ describe('Model one-to-many', __db(function() {
     it('allows specific foreign key on hasMany without inverse', function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
-        articles: db.hasMany({ foreignKey: 'authorFk' })
+        articles: db.hasMany({ foreignKey: 'authorFk' }),
       });
       expect(keys(User, 'articles')).to.eql(['pk', 'id', 'authorFk', 'author_fk']);
     });
@@ -130,7 +130,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
         pk: db.attr('social'),
-        posts: db.hasMany('articles')
+        posts: db.hasMany('articles'),
       });
       Article = db.model('article', {
         user: db.belongsTo({ inverse: 'posts' }),
@@ -145,7 +145,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
         pk: db.attr('social'),
-        posts: db.hasMany('articles')
+        posts: db.hasMany('articles'),
       });
       expect(keys(User, 'posts'))
         .to.eql(['pk', 'social', 'userId', 'user_id']);
@@ -155,7 +155,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
         ssn: db.attr('social'),
-        posts: db.hasMany('articles', { primaryKey: 'ssn' })
+        posts: db.hasMany('articles', { primaryKey: 'ssn' }),
       });
       Article = db.model('article', {
         user: db.belongsTo({ inverse: 'posts' }),
@@ -170,7 +170,7 @@ describe('Model one-to-many', __db(function() {
       db = Database.create({ adapter: adapter });
       User = db.model('user', {
         ssn: db.attr('social'),
-        posts: db.hasMany('articles', { primaryKey: 'ssn' })
+        posts: db.hasMany('articles', { primaryKey: 'ssn' }),
       });
       expect(keys(User, 'posts'))
         .to.eql(['ssn', 'social', 'userId', 'user_id']);
@@ -193,7 +193,7 @@ describe('Model one-to-many', __db(function() {
       });
       Article = db.model('article', {
         author: db.belongsTo('user', { inverse: 'posts' }),
-        authorId: db.attr('author_fk')
+        authorId: db.attr('author_fk'),
       });
       expect(keys(User, 'posts'))
         .to.eql(['pk', 'identifier', 'authorId', 'author_fk']);
@@ -209,7 +209,7 @@ describe('Model one-to-many', __db(function() {
       });
       Article = db.model('article', {
         author: db.belongsTo('user', { inverse: 'posts', foreignKey: 'authorSSN' }),
-        authorSSN: db.attr('author_ssn')
+        authorSSN: db.attr('author_ssn'),
       });
       expect(keys(User, 'posts'))
         .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
@@ -225,7 +225,7 @@ describe('Model one-to-many', __db(function() {
       });
       Article = db.model('article', {
         author: db.belongsTo('user', { inverse: 'posts', foreignKey: 'authorSSN' }),
-        authorSSN: db.attr('author_ssn')
+        authorSSN: db.attr('author_ssn'),
       });
       expect(keys(User, 'posts'))
         .to.eql(['ssn', 'social', 'authorSSN', 'author_ssn']);
@@ -518,7 +518,7 @@ describe('Model one-to-many', __db(function() {
         User.reopen({
           toJSON: function() {
             return _.extend(this._super(), {
-              articles: _.invoke(this.articles, 'toNestable')
+              articles: _.invoke(this.articles, 'toNestable'),
             });
           },
         });
@@ -528,7 +528,7 @@ describe('Model one-to-many', __db(function() {
           },
           toJSON: function() {
             return _.extend(this.toNestable(), {
-              author: this.author.toObject()
+              author: this.author.toObject(),
             });
           },
         });
@@ -536,7 +536,7 @@ describe('Model one-to-many', __db(function() {
         expect(this.author.json).to.eql({
           id: 395,
           username: 'miles',
-          articles: [{ id: 1, title: 'Journal' }]
+          articles: [{ id: 1, title: 'Journal' }],
         });
 
         expect(this.author.articles[0].json).to.eql({

@@ -23,13 +23,13 @@ module.exports.cmd = function(env, fn) {
     stdout: '',
     stderr: '',
     exitStatus: 0,
-    exitCalled: false
+    exitCalled: false,
   };
 
   sinon.stub(process, 'exit', function(status) {
     throw _.extend(new Error('Exit called.'), {
       code: 'PROCESS_EXIT_CALLED',
-      status: status || 0
+      status: status || 0,
     });
   });
   sinon.stub(process.stdout, 'write', function(data) {

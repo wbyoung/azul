@@ -100,7 +100,7 @@ describe('CLI', function() {
   it('passes config & options to actions', function() {
     process.argv = [
       'node', '/path/to/azul', 'migrate',
-      '--migrations', './db-migrations'
+      '--migrations', './db-migrations',
     ];
     return cmd({ modulePath: '.', configPath: azulfile }, cli)
     .then(function(proc) {

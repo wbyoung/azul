@@ -16,7 +16,7 @@ var restore = [
   'SelectQuery',
   'InsertQuery',
   'UpdateQuery',
-  'DeleteQuery'
+  'DeleteQuery',
 ];
 
 /**

@@ -238,7 +238,7 @@ describe('BoundQuery', __db(function() {
       var Organization = db.model('organization');
       var organization = Organization.create({ id: 5 });
       var query = this.query.all().where({
-        organization: organization
+        organization: organization,
       });
       expect(query).to.be.a.query(
         'SELECT "users".* FROM "users" ' +

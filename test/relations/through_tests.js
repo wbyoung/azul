@@ -23,17 +23,17 @@ describe('Model.hasMany :through', __db(function() {
     Student = db.model('student').reopen({
       name: attr(),
       enrollments: hasMany(),
-      courses: hasMany({ through: 'enrollments' })
+      courses: hasMany({ through: 'enrollments' }),
     });
     Course = db.model('course').reopen({
       subject: attr(),
       enrollments: hasMany(),
-      students: hasMany({ through: 'enrollments' })
+      students: hasMany({ through: 'enrollments' }),
     });
     Enrollment = db.model('enrollment').reopen({
       date: attr(),
       student: belongsTo(),
-      course: belongsTo()
+      course: belongsTo(),
     });
   });
 
@@ -46,14 +46,14 @@ describe('Model.hasMany :through', __db(function() {
       [{ id: 9, subject: 'CS 101' }, { id: 4, subject: 'History 101' }]);
     adapter.respond(/select.*from "enrollments"/i, [{
       id: 1, 'student_id': 1, 'course_id': 9,
-      date: new Date(2014, 12, 17)
+      date: new Date(2014, 12, 17),
     }, {
       id: 2, 'student_id': 1, 'course_id': 4,
-      date: new Date(2014, 12, 16)
+      date: new Date(2014, 12, 16),
     }, {
       id: 3, 'student_id': 2, 'course_id': 9,
-      date: new Date(2014, 12, 16)
-    }]);
+      date: new Date(2014, 12, 16),
+    },]);
     adapter.respond(/insert into "courses"/i, [{ id: 82 }]);
     adapter.respond(/insert into "students"/i, [{ id: 92 }]);
     adapter.respond(/insert into "enrollments"/i, [{ id: 27 }]);
@@ -92,7 +92,7 @@ describe('Model.hasMany :through', __db(function() {
           'WHERE "enrollments"."student_id" = ?', [1]);
         expect(_.map(courses, 'attrs')).to.eql([
           { id: 9, subject: 'CS 101' },
-          { id: 4, subject: 'History 101' }
+          { id: 4, subject: 'History 101' },
         ]);
       });
     });
@@ -104,14 +104,14 @@ describe('Model.hasMany :through', __db(function() {
       var belongsTo = db.belongsTo;
 
       Student = db.model('student').reopen({
-        courses: hasMany({ through: 'enrollments' })
+        courses: hasMany({ through: 'enrollments' }),
       });
       Course = db.model('course').reopen({
-        students: hasMany({ through: 'enrollments' })
+        students: hasMany({ through: 'enrollments' }),
       });
       Enrollment = db.model('enrollment').reopen({
         student: belongsTo(),
-        course: belongsTo()
+        course: belongsTo(),
       });
 
       student = Student.fresh({ id: 1, name: 'Whitney' });
@@ -123,7 +123,7 @@ describe('Model.hasMany :through', __db(function() {
           'WHERE "enrollments"."student_id" = ?', [1]);
         expect(_.map(courses, 'attrs')).to.eql([
           { id: 9, subject: 'CS 101' },
-          { id: 4, subject: 'History 101' }
+          { id: 4, subject: 'History 101' },
         ]);
       });
     });
@@ -131,10 +131,10 @@ describe('Model.hasMany :through', __db(function() {
     it('throws an error when it cannot find the source relation', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments' })
+        courses: db.hasMany({ through: 'enrollments' }),
       });
       Course = db.model('course').reopen({
-        students: db.hasMany({ through: 'enrollments' })
+        students: db.hasMany({ through: 'enrollments' }),
       });
       Enrollment = db.model('enrollment');
       student = Student.fresh({ id: 6 });
@@ -147,7 +147,7 @@ describe('Model.hasMany :through', __db(function() {
     it('throws an error when it cannot find a through relation', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments', join: false })
+        courses: db.hasMany({ through: 'enrollments', join: false }),
       });
       student = Student.fresh({ id: 6 });
       expect(function() {
@@ -161,15 +161,15 @@ describe('Model.hasMany :through', __db(function() {
         enrollments: db.hasMany({ inverse: 'participant' }),
         workshops: db.hasMany('course', {
           through: 'enrollments',
-          source: 'course'
-        })
+          source: 'course',
+        }),
       });
       Course = db.model('course').reopen({
-        students: db.hasMany({ through: 'enrollments', source: 'participant' })
+        students: db.hasMany({ through: 'enrollments', source: 'participant' }),
       });
       Enrollment = db.model('enrollment').reopen({
         participant: db.belongsTo('student'),
-        course: db.belongsTo()
+        course: db.belongsTo(),
       });
 
       student = Student.fresh({ id: 6 });
@@ -198,7 +198,7 @@ describe('Model.hasMany :through', __db(function() {
     it('adds join table relation immediately', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments' })
+        courses: db.hasMany({ through: 'enrollments' }),
       });
       expect(Student.create().enrollmentsRelation).to.exist;
     });
@@ -206,7 +206,7 @@ describe('Model.hasMany :through', __db(function() {
     it('adds join table relation immediately (via joins option)', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ join: 'enrollments' })
+        courses: db.hasMany({ join: 'enrollments' }),
       });
       expect(Student.create().enrollmentsRelation).to.exist;
     });
@@ -214,7 +214,7 @@ describe('Model.hasMany :through', __db(function() {
     it('adds pluralized join table relation immediately', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollment' })
+        courses: db.hasMany({ through: 'enrollment' }),
       });
       expect(Student.create().enrollmentsRelation).to.exist;
     });
@@ -222,7 +222,7 @@ describe('Model.hasMany :through', __db(function() {
     it('adds pluralized join table relation immediately (via joins option)', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
-        courses: db.hasMany({ join: 'enrollment' })
+        courses: db.hasMany({ join: 'enrollment' }),
       });
       expect(Student.create().enrollmentsRelation).to.exist;
     });
@@ -231,7 +231,7 @@ describe('Model.hasMany :through', __db(function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student', {
         name: db.attr(),
-        courses: db.hasMany({ join: 'courses_students' })
+        courses: db.hasMany({ join: 'courses_students' }),
       });
       Course = db.model('course', {
         name: db.attr(),
@@ -249,7 +249,7 @@ describe('Model.hasMany :through', __db(function() {
       return course.addStudents(student).then(function() {
         expect(_.last(adapter.executedSQL)).to.eql([
           'INSERT INTO "courses_students" ("course_id", "student_id") ' +
-          'VALUES (?, ?)', [ 82, 92 ]
+          'VALUES (?, ?)', [ 82, 92 ],
         ]);
       });
     });
@@ -258,7 +258,7 @@ describe('Model.hasMany :through', __db(function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments' }),
-        enrollments: db.hasMany()
+        enrollments: db.hasMany(),
       });
       expect(Student.create().enrollmentsRelation).to.exist;
     });
@@ -625,9 +625,9 @@ describe('Model.hasMany :through', __db(function() {
         });
         expect(remaining).to.eql([
           ['INSERT INTO "enrollments" ("student_id", "course_id") ' +
-           'VALUES (?, ?), (?, ?)', [1, 7, 1, 2]],
+           'VALUES (?, ?), (?, ?)', [1, 7, 1, 2],],
           ['DELETE FROM "enrollments" ' +
-           'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 4]]
+           'WHERE "student_id" = ? AND "course_id" IN (?, ?)', [1, 5, 4],],
         ]);
       });
     });
@@ -647,7 +647,7 @@ describe('Model.hasMany :through', __db(function() {
     it('generates join queries that use where accessing fields in both types', function() {
       return Student.objects.join('courses').where({
         name: 'wbyoung',
-        subject$contains: 'News'
+        subject$contains: 'News',
       })
       .fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -777,7 +777,7 @@ describe('Model.hasMany :through', __db(function() {
     it('joins properly when using `join` option', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student', {
-        courses: db.hasMany({ join: 'courses_students' })
+        courses: db.hasMany({ join: 'courses_students' }),
       });
       Course = db.model('course', {
         students: db.hasMany({ join: 'courses_students' }),
@@ -791,7 +791,7 @@ describe('Model.hasMany :through', __db(function() {
           'INNER JOIN "students" ' +
           'ON "courses_students"."student_id" = "students"."id" ' +
           'WHERE "students"."id" = ? ' +
-          'GROUP BY "courses"."id"', [ 5 ]
+          'GROUP BY "courses"."id"', [ 5 ],
         ]);
       });
     });
@@ -922,13 +922,13 @@ describe('Model.hasMany :through', __db(function() {
         expect(students[1].name).to.eql('Kate');
         expect(students[2].name).to.eql('Sam');
         expect(_.map(students[0].courses, 'subject')).to.eql([
-          'CS 101', 'Art History 101'
+          'CS 101', 'Art History 101',
         ]);
         expect(_.map(students[1].courses, 'subject')).to.eql([
-          'Roman Literature 101', 'CS 101', 'Calculus 101', 'Spanish 101'
+          'Roman Literature 101', 'CS 101', 'Calculus 101', 'Spanish 101',
         ]);
         expect(_.map(students[2].courses, 'subject')).to.eql([
-          'Chemistry 101'
+          'Chemistry 101',
         ]);
       });
     });
@@ -950,7 +950,7 @@ describe('Model.hasMany :through', __db(function() {
       ]);
       adapter.respond(coursesRegex, [
         { id: 3, subject: 'CS 101' },
-        { id: 5, subject: 'Art History 101' }
+        { id: 5, subject: 'Art History 101' },
       ]);
 
       return Student.objects.with('courses').orderBy('id').fetch().then(function(students) {
@@ -958,7 +958,7 @@ describe('Model.hasMany :through', __db(function() {
         expect(students[1].name).to.eql('Kate');
         expect(students[2].name).to.eql('Sam');
         expect(_.map(students[0].courses, 'subject')).to.eql([
-          'CS 101', 'Art History 101'
+          'CS 101', 'Art History 101',
         ]);
         expect(_.map(students[1].courses, 'subject')).to.eql([]);
         expect(_.map(students[2].courses, 'subject')).to.eql([]);

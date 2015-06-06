@@ -12,8 +12,8 @@ var shared = require('./shared_behaviors');
 var db, connection = {
   adapter: 'sqlite3',
   connection: {
-    filename: ''
-  }
+    filename: '',
+  },
 };
 
 var resetSequence = Promise.method(function(/*table*/) {

@@ -16,12 +16,12 @@ describe('Model self-joins', __db(function() {
 
     Employee = db.model('employee').reopen({
       subordinates: hasMany('employee', { inverse: 'manager' }),
-      manager: belongsTo('employee', { inverse: 'subordinates' })
+      manager: belongsTo('employee', { inverse: 'subordinates' }),
     });
 
     Node = db.model('node').reopen({
       parent: belongsTo('node', { inverse: 'nodes' }),
-      nodes: hasMany('node', { inverse: 'parent' })
+      nodes: hasMany('node', { inverse: 'parent' }),
     });
   });
 

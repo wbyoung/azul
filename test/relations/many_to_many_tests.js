@@ -18,17 +18,17 @@ describe('Model many-to-many', __db(function() {
     Student = db.model('student').reopen({
       name: attr(),
       enrollments: hasMany(),
-      courses: hasMany({ through: 'enrollments' })
+      courses: hasMany({ through: 'enrollments' }),
     });
     Course = db.model('course').reopen({
       subject: attr(),
       enrollments: hasMany(),
-      students: hasMany({ through: 'enrollments' })
+      students: hasMany({ through: 'enrollments' }),
     });
     Enrollment = db.model('enrollment').reopen({
       date: attr(),
       student: belongsTo(),
-      course: belongsTo()
+      course: belongsTo(),
     });
   });
 
@@ -41,14 +41,14 @@ describe('Model many-to-many', __db(function() {
       [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }]);
     adapter.respond(/select.*from "enrollments"/i, [{
       id: 1, 'student_id': 6, 'course_id': 3,
-      date: new Date(2014, 12, 17)
+      date: new Date(2014, 12, 17),
     }, {
       id: 2, 'student_id': 6, 'course_id': 9,
-      date: new Date(2014, 12, 16)
+      date: new Date(2014, 12, 16),
     }, {
       id: 3, 'student_id': 7, 'course_id': 3,
-      date: new Date(2014, 12, 16)
-    }]);
+      date: new Date(2014, 12, 16),
+    },]);
   });
 
   beforeEach(function() {
@@ -209,14 +209,14 @@ describe('Model many-to-many', __db(function() {
         Student.reopen({
           toJSON: function() {
             return _.extend(this._super(), {
-              courses: _.invoke(this.courses, 'toObject')
+              courses: _.invoke(this.courses, 'toObject'),
             });
           },
         });
         Course.reopen({
           toJSON: function() {
             return _.extend(this._super(), {
-              students: _.invoke(this.students, 'toObject')
+              students: _.invoke(this.students, 'toObject'),
             });
           },
         });
@@ -227,12 +227,12 @@ describe('Model many-to-many', __db(function() {
           expect(student.json).to.eql({
             id: 6,
             name: 'Whitney',
-            courses: [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }]
+            courses: [{ id: 3, subject: 'CS 101' }, { id: 9, subject: 'History 101' }],
           });
           expect(course.json).to.eql({
             id: 3,
             subject: 'CS 101',
-            students: [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }]
+            students: [{ id: 6, name: 'Whitney' }, { id: 7, name: 'Kristen' }],
           });
         });
       });

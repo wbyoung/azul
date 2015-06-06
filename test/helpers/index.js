@@ -59,9 +59,9 @@ global.__db = function(fn) {
 Model.reopenClass({
   fresh: function() {
     return _.extend(this.create.apply(this, arguments), {
-      _dirtyAttributes: {}
+      _dirtyAttributes: {},
     });
-  }
+  },
 });
 
 createAdapter().__identity__.reopen({
@@ -77,6 +77,6 @@ createAdapter().__identity__.reopen({
       return { id: index + 1, name: name, batch: 1 };
     });
     this.respond(/select.*from "azul_migrations"/i, migrations);
-  }
+  },
 
 });

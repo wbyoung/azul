@@ -19,11 +19,11 @@ describe('Model.hasMany', __db(function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      authorKey: attr('author_num') // easy access to foreign key attr
+      authorKey: attr('author_num'), // easy access to foreign key attr
     });
     User = db.model('user').reopen({
       username: attr(),
-      articles: hasMany(Article, { foreignKey: 'authorKey' })
+      articles: hasMany(Article, { foreignKey: 'authorKey' }),
     });
   });
 
@@ -44,14 +44,14 @@ describe('Model.hasMany', __db(function() {
   describe('definition', function() {
     it('does not need to provide name', function() {
       User.reopen({
-        books: db.Model.hasMany()
+        books: db.Model.hasMany(),
       });
       expect(user.booksRelation._relatedModel).to.eql(db.model('book'));
     });
 
     it('calculates foreign key from inverse', function() {
       User.reopen({
-        books: db.Model.hasMany({ inverse: 'writer' })
+        books: db.Model.hasMany({ inverse: 'writer' }),
       });
       expect(user.booksRelation.foreignKey).to.eql('writerId');
       expect(user.booksRelation.foreignKeyAttr).to.eql('writer_id');
@@ -93,7 +93,7 @@ describe('Model.hasMany', __db(function() {
     it('fetches related objects', function() {
       return articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
         adapter.should.have.executed(
           'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
@@ -130,7 +130,7 @@ describe('Model.hasMany', __db(function() {
     it('allows access loaded collection', function() {
       return articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -444,7 +444,7 @@ describe('Model.hasMany', __db(function() {
         var clear = executed[0];
         expect(clear).to.eql(
           ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "author_num" = ?', [undefined, 1]]);
+           'WHERE "author_num" = ?', [undefined, 1],]);
         // the order is not guaranteed between add & remove so they are sorted
         // based on the first argument (the argument corresponding to
         // SET "author_num" = ?)
@@ -454,9 +454,9 @@ describe('Model.hasMany', __db(function() {
         });
         expect(remaining).to.eql([
           ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" IN (?, ?)', [1, 7, 2]],
+           'WHERE "id" IN (?, ?)', [1, 7, 2],],
           ['UPDATE "articles" SET "author_num" = ? ' +
-           'WHERE "id" IN (?, ?)', [undefined, 5, 4]],
+           'WHERE "id" IN (?, ?)', [undefined, 5, 4],],
         ]);
       });
     });
@@ -473,7 +473,7 @@ describe('Model.hasMany', __db(function() {
     it('generates join queries that use where accessing fields in both types', function() {
       return User.objects.join('articles').where({
         username: 'wbyoung',
-        title$contains: 'News'
+        title$contains: 'News',
       })
       .fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -622,7 +622,7 @@ describe('Model.hasMany', __db(function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -650,13 +650,13 @@ describe('Model.hasMany', __db(function() {
         expect(users[1].username).to.eql('kate');
         expect(users[2].username).to.eql('sam');
         expect(_.map(users[0].articles, 'title')).to.eql([
-          'Announcing Azul', 'Node.js ORM'
+          'Announcing Azul', 'Node.js ORM',
         ]);
         expect(_.map(users[1].articles, 'title')).to.eql([
-          'Delicious Pancakes', 'Awesome Margaritas', 'Tasty Kale Salad'
+          'Delicious Pancakes', 'Awesome Margaritas', 'Tasty Kale Salad',
         ]);
         expect(_.map(users[2].articles, 'title')).to.eql([
-          'The Bipartisan System'
+          'The Bipartisan System',
         ]);
       });
     });
@@ -683,12 +683,12 @@ describe('Model.hasMany', __db(function() {
         expect(users[2].username).to.eql('vanessa');
         expect(users[3].username).to.eql('sam');
         expect(_.map(users[0].articles, 'title')).to.eql([
-          'Announcing Azul', 'Node.js ORM'
+          'Announcing Azul', 'Node.js ORM',
         ]);
         expect(_.map(users[1].articles, 'title')).to.eql([]);
         expect(_.map(users[2].articles, 'title')).to.eql([]);
         expect(_.map(users[3].articles, 'title')).to.eql([
-          'The Bipartisan System'
+          'The Bipartisan System',
         ]);
       });
     });
@@ -704,7 +704,7 @@ describe('Model.hasMany', __db(function() {
       return User.objects.where({ id: 1 }).with('articles').fetchOne()
       .then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -712,7 +712,7 @@ describe('Model.hasMany', __db(function() {
     it('works via `find`', function() {
       return User.objects.with('articles').find(1).then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 })
+          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });

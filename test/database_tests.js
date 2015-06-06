@@ -11,8 +11,8 @@ describe('Database', function() {
       connection: {
         username: 'root',
         password: '',
-        database: 'azul_test'
-      }
+        database: 'azul_test',
+      },
     };
     expect(function() {
       Database.create(config);

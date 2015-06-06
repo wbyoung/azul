@@ -38,13 +38,13 @@ describe('Migration', __query(function() {
       return migration._loadMigrations().then(function(migrations) {
         expect(migrations).to.eql([
           _.extend({
-            name: '20141022202234_create_articles'
+            name: '20141022202234_create_articles',
           }, require('./fixtures/migrations/blog/' +
             '20141022202234_create_articles')),
           _.extend({
-            name: '20141022202634_create_comments'
+            name: '20141022202634_create_comments',
           }, require('./fixtures/migrations/blog/' +
-            '20141022202634_create_comments'))
+            '20141022202634_create_comments')),
         ]);
       });
     });
@@ -64,20 +64,20 @@ describe('Migration', __query(function() {
       .then(function(migrations) {
         expect(migrations).to.eql([
           { name: '20141022202234_create_articles', batch: 1 },
-          { name: '20141022202634_create_comments', batch: 1 }
+          { name: '20141022202634_create_comments', batch: 1 },
         ]);
       });
     });
 
     it('does not include executed migrations', function() {
       adapter.respondToMigrations([
-        '20141022202234_create_articles'
+        '20141022202234_create_articles',
       ]);
 
       return migration._readPendingMigrations().bind(this)
       .then(function(migrations) {
         expect(migrations).to.eql([
-          { name: '20141022202634_create_comments', batch: 2 }
+          { name: '20141022202634_create_comments', batch: 2 },
         ]);
       });
     });
@@ -94,7 +94,7 @@ describe('Migration', __query(function() {
 
     it('loads pending migrations', function() {
       adapter.respondToMigrations([
-        '20141022202234_create_articles'
+        '20141022202234_create_articles',
       ]);
 
       return migration._loadPendingMigrations().bind(this)
@@ -102,7 +102,7 @@ describe('Migration', __query(function() {
         expect(migrations).to.eql([
           _.extend({
             name: '20141022202634_create_comments',
-            batch: 2
+            batch: 2,
           }, require('./fixtures/migrations/blog/' +
             '20141022202634_create_comments')),
         ]);
@@ -148,7 +148,7 @@ describe('Migration', __query(function() {
 
     it('loads migrations in order', function() {
       adapter.respondToMigrations([
-        '20141022202234_create_articles'
+        '20141022202234_create_articles',
       ]);
 
       return migration._loadExecutedMigrations().bind(this)
@@ -156,7 +156,7 @@ describe('Migration', __query(function() {
         expect(migrations).to.eql([
           _.extend({
             name: '20141022202234_create_articles',
-            batch: 1
+            batch: 1,
           }, require('./fixtures/migrations/blog/' +
             '20141022202234_create_articles')),
         ]);
@@ -169,11 +169,11 @@ describe('Migration', __query(function() {
     beforeEach(function() {
       var mod1 = this.mod1 = {
         up: sinon.spy(), down: sinon.spy(),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       var mod2 = this.mod2 = {
         up: sinon.spy(), down: sinon.spy(),
-        name: 'migration_file_2', batch: 1
+        name: 'migration_file_2', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod1, mod2]));
@@ -271,7 +271,7 @@ describe('Migration', __query(function() {
             'BEGIN');
           expect(adapter.attemptedSQL).to.eql([
             ['BEGIN', []],
-            ['ROLLBACK', []]
+            ['ROLLBACK', []],
           ]);
         });
       });
@@ -316,11 +316,11 @@ describe('Migration', __query(function() {
     beforeEach(function() {
       var mod1 = this.mod1 = {
         up: sinon.spy(), down: sinon.spy(),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       var mod2 = this.mod2 = {
         up: sinon.spy(), down: sinon.spy(),
-        name: 'migration_file_2', batch: 1
+        name: 'migration_file_2', batch: 1,
       };
       var mods = this.mods = [mod2, mod1];
       sinon.stub(migration, '_loadExecutedMigrations')
@@ -427,7 +427,7 @@ describe('Migration', __query(function() {
             'BEGIN');
           expect(adapter.attemptedSQL).to.eql([
             ['BEGIN', []],
-            ['ROLLBACK', []]
+            ['ROLLBACK', []],
           ]);
         });
       });
@@ -451,13 +451,13 @@ describe('Migration', __query(function() {
           schema.createTable('example1', cols);
           schema.createTable('example2', cols);
         }),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       var mod2 = this.mod2 = {
         change: sinon.spy(function(schema) {
           schema.createTable('example3', cols);
         }),
-        name: 'migration_file_2', batch: 1
+        name: 'migration_file_2', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod1, mod2]));
@@ -478,7 +478,7 @@ describe('Migration', __query(function() {
               '"name" varchar(255))',
             'INSERT INTO "azul_migrations" ("name", "batch") ' +
              'VALUES (?, ?), (?, ?)', [
-               'migration_file_1', 1, 'migration_file_2', 1],
+               'migration_file_1', 1, 'migration_file_2', 1,],
             'COMMIT');
         });
     });
@@ -509,13 +509,13 @@ describe('Migration', __query(function() {
           schema.createTable('example1', cols);
           schema.createTable('example2', cols);
         }),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       var mod2 = this.mod2 = {
         change: sinon.spy(function(schema) {
           schema.createTable('example3', cols);
         }),
-        name: 'migration_file_2', batch: 1
+        name: 'migration_file_2', batch: 1,
       };
       sinon.stub(migration, '_loadExecutedMigrations')
         .returns(Promise.resolve([mod2, mod1]));
@@ -553,7 +553,7 @@ describe('Migration', __query(function() {
           schema.createTable('example2', cols);
         }),
         down: sinon.spy(function(/*schema*/) {}),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       var mod2 = this.mod2 = {
         up: sinon.spy(function(schema) {
@@ -564,7 +564,7 @@ describe('Migration', __query(function() {
           return schema.createTable('example3', cols);
         }),
         down: sinon.spy(function(/*schema*/) {}),
-        name: 'migration_file_2', batch: 1
+        name: 'migration_file_2', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod1, mod2]));
@@ -583,7 +583,7 @@ describe('Migration', __query(function() {
             'CREATE TABLE "example3" ("id" integer PRIMARY KEY)',
             'INSERT INTO "azul_migrations" ("name", "batch") ' +
              'VALUES (?, ?), (?, ?)', [
-               'migration_file_1', 1, 'migration_file_2', 1],
+               'migration_file_1', 1, 'migration_file_2', 1,],
             'COMMIT');
         });
     });
@@ -596,7 +596,7 @@ describe('Migration', __query(function() {
           query.update('users', { id: 5 }).execute();
         }),
         down: sinon.spy(function(/*schema*/) {}),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod]));
@@ -623,7 +623,7 @@ describe('Migration', __query(function() {
           q.set({ id: 6 });
         }),
         down: sinon.spy(function(/*schema*/) {}),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod]));
@@ -651,7 +651,7 @@ describe('Migration', __query(function() {
           return Promise.resolve();
         }),
         down: sinon.spy(function(/*schema*/) {}),
-        name: 'migration_file_1', batch: 1
+        name: 'migration_file_1', batch: 1,
       };
       sinon.stub(migration, '_loadPendingMigrations')
         .returns(Promise.resolve([mod]));

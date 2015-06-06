@@ -17,8 +17,8 @@ var db, connection = {
   connection: {
     user: process.env.MYSQL_USER || 'root',
     password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'azul_test'
-  }
+    database: process.env.MYSQL_DATABASE || 'azul_test',
+  },
 };
 
 var resetSequence = function(table) {

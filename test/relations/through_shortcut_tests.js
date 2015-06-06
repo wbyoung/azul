@@ -25,13 +25,13 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       users: hasMany(),
       blogs: hasMany({ through: 'users' }),
       articles: hasMany({ through: 'blogs' }),
-      comments: hasMany({ through: 'articles' })
+      comments: hasMany({ through: 'articles' }),
     });
     User = db.model('user').reopen({
       username: attr(),
       blogs: hasMany({ inverse: 'owner' }),
       articles: hasMany({ through: 'blogs' }),
-      comments: hasMany({ through: 'articles' })
+      comments: hasMany({ through: 'articles' }),
     });
     Blog = db.model('blog').reopen({
       title: attr(),
@@ -41,7 +41,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
     Article = db.model('article').reopen({
       title: attr(),
       comments: hasMany(),
-      blog: db.belongsTo()
+      blog: db.belongsTo(),
     });
     Comment = db.model('comment').reopen({
       body: attr(),
@@ -171,10 +171,10 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       });
       db.model('post').reopen({
         comments: db.hasMany(),
-        commenters: db.hasMany({ through: 'comments' })
+        commenters: db.hasMany({ through: 'comments' }),
       });
       db.model('comment').reopen({
-        commenter: db.belongsTo()
+        commenter: db.belongsTo(),
       });
       db.model('commenter');
       var site = Site.fresh({ id: 1 });
@@ -217,11 +217,11 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       db.model('post').reopen({
         author: db.belongsTo(),
         comments: db.hasMany(),
-        commenters: db.hasMany({ through: 'comments' })
+        commenters: db.hasMany({ through: 'comments' }),
       });
       db.model('comment').reopen({
         post: db.belongsTo(),
-        commenter: db.belongsTo()
+        commenter: db.belongsTo(),
       });
       db.model('commenter').reopen({
         comments: db.hasMany(),
@@ -301,11 +301,11 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       db.model('post').reopen({
         author: db.belongsTo(),
         comments: db.hasMany(),
-        commenters: db.hasMany({ through: 'comments' })
+        commenters: db.hasMany({ through: 'comments' }),
       });
       db.model('comment').reopen({
         post: db.belongsTo(),
-        commenter: db.belongsTo()
+        commenter: db.belongsTo(),
       });
       db.model('commenter').reopen({
         comments: db.hasMany(),
@@ -326,13 +326,13 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       ]);
       adapter.respond(/select.*from "comments"/i, [
         { id: 11, body: 'Comment #1 on first post by Tom',
-          'post_id': 14, 'commenter_id': 1 },
+          'post_id': 14, 'commenter_id': 1, },
         { id: 83, body: 'Comment #2 on first post by Tom',
-          'post_id': 14, 'commenter_id': 2 },
+          'post_id': 14, 'commenter_id': 2, },
         { id: 64, body: 'Comment #1 on first post by Jessie',
-          'post_id': 52, 'commenter_id': 2 },
+          'post_id': 52, 'commenter_id': 2, },
         { id: 98, body: 'Comment #1 on 3rd post by Jessie',
-          'post_id': 10, 'commenter_id': 3 },
+          'post_id': 10, 'commenter_id': 3, },
       ]);
       adapter.respond(/select.*from "commenters"/i, [
         { id: 1, name: 'John' },

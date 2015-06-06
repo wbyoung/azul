@@ -44,7 +44,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function(articles) {
         expect(_.sortBy(articles, 'id')).to.eql([
           { id: 1, title: 'Title 1', body: 'Contents 1'},
-          { id: 2, title: 'Title 2', body: 'Contents 2'}
+          { id: 2, title: 'Title 2', body: 'Contents 2'},
         ]);
       })
       .then(function() {
@@ -54,7 +54,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function(articles) {
         expect(_.sortBy(articles, 'id')).to.eql([
           { id: 1, title: 'Updated', body: 'Contents 1'},
-          { id: 2, title: 'Title 2', body: 'Contents 2'}
+          { id: 2, title: 'Title 2', body: 'Contents 2'},
         ]);
       })
       .then(function() { return db.delete('articles'); })
@@ -69,7 +69,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       var Article = db.model('article').reopen({
         title: db.attr(),
         body: db.attr(),
-        comments: db.hasMany()
+        comments: db.hasMany(),
       });
 
       var Comment = db.model('comment').reopen({
@@ -77,7 +77,7 @@ shared.shouldRunMigrationsAndQueries = function(it) {
         identifier: db.attr('identifier'),
         email: db.attr(),
         body: db.attr(),
-        article: db.belongsTo()
+        article: db.belongsTo(),
       });
 
       return Promise.bind({})
@@ -91,25 +91,25 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       })
       .then(function() {
         this.comment1 = this.article1.createComment({
-          email: 'info@azuljs.com', body: 'Sweet initial release.'
+          email: 'info@azuljs.com', body: 'Sweet initial release.',
         });
         return this.comment1.save();
       })
       .then(function() {
         this.comment2 = this.article1.createComment({
-          email: 'person@azuljs.com', body: 'Great initial release!'
+          email: 'person@azuljs.com', body: 'Great initial release!',
         });
         return this.comment2.save();
       })
       .then(function() {
         this.comment3 = this.article2.createComment({
-          email: 'another@azuljs.com', body: 'Good update.'
+          email: 'another@azuljs.com', body: 'Good update.',
         });
         return this.comment3.save();
       })
       .then(function() {
         this.comment4 = this.article2.createComment({
-          email: 'spam@azuljs.com', body: 'Rolex watches.'
+          email: 'spam@azuljs.com', body: 'Rolex watches.',
         });
         return this.comment4.save();
       })
@@ -155,9 +155,9 @@ shared.shouldRunMigrationsAndQueries = function(it) {
       .then(function(comments) {
         expect(_.map(comments, 'attrs')).to.eql([
           { identifier: 1, 'article_id': 1,
-            email: 'info@azuljs.com', body: 'Sweet initial release.' },
+            email: 'info@azuljs.com', body: 'Sweet initial release.', },
           { identifier: 2, 'article_id': 1,
-            email: 'person@azuljs.com', body: 'Great initial release!' }
+            email: 'person@azuljs.com', body: 'Great initial release!', },
         ]);
       });
 

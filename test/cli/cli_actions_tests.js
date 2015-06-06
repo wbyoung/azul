@@ -22,7 +22,7 @@ describe('CLI', __adapter(function() {
       development: config,
       production: config,
       staging: config,
-      test: config
+      test: config,
     };
   });
 
@@ -157,7 +157,7 @@ describe('CLI', __adapter(function() {
           errno: 47,
           code: 'EEXIST',
           path: 'migrations',
-          syscall: 'mkdir'
+          syscall: 'mkdir',
         }));
       });
 
@@ -184,7 +184,7 @@ describe('CLI', __adapter(function() {
           errno: 47,
           code: 'EACCES',
           path: 'migrations',
-          syscall: 'mkdir'
+          syscall: 'mkdir',
         }));
       });
 
@@ -229,7 +229,7 @@ describe('CLI', __adapter(function() {
       beforeEach(function() {
         adapter.respondToMigrations([
           '20141022202234_create_articles',
-          '20141022202634_create_comments'
+          '20141022202634_create_comments',
         ]);
       });
 
@@ -252,7 +252,7 @@ describe('CLI', __adapter(function() {
       beforeEach(function() {
         adapter.respondToMigrations([
           '20141022202234_create_articles',
-          '20141022202634_create_comments'
+          '20141022202634_create_comments',
         ]);
       });
 

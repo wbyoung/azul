@@ -58,20 +58,20 @@ describe('BaseRelation', __db(function() {
     var Relation = BaseRelation.extend({
       method: method,
       get: getter,
-      set: setter
+      set: setter,
     });
     Relation.reopenClass({
       methods: {
         '<singular>Method': BaseRelation.method('method'),
         '<singular>Property': BaseRelation.property('get', 'set'),
-      }
+      },
     });
 
     // this is a strategy that azul-transaction uses, so we need to support it
     var Base = db.Model.extend({ custom: Relation.attr()() });
     var relation = Object.create(Base.__class__.prototype.customRelation);
     var Override = Base.extend({
-      customRelation: property(function() { return relation; })
+      customRelation: property(function() { return relation; }),
     });
 
     var base = Base.create();

@@ -16,13 +16,13 @@ describe('Model', __db(function() {
     attr = db.Model.attr;
 
     Article = db.Model.extend({
-      title: attr()
+      title: attr(),
     });
     Article.reopenClass({ __name__: 'Article' });
 
     User = db.Model.extend({
       username: attr(),
-      email: attr('email_addr')
+      email: attr('email_addr'),
     });
     User.reopenClass({ __name__: 'User' });
 
@@ -297,11 +297,11 @@ describe('Model', __db(function() {
       var PublishedManager = Manager.extend({
         query: function() {
           return this._super().where({ published: true });
-        }
+        },
       });
       Article.reopen({ published: attr() });
       Article.reopenClass({
-        published: PublishedManager.create()
+        published: PublishedManager.create(),
       });
     });
 
@@ -318,12 +318,12 @@ describe('Model', __db(function() {
       var PublishedManager = Manager.extend({
         query: function() {
           return this._super().where({ published: true });
-        }
+        },
       });
       Article.reopen({ published: attr() });
       Article.reopenClass({
         objects: PublishedManager.create(),
-        allObjects: Manager.create()
+        allObjects: Manager.create(),
       });
     });
 
@@ -368,7 +368,7 @@ describe('Model', __db(function() {
 
     it('allows override of attribute initializers', function() {
       User.reopen({
-        usernameInit: function() { this.username = 'anonymous'; }
+        usernameInit: function() { this.username = 'anonymous'; },
       });
       var user = User.create();
       user.attrs.username.should.equal('anonymous');
