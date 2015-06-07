@@ -2,7 +2,8 @@
 
 require('./helpers');
 
-var Database = require('../lib/database');
+var lib = require('..');
+var Database = require('..').Database;
 
 describe('Database', function() {
   it('fails with an invalid adapter', function() {
@@ -17,6 +18,10 @@ describe('Database', function() {
     expect(function() {
       Database.create(config);
     }).to.throw(/no adapter.*invalid_adapter/i);
+  });
+
+  it('can be created via main export', function() {
+    lib({ adapter: 'pg' }).should.be.an.instanceof(Database.__class__);
   });
 
   it('fails with an object that is not an adapter', function() {
