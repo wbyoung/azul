@@ -267,12 +267,8 @@ describe('Migration', __query(function() {
         .catch(function(e) {
           expect(e.message)
             .to.match(/intentional error.*rollback.*fakefail.*rollback/i);
-          adapter.should.have.executed(
-            'BEGIN');
-          expect(adapter.attemptedSQL).to.eql([
-            ['BEGIN', []],
-            ['ROLLBACK', []],
-          ]);
+          adapter.should.have.executed('BEGIN');
+          adapter.should.have.attempted('BEGIN', 'ROLLBACK');
         });
       });
 
@@ -423,12 +419,8 @@ describe('Migration', __query(function() {
         .catch(function(e) {
           expect(e.message)
             .to.match(/intentional error.*rollback.*fakefail.*rollback/i);
-          adapter.should.have.executed(
-            'BEGIN');
-          expect(adapter.attemptedSQL).to.eql([
-            ['BEGIN', []],
-            ['ROLLBACK', []],
-          ]);
+          adapter.should.have.executed('BEGIN');
+          adapter.should.have.attempted('BEGIN', 'ROLLBACK');
         });
       });
 
