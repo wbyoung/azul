@@ -1,5 +1,12 @@
 {
   "preset": "airbnb",
+  "excludeFiles": [
+    "test/**",
+    "node_modules/**",
+    "coverage/**",
+    "out/**",
+    "docs/build/**"
+  ],
   "disallowEmptyBlocks": null,
   "disallowFunctionDeclarations": true,
   "disallowKeywordsOnNewLine": null,
