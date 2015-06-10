@@ -79,6 +79,46 @@ describe('Model.hasMany :through', __db(function() {
     it('calculates the correct inverse', function() {
       expect(student.coursesRelation.inverse).to.eql('students');
     });
+
+    it('calculates the correct primary keys', function() {
+      var studentPrototype = Student.__class__.prototype;
+      var coursePrototype = Course.__class__.prototype;
+      var enrollmentPrototype = Enrollment.__class__.prototype;
+      expect(studentPrototype.coursesRelation.primaryKey).to.eql('pk');
+      expect(coursePrototype.studentsRelation.primaryKey).to.eql('pk');
+      expect(enrollmentPrototype.courseRelation.primaryKey).to.eql('pk');
+      expect(enrollmentPrototype.studentRelation.primaryKey).to.eql('pk');
+    });
+
+    it('calculates the correct primary keys attrs', function() {
+      var studentPrototype = Student.__class__.prototype;
+      var coursePrototype = Course.__class__.prototype;
+      var enrollmentPrototype = Enrollment.__class__.prototype;
+      expect(studentPrototype.coursesRelation.primaryKeyAttr).to.eql('id');
+      expect(coursePrototype.studentsRelation.primaryKeyAttr).to.eql('id');
+      expect(enrollmentPrototype.courseRelation.primaryKeyAttr).to.eql('id');
+      expect(enrollmentPrototype.studentRelation.primaryKeyAttr).to.eql('id');
+    });
+
+    it('has no foreign key foreign keys', function() {
+      var studentPrototype = Student.__class__.prototype;
+      var coursePrototype = Course.__class__.prototype;
+      var enrollmentPrototype = Enrollment.__class__.prototype;
+      expect(studentPrototype.coursesRelation.foreignKey).to.eql(undefined);
+      expect(coursePrototype.studentsRelation.foreignKey).to.eql(undefined);
+      expect(enrollmentPrototype.courseRelation.foreignKey).to.eql('courseId');
+      expect(enrollmentPrototype.studentRelation.foreignKey).to.eql('studentId');
+    });
+
+    it('has no foreign key attrs', function() {
+      var studentPrototype = Student.__class__.prototype;
+      var coursePrototype = Course.__class__.prototype;
+      var enrollmentPrototype = Enrollment.__class__.prototype;
+      expect(studentPrototype.coursesRelation.foreignKeyAttr).to.eql(undefined);
+      expect(coursePrototype.studentsRelation.foreignKeyAttr).to.eql(undefined);
+      expect(enrollmentPrototype.courseRelation.foreignKeyAttr).to.eql('course_id');
+      expect(enrollmentPrototype.studentRelation.foreignKeyAttr).to.eql('student_id');
+    });
   });
 
   describe('relation', function() {
