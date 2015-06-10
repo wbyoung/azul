@@ -62,7 +62,7 @@ describe('BaseRelation', __db(function() {
     });
     Relation.reopenClass({
       methods: {
-        '<singular>Method': BaseRelation.method('method'),
+        '<singular>Method': BaseRelation.helper('method'),
         '<singular>Property': BaseRelation.property('get', 'set'),
       },
     });

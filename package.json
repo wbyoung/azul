@@ -37,6 +37,7 @@
   "author": "Whitney Young",
   "license": "MIT",
   "devDependencies": {
+    "azul-chai": "^0.1.0",
     "chai": "^2.2.0",
     "chai-as-promised": "^5.0.0",
     "chai-properties": "^1.2.0",
@@ -46,6 +47,7 @@
     "jscs": "^1.13.1",
     "jscs-jsdoc": "git://github.com/jscs-dev/jscs-jsdoc.git",
     "jshint": "^2.8.0",
+    "maguey-chai": "^0.3.4",
     "metalsmith": "^1.0.1",
     "metalsmith-markdown": "^0.2.1",
     "metalsmith-metallic": "^0.3.1",
@@ -74,7 +76,6 @@
     "liftoff": "^2.0.0",
     "lodash": "^3.0.0",
     "maguey": "^0.0.2",
-    "maguey-chai": "^0.3.0",
     "minimist": "^1.1.0",
     "tildify": "^1.0.0",
     "underscore.string": "^3.0.0",

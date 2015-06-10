@@ -22,6 +22,7 @@ chaiAsPromised.transferPromiseness = function (assertion, promise) {
 
 chai.use(require('sinon-chai'));
 chai.use(require('maguey-chai'));
+chai.use(require('azul-chai'));
 chai.use(require('chai-properties'));
 chai.use(require('chai-as-promised'));
 
