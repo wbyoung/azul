@@ -452,10 +452,11 @@ var Article = db.model('article', {
 
 #### `#createAssociation([attrs])`
 
-Create a new object of the relationship type.
+Create a new object of the relationship type and sets it as the related value.
 
 ```js
 var blog = article.createBlog({ title: 'Blog' });
+article.blog === blog; // => true
 ```
 
 #### `#fetchAssociation()`
@@ -582,7 +583,8 @@ Blog.objects.find(1).then(function(blog) {
 #### `#createAssociation([attrs])`
 
 Create a new object of the relationship type. This will also set the foreign
-key on the created object.
+key on the created object and add it to the related items if they have been
+loaded.
 
 ```js
 var article = blog.createArticle({ title: 'Azul' });

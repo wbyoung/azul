@@ -80,7 +80,6 @@ describe('Model.hasMany', __db(function() {
     expect(User.__class__.prototype).to.have.ownProperty('articles');
     expect(user).to.have.property('articleObjects');
     expect(user).to.respondTo('createArticle');
-    expect(user).to.respondTo('createArticle');
     expect(user).to.respondTo('addArticle');
     expect(user).to.respondTo('addArticles');
     expect(user).to.respondTo('removeArticle');
@@ -141,6 +140,11 @@ describe('Model.hasMany', __db(function() {
           fetchedUser.articles;
         }).to.throw(/articles.*not yet.*loaded/i);
       });
+    });
+
+    it('creates an empty collection cache on model create', function() {
+      var user = User.create();
+      expect(function() { user.articles; }).not.to.throw();
     });
 
     it('allows access loaded collection when the result set is empty', function() {
@@ -264,6 +268,15 @@ describe('Model.hasMany', __db(function() {
           'RETURNING "id"', ['Hello', 1]);
         expect(article).to.have.property('dirty', false);
       });
+    });
+
+    it('allows add via create helper', function() {
+      var article = user.createArticle({ title: 'Hello' });
+      return user.save().should.eventually.exist
+      .meanwhile(article).should.have.property('dirty', false)
+      .meanwhile(adapter).should.have.executed(
+        'INSERT INTO "articles" ("title", "author_num") VALUES (?, ?) ' +
+        'RETURNING "id"', ['Hello', 1]);
     });
 
     it('updates collection cache during add', function() {

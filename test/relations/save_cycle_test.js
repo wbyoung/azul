@@ -127,6 +127,7 @@ describe('Model.save with circular many-to-many', __db(function() {
     jill = Person.create({ name: 'Jill' });
     jack.addFollower(jill);
     jill.addFollower(jack);
+    jack.createFollower({ name: 'Dob' });
   });
 
   it('saves everything', function() {
@@ -138,11 +139,14 @@ describe('Model.save with circular many-to-many', __db(function() {
       'INSERT INTO "individuals" ("name") ' +
       'VALUES (?) RETURNING "id"', ['Jack'],
 
+      'INSERT INTO "individuals" ("name") ' +
+      'VALUES (?) RETURNING "id"', ['Dob'],
+
       'INSERT INTO "relationships" ("followed_id", "follower_id") ' +
       'VALUES (?, ?)', [102, 103],
 
       'INSERT INTO "relationships" ("followed_id", "follower_id") ' +
-      'VALUES (?, ?)', [103, 102])
+      'VALUES (?, ?), (?, ?)', [103, 102, 103, 104])
     .meanwhile(jill).should.be.a.model('individual')
     .with.json({ id: 102, name: 'Jill' })
     .meanwhile(jack).should.be.a.model('individual')

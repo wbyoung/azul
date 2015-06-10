@@ -187,6 +187,7 @@ describe('Model.belongsTo', __db(function() {
       var user = article.createAuthor({ username: 'jill' });
       expect(article.author).to.equal(user);
       expect(user).to.to.be.an.instanceOf(User.__class__);
+      expect(article).to.have.property('author').that.equals(user);
     });
 
     it('allows store with existing object', function() {
