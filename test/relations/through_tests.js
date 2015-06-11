@@ -60,7 +60,7 @@ describe('Model.hasMany :through', __db(function() {
   });
 
   beforeEach(function() {
-    student = Student.fresh({ id: 1, name: 'Whitney' });
+    student = Student.$({ id: 1, name: 'Whitney' });
   });
 
   it('has related methods', function() {
@@ -154,7 +154,7 @@ describe('Model.hasMany :through', __db(function() {
         course: belongsTo(),
       });
 
-      student = Student.fresh({ id: 1, name: 'Whitney' });
+      student = Student.$({ id: 1, name: 'Whitney' });
       return student.courseObjects.fetch().then(function(courses) {
         adapter.should.have.executed(
           'SELECT "courses".* FROM "courses" ' +
@@ -177,7 +177,7 @@ describe('Model.hasMany :through', __db(function() {
         students: db.hasMany({ through: 'enrollments' }),
       });
       Enrollment = db.model('enrollment');
-      student = Student.fresh({ id: 6 });
+      student = Student.$({ id: 6 });
 
       expect(function() {
         student.courseObjects.fetch();
@@ -189,7 +189,7 @@ describe('Model.hasMany :through', __db(function() {
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments', join: false }),
       });
-      student = Student.fresh({ id: 6 });
+      student = Student.$({ id: 6 });
       expect(function() {
         student.courseObjects.fetch();
       }).to.throw(/through.*enrollments.*student#courses.*has-many/i);
@@ -212,8 +212,8 @@ describe('Model.hasMany :through', __db(function() {
         course: db.belongsTo(),
       });
 
-      student = Student.fresh({ id: 6 });
-      course = Course.fresh({ id: 2 });
+      student = Student.$({ id: 6 });
+      course = Course.$({ id: 2 });
 
       return Promise.bind()
       .then(function() {
@@ -374,7 +374,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows add with existing objects', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       return student.addCourse(course).then(function() {
         adapter.should.have.executed(
           'INSERT INTO "enrollments" ("student_id", "course_id") ' +
@@ -384,7 +384,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('does not try to repeat addition updates', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       student.addCourse(course);
       return student.save().then(function() {
         return student.save();
@@ -403,8 +403,8 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows add with multiple existing objects', function() {
-      var course1 = Course.fresh({ id: 5, subject: 'CS 101' });
-      var course2 = Course.fresh({ id: 8, subject: 'CS 101' });
+      var course1 = Course.$({ id: 5, subject: 'CS 101' });
+      var course2 = Course.$({ id: 8, subject: 'CS 101' });
       return student.addCourses(course1, course2).then(function() {
         adapter.should.have.executed(
           'INSERT INTO "enrollments" ("student_id", "course_id") ' +
@@ -415,7 +415,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows add with unsaved objects', function() {
-      var course = Course.fresh({ id: 12, subject: 'CS 101' });
+      var course = Course.$({ id: 12, subject: 'CS 101' });
       course.subject = 'Renamed';
       return student.addCourse(course).then(function() {
         adapter.should.have.executed(
@@ -455,7 +455,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('updates collection cache during add', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       return student.courseObjects.fetch().then(function() {
         return student.addCourse(course);
       })
@@ -465,7 +465,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('clears query cache during add', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       var courseObjects = student.courseObjects;
       var chachedValues = [courseObjects];
 
@@ -482,7 +482,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('does not create an instance of the join model during add', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       return student.addCourse(course).then(function() {
         expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
         expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
@@ -490,7 +490,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows remove with existing objects', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101', studentKey: student.id });
+      var course = Course.$({ id: 5, subject: 'CS 101', studentKey: student.id });
       return student.removeCourse(course).then(function() {
         adapter.should.have.executed(
           'DELETE FROM "enrollments" ' +
@@ -500,7 +500,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('does not try to repeat removal updates', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101' });
+      var course = Course.$({ id: 5, subject: 'CS 101' });
       student.removeCourse(course);
       return student.save().then(function() {
         return student.save();
@@ -519,8 +519,8 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows remove with multiple existing objects', function() {
-      var course1 = Course.fresh({ id: 5, subject: 'CS 101' });
-      var course2 = Course.fresh({ id: 8, subject: 'CS 101' });
+      var course1 = Course.$({ id: 5, subject: 'CS 101' });
+      var course2 = Course.$({ id: 8, subject: 'CS 101' });
       return student.removeCourses(course1, course2).then(function() {
         adapter.should.have.executed(
           'DELETE FROM "enrollments" ' +
@@ -531,7 +531,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('allows remove with unsaved objects', function() {
-      var course = Course.fresh({ id: 12, subject: 'CS 101' });
+      var course = Course.$({ id: 12, subject: 'CS 101' });
       course.subject = 'Renamed';
       return student.removeCourse(course).then(function() {
         adapter.should.have.executed(
@@ -579,7 +579,7 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('does not create an instance of the join model during remove', function() {
-      var course = Course.fresh({ id: 5, subject: 'CS 101', studentKey: student.id });
+      var course = Course.$({ id: 5, subject: 'CS 101', studentKey: student.id });
       return student.removeCourse(course).then(function() {
         expect(Enrollment.__metaclass__.prototype.create).to.not.have.been.called;
         expect(Enrollment.__metaclass__.prototype.new).to.not.have.been.called;
@@ -632,13 +632,13 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('processes a complex sequence using add, remove, and clear', function() {
-      var course1 = Course.fresh({ id: 1, subject: '#1' });
-      var course2 = Course.fresh({ id: 2, subject: '#2' });
-      var course3 = Course.fresh({ id: 3, subject: '#3' });
-      var course4 = Course.fresh({ id: 4, subject: '#4' });
-      var course5 = Course.fresh({ id: 5, subject: '#5' });
-      var course6 = Course.fresh({ id: 6, subject: '#6' });
-      var course7 = Course.fresh({ id: 7, subject: '#7' });
+      var course1 = Course.$({ id: 1, subject: '#1' });
+      var course2 = Course.$({ id: 2, subject: '#2' });
+      var course3 = Course.$({ id: 3, subject: '#3' });
+      var course4 = Course.$({ id: 4, subject: '#4' });
+      var course5 = Course.$({ id: 5, subject: '#5' });
+      var course6 = Course.$({ id: 6, subject: '#6' });
+      var course7 = Course.$({ id: 7, subject: '#7' });
 
       student.addCourses(course1, course2, course3, course7);
       student.removeCourse(course1);

@@ -58,7 +58,7 @@ describe('Model self-joins', __db(function() {
     it('allows use of relation objects in complex query', function() {
       // anyone who reports to a 'jane' and where their manager is also just
       // under the ceo (but not those named 'jane' who don't report to the ceo)
-      var ceo = Employee.fresh({ id: 1 });
+      var ceo = Employee.$({ id: 1 });
       Employee.reopen({ name: db.attr() });
       return Employee.objects
       .where({ 'manager.name': 'jane' })
@@ -76,7 +76,7 @@ describe('Model self-joins', __db(function() {
     });
 
     it('allows use of relation objects in complex query (reverse setup)', function() {
-      var ceo = Employee.fresh({ id: 1 });
+      var ceo = Employee.$({ id: 1 });
       Employee.reopen({ name: db.attr() });
       return Employee.objects
       .where({ 'manager.manager': ceo })

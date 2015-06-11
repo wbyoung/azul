@@ -28,8 +28,8 @@ describe('Model one-to-many', __db(function() {
   });
 
   beforeEach(function() {
-    this.author = User.fresh({ id: 395, username: 'miles' });
-    this.article = Article.fresh({ id: 828, title: 'Dog Psychology' });
+    this.author = User.$({ id: 395, username: 'miles' });
+    this.article = Article.$({ id: 828, title: 'Dog Psychology' });
   });
 
   beforeEach(function() {

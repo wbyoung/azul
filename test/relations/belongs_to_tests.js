@@ -32,7 +32,7 @@ describe('Model.belongsTo', __db(function() {
   });
 
   beforeEach(function() {
-    article = Article.fresh({ id: 932, title: 'Azul News', authorKey: 623 });
+    article = Article.$({ id: 932, title: 'Azul News', authorKey: 623 });
   });
 
   beforeEach(function() {
@@ -120,7 +120,7 @@ describe('Model.belongsTo', __db(function() {
     });
 
     it('does not fetch when the foreign key is not defined', function() {
-      var unauthoredArticle = Article.fresh({ id: 932, title: 'Azul News' });
+      var unauthoredArticle = Article.$({ id: 932, title: 'Azul News' });
       return unauthoredArticle.fetchAuthor().then(function(user) {
         expect(user).to.not.exist;
         expect(unauthoredArticle.author).to.not.exist;
@@ -191,7 +191,7 @@ describe('Model.belongsTo', __db(function() {
     });
 
     it('allows store with existing object', function() {
-      article.author = User.fresh({ id: 3, username: 'jack' });
+      article.author = User.$({ id: 3, username: 'jack' });
       return article.save().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
         'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
@@ -332,7 +332,7 @@ describe('Model.belongsTo', __db(function() {
     });
 
     it('handles relation objects during automatic joining', function() {
-      var user = User.fresh({ id: 623, username: 'alex' });
+      var user = User.$({ id: 623, username: 'alex' });
       return Article.objects.where({ 'author': user, })
       .fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -400,7 +400,7 @@ describe('Model.belongsTo', __db(function() {
     });
 
     it('joins across multiple relationships (using object)', function() {
-      var user = User.fresh({ id: 623, username: 'alex' });
+      var user = User.$({ id: 623, username: 'alex' });
       return Comment.objects.where({ 'article.author': user, })
       .fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -438,7 +438,7 @@ describe('Model.belongsTo', __db(function() {
         expect(foundArticle.id).to.eql(448);
         expect(foundArticle.authorId).to.eql(623);
         expect(foundArticle.author).to.eql(
-          User.fresh({ id: 623, username: 'wbyoung' })
+          User.$({ id: 623, username: 'wbyoung' })
         );
       });
     });
@@ -489,8 +489,8 @@ describe('Model.belongsTo', __db(function() {
           'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System',
         ]);
         expect(_.map(articles, 'author')).to.eql([
-          User.fresh({ id: 874, username: 'wbyoung' }), null,
-          User.fresh({ id: 4, username: 'kate' }),
+          User.$({ id: 874, username: 'wbyoung' }), null,
+          User.$({ id: 4, username: 'kate' }),
         ]);
       });
     });
@@ -515,7 +515,7 @@ describe('Model.belongsTo', __db(function() {
       return Article.objects.where({ id: 1 }).with('author').fetchOne()
       .then(function(fetchedArticle) {
         expect(fetchedArticle.author).to.eql(
-          User.fresh({ id: 623, username: 'wbyoung' })
+          User.$({ id: 623, username: 'wbyoung' })
         );
       });
     });
@@ -523,7 +523,7 @@ describe('Model.belongsTo', __db(function() {
     it('works via `find`', function() {
       return Article.objects.with('author').find(1).then(function(fetchedArticle) {
         expect(fetchedArticle.author).to.eql(
-          User.fresh({ id: 623, username: 'wbyoung' })
+          User.$({ id: 623, username: 'wbyoung' })
         );
       });
     });
@@ -543,10 +543,10 @@ describe('Model.belongsTo', __db(function() {
           'SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82],
           'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
         expect(foundArticle.author).to.eql(
-          User.fresh({ id: 623, username: 'wbyoung' })
+          User.$({ id: 623, username: 'wbyoung' })
         );
         expect(foundArticle.blog).to.eql(
-          Blog.fresh({ id: 82, name: 'Azul News' })
+          Blog.$({ id: 82, name: 'Azul News' })
         );
       });
     });
@@ -559,7 +559,7 @@ describe('Model.belongsTo', __db(function() {
           'SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [448],
           'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
         expect(foundComment.article.author).to.eql(
-          User.fresh({ id: 623, username: 'wbyoung' })
+          User.$({ id: 623, username: 'wbyoung' })
         );
       });
     });
@@ -567,14 +567,14 @@ describe('Model.belongsTo', __db(function() {
 
   describe('internal methods', function() {
     it('handles disassociate', function() {
-      var user = User.fresh({ id: 4, username: 'jack' });
+      var user = User.$({ id: 4, username: 'jack' });
       article.authorKey = 5;
       article.authorRelation.disassociate(article, user);
       expect(article.authorKey).to.eql(undefined);
     });
 
     it('handles disassociate ignoring attrs', function() {
-      var user = User.fresh({ id: 4, username: 'jack' });
+      var user = User.$({ id: 4, username: 'jack' });
       article.authorKey = 5;
       article.authorRelation.disassociate(article, user, { attrs: false });
       expect(article.authorKey).to.eql(5);

@@ -28,7 +28,7 @@ describe('Model.hasMany', __db(function() {
   });
 
   beforeEach(function() {
-    user = User.fresh({ id: 1 });
+    user = User.$({ id: 1 });
     articleObjects = user.articleObjects;
   });
 
@@ -92,7 +92,7 @@ describe('Model.hasMany', __db(function() {
     it('fetches related objects', function() {
       return articleObjects.fetch().then(function(articles) {
         expect(articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
+          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
         adapter.should.have.executed(
           'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
@@ -129,7 +129,7 @@ describe('Model.hasMany', __db(function() {
     it('allows access loaded collection', function() {
       return articleObjects.fetch().then(function() {
         expect(user.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
+          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -209,7 +209,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows add with existing objects', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var article = Article.$({ id: 5, title: 'Hello' });
       return user.addArticle(article).then(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
@@ -219,7 +219,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('does not try to repeat addition updates', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var article = Article.$({ id: 5, title: 'Hello' });
       user.addArticle(article);
       return user.save().then(function() {
         return user.save();
@@ -238,8 +238,8 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows add with multiple existing objects', function() {
-      var article1 = Article.fresh({ id: 5, title: 'Hello' });
-      var article2 = Article.fresh({ id: 8, title: 'Hello' });
+      var article1 = Article.$({ id: 5, title: 'Hello' });
+      var article2 = Article.$({ id: 8, title: 'Hello' });
       return user.addArticles(article1, article2).then(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
@@ -250,7 +250,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows add with unsaved objects', function() {
-      var article = Article.fresh({ id: 12, title: 'Hello' });
+      var article = Article.$({ id: 12, title: 'Hello' });
       article.title = 'Renamed';
       return user.addArticle(article).then(function() {
         adapter.should.have.executed(
@@ -280,7 +280,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('updates collection cache during add', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var article = Article.$({ id: 5, title: 'Hello' });
       return user.articleObjects.fetch().then(function() {
         return user.addArticle(article);
       })
@@ -290,7 +290,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('clears query cache during add', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var article = Article.$({ id: 5, title: 'Hello' });
       var articleObjects = user.articleObjects;
       var chachedValues = [articleObjects];
 
@@ -307,7 +307,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows remove with existing objects', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: user.id });
+      var article = Article.$({ id: 5, title: 'Hello', authorKey: user.id });
       return user.removeArticle(article).then(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
@@ -317,7 +317,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('does not try to repeat removal updates', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello' });
+      var article = Article.$({ id: 5, title: 'Hello' });
       user.removeArticle(article);
       return user.save().then(function() {
         return user.save();
@@ -336,8 +336,8 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows remove with multiple existing objects', function() {
-      var article1 = Article.fresh({ id: 5, title: 'Hello' });
-      var article2 = Article.fresh({ id: 8, title: 'Hello' });
+      var article1 = Article.$({ id: 5, title: 'Hello' });
+      var article2 = Article.$({ id: 8, title: 'Hello' });
       return user.removeArticles(article1, article2).then(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
@@ -348,7 +348,7 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows remove with unsaved objects', function() {
-      var article = Article.fresh({ id: 12, title: 'Hello' });
+      var article = Article.$({ id: 12, title: 'Hello' });
       article.title = 'Renamed';
       return user.removeArticle(article).then(function() {
         adapter.should.have.executed(
@@ -433,13 +433,13 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('processes a complex sequence using add, remove, and clear', function() {
-      var article1 = Article.fresh({ id: 1, title: '#1' });
-      var article2 = Article.fresh({ id: 2, title: '#2' });
-      var article3 = Article.fresh({ id: 3, title: '#3' });
-      var article4 = Article.fresh({ id: 4, title: '#4' });
-      var article5 = Article.fresh({ id: 5, title: '#5' });
-      var article6 = Article.fresh({ id: 6, title: '#6' });
-      var article7 = Article.fresh({ id: 7, title: '#7' });
+      var article1 = Article.$({ id: 1, title: '#1' });
+      var article2 = Article.$({ id: 2, title: '#2' });
+      var article3 = Article.$({ id: 3, title: '#3' });
+      var article4 = Article.$({ id: 4, title: '#4' });
+      var article5 = Article.$({ id: 5, title: '#5' });
+      var article6 = Article.$({ id: 6, title: '#6' });
+      var article7 = Article.$({ id: 7, title: '#7' });
 
       user.addArticles(article1, article2, article3, article7);
       user.removeArticle(article1);
@@ -635,7 +635,7 @@ describe('Model.hasMany', __db(function() {
         expect(foundUser.id).to.eql(1);
         expect(foundUser.username).to.eql('wbyoung');
         expect(foundUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
+          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -717,7 +717,7 @@ describe('Model.hasMany', __db(function() {
       return User.objects.where({ id: 1 }).with('articles').fetchOne()
       .then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
+          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -725,7 +725,7 @@ describe('Model.hasMany', __db(function() {
     it('works via `find`', function() {
       return User.objects.with('articles').find(1).then(function(fetchedUser) {
         expect(fetchedUser.articles).to.eql([
-          Article.fresh({ id: 1, title: 'Journal', authorKey: 1 }),
+          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
         ]);
       });
     });
@@ -733,13 +733,13 @@ describe('Model.hasMany', __db(function() {
 
   describe('internal methods', function() {
     it('handles disassociate', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: 5 });
+      var article = Article.$({ id: 5, title: 'Hello', authorKey: 5 });
       user.articlesRelation.disassociate(user, article);
       expect(article.authorKey).to.eql(undefined);
     });
 
     it('handles disassociate ignoring attrs', function() {
-      var article = Article.fresh({ id: 5, title: 'Hello', authorKey: 5 });
+      var article = Article.$({ id: 5, title: 'Hello', authorKey: 5 });
       user.articlesRelation.disassociate(user, article, { attrs: false });
       expect(article.authorKey).to.eql(5);
     });

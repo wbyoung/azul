@@ -145,19 +145,19 @@ describe('Model', __db(function() {
   });
 
   it('has a `pk` property', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.pk.should.eql(5);
   });
 
   it('can set the `pk` property', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.pk = 7;
     article.pk.should.eql(7);
     article.id.should.eql(7);
   });
 
   it('can set the `id` property', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.id = 7;
     article.id.should.eql(7);
   });
@@ -534,7 +534,7 @@ describe('Model', __db(function() {
   });
 
   it('can update objects', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
     return article.save().should.eventually.exist
     .meanwhile(adapter).should
@@ -616,7 +616,7 @@ describe('Model', __db(function() {
   });
 
   it('can delete objects', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.delete();
     return article.save().should.eventually.exist
     .meanwhile(adapter).should
@@ -624,7 +624,7 @@ describe('Model', __db(function() {
   });
 
   it('can delete objects with implicit save', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     return article.delete()
     .should.eventually.exist
     .meanwhile(adapter).should
@@ -632,7 +632,7 @@ describe('Model', __db(function() {
   });
 
   it('can save multiple times after delete', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     return article.delete()
     .then(function() { return article.save(); })
     .then(function() { return article.save(); })
@@ -642,7 +642,7 @@ describe('Model', __db(function() {
   });
 
   it('can delete multiple times without causing problems', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     return article.delete()
     .then(function() { return article.delete(); })
     .should.eventually.exist
@@ -651,7 +651,7 @@ describe('Model', __db(function() {
   });
 
   it('does not update objects after delete', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     return article.delete()
     .then(function() {
       article.title = 'Changed after delete';
@@ -694,7 +694,7 @@ describe('Model', __db(function() {
   });
 
   it('specifies all attributes when updating objects', function() {
-    var article = Article.fresh({ id: 5 });
+    var article = Article.$({ id: 5 });
     article.id = 5; // mark as dirty
     return article.save()
     .should.eventually.exist
@@ -714,7 +714,7 @@ describe('Model', __db(function() {
   });
 
   it('marks updated objects as no longer being dirty', function() {
-    var article = Article.fresh({ id: 5, title: 'Azul News' });
+    var article = Article.$({ id: 5, title: 'Azul News' });
     article.title = 'Breaking Azul News';
     return article.save().should.eventually.have.property('dirty', false);
   });
@@ -726,7 +726,7 @@ describe('Model', __db(function() {
   });
 
   it('does not perform updates on persisted objects', function() {
-    var article = Article.fresh({ id: 2, title: 'Azul News' });
+    var article = Article.$({ id: 2, title: 'Azul News' });
     article.save()
     .should.eventually.exist
     .meanwhile(adapter).should

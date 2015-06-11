@@ -52,8 +52,8 @@ describe('Model many-to-many', __db(function() {
   });
 
   beforeEach(function() {
-    this.student = Student.fresh({ id: 6, name: 'Whitney' });
-    this.course = Course.fresh({ id: 3, subject: 'CS' });
+    this.student = Student.$({ id: 6, name: 'Whitney' });
+    this.course = Course.$({ id: 3, subject: 'CS' });
   });
 
   describe('when spying on models & relationships', function() {

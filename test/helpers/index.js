@@ -58,7 +58,7 @@ global.__db = function(fn) {
 };
 
 Model.reopenClass({
-  fresh: function() {
+  $: function() {
     return _.extend(this.create.apply(this, arguments), {
       _dirtyAttributes: {},
     });

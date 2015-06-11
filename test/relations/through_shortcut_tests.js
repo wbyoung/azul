@@ -64,8 +64,8 @@ describe('Model.hasMany :through-shortcut', __db(function() {
   });
 
   beforeEach(function() {
-    user = User.fresh({ id: 4, username: 'wbyoung' });
-    blog = Blog.fresh({ id: 12, title: 'Azul Blog' });
+    user = User.$({ id: 4, username: 'wbyoung' });
+    blog = Blog.$({ id: 12, title: 'Azul Blog' });
   });
 
   it('has related methods', function() {
@@ -111,14 +111,14 @@ describe('Model.hasMany :through-shortcut', __db(function() {
     });
 
     it('does not allow adding objects', function() {
-      var comment = Comment.fresh({ id: 5, body: 'Nicely worded.' });
+      var comment = Comment.$({ id: 5, body: 'Nicely worded.' });
       expect(function() {
         user.addComment(comment);
       }).to.throw(/cannot add.*through.*User#comments/i);
     });
 
     it('does not allow removing objects', function() {
-      var comment = Comment.fresh({ id: 5, body: 'Nicely worded.' });
+      var comment = Comment.$({ id: 5, body: 'Nicely worded.' });
       expect(function() {
         user.removeComment(comment);
       }).to.throw(/cannot remove.*through.*User#comments/i);
@@ -177,7 +177,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         commenter: db.belongsTo(),
       });
       db.model('commenter');
-      var site = Site.fresh({ id: 1 });
+      var site = Site.$({ id: 1 });
 
       return site.commenterObjects.fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -197,7 +197,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         posts: db.hasMany({ through: 'authors', join: false }),
         comments: db.hasMany({ through: 'posts' }),
       });
-      var site = Site.fresh({ id: 6 });
+      var site = Site.$({ id: 6 });
       expect(function() {
         site.commentObjects.fetch();
       }).to.throw(/through.*authors.*site#posts.*has-many/i);
@@ -226,7 +226,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
       db.model('commenter').reopen({
         comments: db.hasMany(),
       });
-      var site = Site.fresh({ id: 1 });
+      var site = Site.$({ id: 1 });
 
       return site.commenterObjects.fetch().should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
