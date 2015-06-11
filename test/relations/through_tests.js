@@ -546,7 +546,7 @@ describe('Model.hasMany :through', __db(function() {
     it('allows remove with created objects', function() {
       var course = Course.create({ subject: 'CS 101' });
       return student.removeCourse(course).then(function() {
-        adapter.should.have.executed();
+        adapter.should.have.executed(/* nothing */);
         expect(course).to.have.property('persisted', false);
       });
     });

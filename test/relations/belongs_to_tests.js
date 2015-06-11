@@ -124,7 +124,7 @@ describe('Model.belongsTo', __db(function() {
       return unauthoredArticle.fetchAuthor().then(function(user) {
         expect(user).to.not.exist;
         expect(unauthoredArticle.author).to.not.exist;
-        adapter.should.have.executed();
+        adapter.should.have.executed(/* nothing */);
       });
     });
 

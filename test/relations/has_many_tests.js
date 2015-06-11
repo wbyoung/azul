@@ -361,7 +361,7 @@ describe('Model.hasMany', __db(function() {
     it('allows remove with created objects', function() {
       var article = Article.create({ title: 'Hello' });
       return user.removeArticle(article).then(function() {
-        adapter.should.have.executed();
+        adapter.should.have.executed(/* nothing */);
         expect(article).to.have.property('persisted', false);
       });
     });
