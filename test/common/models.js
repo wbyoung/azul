@@ -7,6 +7,7 @@ module.exports = function() {
 
   var attr = db.attr;
   var hasMany = db.hasMany;
+  var hasOne = db.hasOne;
   var belongsTo = db.belongsTo;
 
   // blog models: user, blog, article, comment
@@ -14,7 +15,7 @@ module.exports = function() {
   db.model('user', {
     username: attr(),
     email: attr('email_addr'),
-    blog: hasMany({ inverse: 'owner' }), // TODO: change to hasOne
+    blog: hasOne({ inverse: 'owner' }),
     articles: hasMany({ inverse: 'author' }),
     comments: hasMany({ inverse: 'commenter' }),
     feedback: hasMany('comments', { through: 'articles', source: 'comments' }),

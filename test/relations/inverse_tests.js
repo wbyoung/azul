@@ -43,6 +43,93 @@ describe('Relation.inverse', __db(function() {
 
   });
 
+  describe('has-one only', function() {
+    it('is waiting to be written');
+  });
+
+  describe('one-to-one', function() {
+
+    it('can calculate inverse', function() {
+      var Room = db.model('room', { floor: db.hasOne() });
+      var Floor = db.model('floor', { room: db.belongsTo() });
+      Room.floorRelation.inverse.should.eql('room');
+      Floor.roomRelation.inverse.should.eql('floor');
+      Floor.roomRelation.inverseRelation().should.equal(Room.floorRelation);
+      Room.floorRelation.inverseRelation().should.equal(Floor.roomRelation);
+    });
+
+    it('can calculate inverse when only hasOne is present', function() {
+      var Room = db.model('room', { floor: db.hasOne() });
+      var Floor = db.model('floor');
+      Room.floorRelation.inverse.should.eql('room');
+      Floor.roomRelation.inverse.should.eql('floor');
+      Floor.roomRelation.inverseRelation().should.equal(Room.floorRelation);
+      Room.floorRelation.inverseRelation().should.equal(Floor.roomRelation);
+    });
+
+    it('makes inverse w/ only hasOne & inverse option', function() {
+      var Room = db.model('room', { floor: db.hasOne({ inverse: 'owner'}) });
+      var Floor = db.model('floor');
+      Room.floorRelation.inverse.should.eql('owner');
+      Floor.ownerRelation.inverse.should.eql('floor');
+      Floor.ownerRelation.inverseRelation().should.equal(Room.floorRelation);
+      Room.floorRelation.inverseRelation().should.equal(Floor.ownerRelation);
+    });
+
+    it('cannot calculate inverse when only belongsTo is present', function() {
+      var Floor = db.model('floor', { room: db.belongsTo() });
+      var Room = db.model('room');
+      Floor.roomRelation.inverse.should.not.eql('floor');
+      Floor.roomRelation.inverseRelation().should.not.equal(Room.floorRelation);
+      Room.floorsRelation.inverseRelation().should.exist;
+    });
+
+    it('can calculate inverse w/ hasOne specifying inverse', function() {
+      var Room = db.model('room', { floor: db.hasOne({ inverse: 'owner' }) });
+      var Floor = db.model('floor', { owner: db.belongsTo('room') });
+      Room.floorRelation.inverse.should.eql('owner');
+      Floor.ownerRelation.inverse.should.eql('floor');
+      Room.floorRelation.inverseRelation().should.equal(Floor.ownerRelation);
+      Floor.ownerRelation.inverseRelation().should.equal(Room.floorRelation);
+    });
+
+    it('can calculate inverse w/ belongsTo specifying inverse', function() {
+      var Room = db.model('room', { floor: db.hasOne() });
+      var Floor = db.model('floor', {
+        owner: db.belongsTo('room', { inverse: 'floor' })
+      });
+      Room.floorRelation.inverse.should.eql('owner');
+      Floor.ownerRelation.inverse.should.eql('floor');
+      Room.floorRelation.inverseRelation().should.equal(Floor.ownerRelation);
+      Floor.ownerRelation.inverseRelation().should.equal(Room.floorRelation);
+    });
+
+    it('can calculate inverse w/ both specifying inverses', function() {
+      var Room = db.model('room', { floor: db.hasOne({ inverse: 'owner' }) });
+      var Floor = db.model('floor', {
+        owner: db.belongsTo('room', { inverse: 'floor' })
+      });
+      Room.floorRelation.inverse.should.eql('owner');
+      Floor.ownerRelation.inverse.should.eql('floor');
+      Room.floorRelation.inverseRelation().should.equal(Floor.ownerRelation);
+      Floor.ownerRelation.inverseRelation().should.equal(Room.floorRelation);
+    });
+
+    it('does not work when a plural relation exists', function() {
+      var Room = db.model('room', {
+        floor: db.hasOne(),
+        floors: db.hasMany(),
+      });
+      var Floor = db.model('floor', { room: db.belongsTo('room') });
+      Room.floorRelation.inverse.should.eql('room');
+      Floor.roomRelation.inverse.should.not.eql('floor');
+      Room.floorRelation.inverseRelation().should.equal(Floor.roomRelation);
+      Floor.roomRelation.inverseRelation()
+        .should.not.equal(Room.floorRelation);
+    });
+
+  });
+
   describe('one-to-many', function() {
 
     it('calculates the inverse ', function() {
