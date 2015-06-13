@@ -800,7 +800,7 @@ describe('Model#inspect', __db(function() {
     util.inspect(obj, { depth: 1 }).should
       .contain('title: \'Azul Chai\'').and
       .contain('...').and
-      .not.contain('slug').and // TODO: enable
+      .not.contain('slug').and
       .not.contain('author').and
       .not.contain('summary').and
       .not.contain('body');
@@ -853,7 +853,7 @@ describe('Model#inspect', __db(function() {
       .contain('id: 1').and
       .contain('...').and
       .not.contain('title').and
-      .not.contain('slug').and // TODO: enable
+      .not.contain('slug').and
       .not.contain('author').and
       .not.contain('summary').and
       .not.contain('body');
