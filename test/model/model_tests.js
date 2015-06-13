@@ -2,6 +2,8 @@
 
 require('../helpers');
 
+var _ = require('lodash');
+var util = require('util');
 var Manager = require('../../lib/model/manager');
 var Promise = require('bluebird');
 
@@ -757,4 +759,141 @@ describe('Model', __db(function() {
     return article.save().should.eventually
     .be.rejectedWith(/Cannot save.*article.*in flight/i);
   });
+
+}));
+
+describe('Model#inspect', __db(function() {
+  beforeEach(function() {
+    db.model('article').reopen({
+      title: db.attr(),
+      slug: db.attr(),
+      author: db.attr(),
+      summary: db.attr(),
+      body: db.attr(),
+    });
+  });
+
+  it('works w/o pk', function() {
+
+    var obj = db.model('article').create({
+      title: 'Azul Chai',
+      slug: 'azul-chai',
+      author: 'Whitney Young',
+      summary: 'This is the short stuff',
+      body: _.repeat('This is the really long rambling output. ', 40),
+    });
+
+    util.inspect(obj, { depth: 3 }).should
+      .contain('author: \'Whitney Young\'').and
+      .contain('summary: [string]').and
+      .contain('body: [string]').and
+      .not.contain('...');
+
+    util.inspect(obj, { depth: 2 }).should
+      .contain('title: \'Azul Chai\'').and
+      .contain('...').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: 1 }).should
+      .contain('title: \'Azul Chai\'').and
+      .contain('...').and
+      .not.contain('slug').and // TODO: enable
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: 0 }).should
+      .contain('title: \'Azul Chai\'').and
+      .contain('...').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: -1 }).should
+      .contain('title: \'Azul Chai\'').and
+      .contain('...').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+  });
+
+  it('works w/ pk', function() {
+
+    var obj = db.model('article').create({
+      id: 1,
+      title: 'Azul Chai',
+      slug: 'azul-chai',
+      author: 'Whitney Young',
+      summary: 'This is the short stuff',
+      body: _.repeat('This is the really long rambling output. ', 40),
+    });
+
+    util.inspect(obj, { depth: 3 }).should
+      .contain('id: 1').and
+      .contain('author: \'Whitney Young\'').and
+      .contain('summary: [string]').and
+      .contain('body: [string]').and
+      .not.contain('...');
+
+    util.inspect(obj, { depth: 2 }).should
+      .contain('id: 1').and
+      .contain('title: \'Azul Chai\'').and
+      .contain('...').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: 1 }).should
+      .contain('id: 1').and
+      .contain('...').and
+      .not.contain('title').and
+      .not.contain('slug').and // TODO: enable
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: 0 }).should
+      .contain('id: 1').and
+      .contain('...').and
+      .not.contain('title').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+
+    util.inspect(obj, { depth: -1 }).should
+      .contain('id: 1').and
+      .contain('...').and
+      .not.contain('title').and
+      .not.contain('slug').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+  });
+
+  it('works w/ pk when missing 1st attr', function() {
+
+    var obj = db.model('article').create({
+      id: 1,
+      slug: 'azul-chai',
+      author: 'Whitney Young',
+      summary: 'This is the short stuff',
+      body: _.repeat('This is the really long rambling output. ', 40),
+    });
+
+    util.inspect(obj, { depth: 2 }).should
+      .contain('id: 1').and
+      .contain('slug: \'azul-chai\'').and
+      .not.contain('title').and
+      .not.contain('author').and
+      .not.contain('summary').and
+      .not.contain('body');
+  });
+
 }));
