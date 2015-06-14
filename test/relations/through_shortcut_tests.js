@@ -13,63 +13,70 @@ var Site,
   Article,
   Comment;
 
+var reset = function(/*fn*/) {
+  /* global db, adapter */
+
+  var hasMany = db.hasMany;
+  var attr = db.attr;
+  var additional = arguments[0] || function() {};
+
+  Site = db.model('site').reopen({
+    name: attr(),
+    users: hasMany(),
+    blogs: hasMany({ through: 'users' }),
+    articles: hasMany({ through: 'blogs' }),
+    comments: hasMany({ through: 'articles' }),
+  });
+  User = db.model('user').reopen({
+    username: attr(),
+    blogs: hasMany({ inverse: 'owner' }),
+    articles: hasMany({ through: 'blogs' }),
+    comments: hasMany({ through: 'articles' }),
+  });
+  Blog = db.model('blog').reopen({
+    title: attr(),
+    articles: hasMany(),
+    comments: hasMany({ through: 'articles' }),
+  });
+  Article = db.model('article').reopen({
+    title: attr(),
+    comments: hasMany(),
+    blog: db.belongsTo(),
+  });
+  Comment = db.model('comment').reopen({
+    body: attr(),
+  });
+
+  adapter.respond(/select.*from "sites"/i,
+    [{ id: 41, name: 'azuljs.com' }]);
+  adapter.respond(/select.*from "users"/i,
+    [{ id: 4, username: 'wbyoung', 'site_id': 41 }]);
+  adapter.respond(/select.*from "blogs"/i,
+    [{ id: 12, title: 'Azul Blog', 'owner_id': 4 }]);
+  adapter.respond(/select.*from "articles"/i,
+    [{ id: 9, title: 'Journal', 'blog_id': 12 }]);
+  adapter.respond(/select.*from "comments"/i, [
+    { id: 1, body: 'Great post.', 'article_id': 9 },
+    { id: 2, body: 'Nicely worded.', 'article_id': 9 },
+  ]);
+
+  additional();
+
+  user = User.$({ id: 4, username: 'wbyoung' });
+  blog = Blog.$({ id: 12, title: 'Azul Blog' });
+};
+
+
 describe('Model.hasMany :through-shortcut', __db(function() {
   /* global db:true, adapter */
 
-  beforeEach(function() {
-    var hasMany = db.hasMany;
-    var attr = db.attr;
-
-    Site = db.model('site').reopen({
-      name: attr(),
-      users: hasMany(),
-      blogs: hasMany({ through: 'users' }),
-      articles: hasMany({ through: 'blogs' }),
-      comments: hasMany({ through: 'articles' }),
-    });
-    User = db.model('user').reopen({
-      username: attr(),
-      blogs: hasMany({ inverse: 'owner' }),
-      articles: hasMany({ through: 'blogs' }),
-      comments: hasMany({ through: 'articles' }),
-    });
-    Blog = db.model('blog').reopen({
-      title: attr(),
-      articles: hasMany(),
-      comments: hasMany({ through: 'articles' }),
-    });
-    Article = db.model('article').reopen({
-      title: attr(),
-      comments: hasMany(),
-      blog: db.belongsTo(),
-    });
-    Comment = db.model('comment').reopen({
-      body: attr(),
-    });
-  });
-
-  beforeEach(function() {
-    adapter.respond(/select.*from "sites"/i,
-      [{ id: 41, name: 'azuljs.com' }]);
-    adapter.respond(/select.*from "users"/i,
-      [{ id: 4, username: 'wbyoung', 'site_id': 41 }]);
-    adapter.respond(/select.*from "blogs"/i,
-      [{ id: 12, title: 'Azul Blog', 'owner_id': 4 }]);
-    adapter.respond(/select.*from "articles"/i,
-      [{ id: 9, title: 'Journal', 'blog_id': 12 }]);
-    adapter.respond(/select.*from "comments"/i, [
-      { id: 1, body: 'Great post.', 'article_id': 9 },
-      { id: 2, body: 'Nicely worded.', 'article_id': 9 },
-    ]);
-  });
-
-  beforeEach(function() {
-    user = User.$({ id: 4, username: 'wbyoung' });
-    blog = Blog.$({ id: 12, title: 'Azul Blog' });
-  });
+  beforeEach(reset);
 
   it('has related methods', function() {
-    Blog.reopen({ owner: db.belongsTo('user') });
+    db = Database.create({ adapter: adapter });
+    reset(function() {
+      Blog.reopen({ owner: db.belongsTo('user') });
+    });
     expect(User.__class__.prototype).to.have.ownProperty('comments');
     expect(user).to.have.property('commentObjects');
     expect(user).to.respondTo('createComment');
@@ -83,8 +90,8 @@ describe('Model.hasMany :through-shortcut', __db(function() {
 
   describe('definition', function() {
     it('does not have an inverse', function() {
-      expect(user.articlesRelation.inverse).to.eql(null);
-      expect(user.commentsRelation.inverse).to.eql(null);
+      expect(user.articlesRelation.inverse).to.eql(undefined);
+      expect(user.commentsRelation.inverse).to.eql(undefined);
     });
   });
 
@@ -138,7 +145,10 @@ describe('Model.hasMany :through-shortcut', __db(function() {
     });
 
     it('fetches through two relationships', function() {
-      Blog.reopen({ owner: db.belongsTo('user') });
+      db = Database.create({ adapter: adapter });
+      reset(function() {
+        Blog.reopen({ owner: db.belongsTo('user') });
+      });
 
       return user.commentObjects.fetch().then(function(comments) {
         adapter.should.have.executed(
@@ -191,15 +201,61 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         'WHERE "authors"."site_id" = ?', [1]);
     });
 
-    it('throws an error when it cannot find a through relation', function() {
+
+    it('fetches through many relationships w/ custom keys', function() {
+      db = Database.create({ adapter: adapter });
+      Site = db.model('site').reopen({
+        pk: db.attr('site_pk'),
+        authors: db.hasMany(),
+        posts: db.hasMany({ through: 'authors' }),
+        comments: db.hasMany({ through: 'posts' }),
+        commenters: db.hasMany({ through: 'comments' }),
+      });
+      db.model('author').reopen({
+        pk: db.attr('author_pk'),
+        posts: db.hasMany({ foreignKey: 'author_fk' }),
+        site: db.belongsTo({ foreignKey: 'site_fk' }),
+        comments: db.hasMany({ through: 'posts' }),
+        commenters: db.hasMany({ through: 'comments' }),
+      });
+      db.model('post').reopen({
+        pk: db.attr('post_pk'),
+        comments: db.hasMany({ foreignKey: 'postFk' }),
+        commenters: db.hasMany({ through: 'comments' }),
+      });
+      db.model('comment').reopen({
+        pk: db.attr('coment_pk'),
+        commenter: db.belongsTo({ foreignKey: 'commenterKey' }),
+        commenterKey: db.attr('commenter_fk'),
+      });
+      db.model('commenter', {
+        pk: db.attr('commenter_pk'),
+      });
+      var site = Site.$({ id: 1 });
+
+      return site.commenterObjects.fetch().should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "commenters".* FROM "commenters" ' +
+        'INNER JOIN "comments" ' +
+        'ON "comments"."commenter_fk" = "commenters"."commenter_pk" ' +
+        'INNER JOIN "posts" ' +
+        'ON "comments"."post_fk" = "posts"."post_pk" ' +
+        'INNER JOIN "authors" ' +
+        'ON "posts"."author_fk" = "authors"."author_pk" ' +
+        'WHERE "authors"."site_fk" = ?', [1]);
+    });
+
+    // TODO: this is no longer true & we should ensure that we have a test
+    // that covers the case of it automatically adding the required _implicit_
+    // belongsTo relations
+    it.skip('throws an error when it cannot find a through relation', function() {
       db = Database.create({ adapter: adapter });
       Site = db.model('site').reopen({
         posts: db.hasMany({ through: 'authors', join: false }),
         comments: db.hasMany({ through: 'posts' }),
       });
-      var site = Site.$({ id: 6 });
       expect(function() {
-        site.commentObjects.fetch();
+        Site.commentsRelation;
       }).to.throw(/through.*authors.*site#posts.*has-many/i);
     });
 
@@ -244,9 +300,12 @@ describe('Model.hasMany :through-shortcut', __db(function() {
 
   describe('pre-fetch', function() {
     it('executes multiple queries', function() {
-      User.reopen({ site: db.belongsTo() });
-      Blog.reopen({ owner: db.belongsTo('user') });
-      Comment.reopen({ article: db.belongsTo() });
+      db = Database.create({ adapter: adapter });
+      reset(function() {
+        User.reopen({ site: db.belongsTo() });
+        Blog.reopen({ owner: db.belongsTo('user') });
+        Comment.reopen({ article: db.belongsTo() });
+      });
 
       return Site.objects.with('comments').find(41).should.eventually.exist.meanwhile(adapter)
       .should.have.executed(
@@ -258,9 +317,12 @@ describe('Model.hasMany :through-shortcut', __db(function() {
     });
 
     it('does not cache related objects that it went through', function() {
-      User.reopen({ site: db.belongsTo() });
-      Blog.reopen({ owner: db.belongsTo('user') });
-      Comment.reopen({ article: db.belongsTo() });
+      db = Database.create({ adapter: adapter });
+      reset(function() {
+        User.reopen({ site: db.belongsTo() });
+        Blog.reopen({ owner: db.belongsTo('user') });
+        Comment.reopen({ article: db.belongsTo() });
+      });
 
       return Site.objects.with('comments').find(41).then(function(fetchedSite) {
         expect(function() { fetchedSite.users; })
@@ -273,9 +335,12 @@ describe('Model.hasMany :through-shortcut', __db(function() {
     });
 
     it('caches related objects', function() {
-      User.reopen({ site: db.belongsTo() });
-      Blog.reopen({ owner: db.belongsTo('user') });
-      Comment.reopen({ article: db.belongsTo() });
+      db = Database.create({ adapter: adapter });
+      reset(function() {
+        User.reopen({ site: db.belongsTo() });
+        Blog.reopen({ owner: db.belongsTo('user') });
+        Comment.reopen({ article: db.belongsTo() });
+      });
 
       return Site.objects.with('comments').find(41).then(function(fetchedSite) {
         expect(fetchedSite.id).to.eql(41);

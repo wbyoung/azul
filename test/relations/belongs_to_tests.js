@@ -3,7 +3,6 @@
 require('../helpers');
 
 var _ = require('lodash');
-var InverseRelation = require('../../lib/relations/inverse');
 
 var Article,
   Comment,
@@ -72,10 +71,9 @@ describe('Model.belongsTo', __db(function() {
       expect(article.userRelation.foreignKeyAttr).to.eql('user_foreign_key');
     });
 
-    it('can generate an inverse relation', function() {
+    it('can get the inverse relation', function() {
       var authorRelation = Article.__class__.prototype.authorRelation;
       var inverse = authorRelation.inverseRelation();
-      expect(inverse).to.be.instanceof(InverseRelation.__class__);
       expect(inverse.joinKey).to.eql('pk');
       expect(inverse.joinKeyAttr).to.eql('id');
       expect(inverse.inverseKey).to.eql('authorId');
@@ -434,13 +432,13 @@ describe('Model.belongsTo', __db(function() {
     });
 
     it('caches related objects', function() {
-      return Article.objects.with('author').fetch().get('0').then(function(foundArticle) {
-        expect(foundArticle.id).to.eql(448);
-        expect(foundArticle.authorId).to.eql(623);
-        expect(foundArticle.author).to.eql(
-          User.$({ id: 623, username: 'wbyoung' })
-        );
-      });
+      return Article.objects.with('author').fetch().should.eventually
+      .have.lengthOf(1).and.have.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 448, title: 'Journal', authorKey: 623 })
+      .with.properties({ id: 448, authorId: 623 })
+      .with.property('author')
+      .that.is.a.model('user').with.json({ id: 623, username: 'wbyoung' });
     });
 
     it('works with models each having multiple related objects', function() {
@@ -488,10 +486,14 @@ describe('Model.belongsTo', __db(function() {
         expect(_(articles).map('title').value()).to.eql([
           'Announcing Azul', 'Tasty Kale Salad', 'The Bipartisan System',
         ]);
-        expect(_.map(articles, 'author')).to.eql([
-          User.$({ id: 874, username: 'wbyoung' }), null,
-          User.$({ id: 4, username: 'kate' }),
-        ]);
+
+        var authors = _.map(articles, 'author');
+        authors.should.have.lengthOf(3);
+        authors[0].should.be.a.model('user')
+        .with.json({ id: 874, username: 'wbyoung' });
+        expect(authors[1]).to.be.null;
+        authors[2].should.be.a.model('user')
+        .with.json({ id: 4, username: 'kate' });
       });
     });
 
@@ -513,19 +515,14 @@ describe('Model.belongsTo', __db(function() {
 
     it('works via `fetchOne`', function() {
       return Article.objects.where({ id: 1 }).with('author').fetchOne()
-      .then(function(fetchedArticle) {
-        expect(fetchedArticle.author).to.eql(
-          User.$({ id: 623, username: 'wbyoung' })
-        );
-      });
+      .should.eventually.have.property('author')
+      .that.is.a.model('user').with.json({ id: 623, username: 'wbyoung' });
     });
 
     it('works via `find`', function() {
-      return Article.objects.with('author').find(1).then(function(fetchedArticle) {
-        expect(fetchedArticle.author).to.eql(
-          User.$({ id: 623, username: 'wbyoung' })
-        );
-      });
+      return Article.objects.with('author').find(1)
+      .should.eventually.have.property('author')
+      .that.is.a.model('user').with.json({ id: 623, username: 'wbyoung' });
     });
 
     it('handles multiple items at once', function() {
@@ -537,31 +534,26 @@ describe('Model.belongsTo', __db(function() {
       adapter.respond(/select.*from "blogs"/i,
         [{ id: 82, name: 'Azul News' }]);
 
-      return Article.objects.with('author', 'blog').find(1).then(function(foundArticle) {
-        adapter.should.have.executed(
-          'SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [1],
-          'SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82],
-          'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
-        expect(foundArticle.author).to.eql(
-          User.$({ id: 623, username: 'wbyoung' })
-        );
-        expect(foundArticle.blog).to.eql(
-          Blog.$({ id: 82, name: 'Azul News' })
-        );
-      });
+      return Article.objects.with('author', 'blog').find(1).should.eventually
+      .have.property('author')
+      .that.is.a.model('user').with.json({ id: 623, username: 'wbyoung' })
+      .and.also
+      .have.property('blog')
+      .that.is.a.model('blog').with.json({ id: 82, name: 'Azul News' })
+      .meanwhile(adapter).should.have.executed(
+        'SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [1],
+        'SELECT * FROM "blogs" WHERE "id" = ? LIMIT 1', [82],
+        'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
     });
 
     it('works across multiple relationships', function() {
       return Comment.objects.with('article.author').find(384)
-      .then(function(foundComment) {
-        adapter.should.have.executed(
-          'SELECT * FROM "comments" WHERE "id" = ? LIMIT 1', [384],
-          'SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [448],
-          'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
-        expect(foundComment.article.author).to.eql(
-          User.$({ id: 623, username: 'wbyoung' })
-        );
-      });
+      .should.eventually.have.deep.property('article.author')
+      .that.is.a.model('user').with.json({ id: 623, username: 'wbyoung' })
+      .meanwhile(adapter).should.have.executed(
+        'SELECT * FROM "comments" WHERE "id" = ? LIMIT 1', [384],
+        'SELECT * FROM "articles" WHERE "id" = ? LIMIT 1', [448],
+        'SELECT * FROM "users" WHERE "id" = ? LIMIT 1', [623]);
     });
   });
 

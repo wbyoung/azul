@@ -60,10 +60,10 @@ describe('BaseRelation', __db(function() {
       get: getter,
       set: setter,
     });
-    Relation.reopenClass({
-      methods: {
-        '<singular>Method': BaseRelation.helper('method'),
-        '<singular>Property': BaseRelation.property('get', 'set'),
+    Relation.reopen({
+      overrides: function() {
+        this.addHelper('<singular>Method', 'method');
+        this.overrideProperty('<singular>Property', 'get', 'set');
       },
     });
 

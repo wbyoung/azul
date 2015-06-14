@@ -380,9 +380,16 @@ Article.reopen({
 
 `belongsTo` accepts the following options:
 
-- `inverse` The name of the inverse relationship.
-- `primaryKey` The name of the primary key in the relationship.
-- `foreignKey` The name of the foreign key in the relationship.
+- `inverse` The name of the inverse relationship. The default is to determine
+  the inverse from the model name and values defined on the related model. The
+  above example would search for either a [`hasMany`](#methods-hasmany) named
+  `articles` or a [`hasOne`](#methods-hasone) named `article`.
+- `primaryKey` The name of the primary key in the relationship. This defaults
+  to the primary key defined on the inverse relationship or `pk` if no inverse
+  is defined.
+- `foreignKey` The name of the foreign key in the relationship. This defaults
+  to `<relationName>Id`. The above example would have a default of
+  `authorId`.
 
 #### `#association=`
 
@@ -517,9 +524,14 @@ Author.reopen({
 
 `hasMany` accepts the following options:
 
-- `inverse` The name of the inverse relationship.
-- `primaryKey` The name of the primary key in the relationship.
-- `foreignKey` The name of the foreign key in the relationship.
+- `inverse` The name of the inverse relationship. The default is to determine
+  the inverse from the model name. The above example would have an inverse of
+  `author`.
+- `primaryKey` The name of the primary key in the relationship. This defaults
+  to `pk`.
+- `foreignKey` The name of the foreign key in the relationship. This defaults
+  to the foreign key defined on the inverse relationship or `<inverse>Id` if no
+  inverse is defined. The above example would have a default of `authorId`.
 - `through` Specify the name of a relationship through which this collection is
 accessed.
 - `source` When using `through` this is the name of the relationship on the

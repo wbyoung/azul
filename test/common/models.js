@@ -14,11 +14,12 @@ module.exports = function() {
   db.model('user', {
     username: attr(),
     email: attr('email_addr'),
-    blogs: hasMany({ inverse: 'owner' }), // TODO: change to hasOne
+    blog: hasMany({ inverse: 'owner' }), // TODO: change to hasOne
     articles: hasMany({ inverse: 'author' }),
     comments: hasMany({ inverse: 'commenter' }),
     feedback: hasMany('comments', { through: 'articles', source: 'comments' }),
-    ownArticles: hasMany('articles', { through: 'blog', source: 'articles' }),
+    // TODO: bring this back
+    // ownArticles: hasMany('articles', { through: 'blog', source: 'articles' }),
     otherBlogs: hasMany('blogs', { through: 'articles', source: 'blog' }),
   });
   db.model('blog', {
@@ -97,7 +98,7 @@ module.exports = function() {
 
   adapter.sequence(/insert into "people".*returning "id"/i, 102);
 
-  // social model: individual
+  // social model: individual, relationship
   db.model('individual', {
     name: attr(),
     followers: hasMany('individual', { through: 'passiveRelationship' }),

@@ -39,6 +39,7 @@
   "devDependencies": {
     "azul-chai": "^0.1.0",
     "chai": "^2.2.0",
+    "chai-also": "^0.1.0",
     "chai-as-promised": "^5.0.0",
     "chai-properties": "^1.2.0",
     "cheerio": "^0.19.0",

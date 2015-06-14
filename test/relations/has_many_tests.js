@@ -3,7 +3,6 @@
 require('../helpers');
 
 var _ = require('lodash');
-var InverseRelation = require('../../lib/relations/inverse');
 
 var Article,
   User,
@@ -19,7 +18,7 @@ describe('Model.hasMany', __db(function() {
 
     Article = db.model('article').reopen({
       title: attr(),
-      authorKey: attr('author_num'), // easy access to foreign key attr
+      authorKey: attr('author_num'), // custom foreign key attr
     });
     User = db.model('user').reopen({
       username: attr(),
@@ -65,10 +64,9 @@ describe('Model.hasMany', __db(function() {
       expect(user.articlesRelation.inverseKey).to.eql(user.articlesRelation.foreignKey);
     });
 
-    it('can generate an inverse relation', function() {
+    it('can get the inverse relation', function() {
       var articlesRelation = User.__class__.prototype.articlesRelation;
       var inverse = articlesRelation.inverseRelation();
-      expect(inverse).to.be.instanceof(InverseRelation.__class__);
       expect(inverse.joinKey).to.eql('authorKey');
       expect(inverse.joinKeyAttr).to.eql('author_num');
       expect(inverse.inverseKey).to.eql('pk');
@@ -90,13 +88,12 @@ describe('Model.hasMany', __db(function() {
   describe('relation', function() {
 
     it('fetches related objects', function() {
-      return articleObjects.fetch().then(function(articles) {
-        expect(articles).to.eql([
-          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
-        ]);
-        adapter.should.have.executed(
-          'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
-      });
+      return articleObjects.fetch().should.eventually
+      .have.lengthOf(1).and.have.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 1, title: 'Journal', authorKey: 1 })
+      .meanwhile(adapter).should.have.executed(
+        'SELECT * FROM "articles" WHERE "author_num" = ?', [1]);
     });
 
     it('fetches related objects when the result set is empty', function() {
@@ -127,11 +124,10 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('allows access loaded collection', function() {
-      return articleObjects.fetch().then(function() {
-        expect(user.articles).to.eql([
-          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
-        ]);
-      });
+      return articleObjects.fetch().should.eventually
+      .have.lengthOf(1).and.have.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 1, title: 'Journal', authorKey: 1 });
     });
 
     it('does not load collection cache during model load', function() {
@@ -631,13 +627,14 @@ describe('Model.hasMany', __db(function() {
     });
 
     it('caches related objects', function() {
-      return User.objects.with('articles').fetch().get('0').then(function(foundUser) {
-        expect(foundUser.id).to.eql(1);
-        expect(foundUser.username).to.eql('wbyoung');
-        expect(foundUser.articles).to.eql([
-          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
-        ]);
-      });
+      return User.objects.with('articles').fetch().should.eventually
+      .have.lengthOf(1).and.have.deep.property('[0]')
+      .that.is.a.model('user')
+      .with.json({ id: 1, username: 'wbyoung' })
+      .and.property('articles').that
+      .has.lengthOf(1).and.has.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 1, title: 'Journal', authorKey: 1 });
     });
 
     it('works with multiple models each having multiple related objects', function() {
@@ -715,19 +712,19 @@ describe('Model.hasMany', __db(function() {
 
     it('works via `fetchOne`', function() {
       return User.objects.where({ id: 1 }).with('articles').fetchOne()
-      .then(function(fetchedUser) {
-        expect(fetchedUser.articles).to.eql([
-          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
-        ]);
-      });
+      .should.eventually.be.a.model('user')
+      .that.has.property('articles').that
+      .has.lengthOf(1).and.has.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 1, title: 'Journal', authorKey: 1 });
     });
 
     it('works via `find`', function() {
-      return User.objects.with('articles').find(1).then(function(fetchedUser) {
-        expect(fetchedUser.articles).to.eql([
-          Article.$({ id: 1, title: 'Journal', authorKey: 1 }),
-        ]);
-      });
+      return User.objects.with('articles').find(1).should.eventually
+      .be.a.model('user').that.has.property('articles').that
+      .has.lengthOf(1).and.has.deep.property('[0]')
+      .that.is.a.model('article')
+      .with.json({ id: 1, title: 'Journal', authorKey: 1 });
     });
   });
 

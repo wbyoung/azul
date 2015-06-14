@@ -168,7 +168,10 @@ describe('Model.hasMany :through', __db(function() {
       });
     });
 
-    it('throws an error when it cannot find the source relation', function() {
+    // TODO: this is no longer true & we should ensure that we have a test
+    // that covers the case of it automatically adding the required _implicit_
+    // belongsTo relations
+    it.skip('throws an error when it cannot find the source relation', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments' }),
@@ -177,21 +180,21 @@ describe('Model.hasMany :through', __db(function() {
         students: db.hasMany({ through: 'enrollments' }),
       });
       Enrollment = db.model('enrollment');
-      student = Student.$({ id: 6 });
-
       expect(function() {
-        student.courseObjects.fetch();
+        Student.coursesRelation;
       }).to.throw(/source.*enrollment#courses.*enrollment#course.*student#courses.*has-many/i);
     });
 
-    it('throws an error when it cannot find a through relation', function() {
+    // TODO: this is no longer true & we should ensure that we have a test
+    // that covers the case of it automatically adding the required _implicit_
+    // belongsTo relations
+    it.skip('throws an error when it cannot find a through relation', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments', join: false }),
       });
-      student = Student.$({ id: 6 });
       expect(function() {
-        student.courseObjects.fetch();
+        Student.coursesRelation;
       }).to.throw(/through.*enrollments.*student#courses.*has-many/i);
     });
 
@@ -235,12 +238,48 @@ describe('Model.hasMany :through', __db(function() {
       });
     });
 
+    it('works with implicit definition of join model', function() {
+      db = Database.create({ adapter: adapter });
+      Student = db.model('student').reopen({
+        courses: db.hasMany('course', { through: 'enrollments' }),
+      });
+      Course = db.model('course').reopen({
+        students: db.hasMany({ through: 'enrollments' }),
+      });
+
+      student = Student.$({ id: 6 });
+      course = Course.$({ id: 2 });
+
+      return Promise.bind()
+      .then(function() {
+        return student.courseObjects;
+      })
+      .then(function() {
+        return course.studentObjects;
+      })
+      .then(function() {
+        adapter.should.have.executed(
+          'SELECT "courses".* FROM "courses" ' +
+          'INNER JOIN "enrollments" ' +
+          'ON "enrollments"."course_id" = "courses"."id" ' +
+          'WHERE "enrollments"."student_id" = ?', [6],
+          'SELECT "students".* FROM "students" ' +
+          'INNER JOIN "enrollments" ' +
+          'ON "enrollments"."student_id" = "students"."id" ' +
+          'WHERE "enrollments"."course_id" = ?', [2]);
+      });
+    });
+
     it('adds join table relation immediately', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments' }),
       });
-      expect(Student.create().enrollmentsRelation).to.exist;
+      Course = db.model('course').reopen({
+        students: db.hasMany({ through: 'enrollments' }),
+      });
+      Student.create(); // trigger relation building
+      expect(Student.enrollmentsRelation).to.exist;
     });
 
     it('adds join table relation immediately (via joins option)', function() {
@@ -256,7 +295,13 @@ describe('Model.hasMany :through', __db(function() {
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollment' }),
       });
-      expect(Student.create().enrollmentsRelation).to.exist;
+      Enrollment = db.model('enrollment').reopen({
+        course: db.belongsTo(),
+      });
+
+      // this triggers configuration of the next one
+      expect(Student.coursesRelation).to.exist;
+      expect(Student.enrollmentsRelation).to.exist;
     });
 
     it('adds pluralized join table relation immediately (via joins option)', function() {
@@ -279,10 +324,13 @@ describe('Model.hasMany :through', __db(function() {
       });
       var CourseStudent = db.model('course_student');
 
-      expect(Student.__class__.prototype.coursesStudentsRelation).to.exist;
-      expect(Course.__class__.prototype.coursesStudentsRelation).to.exist;
-      expect(CourseStudent.__class__.prototype.courseRelation).to.exist;
-      expect(CourseStudent.__class__.prototype.studentRelation).to.exist;
+      // these two trigger configuration of the next two
+      expect(Student.coursesRelation).to.exist;
+      expect(Course.studentsRelation).to.exist;
+      expect(Student.coursesStudentsRelation).to.exist;
+      expect(Course.coursesStudentsRelation).to.exist;
+      expect(CourseStudent.courseRelation).to.exist;
+      expect(CourseStudent.studentRelation).to.exist;
 
       var course = Course.create();
       var student = Student.create();
@@ -295,12 +343,14 @@ describe('Model.hasMany :through', __db(function() {
     });
 
     it('is aware of existing relations defined later in the same group', function() {
+      // note that this configuration is still not usable as Enrollments.course
+      // has not been defined.
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({
         courses: db.hasMany({ through: 'enrollments' }),
         enrollments: db.hasMany(),
       });
-      expect(Student.create().enrollmentsRelation).to.exist;
+      expect(Student.enrollmentsRelation).to.exist;
     });
 
   });
