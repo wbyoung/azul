@@ -103,6 +103,30 @@ describe('relation configuration', __db(function() {
 
   describe('many-through', function() {
     it('is waiting to be written');
+
+    it('throws an error when it cannot find the source relation', function() {
+      var Author = db.model('author', {
+        books: db.hasMany({ through: 'authorship', source: 'writer' }),
+      });
+      expect(function() {
+        Author.booksRelation;
+      }).to.throw(/could not find.*authorship#writer.*authorship#writers.*via.*author#authorships.*for.*author#books/i);
+    });
+
+    it('throws an error when it cannot find source relation on non-primary through', function() {
+      var Publisher = db.model('publisher', {
+        critiques: db.hasMany('reviews', { through: 'authors', source: 'reviews' }),
+      });
+      var Author = db.model('author', {
+        reviews: db.hasMany({ through: 'books', source: 'critiques' }),
+      });
+      var Book = db.model('book', { reviews: db.hasMany() });
+
+      expect(function() {
+        Publisher.critiquesRelation;
+      }).to.throw(/could not find.*book#critiques.*book#critique.*via.*author#books.*for.*author#reviews/i);
+    });
+
   });
 
 }));

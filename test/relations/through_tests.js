@@ -168,36 +168,6 @@ describe('Model.hasMany :through', __db(function() {
       });
     });
 
-    // TODO: this is no longer true & we should ensure that we have a test
-    // that covers the case of it automatically adding the required _implicit_
-    // belongsTo relations
-    it.skip('throws an error when it cannot find the source relation', function() {
-      db = Database.create({ adapter: adapter });
-      Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments' }),
-      });
-      Course = db.model('course').reopen({
-        students: db.hasMany({ through: 'enrollments' }),
-      });
-      Enrollment = db.model('enrollment');
-      expect(function() {
-        Student.coursesRelation;
-      }).to.throw(/source.*enrollment#courses.*enrollment#course.*student#courses.*has-many/i);
-    });
-
-    // TODO: this is no longer true & we should ensure that we have a test
-    // that covers the case of it automatically adding the required _implicit_
-    // belongsTo relations
-    it.skip('throws an error when it cannot find a through relation', function() {
-      db = Database.create({ adapter: adapter });
-      Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollments', join: false }),
-      });
-      expect(function() {
-        Student.coursesRelation;
-      }).to.throw(/through.*enrollments.*student#courses.*has-many/i);
-    });
-
     it('allows source to be specified', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student').reopen({

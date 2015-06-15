@@ -201,6 +201,32 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         'WHERE "authors"."site_id" = ?', [1]);
     });
 
+    it('fetches through many with custom sources', function() {
+      var Publisher = db.model('publisher', {
+        critiques: db.hasMany('reviews', { through: 'authors', source: 'reviews' }),
+      });
+      var Author = db.model('author', {
+        reviews: db.hasMany({ through: 'books', source: 'critiques' }),
+      });
+      var Book = db.model('book', {
+        critiques: db.hasMany('reviews')
+      });
+      var Review = db.model('review', {
+        book: db.belongsTo('book', { inverse: 'critiques' }),
+      });
+
+      var publisher = Publisher.$({ id: 1 });
+
+      return publisher.critiqueObjects.fetch()
+      .should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "reviews".* FROM "reviews" ' +
+        'INNER JOIN "books" ' +
+        'ON "reviews"."book_id" = "books"."id" ' +
+        'INNER JOIN "authors" ' +
+        'ON "books"."author_id" = "authors"."id" ' +
+        'WHERE "authors"."publisher_id" = ?', [1]);
+    });
 
     it('fetches through many relationships w/ custom keys', function() {
       db = Database.create({ adapter: adapter });
@@ -245,21 +271,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         'WHERE "authors"."site_fk" = ?', [1]);
     });
 
-    // TODO: this is no longer true & we should ensure that we have a test
-    // that covers the case of it automatically adding the required _implicit_
-    // belongsTo relations
-    it.skip('throws an error when it cannot find a through relation', function() {
-      db = Database.create({ adapter: adapter });
-      Site = db.model('site').reopen({
-        posts: db.hasMany({ through: 'authors', join: false }),
-        comments: db.hasMany({ through: 'posts' }),
-      });
-      expect(function() {
-        Site.commentsRelation;
-      }).to.throw(/through.*authors.*site#posts.*has-many/i);
-    });
-
-    it('fetches through many relationships (style two)', function() {
+    it.skip('fetches through many relationships (style two)', function() {
       db = Database.create({ adapter: adapter });
       Site = db.model('site').reopen({
         authors: db.hasMany(),

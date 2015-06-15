@@ -203,12 +203,13 @@ describe('Relation.inverse', __db(function() {
     it('does not have an inverse', function() {
       var Author = db.model('author', {
         reviews: db.hasMany({ through: 'books' }),
+        books: db.hasMany(),
       });
       var Book = db.model('book', { reviews: db.hasMany() });
       var Review = db.model('review');
 
-      Author.relations.should.have.keys('reviews');
-      Book.relations.should.have.keys('reviews');
+      Author.relations.should.have.keys('reviews', 'books');
+      Book.relations.should.have.keys('reviews', 'author');
       Review.relations.should.have.keys('book');
 
       expect(inverse(Author, 'reviews')).to.not.exist;
