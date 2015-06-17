@@ -188,13 +188,13 @@ describe('Model self-joins', __db(function() {
       });
 
       Friendship = db.model('friendship', {
-        person: db.belongsTo('person'),
-        friend: db.belongsTo('person'),
+        person: db.belongsTo(),
+        friend: db.belongsTo('person', { inverse: 'passiveFriendships'}),
       });
 
       Enmity = db.model('enmity', {
-        person: db.belongsTo('person'),
-        enemy: db.belongsTo('person'),
+        person: db.belongsTo(),
+        enemy: db.belongsTo('person', { inverse: 'passiveEnmities'}),
       });
     });
 
@@ -214,12 +214,73 @@ describe('Model self-joins', __db(function() {
            'GROUP BY "people"."id"', ['Grinch']);
     });
 
-    it('generates a query for self-referencing many to many relationship (simple definition)', function() {
+    it('generates a query for self-referencing many to many relationship' +
+       'made non-ambiguous via intermediate relation', function() {
       db = Database.create({ adapter: adapter });
       Person = db.model('person', {
         name: db.attr(),
         friends: db.hasMany('person', { join: 'friendships' }),
         enemies: db.hasMany('person', { join: 'enmities' }),
+        friendships: db.hasMany(),
+        enmities: db.hasMany(),
+      });
+
+      // round up everyone who's friends with someone who considers the grinch
+      // an enemy (they may or may not consider the grinch an enemy
+      // themselves).
+      return Person.objects.where({ 'friends.enemies.name': 'Grinch' })
+      .should.eventually.exist.meanwhile(adapter)
+        .should.have.executed(
+          'SELECT "people".* FROM "people" ' +
+           'INNER JOIN "friendships" ON "friendships"."person_id" = "people"."id" ' +
+           'INNER JOIN "people" "friend" ON "friendships"."friend_id" = "friend"."id" ' +
+           'INNER JOIN "enmities" ON "enmities"."person_id" = "friend"."id" ' +
+           'INNER JOIN "people" "enemy" ON "enmities"."enemy_id" = "enemy"."id" ' +
+           'WHERE "enemy"."name" = ? ' +
+           'GROUP BY "people"."id"', ['Grinch']);
+    });
+
+    // TODO: come back to this. it'd be nice for it to work. see comments in
+    // inverse_tests.js about how this configuration would work.
+    it.skip('generates a query for self-referencing many to many ' +
+       'made non-ambiguous w/ belongs-to', function() {
+      db = Database.create({ adapter: adapter });
+      Person = db.model('person', {
+        name: db.attr(),
+        friends: db.hasMany('person', { join: 'friendships' }),
+        enemies: db.hasMany('person', { join: 'enmities' }),
+      });
+      Friendship = db.model('friendship', { person: db.belongsTo(), });
+      Enmity = db.model('enmity', { person: db.belongsTo(), });
+
+      // round up everyone who's friends with someone who considers the grinch
+      // an enemy (they may or may not consider the grinch an enemy
+      // themselves).
+      return Person.objects.where({ 'friends.enemies.name': 'Grinch' })
+      .should.eventually.exist.meanwhile(adapter)
+        .should.have.executed(
+          'SELECT "people".* FROM "people" ' +
+           'INNER JOIN "friendships" ON "friendships"."person_id" = "people"."id" ' +
+           'INNER JOIN "people" "friend" ON "friendships"."friend_id" = "friend"."id" ' +
+           'INNER JOIN "enmities" ON "enmities"."person_id" = "friend"."id" ' +
+           'INNER JOIN "people" "enemy" ON "enmities"."enemy_id" = "enemy"."id" ' +
+           'WHERE "enemy"."name" = ? ' +
+           'GROUP BY "people"."id"', ['Grinch']);
+    });
+
+    it('generates a query for self-referencing many to many ' +
+       'made non-ambiguous w/ belongs-to specifying inverse', function() {
+      db = Database.create({ adapter: adapter });
+      Person = db.model('person', {
+        name: db.attr(),
+        friends: db.hasMany('person', { join: 'friendships' }),
+        enemies: db.hasMany('person', { join: 'enmities' }),
+      });
+      Friendship = db.model('friendship', {
+        friend: db.belongsTo('person', { inverse: 'passiveFriendships'}),
+      });
+      Enmity = db.model('enmity', {
+        enemy: db.belongsTo('person', { inverse: 'passiveEnmities'}),
       });
 
       // round up everyone who's friends with someone who considers the grinch

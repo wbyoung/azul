@@ -201,17 +201,42 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         'WHERE "authors"."site_id" = ?', [1]);
     });
 
-    it('fetches through many with custom sources', function() {
+    it('fetches through many w/ single custom source', function() {
+      var Publisher = db.model('publisher', {
+        reviews: db.hasMany({ through: 'authors' }),
+      });
+      db.model('author', {
+        reviews: db.hasMany({ through: 'books', source: 'critiques' }),
+      });
+      db.model('book', {
+        critiques: db.hasMany('reviews')
+      });
+      db.model('review');
+
+      var publisher = Publisher.$({ id: 1 });
+
+      return publisher.reviewObjects.fetch()
+      .should.eventually.exist.meanwhile(adapter)
+      .should.have.executed(
+        'SELECT "reviews".* FROM "reviews" ' +
+        'INNER JOIN "books" ' +
+        'ON "reviews"."book_id" = "books"."id" ' +
+        'INNER JOIN "authors" ' +
+        'ON "books"."author_id" = "authors"."id" ' +
+        'WHERE "authors"."publisher_id" = ?', [1]);
+    });
+
+    it('fetches through many w/ multiple custom sources', function() {
       var Publisher = db.model('publisher', {
         critiques: db.hasMany('reviews', { through: 'authors', source: 'reviews' }),
       });
-      var Author = db.model('author', {
+      db.model('author', {
         reviews: db.hasMany({ through: 'books', source: 'critiques' }),
       });
-      var Book = db.model('book', {
+      db.model('book', {
         critiques: db.hasMany('reviews')
       });
-      var Review = db.model('review', {
+      db.model('review', {
         book: db.belongsTo('book', { inverse: 'critiques' }),
       });
 
@@ -271,7 +296,7 @@ describe('Model.hasMany :through-shortcut', __db(function() {
         'WHERE "authors"."site_fk" = ?', [1]);
     });
 
-    it.skip('fetches through many relationships (style two)', function() {
+    it('fetches through many relationships (style two)', function() {
       db = Database.create({ adapter: adapter });
       Site = db.model('site').reopen({
         authors: db.hasMany(),

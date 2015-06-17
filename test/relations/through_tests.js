@@ -100,22 +100,22 @@ describe('Model.hasMany :through', __db(function() {
       expect(enrollmentPrototype.studentRelation.primaryKeyAttr).to.eql('id');
     });
 
-    it('has no foreign key foreign keys', function() {
+    it('has foreign keys that match the relation they are through', function() {
       var studentPrototype = Student.__class__.prototype;
       var coursePrototype = Course.__class__.prototype;
       var enrollmentPrototype = Enrollment.__class__.prototype;
-      expect(studentPrototype.coursesRelation.foreignKey).to.eql(undefined);
-      expect(coursePrototype.studentsRelation.foreignKey).to.eql(undefined);
+      expect(studentPrototype.coursesRelation.foreignKey).to.eql('studentId');
+      expect(coursePrototype.studentsRelation.foreignKey).to.eql('courseId');
       expect(enrollmentPrototype.courseRelation.foreignKey).to.eql('courseId');
       expect(enrollmentPrototype.studentRelation.foreignKey).to.eql('studentId');
     });
 
-    it('has no foreign key attrs', function() {
+    it('has foreign key attrs that match the relation they are thorugh', function() {
       var studentPrototype = Student.__class__.prototype;
       var coursePrototype = Course.__class__.prototype;
       var enrollmentPrototype = Enrollment.__class__.prototype;
-      expect(studentPrototype.coursesRelation.foreignKeyAttr).to.eql(undefined);
-      expect(coursePrototype.studentsRelation.foreignKeyAttr).to.eql(undefined);
+      expect(studentPrototype.coursesRelation.foreignKeyAttr).to.eql('student_id');
+      expect(coursePrototype.studentsRelation.foreignKeyAttr).to.eql('course_id');
       expect(enrollmentPrototype.courseRelation.foreignKeyAttr).to.eql('course_id');
       expect(enrollmentPrototype.studentRelation.foreignKeyAttr).to.eql('student_id');
     });
@@ -252,36 +252,6 @@ describe('Model.hasMany :through', __db(function() {
       expect(Student.enrollmentsRelation).to.exist;
     });
 
-    it('adds join table relation immediately (via joins option)', function() {
-      db = Database.create({ adapter: adapter });
-      Student = db.model('student').reopen({
-        courses: db.hasMany({ join: 'enrollments' }),
-      });
-      expect(Student.create().enrollmentsRelation).to.exist;
-    });
-
-    it('adds pluralized join table relation immediately', function() {
-      db = Database.create({ adapter: adapter });
-      Student = db.model('student').reopen({
-        courses: db.hasMany({ through: 'enrollment' }),
-      });
-      Enrollment = db.model('enrollment').reopen({
-        course: db.belongsTo(),
-      });
-
-      // this triggers configuration of the next one
-      expect(Student.coursesRelation).to.exist;
-      expect(Student.enrollmentsRelation).to.exist;
-    });
-
-    it('adds pluralized join table relation immediately (via joins option)', function() {
-      db = Database.create({ adapter: adapter });
-      Student = db.model('student').reopen({
-        courses: db.hasMany({ join: 'enrollment' }),
-      });
-      expect(Student.create().enrollmentsRelation).to.exist;
-    });
-
     it('properly constructs a join model and allows use', function() {
       db = Database.create({ adapter: adapter });
       Student = db.model('student', {
@@ -297,8 +267,6 @@ describe('Model.hasMany :through', __db(function() {
       // these two trigger configuration of the next two
       expect(Student.coursesRelation).to.exist;
       expect(Course.studentsRelation).to.exist;
-      expect(Student.coursesStudentsRelation).to.exist;
-      expect(Course.coursesStudentsRelation).to.exist;
       expect(CourseStudent.courseRelation).to.exist;
       expect(CourseStudent.studentRelation).to.exist;
 

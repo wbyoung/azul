@@ -18,8 +18,7 @@ module.exports = function() {
     articles: hasMany({ inverse: 'author' }),
     comments: hasMany({ inverse: 'commenter' }),
     feedback: hasMany('comments', { through: 'articles', source: 'comments' }),
-    // TODO: bring this back
-    // ownArticles: hasMany('articles', { through: 'blog', source: 'articles' }),
+    ownArticles: hasMany('articles', { through: 'blog', source: 'articles' }),
     otherBlogs: hasMany('blogs', { through: 'articles', source: 'blog' }),
   });
   db.model('blog', {
