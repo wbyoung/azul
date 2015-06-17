@@ -16,6 +16,27 @@ describe('relation configuration', __db(function() {
 
   describe('belong-to only', function() {
     it('is waiting to be written');
+
+    it('can calculate defaults when inverse is missing', function() {
+      var Book = db.model('book', { writer: db.belongsTo() });
+      var Writer = db.model('writer');
+
+      // disallow any additions to the writer class including the implicit
+      // relation that would normally be added. while this would never happen,
+      // it allows us to test that belongsTo can generate the proper default
+      // keys.
+      Writer.reopenClass({
+        reopen: function() {}
+      });
+
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
   });
 
   describe('has-many only', function() {
