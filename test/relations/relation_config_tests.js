@@ -5,27 +5,117 @@ require('../helpers');
 describe('relation configuration', __db(function() {
   /* global db */
 
-  var attr, hasMany, belongTo;
+  var attr, hasMany, belongsTo;
 
   beforeEach(require('../common').models);
   beforeEach(function() {
     attr = db.attr;
     hasMany = db.hasMany;
-    belongTo = db.belongTo;
+    belongsTo = db.belongsTo;
   });
 
   describe('belong-to only', function() {
-    it('is waiting to be written');
 
-    it('can calculate defaults when inverse is missing', function() {
+    it('has default values', function() {
       var Book = db.model('book', { writer: db.belongsTo() });
-      var Writer = db.model('writer');
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('allows customization of primary key', function() {
+      var Book = db.model('book', {
+        writer: db.belongsTo({ primaryKey: 'primaryId' }),
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'primaryId',
+        primaryKeyAttr: 'primary_id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('allows customization of primary key db attr', function() {
+      var Book = db.model('book', {
+        writer: db.belongsTo({ primaryKey: 'primaryId' }),
+      });
+      db.model('writer', {
+        primaryId: db.attr('primary_identifier'),
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'primaryId',
+        primaryKeyAttr: 'primary_identifier',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('allows customization of foreign key', function() {
+      var Book = db.model('book', {
+        writer: db.belongsTo({ foreignKey: 'authorId' }),
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+    });
+
+    it('allows customization of foreign key db attr', function() {
+      var Book = db.model('book', {
+        writer: db.belongsTo({ foreignKey: 'authorId' }),
+        authorId: db.attr('author_identifier'),
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_identifier',
+      });
+    });
+
+    it('allows customization of inverse', function() {
+      var Book = db.model('book', {
+        writer: db.belongsTo({ inverse: 'novels' }),
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'novels',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('calculates defaults when inverse is missing', function() {
+      var Book = db.model('book', { writer: db.belongsTo() });
 
       // disallow any additions to the writer class including the implicit
       // relation that would normally be added. while this would never happen,
       // it allows us to test that belongsTo can generate the proper default
       // keys.
-      Writer.reopenClass({
+      db.model('writer').reopenClass({
         reopen: function() {}
       });
 
@@ -41,17 +131,114 @@ describe('relation configuration', __db(function() {
 
   describe('has-many only', function() {
 
-    it('allows customization of foreign key', function() {
-      var Book = db.model('book', { authorKey: attr('author_num'), });
-      var Writer = db.model('writer', {
-        books: hasMany(Book, { foreignKey: 'authorKey' }),
+    it('has default values', function() {
+      var Writer = db.model('writer', { books: hasMany() });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
       });
-      var keys = {
+    });
+
+    it('allows customization of primary key', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ primaryKey: 'uniqueId' }),
+      });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'uniqueId',
+        primaryKeyAttr: 'unique_id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('allows customization of primary key db attr', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ primaryKey: 'uniqueId' }),
+        uniqueId: db.attr('unique_identifier'),
+      });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'uniqueId',
+        primaryKeyAttr: 'unique_identifier',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('allows customization of foreign key', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ foreignKey: 'authorKey' }),
+      });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorKey',
+        foreignKeyAttr: 'author_key',
+      });
+    });
+
+    it('allows customization of foreign key db attr', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ foreignKey: 'authorKey' }),
+      });
+      db.model('book', { authorKey: attr('author_num'), });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
         foreignKey: 'authorKey',
         foreignKeyAttr: 'author_num',
-      };
-      Writer.booksRelation.should.have.properties(keys);
-      Book.writerRelation.should.have.properties(keys); // implicit inverse
+      });
+    });
+
+    it('allows customization of inverse', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ inverse: 'author' }),
+      });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'author',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+    });
+
+    it('calculates defaults when inverse is missing', function() {
+      var Writer = db.model('writer', { books: hasMany(), });
+
+      // disallow any additions to the book class including the implicit
+      // relation that would normally be added. while this would never happen,
+      // it allows us to test that hasMany can generate the proper default
+      // keys.
+      db.model('book').reopenClass({
+        reopen: function() {}
+      });
+
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
     });
 
   });
@@ -61,10 +248,147 @@ describe('relation configuration', __db(function() {
   });
 
   describe('one-to-many', function() {
-    it('is waiting to be written');
+
+    it('has default values', function() {
+      var Writer = db.model('writer', { books: hasMany() });
+      var Book = db.model('book', { writer: belongsTo() });
+
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
+    it('adds implicit inverse when customized via has-many', function() {
+      var Writer = db.model('writer', {
+        books: hasMany({ inverse: 'author' }),
+      });
+      var Book = db.model('book');
+
+      // must test writer first to trigger setup of inverse
+      Writer.relations.should.have.keys('books');
+      Writer.booksRelation.should.have.properties({
+        inverse: 'author',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+
+      Book.relations.should.have.keys('author');
+      Book.authorRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+    });
+
+    it('adds implicit inverse when customized via belongs-to', function() {
+      var Writer = db.model('writer');
+      var Book = db.model('book', {
+        writer: belongsTo({ inverse: 'novels' }),
+      });
+
+      // must test book first to trigger setup of inverse
+      Book.relations.should.have.keys('writer');
+      Book.writerRelation.should.have.properties({
+        inverse: 'novels',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+
+      Writer.relations.should.have.keys('novels');
+      Writer.novelsRelation.should.have.properties({
+        inverse: 'writer',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'writerId',
+        foreignKeyAttr: 'writer_id',
+      });
+    });
+
   });
 
   describe('many-to-many', function() {
+
+    it('has default values', function() {
+      var Author = db.model('author', {
+        books: db.hasMany({ through: 'authorship' }),
+      });
+      var Book = db.model('book', {
+        authors: db.hasMany({ through: 'authorships' }),
+      });
+      var Authorship = db.model('authorship');
+
+      Author.relations.should.have.keys('books', 'authorships');
+      Author.booksRelation.relatedModelClass.should.equal(Book);
+      Author.booksRelation.should.have.properties({
+        inverse: 'authors',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+      Author.authorshipsRelation.relatedModelClass.should.equal(Authorship);
+      Author.authorshipsRelation.should.have.properties({
+        inverse: 'author',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+
+      Book.relations.should.have.keys('authors', 'authorships');
+      Book.authorsRelation.relatedModelClass.should.equal(Author);
+      Book.authorsRelation.should.have.properties({
+        inverse: 'books',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'bookId',
+        foreignKeyAttr: 'book_id',
+      });
+      Book.authorshipsRelation.relatedModelClass.should.equal(Authorship);
+      Book.authorshipsRelation.should.have.properties({
+        inverse: 'book',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'bookId',
+        foreignKeyAttr: 'book_id',
+      });
+
+      Authorship.relations.should.have.keys('author', 'book');
+      Authorship.bookRelation.should.have.properties({
+        inverse: 'authorships',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'bookId',
+        foreignKeyAttr: 'book_id',
+      });
+      Authorship.authorRelation.should.have.properties({
+        inverse: 'authorships',
+        primaryKey: 'pk',
+        primaryKeyAttr: 'id',
+        foreignKey: 'authorId',
+        foreignKeyAttr: 'author_id',
+      });
+    });
 
     it('generates implicit relations w/ source & join specified', function() {
       var Author = db.model('author', {
@@ -154,7 +478,7 @@ describe('relation configuration', __db(function() {
 
   describe('many-through', function() {
 
-    it('works for the simplest configuration', function() {
+    it('has default values', function() {
       var Author = db.model('author', {
         reviews: db.hasMany({ through: 'books' }),
       });

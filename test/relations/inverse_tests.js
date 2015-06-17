@@ -2,23 +2,45 @@
 
 require('../helpers');
 
-var _ = require('lodash');
-
 describe('Relation.inverse', __db(function() {
   /* global db */
 
   beforeEach(require('../common').models);
 
-  var inverse = function(model, attr) {
-    return _.result(model[attr + 'Relation'], 'inverseRelation');
-  };
-
   describe('belong-to only', function() {
-    it('is waiting to be written');
+
+    it('calculates the inverse ', function() {
+      var Room = db.model('room');
+      var Floor = db.model('floor', { room: db.belongsTo() });
+
+      // floor must be accessed first to trigger generation of inverse
+      Floor.relations.should.have.keys('room');
+      Floor.roomRelation.inverse.should.eql('floors');
+      Floor.roomRelation.inverseRelation().should.equal(Room.floorsRelation);
+
+      Room.relations.should.have.keys('floors');
+      Room.floorsRelation.inverse.should.eql('room');
+      Room.floorsRelation.inverseRelation().should.equal(Floor.roomRelation);
+    });
+
   });
 
   describe('has-many only', function() {
-    it('is waiting to be written');
+
+    it('calculates the inverse ', function() {
+      var Room = db.model('room', { floors: db.hasMany() });
+      var Floor = db.model('floor');
+
+      // room must be accessed first to trigger generation of inverse
+      Room.relations.should.have.keys('floors');
+      Room.floorsRelation.inverse.should.eql('room');
+      Room.floorsRelation.inverseRelation().should.equal(Floor.roomRelation);
+
+      Floor.relations.should.have.keys('room');
+      Floor.roomRelation.inverse.should.eql('floors');
+      Floor.roomRelation.inverseRelation().should.equal(Room.floorsRelation);
+    });
+
   });
 
   describe('one-to-many', function() {
@@ -26,11 +48,13 @@ describe('Relation.inverse', __db(function() {
     it('calculates the inverse ', function() {
       var Room = db.model('room', { floors: db.hasMany() });
       var Floor = db.model('floor', { room: db.belongsTo() });
+
       Room.relations.should.have.keys('floors');
-      Floor.relations.should.have.keys('room');
       Room.floorsRelation.inverse.should.eql('room');
-      Floor.roomRelation.inverse.should.eql('floors');
       Room.floorsRelation.inverseRelation().should.equal(Floor.roomRelation);
+
+      Floor.relations.should.have.keys('room');
+      Floor.roomRelation.inverse.should.eql('floors');
       Floor.roomRelation.inverseRelation().should.equal(Room.floorsRelation);
     });
 
@@ -39,11 +63,13 @@ describe('Relation.inverse', __db(function() {
         floors: db.hasMany({ inverse: 'area' })
       });
       var Floor = db.model('floor', { area: db.belongsTo('room') });
+
       Room.relations.should.have.keys('floors');
-      Floor.relations.should.have.keys('area');
       Room.floorsRelation.inverse.should.eql('area');
-      Floor.areaRelation.inverse.should.eql('floors');
       Room.floorsRelation.inverseRelation().should.equal(Floor.areaRelation);
+
+      Floor.relations.should.have.keys('area');
+      Floor.areaRelation.inverse.should.eql('floors');
       Floor.areaRelation.inverseRelation().should.equal(Room.floorsRelation);
     });
 
@@ -52,11 +78,13 @@ describe('Relation.inverse', __db(function() {
       var Floor = db.model('floor', {
         area: db.belongsTo('room', { inverse: 'floors' })
       });
+
       Room.relations.should.have.keys('floors');
-      Floor.relations.should.have.keys('area');
       Room.floorsRelation.inverse.should.eql('area');
-      Floor.areaRelation.inverse.should.eql('floors');
       Room.floorsRelation.inverseRelation().should.equal(Floor.areaRelation);
+
+      Floor.relations.should.have.keys('area');
+      Floor.areaRelation.inverse.should.eql('floors');
       Floor.areaRelation.inverseRelation().should.equal(Room.floorsRelation);
     });
 
@@ -77,13 +105,14 @@ describe('Relation.inverse', __db(function() {
       });
 
       Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('authors', 'authorships');
-      Authorship.relations.should.have.keys('book', 'author');
-
-      Book.authorsRelation.inverse.should.eql('books');
       Author.booksRelation.inverse.should.eql('authors');
-      inverse(Author, 'books').should.to.equal(Book.authorsRelation);
-      inverse(Book, 'authors').should.to.equal(Author.booksRelation);
+      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+
+      Book.relations.should.have.keys('authors', 'authorships');
+      Book.authorsRelation.inverse.should.eql('books');
+      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+
+      Authorship.relations.should.have.keys('book', 'author');
     });
 
     it('calculates the inverse when w/ all relations explicit', function() {
@@ -99,14 +128,16 @@ describe('Relation.inverse', __db(function() {
         book: db.belongsTo(),
         author: db.belongsTo(),
       });
-      Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('authors', 'authorships');
-      Authorship.relations.should.have.keys('book', 'author');
 
-      Book.authorsRelation.inverse.should.eql('books');
+      Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('authors');
-      inverse(Author, 'books').should.to.equal(Book.authorsRelation);
-      inverse(Book, 'authors').should.to.equal(Author.booksRelation);
+      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+
+      Book.relations.should.have.keys('authors', 'authorships');
+      Book.authorsRelation.inverse.should.eql('books');
+      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+
+      Authorship.relations.should.have.keys('book', 'author');
     });
 
     it('calculates the inverse w/ implicit join model', function() {
@@ -117,14 +148,16 @@ describe('Relation.inverse', __db(function() {
         authors: db.hasMany({ through: 'authorship' }),
       });
       var Authorship = db.model('authorship');
-      Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('authors', 'authorships');
-      Authorship.relations.should.have.keys('book', 'author');
 
-      Book.authorsRelation.inverse.should.eql('books');
+      Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('authors');
-      inverse(Author, 'books').should.to.equal(Book.authorsRelation);
-      inverse(Book, 'authors').should.to.equal(Author.booksRelation);
+      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+
+      Book.relations.should.have.keys('authors', 'authorships');
+      Book.authorsRelation.inverse.should.eql('books');
+      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+
+      Authorship.relations.should.have.keys('book', 'author');
     });
 
     it('calculates the inverse w/ simple side defining inverse', function() {
@@ -143,13 +176,14 @@ describe('Relation.inverse', __db(function() {
       });
 
       Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('writers', 'authorships');
-      Authorship.relations.should.have.keys('book', 'author');
-
-      Book.writersRelation.inverse.should.eql('books');
       Author.booksRelation.inverse.should.eql('writers');
-      inverse(Author, 'books').should.to.equal(Book.writersRelation);
-      inverse(Book, 'writers').should.to.equal(Author.booksRelation);
+      Author.booksRelation.inverseRelation().should.to.equal(Book.writersRelation);
+
+      Book.relations.should.have.keys('writers', 'authorships');
+      Book.writersRelation.inverse.should.eql('books');
+      Book.writersRelation.inverseRelation().should.to.equal(Author.booksRelation);
+
+      Authorship.relations.should.have.keys('book', 'author');
     });
 
     it('calculates the inverse w/ complex side defining inverse', function() {
@@ -169,13 +203,14 @@ describe('Relation.inverse', __db(function() {
       });
 
       Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('writers', 'authorships');
-      Authorship.relations.should.have.keys('book', 'author');
-
-      Book.writersRelation.inverse.should.eql('books');
       Author.booksRelation.inverse.should.eql('writers');
-      inverse(Author, 'books').should.to.equal(Book.writersRelation);
-      inverse(Book, 'writers').should.to.equal(Author.booksRelation);
+      Author.booksRelation.inverseRelation().should.to.equal(Book.writersRelation);
+
+      Book.relations.should.have.keys('writers', 'authorships');
+      Book.writersRelation.inverse.should.eql('books');
+      Book.writersRelation.inverseRelation().should.to.equal(Author.booksRelation);
+
+      Authorship.relations.should.have.keys('book', 'author');
     });
 
     it('generates implicit relations w/ source specified', function() {
@@ -188,48 +223,48 @@ describe('Relation.inverse', __db(function() {
       var Authorship = db.model('authorship');
 
       Author.relations.should.have.keys('books', 'authorships');
-      Book.relations.should.have.keys('authors', 'authorships');
-      Authorship.relations.should.have.keys('writer', 'novel');
-
       Author.booksRelation.inverse.should.eql('authors');
       Author.authorshipsRelation.inverse.should.eql('writer');
-      inverse(Author, 'books').should.equal(Book.authorsRelation);
-      inverse(Author, 'authorships').should.equal(Authorship.writerRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.authorsRelation);
+      Author.authorshipsRelation.inverseRelation().should.equal(Authorship.writerRelation);
+
+      Book.relations.should.have.keys('authors', 'authorships');
       Book.authorsRelation.inverse.should.eql('books');
       Book.authorshipsRelation.inverse.should.eql('novel');
-      inverse(Book, 'authors').should.equal(Author.booksRelation);
-      inverse(Book, 'authorships').should.equal(Authorship.novelRelation);
+      Book.authorsRelation.inverseRelation().should.equal(Author.booksRelation);
+      Book.authorshipsRelation.inverseRelation().should.equal(Authorship.novelRelation);
+
+      Authorship.relations.should.have.keys('writer', 'novel');
       Authorship.writerRelation.inverse.should.eql('authorships');
       Authorship.novelRelation.inverse.should.eql('authorships');
-      inverse(Authorship, 'writer').should.equal(Author.authorshipsRelation);
-      inverse(Authorship, 'novel').should.equal(Book.authorshipsRelation);
+      Authorship.writerRelation.inverseRelation().should.equal(Author.authorshipsRelation);
+      Authorship.novelRelation.inverseRelation().should.equal(Book.authorshipsRelation);
     });
 
     it('works for example models `social`', function() {
       var Individual = db.model('individual');
       var Relationship = db.model('relationship');
 
-      Relationship.relations.should.have.keys([
-        'follower', 'followed',
-      ]);
-
       Individual.relations.should.have.keys([
         'followers', 'following',
         'activeRelationships',
         'passiveRelationships',
       ]);
-
-      inverse(Individual, 'followers')._name
+      Individual.followersRelation.inverseRelation()._name
         .should.equal(Individual.followingRelation._name);
-      inverse(Individual, 'following')
+      Individual.followingRelation.inverseRelation()
         .should.equal(Individual.followersRelation);
-      inverse(Individual, 'activeRelationships')
+      Individual.activeRelationshipsRelation.inverseRelation()
         .should.equal(Relationship.followerRelation);
-      inverse(Individual, 'passiveRelationships')
+      Individual.passiveRelationshipsRelation.inverseRelation()
         .should.equal(Relationship.followedRelation);
-      inverse(Relationship, 'follower')
+
+      Relationship.relations.should.have.keys([
+        'follower', 'followed',
+      ]);
+      Relationship.followerRelation.inverseRelation()
         .should.equal(Individual.activeRelationshipsRelation);
-      inverse(Relationship, 'followed')
+      Relationship.followedRelation.inverseRelation()
         .should.equal(Individual.passiveRelationshipsRelation);
     });
 
@@ -320,7 +355,7 @@ describe('Relation.inverse', __db(function() {
       Book.relations.should.have.keys('reviews');
       Review.relations.should.have.keys('book');
 
-      expect(inverse(Author, 'reviews')).to.not.exist;
+      expect(Author.reviewsRelation.inverseRelation()).to.not.exist;
     });
 
     it('does not have an inverse when has-many is included', function() {
@@ -335,7 +370,7 @@ describe('Relation.inverse', __db(function() {
       Book.relations.should.have.keys('reviews', 'author');
       Review.relations.should.have.keys('book');
 
-      expect(inverse(Author, 'reviews')).to.not.exist;
+      expect(Author.reviewsRelation.inverseRelation()).to.not.exist;
     });
 
   });
