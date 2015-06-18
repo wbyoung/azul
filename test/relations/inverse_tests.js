@@ -106,11 +106,11 @@ describe('Relation.inverse', __db(function() {
 
       Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('authors');
-      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.authorsRelation);
 
       Book.relations.should.have.keys('authors', 'authorships');
       Book.authorsRelation.inverse.should.eql('books');
-      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+      Book.authorsRelation.inverseRelation().should.equal(Author.booksRelation);
 
       Authorship.relations.should.have.keys('book', 'author');
     });
@@ -131,11 +131,11 @@ describe('Relation.inverse', __db(function() {
 
       Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('authors');
-      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.authorsRelation);
 
       Book.relations.should.have.keys('authors', 'authorships');
       Book.authorsRelation.inverse.should.eql('books');
-      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+      Book.authorsRelation.inverseRelation().should.equal(Author.booksRelation);
 
       Authorship.relations.should.have.keys('book', 'author');
     });
@@ -151,11 +151,11 @@ describe('Relation.inverse', __db(function() {
 
       Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('authors');
-      Author.booksRelation.inverseRelation().should.to.equal(Book.authorsRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.authorsRelation);
 
       Book.relations.should.have.keys('authors', 'authorships');
       Book.authorsRelation.inverse.should.eql('books');
-      Book.authorsRelation.inverseRelation().should.to.equal(Author.booksRelation);
+      Book.authorsRelation.inverseRelation().should.equal(Author.booksRelation);
 
       Authorship.relations.should.have.keys('book', 'author');
     });
@@ -177,11 +177,11 @@ describe('Relation.inverse', __db(function() {
 
       Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('writers');
-      Author.booksRelation.inverseRelation().should.to.equal(Book.writersRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.writersRelation);
 
       Book.relations.should.have.keys('writers', 'authorships');
       Book.writersRelation.inverse.should.eql('books');
-      Book.writersRelation.inverseRelation().should.to.equal(Author.booksRelation);
+      Book.writersRelation.inverseRelation().should.equal(Author.booksRelation);
 
       Authorship.relations.should.have.keys('book', 'author');
     });
@@ -204,11 +204,11 @@ describe('Relation.inverse', __db(function() {
 
       Author.relations.should.have.keys('books', 'authorships');
       Author.booksRelation.inverse.should.eql('writers');
-      Author.booksRelation.inverseRelation().should.to.equal(Book.writersRelation);
+      Author.booksRelation.inverseRelation().should.equal(Book.writersRelation);
 
       Book.relations.should.have.keys('writers', 'authorships');
       Book.writersRelation.inverse.should.eql('books');
-      Book.writersRelation.inverseRelation().should.to.equal(Author.booksRelation);
+      Book.writersRelation.inverseRelation().should.equal(Author.booksRelation);
 
       Authorship.relations.should.have.keys('book', 'author');
     });
