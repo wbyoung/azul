@@ -146,6 +146,14 @@ describe('Model.belongsTo', __db(function() {
       });
     });
 
+    it('can update object when related object has not changed', function() {
+      article.title = 'Azul.js News';
+      return article.save().should.eventually.exist
+      .meanwhile(adapter).should.have.executed('UPDATE "articles" ' +
+        'SET "title" = ?, "author_id" = ? ' +
+        'WHERE "id" = ?', ['Azul.js News', 623, 932]);
+    });
+
     it('sets foreign key when item saved after assigned', function() {
       var user = User.create({ username: 'cocoabythefire' });
       var article = Article.create({ title: 'Issue 12', author: user });
