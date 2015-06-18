@@ -16,7 +16,7 @@ describe('Model.hasOne pre-fetch', __db(function() {
     return User.objects.with('blog').fetch().should.eventually.exist.meanwhile(adapter)
     .should.have.executed(
       'SELECT * FROM "users"',
-      'SELECT * FROM "blogs" WHERE "owner_id" IN (?, ?)', [231, 844]);
+      'SELECT * FROM "blogs" WHERE "owner_id" IN (?, ?) LIMIT 2', [231, 844]);
   });
 
   it('works with all', function() {
@@ -24,7 +24,7 @@ describe('Model.hasOne pre-fetch', __db(function() {
     .should.eventually.exist
     .meanwhile(adapter).should.have.executed(
       'SELECT * FROM "users"',
-      'SELECT * FROM "blogs" WHERE "owner_id" IN (?, ?)', [231, 844]);
+      'SELECT * FROM "blogs" WHERE "owner_id" IN (?, ?) LIMIT 2', [231, 844]);
   });
 
   it('caches related objects', function() {

@@ -83,6 +83,34 @@ module.exports = function() {
     manager: belongsTo('employee', { inverse: 'subordinates' }),
   });
 
+  // manufacturing models: supplier, account, accountHistory
+  db.model('supplier', {
+    name: attr(),
+    account: hasOne(),
+    accountHistory: hasOne({ through: 'account' }),
+  });
+  db.model('account', {
+    name: attr(),
+    supplier: belongsTo(),
+    accountHistory: hasOne(),
+  });
+  db.model('accountHistory', {
+    details: attr(),
+    account: belongsTo(),
+  });
+
+  adapter.respond(/select.*from "suppliers"/i, [
+    { id: 229, name: 'Bay Foods' },
+    { id: 430, name: 'Natural Organics' },
+  ]);
+  adapter.respond(/select.*from "accounts"/i, [
+    { id: 392, name: 'Bay Foods Account', 'supplier_id': 229 },
+    { id: 831, name: 'Natural Organics Account', 'supplier_id': 430 },
+  ]);
+  adapter.respond(/select.*from "account_histories"/i, [
+    { id: 832, details: 'many details', 'account_id': 392 },
+  ]);
+
   // programming models: node
   db.model('node', {
     parent: belongsTo('node', { inverse: 'nodes' }),
