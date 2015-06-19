@@ -235,15 +235,51 @@ relation is overly abstract (as the above example does).
 
 ### One-to-One
 
-<div class="panel panel-info">
-<div class="panel-heading">
-  <span class="panel-title">Coming Soon&hellip;</span>
-</div>
-<div class="panel-body">
-We'll be adding one-to-one relationships via <code>belongsTo</code> and
-<code>hasOne</code> shortly.
-</div>
-</div>
+In this example, we'll build a simple relationship between a _supplier_ and its
+_account_.
+
+```js
+var Supplier = db.model('name', {
+  name: db.attr(),
+  account: db.hasOne()
+});
+
+var Account = db.model('account', {
+  accountNumber: db.attr(),
+  supplier: db.belongsTo()
+});
+```
+
+Each instance of the `Supplier` class will now be able to use the following
+methods and properties:
+
+- [`Supplier#account`](#methods-hasone-association)
+- [`Supplier#createAccount()`](#methods-hasone-createassociation)
+- [`Supplier#fetchAccount()`](#methods-hasone-fetchassociation)
+
+And each instance of the `Account` class will now have:
+
+- [`Account#supplier`](#methods-belongsto-association)
+- [`Account#supplierId`](#methods-belongsto-associationid)
+- [`Account#createSupplier()`](#methods-belongsto-createassociation)
+- [`Account#fetchSupplier()`](#methods-belongsto-fetchassociation)
+
+A migration for this would look involve creating the foreign key when creating
+the `accounts` table:
+
+```js
+exports.change = function(schema) {
+  schema.createTable('suppliers', function(table) {
+    table.string('name');
+  });
+
+  schema.createTable('accounts', function(table) {
+    table.string('account_number');
+    table.integer('supplier_id').references('suppliers.id').unique();
+  });
+};
+```
+
 
 ## Through
 
@@ -670,6 +706,72 @@ Clear all related objects.
 ```js
 blog.clearArticles();
 ```
+
+### `#hasOne([model], [options])`
+
+A has-one relationship adds the following properties and methods:
+
+`association` is a placeholder for the name of the belongs-to relation being
+defined. If the name of the relation was `account`, i.e.
+`Model.reopen({ account: db.hasOne() })`, then `fetchAccount` would be one of
+the methods added to `Model`.
+
+- [`association`](#methods-hasone-association)
+- [`createAssociation()`](#methods-hasone-createassociation)
+- [`fetchAssociation()`](#methods-hasone-fetchassociation)
+
+#### Options
+
+If the property name does not match the name of the related model, pass the
+model name as the first argument. For instance to associate `Supplier`
+and `Account` through the relation name `accountDetails`:
+
+```js
+Supplier.reopen({
+  accountDetails: db.hasMany('account')
+})
+```
+
+`hasOne` accepts the following options:
+
+- `inverse` The name of the inverse relationship. The default is to determine
+  the inverse from the model name. The above example would have an inverse of
+  `supplier`.
+- `primaryKey` The name of the primary key in the relationship. This defaults
+  to `pk`.
+- `foreignKey` The name of the foreign key in the relationship. This defaults
+  to the foreign key defined on the inverse relationship or `<inverse>Id` if no
+  inverse is defined. The above example would have a default of `supplierId`.
+- `through` Specify the name of a relationship through which this collection is
+accessed.
+- `source` When using `through` this is the name of the relationship on the
+destination model. The default value is the name of the attribute for the
+relationship.
+
+
+#### `#association=`
+
+Access the relation. This will throw an error if the relation has not yet been
+loaded. Load the association before accessing it using
+[`with`][azul-queries#with] or via
+[`fetchAssociation`](#methods-hasone-fetchassociation).
+
+This property is also a setter used to alter the relationship. The changes will
+remain in memory until [saved][azul-models#save]:
+
+
+#### `#createAssociation([attrs])`
+
+Create a new object of the relationship type and sets it as the related value.
+
+
+#### `#fetchAssociation()`
+
+Fetch the associated object.
+
+Once fetched, the value will also be accessible via the
+[`association`](#methods-hasone-association) property.
+
 
 [azul-models#save]: /guides/models/#methods-properties-save
 [azul-queries]: /guides/queries/
