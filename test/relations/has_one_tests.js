@@ -156,11 +156,8 @@ describe('Model.hasOne', __db(function() {
       .meanwhile(adapter).should.have.executed(
         'UPDATE "blogs" SET "owner_id" = ? WHERE "id" = ?', [231, 5])
       .then(function() {
-        user.blogRelation._getInFlightData(user).should.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(user).to.have.property('_blogObjectsInFlight')
+          .that.is.undefined;
         blog.should.have.property('dirty', false);
       });
     });
@@ -177,11 +174,8 @@ describe('Model.hasOne', __db(function() {
         'SELECT * FROM \"blogs\" WHERE \"owner_id\" = ? LIMIT 1', [231],
         'UPDATE "blogs" SET "owner_id" = ? WHERE "id" = ?', [undefined, 348])
       .then(function() {
-        user.articlesRelation._getInFlightData(user).should.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(user).to.have.property('_articlesObjectsInFlight')
+          .that.is.undefined;
         removed.should.have.property('dirty', false);
       });
     });

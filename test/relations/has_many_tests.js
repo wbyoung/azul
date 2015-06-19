@@ -224,11 +224,9 @@ describe('Model.hasMany', __db(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
           'WHERE "id" = ?', [1, 5]);
-        expect(user.articlesRelation._getInFlightData(user)).to.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+
+        expect(user).to.have.property('_articlesObjectsInFlight')
+          .that.is.undefined;
         expect(article).to.have.property('dirty', false);
       });
     });
@@ -322,11 +320,8 @@ describe('Model.hasMany', __db(function() {
         adapter.should.have.executed(
           'UPDATE "articles" SET "author_num" = ? ' +
           'WHERE "id" = ?', [undefined, 5]);
-        expect(user.articlesRelation._getInFlightData(user)).to.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(user).to.have.property('_articlesObjectsInFlight')
+          .that.is.undefined;
         expect(article).to.have.property('dirty', false);
       });
     });

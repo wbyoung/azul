@@ -473,6 +473,24 @@ describe('Model one-to-many', __db(function() {
       });
     });
 
+    describe('with changes to an item in the collection', function() {
+      beforeEach(function() { this.author.articles[0].title = 'Updated'; });
+      beforeEach(function() { adapter.scope(); });
+      afterEach(function() { adapter.unscope(); });
+
+      it('does not update when the object that has-many is saved', function() {
+        return this.author.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(/* nothing */);
+      });
+
+      it('requires item to be updated manually', function() {
+        return this.author.articles[0].save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(
+          'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+          'WHERE "id" = ?', ['Updated', 395, 1]);
+      });
+    });
+
     describe('when removing existing object via belongsTo', function() {
       beforeEach(function() {
         this.article = this.author.articles[0];
@@ -490,6 +508,8 @@ describe('Model one-to-many', __db(function() {
         this.article = this.author.articles[0];
         this.article.author = this.newAuthor;
       });
+      beforeEach(function() { adapter.scope(); });
+      afterEach(function() { adapter.unscope(); });
 
       it('removes from hasMany collection cache', function() {
         expect(this.author.articles).to.not.contain(this.article);
@@ -497,6 +517,24 @@ describe('Model one-to-many', __db(function() {
 
       it('adds to hasMany collection cache', function() {
         expect(this.newAuthor.articles).to.contain(this.article);
+      });
+
+      it('saves both objects when the object that has-many is saved', function() {
+        return this.newAuthor.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(
+          'INSERT INTO "users" ("username") VALUES (?) ' +
+          'RETURNING "id"', ['reed'],
+          'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+          'WHERE "id" = ?', ['Journal', 43, 1])
+      });
+
+      it('saves both objects when the object that belongs-to is saved', function() {
+        return this.article.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(
+          'INSERT INTO "users" ("username") VALUES (?) ' +
+          'RETURNING "id"', ['reed'],
+          'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
+          'WHERE "id" = ?', ['Journal', 43, 1])
       });
     });
 
@@ -640,11 +678,10 @@ describe('Model one-to-many', __db(function() {
       var author = this.author;
       var relation = author.articlesRelation;
       var inFlight = relation._getInFlightData(author);
-      expect(inFlight).to.eql({
-        clear: false,
-        add: [this.article],
-        remove: [],
-      });
+
+      expect(inFlight.add).to.eql([this.article]);
+      expect(_(inFlight).omit('add').filter(_.negate(_.isEmpty)).value())
+        .to.have.lengthOf(0);
     });
 
     describe('when retried & the database accepts it', function() {
@@ -662,14 +699,8 @@ describe('Model one-to-many', __db(function() {
       });
 
       it('leaves the hasMany object with no flight data', function() {
-        var author = this.author;
-        var relation = author.articlesRelation;
-        var inFlight = relation._getInFlightData(author);
-        expect(inFlight).to.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(this.author).to.have.property('_articlesObjectsInFlight')
+          .that.is.undefined;
       });
 
       it('executes the proper sql', function() {

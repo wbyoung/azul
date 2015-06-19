@@ -381,11 +381,8 @@ describe('Model.hasMany :through', __db(function() {
         adapter.should.have.executed(
           'INSERT INTO "enrollments" ("student_id", "course_id") ' +
           'VALUES (?, ?)', [1, 5]);
-        expect(student.coursesRelation._getInFlightData(student)).to.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(student).to.have.property('_coursesObjectsInFlight')
+          .that.is.undefined;
         expect(course).to.have.property('dirty', false);
       });
     });
@@ -497,11 +494,8 @@ describe('Model.hasMany :through', __db(function() {
         adapter.should.have.executed(
           'DELETE FROM "enrollments" ' +
           'WHERE "student_id" = ? AND "course_id" = ?', [1, 5]);
-        expect(student.coursesRelation._getInFlightData(student)).to.eql({
-          clear: false,
-          add: [],
-          remove: [],
-        });
+        expect(student).to.have.property('_coursesObjectsInFlight')
+          .that.is.undefined;
         expect(course).to.have.property('dirty', false);
       });
     });
