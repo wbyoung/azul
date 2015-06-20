@@ -525,7 +525,7 @@ describe('Model one-to-many', __db(function() {
           'INSERT INTO "users" ("username") VALUES (?) ' +
           'RETURNING "id"', ['reed'],
           'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-          'WHERE "id" = ?', ['Journal', 43, 1])
+          'WHERE "id" = ?', ['Journal', 43, 1]);
       });
 
       it('saves both objects when the object that uses belongs-to is saved', function() {
@@ -534,8 +534,17 @@ describe('Model one-to-many', __db(function() {
           'INSERT INTO "users" ("username") VALUES (?) ' +
           'RETURNING "id"', ['reed'],
           'UPDATE "articles" SET "title" = ?, "author_id" = ? ' +
-          'WHERE "id" = ?', ['Journal', 43, 1])
+          'WHERE "id" = ?', ['Journal', 43, 1]);
       });
+
+      it('only saves the object that uses the has-many when the other' +
+         'object is no longer associated', function() {
+        this.article.author = this.author;
+        return this.newAuthor.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(
+          'INSERT INTO "users" ("username") VALUES (?) ' +
+          'RETURNING "id"', ['reed']);
+      })
     });
 
     describe('json', function() {
