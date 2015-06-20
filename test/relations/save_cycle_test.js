@@ -37,7 +37,7 @@ describe('Model.save with many new models', __db(function() {
     article2.addComment(commentD);
   });
 
-  it('saves everything "top" relation is saved', function() {
+  it('saves everything when "top" relation is saved', function() {
     return azulBlog.save().should.eventually.exist
     .meanwhile(adapter).should.have.executed(
       'INSERT INTO "users" ("username", "email_addr") VALUES (?, ?) ' +
@@ -71,9 +71,9 @@ describe('Model.save with many new models', __db(function() {
       'RETURNING "id"', ['Jack\'s Adventures', 399]);
   });
 
-  it('saves everything "bottom" relation is saved');
+  it('saves everything when "bottom" relation is saved');
 
-  it('saves everything "mid" relation is saved');
+  it('saves everything when "mid" relation is saved');
 
 }));
 
