@@ -544,7 +544,7 @@ describe('Model one-to-many', __db(function() {
         .meanwhile(adapter).should.have.executed(
           'INSERT INTO "users" ("username") VALUES (?) ' +
           'RETURNING "id"', ['reed']);
-      })
+      });
     });
 
     describe('json', function() {
