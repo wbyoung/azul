@@ -478,7 +478,7 @@ describe('Model one-to-many', __db(function() {
       beforeEach(function() { adapter.scope(); });
       afterEach(function() { adapter.unscope(); });
 
-      it('does not update when the object that has-many is saved', function() {
+      it('does not update when the object that uses has-many is saved', function() {
         return this.author.save().should.eventually.exist
         .meanwhile(adapter).should.have.executed(/* nothing */);
       });
@@ -519,7 +519,7 @@ describe('Model one-to-many', __db(function() {
         expect(this.newAuthor.articles).to.contain(this.article);
       });
 
-      it('saves both objects when the object that has-many is saved', function() {
+      it('saves both objects when the object that uses has-many is saved', function() {
         return this.newAuthor.save().should.eventually.exist
         .meanwhile(adapter).should.have.executed(
           'INSERT INTO "users" ("username") VALUES (?) ' +
@@ -528,7 +528,7 @@ describe('Model one-to-many', __db(function() {
           'WHERE "id" = ?', ['Journal', 43, 1])
       });
 
-      it('saves both objects when the object that belongs-to is saved', function() {
+      it('saves both objects when the object that uses belongs-to is saved', function() {
         return this.article.save().should.eventually.exist
         .meanwhile(adapter).should.have.executed(
           'INSERT INTO "users" ("username") VALUES (?) ' +
@@ -642,6 +642,34 @@ describe('Model one-to-many', __db(function() {
     describe('when executed', function() {
       beforeEach(function() {
         return this.article.save();
+      });
+    });
+  });
+
+  describe('when belongsTo item cache is loaded', function() {
+    beforeEach(function() {
+      return Article.objects.find(1)
+        .then(function(obj) { this.article = obj; }.bind(this));
+    });
+    beforeEach(function() {
+      return this.article.fetchAuthor();
+    });
+
+    describe('with changes to the item', function() {
+      beforeEach(function() { this.article.author.username = 'updated'; });
+      beforeEach(function() { adapter.scope(); });
+      afterEach(function() { adapter.unscope(); });
+
+      it('does not update when the object that uses belongs-to is saved', function() {
+        return this.article.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(/* nothing */);
+      });
+
+      it('requires item to be updated manually', function() {
+        return this.article.author.save().should.eventually.exist
+        .meanwhile(adapter).should.have.executed(
+          'UPDATE "users" SET "username" = ? ' +
+          'WHERE "id" = ?', ['updated', 1]);
       });
     });
   });

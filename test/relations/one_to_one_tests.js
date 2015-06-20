@@ -332,8 +332,6 @@ describe('Model one-to-one', __db(function() {
 
       it('executes the proper sql', function() {
         adapter.should.have.executed(
-          'UPDATE "users" SET "username" = ?, "email_addr" = ? ' +
-          'WHERE "id" = ?', ['jack', undefined, 231],
           'UPDATE "blogs" SET "title" = ?, "owner_id" = ? ' +
           'WHERE "id" = ?', [undefined, 231, 348]);
       });
