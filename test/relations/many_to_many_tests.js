@@ -273,8 +273,25 @@ describe('Model many-to-many', __db(function() {
     });
   });
 
-  describe('it does not clobber source table name', function() {
+  it('allows custom table names', function() {
+    var Publishing = db.model('publishing');
+    var Author = db.model('author').reopen({
+      books: db.hasMany({ through: 'publishings' }),
+    });
+    var Book = db.model('book').reopen({
+      authors: db.hasMany({ through: 'book_details' }),
+    });
 
+    Author.reopenClass({ tableName: 'author_details' });
+    Book.reopenClass({ tableName: 'book_table' });
+    Publishing.reopenClass({ tableName: 'author_book_join' });
+
+    // ensure relations are loaded on all model classes before asserting
+    _.pluck([Author, Book, Publishing], 'relations');
+
+    Author.tableName.should.eql('author_details');
+    Book.tableName.should.eql('book_table');
+    Publishing.tableName.should.eql('author_book_join');
   });
 
 }));
