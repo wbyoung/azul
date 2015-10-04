@@ -34,9 +34,6 @@
     "ignoreSingleLine": true
   },
   "safeContextKeyword": "self",
-  "plugins": [
-    "jscs-jsdoc"
-  ],
   "jsDoc": {
     "checkAnnotations": {
       "preset": "jsdoc3",
