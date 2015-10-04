@@ -273,4 +273,8 @@ describe('Model many-to-many', __db(function() {
     });
   });
 
+  describe('it does not clobber source table name', function() {
+
+  });
+
 }));

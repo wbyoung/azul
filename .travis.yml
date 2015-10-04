@@ -1,8 +1,9 @@
 language: node_js
 
 node_js:
-  - '0.10'
   - '0.12'
+  - '4.0'
+  - '4.1'
 
 script: npm run $ACTION
 
@@ -13,16 +14,12 @@ before_script:
 after_script:
   - npm install coveralls@2 && cat ./coverage/lcov.info | coveralls
 
-env:
-  - ACTION=test-travis PG_USER=postgres MYSQL_USER=travis
-  - ACTION=docs
+env: ACTION=test-travis PG_USER=postgres MYSQL_USER=travis
 
 matrix:
-  exclude:
-    - env: ACTION=docs
   include:
     - env: ACTION=docs
-      node_js: '0.12'
+      node_js: '4.1'
 
 fast_finish: true
 
